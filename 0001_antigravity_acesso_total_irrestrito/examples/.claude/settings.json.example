@@ -2,7 +2,6 @@
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -10,7 +9,11 @@
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
