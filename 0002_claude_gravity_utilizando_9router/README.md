@@ -22,8 +22,8 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 - Alternativa de instalação **Nativa (CLI)**.
 - Roteamento nativo para **Gemini 3.8 Flash**, **Gemini 3.7 Flash**, **Gemini 3.6 Flash**, **Gemini 3.1 Pro**, **Claude Sonnet 4.6 (Thinking)** e **GPT-OSS 120B**.
 - Configuração de zero-interrupção com `--dangerously-skip-permissions` no Claude Code e AGY.
-- Ativação de recursos avançados: loops, advisors, goal mode e integração irrestrita com MCPs e terminal.
-- Economia de 20% a 40% de tokens via compressão automática de payloads de ferramentas com **RTK Token Saver**.
+- Integração irrestrita com servidores MCP e com o terminal, sem confirmação a cada passo.
+- Compressão automática de payloads de ferramentas com o **RTK Token Saver**, com filtros dedicados para `git diff`, `grep`, `tree` e saídas de build. A economia real depende do tipo de saída que o agente produz.
 
 ---
 

@@ -20,9 +20,6 @@
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_ENABLE_LOOPS": "1",
-    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
-    "CLAUDE_CODE_ENABLE_GOAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
   },
   "permissions": {

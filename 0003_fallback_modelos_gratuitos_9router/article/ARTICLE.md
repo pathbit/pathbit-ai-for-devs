@@ -233,7 +233,7 @@ O OpenRouter reúne centenas de modelos e mantém um subconjunto gratuito identi
 
 ### 2. Obtendo a Chave de Alta Velocidade no Groq Cloud
 
-A Groq oferece inferência acelerada por chips LPU (Language Processing Units). Foi o provedor em nuvem mais rápido que medimos: **0,40s a 0,55s** por resposta curta com o `openai/gpt-oss-120b` no tier gratuito de desenvolvedor.
+A Groq oferece inferência acelerada por chips LPU (Language Processing Units), e entregou **0,40s a 0,55s** por resposta curta com o `openai/gpt-oss-120b` no tier gratuito de desenvolvedor. Ficou logo atrás da Mistral na nossa medição, com diferença de centésimos.
 
 1. Acesse o console da Groq em [Groq Console Keys](https://console.groq.com/keys).
 2. Conecte-se com sua conta Google ou GitHub (sem necessidade de cartão de crédito).
@@ -285,10 +285,14 @@ O Ollama é o componente local do arsenal. Ele roda no hardware da sua máquina 
 >
 > **Na prática:** o `arsenal-offline` serve para continuidade e para testar disponibilidade, não para conduzir uma sessão real de trabalho. Programar de fato sem internet exige modelo e hardware consideravelmente maiores, o que foge do escopo de uma contingência de 397 MB.
 
-1. O Ollama já está declarado no `docker-compose.yml` deste módulo (seção "Execução Rápida do Gateway com Docker Compose"), então `docker compose up -d` sobe gateway e Ollama juntos. Use o comando avulso abaixo **apenas** se optar por não usar o Compose (os dois caminhos são excludentes, pois disputam o mesmo nome de container e gravam em volumes diferentes, `ollama` avulso contra `ollama_data` do Compose):
+1. O Ollama já está declarado no `docker-compose.yml` deste módulo (seção "Execução Rápida do Gateway com Docker Compose"), então `docker compose up -d` sobe gateway e Ollama juntos. Use o comando avulso abaixo **apenas** se optar por não usar o Compose. Os dois caminhos são excludentes: disputam o mesmo nome de container e gravam em volumes distintos, porque o Compose prefixa o volume com o nome do projeto (`claudegravity_ollama_data`) enquanto o `docker run` cria um `ollama_data` sem prefixo.
    ```bash
-   docker run -d --name claudegravity-ollama -p 11434:11434 -v ollama_data:/root/.ollama ollama/ollama:latest
+   docker run -d --name claudegravity-ollama \
+     -p 127.0.0.1:11434:11434 \
+     -v ollama_data:/root/.ollama \
+     ollama/ollama:latest
    ```
+   A porta é publicada em `127.0.0.1` de propósito, igual ao Compose: um Ollama exposto em todas as interfaces aceita inferência de qualquer máquina da rede local, sem autenticação.
 2. No seu terminal, baixe o modelo especialista em código e configure a tag padrão:
    ```bash
    docker exec -it claudegravity-ollama ollama pull qwen2.5-coder:0.5b
@@ -534,7 +538,7 @@ docker exec claudegravity-ollama ollama cp qwen2.5-coder:0.5b qwen2.5-coder:late
 
 ## Provisionamento Automatizado de Combos via Python
 
-Para desenvolvedores que preferem evitar cliques manuais na interface gráfica, disponibilizamos o script `src/setup_combos.py`. Ele injeta as definições dos três combos diretamente na base SQLite do 9Router:
+Para desenvolvedores que preferem evitar cliques manuais na interface gráfica, disponibilizamos o script `src/setup_combos.py`. Ele injeta as definições dos quatro combos diretamente na base SQLite do 9Router:
 
 ```bash
 python3 src/setup_combos.py
@@ -561,16 +565,45 @@ Antes de iniciar sua jornada de código, execute o teste de ponta a ponta com `s
 python3 src/test_arsenal.py
 ```
 
-O script dispara uma chamada no formato oficial do Claude Code, avalia o tempo de resposta e valida a integridade do retorno:
+O script exercita **cada nível isoladamente** antes de testar o combo. É essa separação que
+importa: um combo pode responder pelo primeiro nível e esconder que os seis seguintes estão mortos.
 
 ```text
 === Validador do Arsenal de Fallback do 9Router ===
-[*] Testando inferência do combo: arsenal-supremo
-  [+] Status HTTP: 200 em 1.37s
-  [+] Resposta obtida: PONG
-  [+] Sucesso: Combo arsenal-supremo operacional e roteando corretamente!
-[*] Todos os combos do Arsenal foram validados com 100% de sucesso!
+    Gateway: http://localhost:20128
+
+[*] Cascata de 'arsenal-supremo' - 7 nível(is):
+  [OK   ] 1º ag/gemini-3.8-flash-high - 3.11s · 'PONG'
+  [OK   ] 2º ag/gemini-3.7-flash-high - 1.29s · 'PONG'
+  [OK   ] 3º ag/gemini-3.6-flash-high - 4.45s · 'PONG'
+  [OK   ] 4º openrouter/nvidia/nemotron-3.5-lightning:free - 19.59s · 'PONG'
+  [OK   ] 5º groq/openai/gpt-oss-120b - 0.47s · 'PONG'
+  [OK   ] 6º mistral/codestral-latest - 0.61s · 'PONG'
+  [OK   ] 7º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.89s · 'OK'
+  [OK   ] combo 'arsenal-supremo' - 1.31s · 'PONG'
+
+[*] Cascata de 'arsenal-rapido' - 4 nível(is):
+  [OK   ] 1º groq/openai/gpt-oss-120b - 0.34s · 'PONG'
+  [OK   ] 2º mistral/codestral-latest - 0.56s · 'PONG'
+  [OK   ] 3º ag/gemini-3.7-flash-high - 1.30s · 'PONG'
+  [OK   ] 4º ag/gemini-3.6-flash-high - 2.54s · 'PONG'
+  [OK   ] combo 'arsenal-rapido' - 0.39s · 'PONG'
+
+[*] Cascata de 'arsenal-offline' - 1 nível(is):
+  [OK   ] 1º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.04s · 'PONG'
+  [OK   ] combo 'arsenal-offline' - 0.04s · 'PONG'
+
+======================================================================
+RESUMO
+======================================================================
+  Níveis testados: 12 · quebrados: 0
+  Combos testados: 3 · com falha: 0
 ```
+
+Repare no nível 4: **19,59 s**, contra menos de 1 s dos vizinhos. O nível responde, então não está
+quebrado, mas a diferença de duas ordens de grandeza é o tipo de sinal que só aparece testando um a
+um. O nível 7, local, devolveu `OK` em vez de `PONG`  -  o modelo de 0.5B nem sempre obedece à
+instrução literal, e é por isso que ele serve como rede de segurança e não como papel fixo.
 
 ---
 
@@ -676,9 +709,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_ENABLE_LOOPS": "1",
-    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
-    "CLAUDE_CODE_ENABLE_GOAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
   },
   "permissions": {

@@ -119,7 +119,8 @@ XXXX_titulo_do_artigo/
 ├── .env.example                         # Modelo de variáveis de ambiente
 ├── article/
 │   └── ARTICLE.md                       # Conteúdo do artigo
-├── assets/                              # Capturas de tela e diagramas
+├── assets/                              # Capturas de tela e diagramas (PNG)
+│   └── diagrams/                        # Fonte HTML de cada diagrama, para regeração
 ├── examples/                            # Ambiente isolado de execução e testes
 │   ├── README.md                        # Instruções de execução do Claude Code
 │   ├── sample_task.py                   # Código de exemplo para o agente
@@ -128,6 +129,10 @@ XXXX_titulo_do_artigo/
 │       └── settings.local.json.example  # Preferências locais e menu de modelos
 └── src/                                 # Scripts executáveis em Python
 ```
+
+Os artigos exibem apenas os **PNG**. Cada diagrama guarda seu fonte em `assets/diagrams/`, um HTML
+autocontido com SVG embutido, para que a figura possa ser reeditada e reexportada sem refazê-la do
+zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ---
 
