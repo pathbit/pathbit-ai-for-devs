@@ -679,7 +679,7 @@ Ambos ficam em `examples/.claude/`, isolados do restante do repositório  -  por
 
 | Arquivo | Papel | Contém |
 | :--- | :--- | :--- |
-| `settings.json` | Políticas compartilhadas do projeto | Combo padrão, mapeamento `modelOverrides`, permissões e variáveis de ambiente |
+| `settings.json` | Políticas compartilhadas do projeto | Combo padrão, papéis de modelo, permissões e variáveis de ambiente |
 | `settings.local.json` | Preferências da sua máquina | O menu interativo `/model` e ajustes pessoais. **Tem precedência** sobre o anterior |
 
 Os dois são versionados apenas na forma `.example`; as cópias ativas ficam fora do controle de versão.
@@ -689,71 +689,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 ```json
 {
   "model": "arsenal-supremo",
-  "advisorModel": "arsenal-supremo",
-  "modelOverrides": {
-    "claude-fable-5": "arsenal-supremo",
-    "claude-fable-5[1m]": "arsenal-supremo",
-    "claude-fable-5-1": "arsenal-supremo",
-    "claude-fable-5-1[1m]": "arsenal-supremo",
-    "claude-fable-5-mythos-5": "arsenal-supremo",
-    "claude-fable-5-mythos-5[1m]": "arsenal-supremo",
-    "claude-opus-5": "arsenal-supremo",
-    "claude-opus-5[1m]": "arsenal-supremo",
-    "claude-opus-4-8": "arsenal-supremo",
-    "claude-opus-4-8[1m]": "arsenal-supremo",
-    "claude-opus-4-7": "arsenal-supremo",
-    "claude-opus-4-7[1m]": "arsenal-supremo",
-    "claude-opus-4-6": "arsenal-supremo",
-    "claude-opus-4-6[1m]": "arsenal-supremo",
-    "claude-sonnet-5": "arsenal-rapido",
-    "claude-sonnet-5[1m]": "arsenal-rapido",
-    "claude-sonnet-4-6": "arsenal-rapido",
-    "claude-sonnet-4-6[1m]": "arsenal-rapido",
-    "claude-sonnet-4-5": "arsenal-rapido",
-    "claude-sonnet-4-5[1m]": "arsenal-rapido",
-    "claude-haiku-4-5-20251001": "arsenal-rapido",
-    "claude-haiku-4-5-20251001[1m]": "arsenal-rapido",
-    "claude-haiku-4-5": "arsenal-rapido",
-    "claude-haiku-4-5[1m]": "arsenal-rapido",
-    "fable": "arsenal-supremo",
-    "fable[1m]": "arsenal-supremo",
-    "opus": "arsenal-supremo",
-    "opus[1m]": "arsenal-supremo",
-    "opusplan": "arsenal-supremo",
-    "opusplan[1m]": "arsenal-supremo",
-    "sonnet": "arsenal-rapido",
-    "sonnet[1m]": "arsenal-rapido",
-    "haiku": "arsenal-rapido"
-  },
-  "modelPicker": {
-    "replaceBuiltInOptions": true,
-    "options": [
-      {
-        "model": "arsenal-supremo",
-        "label": "Arsenal Supremo (cascata completa)",
-        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "arsenal-rapido",
-        "label": "Arsenal Rapido (baixa latencia)",
-        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis dentro do Antigravity",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "arsenal-offline",
-        "label": "Arsenal Offline (contingencia)",
-        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      }
-    ]
-  },
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
@@ -783,64 +718,68 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "advisorModel": "arsenal-supremo",
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "arsenal-supremo",
+        "label": "Arsenal Supremo (cascata completa)",
+        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "arsenal-rapido",
+        "label": "Arsenal Rapido (baixa latencia)",
+        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis dentro do Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "arsenal-offline",
+        "label": "Arsenal Offline (contingencia)",
+        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      }
+    ]
+  }
 }
 ```
 
-#### O que o `modelOverrides` faz aqui
+#### Os quatro papéis, apontados para combos
 
-O bloco intercepta o identificador que o Claude Code pede **por conta própria** e o redireciona para um modelo do Antigravity. Não é o menu `/model`: é o que acontece quando a CLI despacha um subagente ou aciona o modelo rápido de triagem, pedindo um nome nativo da Anthropic que o gateway não serve.
+O Claude Code escolhe sozinho qual modelo usar em cada situação, através de quatro papéis. A ordem
+de capacidade vem da própria CLI: *Fable for the hardest problems, Opus for complex work, Sonnet for
+most tasks, Haiku for quick questions*. Cada papel tem sua variável:
 
-Três mapeamentos respondem, e são os identificadores que a CLI de fato emite:
+| Papel | Variável | Aponta para | Quando é acionado |
+| :--- | :--- | :--- | :--- |
+| Fable e Opus | `ANTHROPIC_DEFAULT_FABLE_MODEL` e `..._OPUS_MODEL` | `arsenal-supremo` | Trabalho complexo e **todo subagente despachado** |
+| Sonnet | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `arsenal-rapido` | A maior parte das tarefas |
+| Haiku | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `arsenal-rapido` | Alta frequência: **toda sessão**, para nomear a conversa |
 
-| Pedido pela CLI | Servido por | Papel na cascata |
-| :--- | :--- | :--- |
-| `claude-opus-4-6` | `ag/gemini-3.1-pro-low` | Gemini 3.1 Pro em modo direto, para planejamento e refatoração pesada |
-| `claude-sonnet-4-6` | `ag/gemini-3.7-flash-high` | Raciocínio híbrido para o trabalho corrente |
-| `claude-haiku-4-5-20251001` | `ag/gemini-3.6-flash-high` | Latência mínima para subagentes e varreduras |
+Descobrir isso não exige adivinhação. Aponte cada papel para um combo diferente e leia o log do
+gateway: ele registra `modelo pedido → modelo servido`. A CLI ainda ajuda, emitindo uma linha de
+diagnóstico com o campo `query_source`, que nomeia quem fez o pedido:
 
-As outras onze entradas ficam declaradas como reserva, caso uma versão futura da CLI passe a emitir esses nomes. **Hoje elas não têm efeito**: o Claude Code valida o identificador contra uma lista fechada antes de consultar o `modelOverrides` e recusa qualquer nome fora dela com `There's an issue with the selected model`. Por isso `--model claude-5-sonnet` falha, enquanto `--model arsenal-supremo` ou `--model ag/gemini-3.7-flash-high` funcionam.
+| `query_source` | Papel acionado |
+| :--- | :--- |
+| `sdk` | modelo principal |
+| `generate_session_title` | **Haiku**, em toda sessão |
+| `agent:builtin:Explore` | **Opus** |
 
-Dois avisos sobre os identificadores citados acima:
-
-- **`ag/gemini-3.1-pro-low`** é o Gemini 3.1 Pro servido pelo Antigravity com raciocínio direto, sem inferência prolongada. Ele não aparece na lista de fontes gratuitas do início deste artigo porque não é um provedor à parte: entra pela mesma conexão Antigravity já configurada. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) traz o catálogo completo dessa conexão.
-- **Existem dois "GPT-OSS 120B" em jogo, de provedores diferentes.** A cascata usa `groq/openai/gpt-oss-120b`, servido pela Groq, que é o nível de alta velocidade do `arsenal-rapido`. Já o `ag/gpt-oss-120b-medium` do bloco acima é o mesmo modelo aberto servido pelo Antigravity. Mesmos pesos, contas e cotas distintas  -  não os troque um pelo outro ao montar sua própria cascata.
-
-### Aponte os Papéis para Combos, não para Modelos Diretos
-
-Há uma decisão de configuração que só mostra o seu valor no pior dia, e vale explicitar.
-
-Durante a validação deste artigo a conta do Antigravity atingiu o teto e o gateway registrou:
-
-```text
-[AG_QUOTA] CACHE_BLOCK gemini-3.7-flash-high - skip upstream until 23:47:37
-[AUTH] antigravity | all 1 accounts locked for gemini-3.7-flash-high (reset after 2h 3m)
-```
-
-Duas horas de bloqueio. Qualquer sessão apontada **direto** para um `ag/*` morria com `API Error: 503`
-a cada mensagem. As sessões apontadas para **combos** seguiram trabalhando, saltando para Groq e
-Mistral, e responderam em 2,5s a 3,3s:
-
-```text
---model arsenal-rapido          OK   2,5s
---model claudegravity-fallback  OK   3,3s
-(padrao do settings)            OK  14,1s
-```
-
-Por isso, nos arquivos deste artigo, **os quatro papéis apontam para combos**, e não para modelos
-individuais:
-
-| Papel | Aponta para | Efeito no bloqueio |
-| :--- | :--- | :--- |
-| Fable e Opus | `arsenal-supremo` | Desce 7 níveis até achar quem responda |
-| Sonnet e Haiku | `arsenal-rapido` | Groq e Codestral seguem fora do Antigravity |
-
-Um modelo individual num papel é um ponto único de falha que você só descobre quando a cota acaba  -
-e, como o papel Haiku é acionado em **toda sessão**, é o primeiro a te derrubar.
+A segunda linha surpreende: **subagentes não usam o papel rápido, usam o de trabalho complexo.** Se
+sua rotina despacha subagentes, é o Opus que domina o seu consumo, não o modelo principal.
 
 ### Estrutura do `settings.local.json.example` (Menu Interativo)
 
-O arquivo local repete `env`, `permissions`, `modelOverrides`, `skipDangerousModePermissionPrompt` e `includeCoAuthoredBy` do `settings.json`. O que ele acrescenta são duas chaves:
+O arquivo local repete `env`, `permissions`, `skipDangerousModePermissionPrompt` e `includeCoAuthoredBy` do `settings.json`. O que ele acrescenta são duas chaves:
 
 - **`modelPicker`** popula o menu `/model` do Claude Code, para alternar de arsenal sem sair da sessão. Com `replaceBuiltInOptions` em `false`, suas entradas somam-se às padrão em vez de substituí-las.
 - **`advisorModel`** define quem atende as funções auxiliares da CLI  -  sugestões e análises de apoio  -  separando-as do modelo de trabalho. Apontar para um combo, e não para um modelo fixo, faz essas chamadas herdarem a mesma cascata de fallback: se o nível de topo estiver saturado, elas descem junto em vez de falhar.
