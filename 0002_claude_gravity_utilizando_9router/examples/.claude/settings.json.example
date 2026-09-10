@@ -35,7 +35,11 @@
             "Glob(*)",
             "Grep(*)",
             "WebFetch(*)",
-            "Skill(update-config)"
+            "WebSearch(*)",
+            "NotebookEdit(*)",
+            "TodoWrite(*)",
+            "Agent(*)",
+            "Skill(*)"
         ]
     },
     "skipDangerousModePermissionPrompt": true,

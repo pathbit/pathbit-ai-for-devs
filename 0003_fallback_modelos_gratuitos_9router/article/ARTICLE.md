@@ -681,7 +681,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -689,7 +688,11 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
@@ -711,12 +714,12 @@ O arquivo local repete `env`, `permissions`, `modelOverrides`, `skipDangerousMod
       {
         "model": "arsenal-supremo",
         "label": "Arsenal Supremo (Cascata Completa de Fallback)",
-        "description": "Gemini 3.8/3.7/3.6, Nemotron 3.5 Lightning, GPT-OSS 120B e Ollama local"
+        "description": "Gemini 3.8/3.7/3.6, Nemotron 3.5 Lightning, GPT-OSS 120B, Codestral e Ollama local"
       },
       {
         "model": "arsenal-rapido",
         "label": "Arsenal Rápido (Alta Velocidade)",
-        "description": "GPT-OSS 120B na Groq com fallback para Gemini 3.7 e Gemini 3.6 Flash"
+        "description": "GPT-OSS 120B na Groq com fallback para Codestral, Gemini 3.7 e Gemini 3.6 Flash"
       },
       {
         "model": "arsenal-offline",
@@ -742,6 +745,16 @@ O arquivo local repete `env`, `permissions`, `modelOverrides`, `skipDangerousMod
         "model": "ag/gemini-3.1-pro-low",
         "label": "Gemini 3.1 Pro (Deep Complex)",
         "description": "Planejamento arquitetural complexo e agentes profundos"
+      },
+      {
+        "model": "ag/claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6 (Thinking)",
+        "description": "Sonnet 4.6 Thinking roteado via Antigravity AI Pro"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B (Medium)",
+        "description": "Modelo open-weights via Antigravity"
       }
     ]
   },

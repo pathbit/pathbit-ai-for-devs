@@ -290,7 +290,6 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -298,7 +297,11 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
@@ -336,7 +339,6 @@ O arquivo local repete as concessões de permissões para a máquina do desenvol
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -344,7 +346,11 @@ O arquivo local repete as concessões de permissões para a máquina do desenvol
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
