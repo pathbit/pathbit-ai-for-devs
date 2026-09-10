@@ -86,11 +86,35 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 
 ### Como Executar
 
-#### 1. Pré-requisitos
+#### 1. Pré-requisitos do Ambiente
 
-- Docker e Docker Compose instalados e em execução.
-- Claude Code instalado globalmente (`npm install -g @anthropic-ai/claude-code` ou instalador nativo).
-- Conta Google com assinatura ativa do **Antigravity / Google AI Pro**.
+Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as ferramentas e credenciais abaixo estejam prontas:
+
+1. **Python 3.10 ou Superior:**
+   - Verifique com `python3 --version`.
+2. **Ambiente Virtual Dedicado (venv):**
+   - Crie e ative o ambiente virtual para isolar as dependências e ferramentas do módulo:
+   ```bash
+   python3 -m venv .venv
+
+   # Ativar no macOS e Linux
+   source .venv/bin/activate
+
+   # Ativar no Windows (PowerShell)
+   .venv\Scripts\Activate.ps1
+
+   # Instalar dependências
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+3. **Docker e Docker Compose:**
+   - Docker Desktop (macOS / Windows) ou Docker Engine + Docker Compose Plugin (Linux).
+   - Valide que o serviço está ativo com `docker info` e `docker compose version`.
+4. **Claude Code CLI:**
+   - Instalação global via npm: `npm install -g @anthropic-ai/claude-code` ou instalador nativo oficial.
+   - Verifique com `claude --version`.
+5. **Conta Google com Antigravity / Google AI Pro Ativa:**
+   - Faça login prévio no **Google Antigravity IDE** ou na CLI `agy` na sua máquina. Esse passo gera as credenciais OAuth locais em `~/.gemini/` que o script `src/sync_antigravity_token.py` consome e renova automaticamente para o gateway.
 
 #### 2. Preparar Arquivos de Configuração
 

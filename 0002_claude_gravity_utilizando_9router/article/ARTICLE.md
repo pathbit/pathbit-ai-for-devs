@@ -656,6 +656,31 @@ O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Py
 
 [**Abrir pasta de exemplos e testes práticos**](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0002_claude_gravity_utilizando_9router/examples/README.md)
 
+### Pré-requisitos do Ambiente e Credenciais
+
+Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as seguintes ferramentas e credenciais estejam prontas:
+
+1. **Python 3.10 ou Superior:** Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
+2. **Ambiente Virtual Dedicado:** Crie e ative o ambiente virtual para isolamento das dependências:
+   ```bash
+   # Criar o ambiente virtual na pasta do modulo
+   python3 -m venv .venv
+
+   # Ativar no macOS e Linux
+   source .venv/bin/activate
+
+   # Ativar no Windows (PowerShell)
+   .venv\Scripts\Activate.ps1
+
+   # Instalar dependencias minimas
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+3. **Docker e Docker Compose:** O gateway `claudegravity-router` é orquestrado em container. Tenha o Docker Desktop ou Docker Engine rodando com o Compose habilitado.
+4. **Claude Code CLI:** Tenha o cliente oficial instalado no terminal (`npm install -g @anthropic-ai/claude-code`).
+5. **Conta Google com Antigravity / Google AI Pro:** Faça login na IDE do Google Antigravity ou CLI `agy` para inicializar a sessão OAuth local em `~/.gemini/`.
+6. **Variáveis de Ambiente (.env):** Inicialize o arquivo `.env` a partir de `.env.example` definindo `INITIAL_PASSWORD` e `JWT_SECRET` para proteger a interface administrativa do gateway.
+
 ### Executando os Scripts de Diagnóstico e Teste
 
 ```bash

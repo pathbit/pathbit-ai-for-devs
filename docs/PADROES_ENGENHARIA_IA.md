@@ -127,3 +127,11 @@ Todos os arquivos `.md` (artigos, readmes e documentações) devem respeitar as 
    - Todo artigo deve apresentar a seção prática `## Show-Me-The-Code` dividida em Opção 1 (Execução Local via README) e Opção 2 (Ambiente Isolado via `examples/`).
 5. **Imagens Numeradas em Sequência:**
    - As imagens devem seguir numeração sequencial (`00_cover_...`, `01_diagrama_...`, `02_evidencia_...`) correspondendo à ordem exata de aparição no texto.
+6. **Seção Obrigatória de Pré-requisitos do Ambiente:**
+   - Todo artigo e README de módulo deve apresentar detalhadamente a seção de pré-requisitos antes dos passos de execução.
+   - Deve cobrir:
+     - Versão do Python (3.10+ recomendada) e comandos exatos de criação e ativação do ambiente virtual (`python3 -m venv .venv`, ativação para macOS/Linux e Windows).
+     - Instalação de dependências (`pip install -r requirements.txt`).
+     - Ferramentas de infraestrutura quando aplicável (Docker e Docker Compose, Node.js / Claude Code CLI).
+     - Passo a passo explícito para criar contas e obter tokens/chaves de API nas plataformas correspondentes (OpenRouter com limite de $0.00, Groq Cloud, Google AI Studio, Mistral, Ollama), garantindo total autonomia e clareza ao leitor.
+

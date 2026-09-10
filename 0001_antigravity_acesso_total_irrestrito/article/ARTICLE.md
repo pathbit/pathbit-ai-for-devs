@@ -269,6 +269,25 @@ O artigo disponibiliza uma suíte completa de ferramentas em Python puro, com su
 
 [**Abrir pasta de exemplos e testes práticos**](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0001_antigravity_acesso_total_irrestrito/examples/README.md)
 
+### Pré-requisitos e Preparação do Ambiente
+
+Antes de executar as ferramentas de configuração e validação, assegure que seu ambiente local atenda aos seguintes requisitos:
+
+1. **Python 3.10 ou Superior:** O configurador e os testes utilizam recursos da biblioteca padrão do Python 3 sem dependências externas complexas.
+2. **Ambiente Virtual Isolado:** Crie e ative um ambiente virtual dedicado antes de disparar os scripts:
+   ```bash
+   # Criar o ambiente virtual na raiz do modulo
+   python3 -m venv .venv
+
+   # Ativar no macOS e Linux
+   source .venv/bin/activate
+
+   # Ativar no Windows (PowerShell)
+   .venv\Scripts\Activate.ps1
+   ```
+3. **Google Antigravity Conectado:** O Google Antigravity IDE ou a CLI `agy` deve estar instalado com login prévio realizado em sua conta Google, garantindo que o diretório `~/.gemini/` e os arquivos base já tenham sido gerados.
+4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit.
+
 ### Executando os Scripts de Configuração e Diagnóstico
 
 ```bash
