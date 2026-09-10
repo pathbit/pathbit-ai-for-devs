@@ -4,7 +4,7 @@ services:
   9router:
     # Imagem fixada por tag para evitar quebras silenciosas: este projeto depende
     # do endpoint interno /api/auth/status e do schema SQLite do gateway.
-    image: decolua/9router:0.5.69
+    image: decolua/9router:latest
     container_name: claudegravity-router
     restart: unless-stopped
     ports:
