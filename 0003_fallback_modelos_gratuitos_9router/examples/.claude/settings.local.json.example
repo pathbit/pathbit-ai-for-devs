@@ -2,15 +2,18 @@
   "model": "arsenal-supremo",
   "advisorModel": "arsenal-supremo",
   "modelOverrides": {
-    "claude-opus-4-6": "ag/claude-sonnet-4-6",
-    "claude-sonnet-4-6": "ag/claude-sonnet-4-6",
-    "claude-haiku-4-5-20251001": "ag/gpt-oss-120b-medium",
-    "claude-haiku": "ag/gpt-oss-120b-medium",
-    "claude-5": "ag/gemini-3.8-flash-high",
-    "claude-5-sonnet": "ag/gemini-3.8-flash-high",
-    "claude-5-opus": "ag/gemini-3.8-flash-high",
-    "fable": "ag/gemini-3.8-flash-high",
-    "claude-fable": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-6": "ag/gemini-3.1-pro-low",
+    "claude-3-opus": "ag/gemini-3.1-pro-low",
+    "claude-5-opus": "ag/gemini-3.1-pro-low",
+    "claude-sonnet-4-6": "ag/gemini-3.7-flash-high",
+    "claude-3-7-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5": "ag/gemini-3.7-flash-high",
+    "claude-haiku-4-5-20251001": "ag/gemini-3.6-flash-high",
+    "claude-haiku": "ag/gemini-3.6-flash-high",
+    "claude-3-5-haiku": "ag/gemini-3.6-flash-high",
+    "fable": "ag/gemini-3.6-flash-high",
+    "claude-fable": "ag/gemini-3.6-flash-high",
     "gpt-oss": "ag/gpt-oss-120b-medium",
     "gpt-oss-120b": "ag/gpt-oss-120b-medium"
   },
@@ -36,6 +39,21 @@
         "model": "ag/gemini-3.8-flash-high",
         "label": "Gemini 3.8 Flash (High Reasoning)",
         "description": "Inferência direta do Gemini 3.8 via Antigravity AI Pro"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash (High Reasoning)",
+        "description": "Raciocínio balanceado e alta velocidade"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash (Low Latency)",
+        "description": "Latência mínima para tarefas rápidas"
+      },
+      {
+        "model": "ag/gemini-3.1-pro-low",
+        "label": "Gemini 3.1 Pro (Deep Complex)",
+        "description": "Planejamento arquitetural complexo e agentes profundos"
       },
       {
         "model": "ag/claude-sonnet-4-6",
