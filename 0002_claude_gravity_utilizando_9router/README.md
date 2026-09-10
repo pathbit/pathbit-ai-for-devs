@@ -56,19 +56,19 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 │   └── ARTICLE.md                 # Artigo técnico completo e aprofundado
 ├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 12)
 │   ├── diagrams/                  # Fontes vetoriais semânticas em HTML e SVG (diagram-design)
-│   ├── 00_cover_claudegravity.png
-│   ├── 01_diagrama_arquitetura_claudegravity.png
-│   ├── 02_docker_container_running.png
-│   ├── 03_9router_login.png
-│   ├── 04_9router_dashboard.png
-│   ├── 05_9router_providers.png
-│   ├── 06_9router_antigravity_connected.png
-│   ├── 07_9router_antigravity_provider.png
-│   ├── 08_9router_cli_tools.png
-│   ├── 09_9router_claude_code_config.png
-│   ├── 10_9router_combos.png
-│   ├── 11_claude_gravity_terminal.png
-│   └── 12_diagrama_arquitetura_equipes.png
+│   ├── 00_cover_claudegravity.png         # Capa do artigo
+│   ├── 01_diagrama_arquitetura_claudegravity.png # Diagrama da arquitetura ClaudeGravity
+│   ├── 02_docker_container_running.png    # Container Docker do 9Router em execução
+│   ├── 03_9router_login.png               # Tela de autenticação inicial do 9Router
+│   ├── 04_9router_dashboard.png           # Painel de API Endpoint e gerenciamento de chaves
+│   ├── 05_9router_providers.png           # Catálogo de provedores no 9Router
+│   ├── 06_9router_antigravity_provider.png# Painel do provedor Antigravity antes da conexão
+│   ├── 07_9router_antigravity_connected.png# Provedor Antigravity com conta ativa (active OAuth #1)
+│   ├── 08_9router_cli_tools.png           # Painel de ferramentas CLI no 9Router
+│   ├── 09_9router_claude_code_config.png  # Instruções de configuração do Claude Code
+│   ├── 10_9router_combos.png              # Visualização dos combos virtuais de fallback
+│   ├── 11_claude_gravity_terminal.png     # Validação de inferência em tempo real no terminal
+│   └── 12_diagrama_arquitetura_equipes.png# Diagrama de arquitetura para equipes
 ├── examples/                      # Espaço isolado de execução e testes práticos do Claude Code
 │   ├── README.md                  # Instruções de execução do Claude Code
 │   ├── sample_task.py             # Código de exemplo para testes práticos

@@ -197,19 +197,18 @@ Com a conta Google correta ativa no navegador, execute o pareamento formal no ga
 
 > **Figura 5:** Visão geral de provedores com suporte nativo a Antigravity, Claude Code, OpenAI Codex e Kiro.
 
-3. Clique no card **Antigravity**. Você verá a lista completa de modelos Gemini reconhecidos pelo gateway:
+3. Clique no card **Antigravity**. O 9Router exibirá o painel de gerenciamento do provedor aguardando a configuração da primeira credencial (com 0 conexões ativas):
 
-![Provedor Antigravity Conectado](../assets/06_9router_antigravity_connected.png)
+![Painel do Provedor Antigravity](../assets/06_9router_antigravity_provider.png)
 
-> **Figura 6:** Provedor Antigravity com a conta Google AI Pro ativa (`active • OAuth #1`) e catálogo completo de modelos Gemini disponíveis para roteamento.
+> **Figura 6:** Painel de conexões e modelos do provedor Antigravity no 9Router antes da autenticação (0 conexões ativas e botão para adicionar conexão).
 
 4. Clique no botão **+ Add Connection**. Uma janela segura de autenticação Google será aberta. Certifique-se de selecionar a conta Google titular da sua assinatura AI Pro e aprove o consentimento de acesso.
+5. O 9Router completará o handshake OAuth, registrará o `projectId` e atualizará o status da conexão para **`active • OAuth #1`**:
 
-![Modal de Conexão do Provedor Antigravity](../assets/07_9router_antigravity_provider.png)
+![Provedor Antigravity Conectado](../assets/07_9router_antigravity_connected.png)
 
-> **Figura 7:** Detalhe das conexões e modelos do provedor Antigravity no 9Router.
-
-5. O 9Router completará o handshake OAuth, registrará o `projectId` e manterá o status da conexão como **`active • OAuth #1`**.
+> **Figura 7:** Provedor Antigravity com a conta Google AI Pro ativa (`active • OAuth #1`) e catálogo completo de modelos Gemini disponíveis para roteamento.
 
 ### Protocolo de Validação Visual no Dashboard e Recuperação de Conexão
 
@@ -608,11 +607,11 @@ claude --dangerously-skip-permissions --model claudegravity-fallback
 python3 src/claudegravity.py --model claudegravity-fallback
 ```
 
-Veja como o terminal se comporta ao iniciar a sessão e solicitar tarefas complexas de refatoração:
+Veja a evidência da execução dos testes de integração no terminal comprovando que o gateway responde com sucesso ao Gemini 3.8 e ao fallback resiliente:
 
-![Claude Code Executando com Gemini 3.8](../assets/11_claude_gravity_terminal.png)
+![Validação de Inferência do ClaudeGravity no Terminal](../assets/11_claude_gravity_terminal.png)
 
-> **Figura 11:** Sessão interativa do ClaudeGravity em execução no terminal. O Claude Code utiliza o Gemini 3.8 Flash High Reasoning como motor de inferência, beneficiando-se da compressão RTK do 9Router e da execução desimpedida de ferramentas sem confirmações manuais.
+> **Figura 11:** Validação da suíte de integração e inferência em tempo real no terminal através do script `test_gateway.py`, comprovando que o modelo Gemini 3.8 Flash High e o combo `claudegravity-fallback` respondem com status HTTP 200 e mensagem operacional.
 
 ---
 
