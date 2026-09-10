@@ -41,6 +41,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 ├── article/
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
 ├── assets/                                # Capturas reais de tela e capas (sequenciados 00 a 22)
+│   ├── diagrams/                          # Fontes vetoriais semânticas em HTML e SVG (diagram-design)
 │   ├── 00_cover_arsenal_fallback.png      # Capa do artigo
 │   ├── 01_diagrama_malha_multiprovedor.png# Diagrama da malha multi-provedor
 │   ├── 02_openrouter_dashboard_keys.png   # Painel de chaves no OpenRouter

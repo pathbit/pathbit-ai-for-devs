@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malha de Resiliência Multi-Provedores com Fallback Automático no 9Router</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame {
+      max-width: 1200px;
+      width: 100%;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fallback-malha-multiprovedor-title fallback-malha-multiprovedor-desc">
+      <title id="fallback-malha-multiprovedor-title">Malha de Resiliência Multi-Provedores com Fallback Automático no 9Router</title>
+      <desc id="fallback-malha-multiprovedor-desc">Arquitetura multi-provedor mostrando o roteamento com failover em cascata do 9Router para cinco provedores.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      
+      <!-- Cabeçalho Editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">MALHA MULTI-PROVEDORES · RESILIÊNCIA CONTÍNUA</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Roteamento com Fallback Automático no 9Router</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- CONECTORES PRIMEIRO (FANNED COM r=8, SEM CRUZAMENTO) -->
+      <!-- Claude Code -> 9Router -->
+      <line x1="260" y1="308" x2="340" y2="308" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+
+      <!-- 9Router -> Prov 1: Antigravity (y=230 -> y=136) -->
+      <path d="M 610,230 H 670 Q 678,230 678,222 V 144 Q 678,136 686,136 H 750"
+            fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- 9Router -> Prov 2: Groq (y=270 -> y=220) -->
+      <path d="M 610,270 H 670 Q 678,270 678,262 V 228 Q 678,220 686,220 H 750"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 9Router -> Prov 3: OpenRouter (y=308 -> y=304) -->
+      <line x1="610" y1="308" x2="750" y2="304" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 9Router -> Prov 4: Mistral AI (y=346 -> y=388) -->
+      <path d="M 610,346 H 670 Q 678,346 678,354 V 380 Q 678,388 686,388 H 750"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 9Router -> Prov 5: Ollama Local (y=384 -> y=474) -->
+      <path d="M 610,384 H 670 Q 678,384 678,392 V 466 Q 678,474 686,474 H 750"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+      <!-- RÓTULOS DE CONECTORES COM MÁSCARA -->
+      <rect x="268" y="292" width="64" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="300" y="301" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">REQUISIÇÃO</text>
+
+      <rect x="616" y="214" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="223" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PRIMÁRIO</text>
+
+      <rect x="616" y="254" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="263" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SALTO 1</text>
+
+      <rect x="670" y="292" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="698" y="301" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SALTO 2</text>
+
+      <rect x="616" y="330" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="339" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SALTO 3</text>
+
+      <rect x="616" y="368" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="377" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OFFLINE</text>
+
+      <!-- NÓ ESQUERDA (CLAUDE CODE) -->
+      <rect x="40" y="260" width="220" height="96" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="48" y="268" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="66" y="277" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CLIENT</text>
+      <text x="150" y="298" fill="#2d3142" font-size="13.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Claude Code CLI</text>
+      <text x="150" y="318" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">--model arsenal-supremo</text>
+      <text x="150" y="336" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">ou claudegravity-fallback</text>
+
+      <!-- NÓ CENTRAL (FOCAL CORAL - 9ROUTER GATEWAY) -->
+      <rect x="340" y="200" width="270" height="216" rx="6" fill="rgba(235,108,54,0.06)" stroke="#eb6c36" stroke-width="1.5"/>
+      <rect x="348" y="208" width="56" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.5)" stroke-width="0.8"/>
+      <text x="376" y="217" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB FOCAL</text>
+      <text x="475" y="236" fill="#eb6c36" font-size="16" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">9Router Gateway</text>
+      <text x="475" y="254" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">localhost:20128</text>
+      <line x1="352" y1="266" x2="598" y2="266" stroke="rgba(235,108,54,0.2)" stroke-width="0.8"/>
+
+      <text x="475" y="290" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Detecção de HTTP 429 e 503</text>
+      <text x="475" y="314" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Comutação Instantânea &lt; 100ms</text>
+      <text x="475" y="338" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Normalização de Payloads</text>
+      <text x="475" y="362" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Operação Perpétua sem Paradas</text>
+      <text x="475" y="392" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">failover transparente</text>
+
+      <!-- NÓS DIREITA (PROVEDORES INTEGRADOS) -->
+      <!-- Prov 1: Antigravity -->
+      <rect x="750" y="104" width="410" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="758" y="112" width="38" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="777" y="121" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OAUTH</text>
+      <text x="810" y="122" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Google Antigravity (AI Pro)</text>
+      <text x="758" y="152" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">Gemini 3.8 / 3.7 / 3.6 Flash High · 3.1 Pro</text>
+
+      <!-- Prov 2: Groq Cloud -->
+      <rect x="750" y="188" width="410" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="758" y="196" width="46" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="781" y="205" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API KEY</text>
+      <text x="818" y="206" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Groq Cloud (LPU Ultra-Rápido)</text>
+      <text x="758" y="236" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">groq/openai/gpt-oss-120b · inferência em chips LPU</text>
+
+      <!-- Prov 3: OpenRouter -->
+      <rect x="750" y="272" width="410" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="758" y="280" width="46" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="781" y="289" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API KEY</text>
+      <text x="818" y="290" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">OpenRouter (Free Tier Garantido)</text>
+      <text x="758" y="320" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">openrouter/nvidia/nemotron-3.5-lightning:free</text>
+
+      <!-- Prov 4: Mistral AI -->
+      <rect x="750" y="356" width="410" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="758" y="364" width="46" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="781" y="373" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API KEY</text>
+      <text x="818" y="374" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Mistral AI (Developer Tier)</text>
+      <text x="758" y="404" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">mistral/codestral-latest · engenharia de software</text>
+
+      <!-- Prov 5: Ollama Local (Rede de Segurança) -->
+      <rect x="750" y="440" width="410" height="68" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <rect x="758" y="448" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.4)" stroke-width="0.8"/>
+      <text x="786" y="457" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LOCAL</text>
+      <text x="828" y="458" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Ollama Local (100% Offline)</text>
+      <text x="758" y="484" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">qwen2.5-coder:latest · rede de contingência perpétua</text>
+
+      <!-- LEGENDA INFERIOR -->
+      <line x1="40" y1="596" x2="1160" y2="596" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="622" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGENDA</text>
+      
+      <!-- Itens da legenda -->
+      <rect x="130" y="614" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="154" y="622" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cliente Claude Code</text>
+
+      <rect x="310" y="614" width="16" height="10" rx="2" fill="rgba(235,108,54,0.15)" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="334" y="622" fill="#eb6c36" font-size="9" font-family="'Geist', sans-serif" font-weight="600">Gateway Focal (9Router)</text>
+
+      <rect x="520" y="614" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="544" y="622" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Provedor em Nuvem (APIs)</text>
+
+      <rect x="740" y="614" width="16" height="10" rx="2" fill="#ffffff" stroke="#4f5d75" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="764" y="622" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Rede Local Offline (Ollama)</text>
+
+      <line x1="970" y1="619" x2="994" y2="619" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="1004" y="622" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Roteamento e Fallback</text>
+    
+    </svg>
+  </div>
+</body>
+</html>

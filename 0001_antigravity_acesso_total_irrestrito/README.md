@@ -45,6 +45,7 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 ├── article/
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
 ├── assets/                                # Diagramas visuais e capas (sequenciados 00 a 02)
+│   ├── diagrams/                          # Fontes vetoriais semânticas em HTML e SVG (diagram-design)
 │   ├── 00_cover_antigravity_permissoes.png # Capa oficial do artigo
 │   ├── cover_linkedin.png                 # Capa oficial para compartilhamento no LinkedIn
 │   ├── 01_diagrama_arquitetura_permissoes.png # Diagrama de fluxo do motor Agent 2.0
