@@ -67,7 +67,7 @@ COMBOS = [
 def run_node_script(container_name, script, *args, check=True):
     """Executa um script Node dentro do container.
 
-    Os valores variáveis trafegam por process.argv, nunca interpolados no código —
+    Os valores variáveis trafegam por process.argv, nunca interpolados no código -
     uma chave com aspas ou barra invertida quebraria (ou injetaria código no) script.
     """
     cmd = ["docker", "exec", container_name, "node", "-e", script, *[str(a) for a in args]]
@@ -146,7 +146,7 @@ def check_ollama_models():
     """Avisa quando um combo depende de um modelo local que ainda não foi baixado.
 
     Sem esta checagem o combo offline é cadastrado com sucesso e só falha na
-    primeira inferência — quando o usuário já acha que o arsenal está pronto.
+    primeira inferência, quando o usuário já acha que o arsenal está pronto.
     """
     required = sorted({
         model[len(OLLAMA_LOCAL_PREFIX):]

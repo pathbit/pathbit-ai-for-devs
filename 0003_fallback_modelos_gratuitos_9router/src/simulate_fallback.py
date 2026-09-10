@@ -82,7 +82,7 @@ def log_step(step, desc):
 def run_node_script(script, *args, check=True):
     """Executa um script Node dentro do container.
 
-    Os valores variáveis trafegam por process.argv, nunca interpolados no código —
+    Os valores variáveis trafegam por process.argv, nunca interpolados no código -
     uma chave com aspas ou barra invertida quebraria (ou injetaria código no) script.
     """
     cmd = ["docker", "exec", CONTAINER_NAME, "node", "-e", script, *[str(a) for a in args]]
@@ -254,7 +254,7 @@ def print_summary(results):
     for name, status, detail in results:
         line = f"  {icons.get(status, '•')} {status:<7} · {name}"
         if detail:
-            line += f" — {detail}"
+            line += f" - {detail}"
         print(line)
 
     failures = sum(1 for _, status, _ in results if status == FAIL)
