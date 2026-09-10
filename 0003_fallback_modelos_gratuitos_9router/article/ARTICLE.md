@@ -521,7 +521,10 @@ Para efetuar o download do modelo leve de contingência no Ollama:
 
 ```bash
 docker exec -it claudegravity-ollama ollama pull qwen2.5-coder:0.5b
+docker exec claudegravity-ollama ollama cp qwen2.5-coder:0.5b qwen2.5-coder:latest
 ```
+
+> **Os dois comandos são necessários.** A cascata referencia a tag `qwen2.5-coder:latest`, e o `pull` grava apenas `qwen2.5-coder:0.5b`. Sem o `cp`, o `setup_combos.py` acusa `Modelos ausentes no Ollama local` e o último nível do `arsenal-supremo` fica sem servir. Como o modelo mora no volume do container, o passo se repete toda vez que você destrói o ambiente.
 
 ![Container Docker do 9Router em Execução](../assets/20_docker_container.png)
 
@@ -542,8 +545,8 @@ Saída da execução:
 ```text
 [*] Provisionando combos no container claudegravity-router...
   [+] Combo cadastrado: claudegravity-fallback (5 modelos)
-  [+] Combo cadastrado: arsenal-supremo (6 modelos)
-  [+] Combo cadastrado: arsenal-rapido (3 modelos)
+  [+] Combo cadastrado: arsenal-supremo (7 modelos)
+  [+] Combo cadastrado: arsenal-rapido (4 modelos)
   [+] Combo cadastrado: arsenal-offline (1 modelos)
 [*] Provisionamento concluído com sucesso!
 ```
@@ -700,9 +703,33 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 }
 ```
 
+#### O que o `modelOverrides` faz aqui
+
+O bloco intercepta o identificador que o Claude Code pede **por conta própria** e o redireciona para um modelo do Antigravity. Não é o menu `/model`: é o que acontece quando a CLI despacha um subagente ou aciona o modelo rápido de triagem, pedindo um nome nativo da Anthropic que o gateway não serve.
+
+Três mapeamentos respondem, e são os identificadores que a CLI de fato emite:
+
+| Pedido pela CLI | Servido por | Papel na cascata |
+| :--- | :--- | :--- |
+| `claude-opus-4-6` | `ag/gemini-3.1-pro-low` | Gemini 3.1 Pro em modo direto, para planejamento e refatoração pesada |
+| `claude-sonnet-4-6` | `ag/gemini-3.7-flash-high` | Raciocínio híbrido para o trabalho corrente |
+| `claude-haiku-4-5-20251001` | `ag/gemini-3.6-flash-high` | Latência mínima para subagentes e varreduras |
+
+As outras onze entradas ficam declaradas como reserva, caso uma versão futura da CLI passe a emitir esses nomes. **Hoje elas não têm efeito**: o Claude Code valida o identificador contra uma lista fechada antes de consultar o `modelOverrides` e recusa qualquer nome fora dela com `There's an issue with the selected model`. Por isso `--model claude-5-sonnet` falha, enquanto `--model arsenal-supremo` ou `--model ag/gemini-3.7-flash-high` funcionam.
+
+Dois avisos sobre os identificadores citados acima:
+
+- **`ag/gemini-3.1-pro-low`** é o Gemini 3.1 Pro servido pelo Antigravity com raciocínio direto, sem inferência prolongada. Ele não aparece na lista de fontes gratuitas do início deste artigo porque não é um provedor à parte: entra pela mesma conexão Antigravity já configurada. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) traz o catálogo completo dessa conexão.
+- **Existem dois "GPT-OSS 120B" em jogo, de provedores diferentes.** A cascata usa `groq/openai/gpt-oss-120b`, servido pela Groq, que é o nível de alta velocidade do `arsenal-rapido`. Já o `ag/gpt-oss-120b-medium` do bloco acima é o mesmo modelo aberto servido pelo Antigravity. Mesmos pesos, contas e cotas distintas  -  não os troque um pelo outro ao montar sua própria cascata.
+
 ### Estrutura do `settings.local.json.example` (Menu Interativo)
 
-O arquivo local repete `env`, `permissions`, `modelOverrides`, `skipDangerousModePermissionPrompt` e `includeCoAuthoredBy` do `settings.json` - o que ele acrescenta é o **`modelPicker`**, que popula o menu `/model` do Claude Code para alternar de arsenal sem sair da sessão:
+O arquivo local repete `env`, `permissions`, `modelOverrides`, `skipDangerousModePermissionPrompt` e `includeCoAuthoredBy` do `settings.json`. O que ele acrescenta são duas chaves:
+
+- **`modelPicker`** popula o menu `/model` do Claude Code, para alternar de arsenal sem sair da sessão. Com `replaceBuiltInOptions` em `false`, suas entradas somam-se às padrão em vez de substituí-las.
+- **`advisorModel`** define quem atende as funções auxiliares da CLI  -  sugestões e análises de apoio  -  separando-as do modelo de trabalho. Apontar para um combo, e não para um modelo fixo, faz essas chamadas herdarem a mesma cascata de fallback: se o nível de topo estiver saturado, elas descem junto em vez de falhar.
+
+Abaixo, apenas as chaves exclusivas deste arquivo:
 
 ```json
 {

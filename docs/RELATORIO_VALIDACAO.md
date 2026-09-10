@@ -126,20 +126,49 @@ Todos os identificadores declarados nos arquivos `.example` dos artigos foram su
 
 | Modelo / combo | Operou o harness | Tempo |
 | :--- | :--- | ---: |
-| `ag/gemini-3.8-flash-high` | ✅ | 6,6s |
-| `ag/gemini-3.7-flash-high` | ✅ | 4,3s |
-| `ag/gemini-3.6-flash-high` | ✅ | 4,0s |
-| `ag/gemini-pro-agent` | ✅ | 10,3s |
-| `ag/claude-sonnet-4-6` | ✅ | 8,2s |
-| `ag/claude-opus-4-6-thinking` | ✅ | 9,0s |
-| `ag/gpt-oss-120b-medium` | ✅ | 7,7s |
-| `arsenal-supremo` | ✅ | 7,4s |
-| `arsenal-rapido` | ✅ | 3,9s |
-| `claudegravity-fallback` | ✅ | 6,3s |
-| `arsenal-offline` | ❌ | 6,5s |
+| `ag/gemini-3.8-flash-high` | ✅ | 6,7s |
+| `ag/gemini-3.7-flash-high` | ✅ | 5,4s |
+| `ag/gemini-3.6-flash-high` | ✅ | 4,9s |
+| `ag/gemini-3.1-pro-low` | ✅ | 11,2s |
+| `ag/claude-sonnet-4-6` | ✅ | 3,7s |
+| `ag/claude-opus-4-6-thinking` | ✅ | 9,4s |
+| `ag/gpt-oss-120b-medium` | ✅ | 7,1s |
+| `arsenal-supremo` | ✅ | 4,8s |
+| `arsenal-rapido` | ✅ | 2,7s |
+| `claudegravity-fallback` | ✅ | 8,6s |
+| `arsenal-offline` | ❌ | 4,0s |
 
 **10 de 11 operam o harness.** A única reprovação é o `arsenal-offline`, e ela é esperada, o motivo
 está logo abaixo.
+
+### Os `modelOverrides` medidos um a um
+
+O bloco declara 14 mapeamentos. Cada chave foi pedida à CLI para verificar se a tradução acontece:
+
+| Resultado | Identificadores |
+| :--- | :--- |
+| **Traduzem** (3) | `claude-opus-4-6` · `claude-sonnet-4-6` · `claude-haiku-4-5-20251001` |
+| **Inertes** (11) | `claude-3-opus` · `claude-5-opus` · `claude-3-7-sonnet` · `claude-5-sonnet` · `claude-5` · `claude-haiku` · `claude-3-5-haiku` · `fable` · `claude-fable` · `gpt-oss` · `gpt-oss-120b` |
+
+A tradução dos três foi confirmada por eliminação: pedidos diretos ao gateway devolvem `404` para
+esses nomes, e com o `modelOverrides` ativo a mesma chamada passa pela CLI. Os onze restantes falham
+com `There's an issue with the selected model`  -  **resposta idêntica, e no mesmo tempo, à de um nome
+inventado**, o que mostra que a CLI valida contra uma lista fechada antes de consultar o mapeamento.
+
+### Configurações validadas com `claude doctor`
+
+O `claude doctor` valida arquivos de settings sem abrir sessão e lista regras de permissão
+descartadas. Foram submetidos os 12 arquivos de settings dos três artigos e, separadamente, os 6
+blocos JSON transcritos no corpo dos artigos, que é o que o leitor copia:
+
+```text
+arquivos de settings ....... 12/12 aprovados
+blocos publicados nos artigos 6/6 aprovados
+```
+
+O varredor encontrou e removeu `"*"` e `"mcp__*"` de `permissions.allow`: são recusados porque uma
+regra de permissão precisa nomear o escopo que amplia. Curinga em `allow` só é aceito na posição da
+ferramenta, após um prefixo literal `mcp__<servidor>__`.
 
 ### Volatilidade capturada durante a própria medição
 

@@ -308,7 +308,7 @@ Com a conta Antigravity conectada, o Claude Code passa a ter acesso aos seguinte
 - **`ag/claude-opus-4-6-thinking`**: Instância do Claude Opus 4.6 Thinking.
 - **`ag/gpt-oss-120b-medium`**: Modelo open-weights de 120 bilhões de parâmetros.
 
-> Os 20 identificadores acima são exatamente os que o gateway expõe. Confira a lista viva do seu ambiente com `curl -s -H "x-api-key: $ANTHROPIC_API_KEY" http://localhost:20128/v1/models`.
+> Os 17 identificadores acima são os que respondem. O gateway expõe 20 com prefixo `ag/`: os 3 restantes são a família `ag/gemini-3.5-*` do aviso anterior, que continua catalogada mesmo depois de sair do ar. A lista viva sempre pode trazer mais entradas do que as utilizáveis, então confira a do seu ambiente e valide antes de adotar: `curl -s -H "x-api-key: $ANTHROPIC_API_KEY" http://localhost:20128/v1/models`.
 
 ---
 
@@ -544,14 +544,21 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 
 ### Mapeamento de Modelos Primários, Secundários e Subagentes
 
-No arquivo `.claude/settings.json`, o parâmetro `modelOverrides` faz a emulação cirúrgica da família Claude utilizando a geração avançada do Gemini:
-* **Claude Opus (`claude-opus-4-6`, `claude-3-opus`, `claude-5-opus`)**: Mapeado para o **`ag/gemini-3.1-pro-low`**, o motor denso de raciocínio profundo da Google, ideal para planejamento arquitetural complexo e refatorações pesadas.
-* **Claude Sonnet (`claude-sonnet-4-6`, `claude-3-7-sonnet`, `claude-5-sonnet`, `claude-5`)**: Mapeado para o **`ag/gemini-3.7-flash-high`**, modelo híbrido de alto raciocínio para pareamento contínuo de código e desenvolvimento no dia a dia.
-* **Claude Haiku e Fable (`claude-haiku`, `claude-3-5-haiku`, `fable`)**: Mapeados para o **`ag/gemini-3.6-flash-high`**, entregando latência ultrabaixa (abaixo de 1 segundo) para subagentes rápidos, varreduras com ripgrep e triagens ágeis.
-* **GPT-OSS (`gpt-oss`, `gpt-oss-120b`)**: Mapeado para o **`ag/gpt-oss-120b-medium`**, garantindo resposta com pesos abertos.
-* O modelo principal declarado em `"model"` (`ag/gemini-3.8-flash-high`) continua sendo o motor primário da sessão; os `modelOverrides` atuam com total transparência quando o Claude Code solicita identificadores nativos da Anthropic.
+O `modelOverrides` intercepta o identificador que o Claude Code pede e o substitui por um modelo do Antigravity. Ele não age quando você escolhe o modelo: age quando **a própria CLI** decide qual usar, como ao despachar um subagente ou ao acionar o modelo rápido de triagem.
 
-Além disso, com a configuração de `modelPicker` no `settings.local.json`, você pode a qualquer momento digitar `/model` no terminal do Claude Code e alternar instantaneamente entre qualquer variante Gemini, Claude ou GPT-OSS catalogada no Antigravity.
+Três mapeamentos respondem hoje, e são exatamente os identificadores que a CLI emite:
+
+| Quando o Claude Code pede | Passa a ser servido por | Papel |
+| :--- | :--- | :--- |
+| `claude-opus-4-6` | `ag/gemini-3.1-pro-low` | Raciocínio denso: planejamento arquitetural e refatoração pesada |
+| `claude-sonnet-4-6` | `ag/gemini-3.7-flash-high` | Cavalo de batalha do dia a dia, raciocínio híbrido |
+| `claude-haiku-4-5-20251001` | `ag/gemini-3.6-flash-high` | Latência mínima para subagentes, varreduras e triagem |
+
+As outras onze entradas do bloco (`claude-3-opus`, `claude-5-opus`, `claude-3-7-sonnet`, `claude-5-sonnet`, `claude-5`, `claude-haiku`, `claude-3-5-haiku`, `fable`, `claude-fable`, `gpt-oss` e `gpt-oss-120b`) ficam declaradas como reserva, para o caso de uma versão futura da CLI passar a emitir esses nomes. **Hoje elas não têm efeito**: a CLI valida o identificador contra uma lista fechada antes de consultar o `modelOverrides`, e recusa qualquer nome fora dela com `There's an issue with the selected model`  -  o mesmo erro que devolveria para um nome inventado. Mantê-las é inofensivo, mas não conte com elas.
+
+Vale a distinção, porque é onde a maioria se perde: passar `--model claude-5-sonnet` **não** funciona, enquanto `--model ag/gemini-3.7-flash-high` funciona. O `modelOverrides` traduz o que a CLI pede por conta própria, não o que você digita.
+
+O modelo principal declarado em `"model"` (`ag/gemini-3.8-flash-high`) segue sendo o motor primário da sessão. E, com o `modelPicker` no `settings.local.json`, você digita `/model` no terminal e alterna entre as variantes catalogadas sem sair da sessão  -  ali os identificadores são os `ag/*` diretos, que a CLI aceita sem intermediação.
 
 ---
 

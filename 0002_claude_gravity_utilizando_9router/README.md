@@ -36,11 +36,11 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
   - `ag/gemini-3.8-flash-medium` e `ag/gemini-3.8-flash-low`
   - `ag/gemini-3.7-flash-high` (Gemini 3.7 Flash Fast e Accurate)
   - `ag/gemini-3.6-flash-high` (Gemini 3.6 Flash Low Latency)
-  - `ag/gemini-pro-agent` (Gemini 3.1 Pro para Arquitetura e Agentes Complexos)
+  - `ag/gemini-3.1-pro-low` (Gemini 3.1 Pro para arquitetura e refatoração pesada)
 - **Outros Modelos via Antigravity:**
   - `ag/claude-sonnet-4-6` e `ag/claude-opus-4-6-thinking`
   - `ag/gpt-oss-120b-medium`
-- **Ambiente:** Docker 29+, Node.js 22+, Python 3.14+
+- **Ambiente:** Python 3.10+, Node.js 18+ e Docker com o plugin Compose v2
 
 ---
 
@@ -118,7 +118,7 @@ Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as fer
      - **macOS:** Instale o Docker Desktop com `brew install --cask docker` ou pelo instalador DMG em [docker.com](https://www.docker.com/).
      - **Linux:** Instale via script oficial com `curl -fsSL https://get.docker.com | sh` e adicione seu usuário com `sudo usermod -aG docker $USER`.
      - **Windows:** Instale o Docker Desktop com `winget install Docker.DockerDesktop` habilitando o backend WSL2.
-   - Valide que o serviço está ativo com `docker --version` e `docker compose version`.
+   - Valide que o daemon está no ar com `docker info` e confirme o plugin com `docker compose version`.
 
 4. **Node.js e Claude Code CLI:**
    - O Claude Code requer Node.js 18 ou superior. Se necessário, instale:
