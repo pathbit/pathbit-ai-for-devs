@@ -55,7 +55,7 @@ name: claudegravity
 
 services:
   9router:
-    image: decolua/9router:0.5.69
+    image: decolua/9router:latest
     container_name: claudegravity-router
     restart: unless-stopped
     ports:
@@ -95,7 +95,7 @@ Três decisões de engenharia neste manifesto:
 * **`healthcheck` ativo:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda HTTP a cada 30 segundos marca o container como `unhealthy` e torna o problema visível no `docker ps`.
 * **Porta publicada apenas em `127.0.0.1`:** o gateway guarda o token OAuth da sua conta Google e as chaves dos provedores. Publicar como `"20128:20128"` o exporia em todas as interfaces de rede, permitindo que qualquer máquina da mesma rede consumisse sua cota. O prefixo de loopback restringe o acesso à própria máquina.
 
-> **Sobre a versão fixada:** o manifesto usa `decolua/9router:0.5.69`, e não `:latest`, de propósito. Os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`); uma atualização silenciosa da imagem pode alterar qualquer um dos dois e quebrar tudo sem aviso. Ao migrar para uma versão nova, troque a tag deliberadamente e revalide com `python3 src/verify_setup.py`.
+> **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: se o endpoint ou o schema mudarem, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
 
 ### 2. Inicializando o serviço
 
@@ -549,6 +549,149 @@ As outras onze entradas do bloco (`claude-3-opus`, `claude-5-opus`, `claude-3-7-
 Vale a distinção, porque é onde a maioria se perde: passar `--model claude-5-sonnet` **não** funciona, enquanto `--model ag/gemini-3.7-flash-high` funciona. O `modelOverrides` traduz o que a CLI pede por conta própria, não o que você digita.
 
 O modelo principal declarado em `"model"` (`ag/gemini-3.8-flash-high`) segue sendo o motor primário da sessão. E, com o `modelPicker` no `settings.local.json`, você digita `/model` no terminal e alterna entre as variantes catalogadas sem sair da sessão  -  ali os identificadores são os `ag/*` diretos, que a CLI aceita sem intermediação.
+
+### Os Quatro Papéis de Modelo, e Qual Gemini Colocar em Cada Um
+
+O `modelOverrides` da seção anterior resolve o caso em que a CLI pede um nome pelo identificador.
+Mas o Claude Code tem um segundo mecanismo, mais direto: **quatro papéis**, cada um com sua própria
+variável de ambiente. A ordem de capacidade vem da própria CLI:
+
+> *Fable for the hardest problems, Opus for complex work, Sonnet for most tasks, Haiku for quick questions.*
+
+Traduzindo para o catálogo do Antigravity, a escada fica assim:
+
+| Papel | Variável | Gemini sugerido | Por quê |
+| :--- | :--- | :--- | :--- |
+| **Fable** | `ANTHROPIC_DEFAULT_FABLE_MODEL` | `ag/gemini-pro-agent` | Gemini 3.1 Pro High. O motor mais denso da conta, reservado ao que realmente exige raciocínio longo |
+| **Opus** | `ANTHROPIC_DEFAULT_OPUS_MODEL` | `ag/gemini-3.8-flash-high` | Topo da linha Flash com `thinking` alto: trabalho complexo sem o custo do Pro |
+| **Sonnet** | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `ag/gemini-3.7-flash-high` | O cavalo de batalha, onde cai a maior parte das tarefas |
+| **Haiku** | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `ag/gemini-3.6-flash-high` | Alta frequência e baixa latência: é o papel mais chamado, e o que mais penaliza se for lento |
+
+#### Como descobrir qual papel está sendo usado
+
+Não é preciso adivinhar. Aponte cada papel para um modelo **diferente** e leia o log do gateway,
+que registra `modelo pedido → modelo servido`. A CLI ainda ajuda: quando o identificador não é
+nativo da Anthropic, ela emite uma linha de diagnóstico com o campo `query_source`, dizendo qual
+parte do harness fez o pedido.
+
+Foi assim que levantamos o mapa abaixo, atribuindo um Gemini distinto a cada papel e rodando
+tarefas comuns:
+
+| `query_source` | Papel acionado | Quando aparece |
+| :--- | :--- | :--- |
+| `sdk` | modelo principal (`ANTHROPIC_MODEL`) | O laço principal da sessão |
+| `generate_session_title` | **Haiku** | **Toda sessão**, para nomear a conversa |
+| `agent:builtin:Explore` | **Opus** | Quando um subagente de exploração é despachado |
+
+Duas conclusões práticas. Primeira: **o papel Haiku é chamado em toda sessão**, mesmo nas triviais.
+Colocar um modelo caro ali é desperdício garantido. Segunda: **subagentes não usam o papel rápido**,
+usam o papel de trabalho complexo  -  se você despacha subagentes com frequência, é o Opus que
+define seu consumo, não o modelo principal.
+
+#### O custo do `thinking`
+
+O log do gateway expõe uma diferença que a configuração não mostra:
+
+```text
+▶ POST ag/gemini-3.6-flash-high  → antigravity/gemini-3.6-flash-high  · THINK:high
+▶ POST ag/gemini-3.1-pro-low     → antigravity/gemini-3.1-pro-low     · (sem marcador)
+```
+
+As variantes `-high` viajam com raciocínio estendido; a `-low` não. Isso muda o consumo de tokens
+por chamada, e explica por que uma variante Pro em modo `low` pode sair mais barata que uma Flash
+em modo `high`. Não assuma que "Pro" significa sempre mais caro: o que pesa é o nível de raciocínio
+que a requisição carrega.
+
+#### Medições de latência por papel
+
+Com o gateway ocioso, pedindo apenas `Responda apenas OK`:
+
+| Invocação | Tempo | Observação |
+| :--- | ---: | :--- |
+| `--model sonnet` | 3,8s | Referência |
+| `--model fable` | 11,3s | Raciocínio mais denso cobra o seu preço |
+| `--model claude-opus-5[1m]` | 25,9s | Identificador explícito, resolvido pelo `modelOverrides` |
+| `--model opus` | 62,2s | **O alias liga o Opus Plan Mode**, que planeja antes de responder |
+
+O `--model opus` merece destaque: ele não é sinônimo de `claude-opus-5`. O alias ativa o **Opus Plan
+Mode**, um fluxo que planeja antes de executar e custa, na tarefa mais simples possível, dezesseis
+vezes o tempo do `sonnet`. Útil quando você quer o planejamento; desperdício quando quer só uma
+resposta.
+
+#### Uma armadilha operacional que custa cota
+
+Durante as medições encontramos um comportamento que vale o aviso: **um `claude -p` interrompido por
+timeout não necessariamente morre**. Processos de tentativas anteriores continuaram emitindo
+requisições ao gateway por minutos, sobrevivendo inclusive a `pkill -9` no processo pai. Com alguns
+deles acumulados, o gateway registrava dezenas de requisições por segundo sem ninguém estar usando,
+e toda medição nova saía lenta  -  o que quase nos levou a culpar o modelo errado.
+
+Se o gateway parecer lento sem motivo, confira antes de trocar de modelo:
+
+```bash
+# Quantas requisicoes chegam com voce parado? Deveria ser zero.
+docker logs claudegravity-router --tail 0 -f | grep -c "POST"
+
+# Quem sobrou de execucoes anteriores
+ps -eo pid,etime,command | grep "claude -p" | grep -v grep
+
+# Encerrar por PID, porque o pkill por padrao nem sempre alcanca
+for p in $(ps -eo pid,command | grep "claude -p" | grep -v grep | awk '{print $1}'); do kill -9 "$p"; done
+```
+
+---
+
+### O Advisor: uma Segunda Opinião Durante a Sessão
+
+O Claude Code expõe uma ferramenta de **advisor**, descrita internamente como *"an advisor tool
+backed by a stronger reviewer model"*  -  um revisor acionado sob demanda para conferir decisões do
+laço principal. A configuração é a chave `advisorModel` no `settings.json`.
+
+A regra que a própria CLI impõe é a parte importante: **o advisor precisa ser pelo menos tão capaz
+quanto o modelo principal**. Não faz sentido pedir segunda opinião a quem sabe menos. Por isso, nos
+arquivos `.example` deste artigo o advisor aponta para o `ag/gemini-pro-agent`, o mesmo do papel
+Fable, enquanto o modelo principal fica no `ag/gemini-3.8-flash-high`.
+
+```json
+{
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent"
+}
+```
+
+Se você apontar o principal para um modelo mais forte que o advisor, a CLI reclama e pede que você
+troque ou remova a chave.
+
+---
+
+### Tarefas Longas: `/goal`, `/loop` e Trabalho com Subagentes
+
+Esta é a dúvida que mais aparece: recursos de longo prazo dependem de algo proprietário da Anthropic,
+ou funcionam com qualquer modelo servido pelo gateway?
+
+A resposta curta é que **a orquestração é local**. `/goal` e `/loop` são lógica da CLI: ela mantém a
+condição, decide quando reentrar e agenda o próximo despertar. O modelo é chamado a cada iteração
+como em qualquer outra requisição. Não há endpoint especial, nem recurso do servidor de inferência
+que precise existir do outro lado.
+
+O que **é** exigido do modelo é outra coisa, e essa sim elimina candidatos:
+
+- **Uso de ferramenta confiável.** Uma tarefa longa é uma sequência de leituras, edições e comandos.
+  Um modelo que responde texto solto em vez de chamar a ferramenta trava o ciclo sem levantar erro.
+- **Aderência à instrução ao longo de muitos turnos.** Não basta acertar o primeiro passo.
+- **Janela de contexto que aguente o acúmulo.** Os Gemini do Antigravity entregam 1M de tokens, o que
+  cobre folgadamente esse ponto.
+
+Foi exatamente aqui que o `arsenal-offline` do [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md)
+reprovou: ele responde ao gateway, mas não opera o harness. Um modelo assim serve de rede de
+segurança para a cascata não cair, e **nunca** deve ocupar um papel  -  numa tarefa longa ele falha
+em silêncio, com `exit code 0`, e você só descobre no fim.
+
+Para subagentes vale o mapa da seção anterior: quem os atende é o **papel Opus**. Se a sua rotina
+despacha subagentes com frequência, é esse papel que domina o consumo, e é nele que a escolha entre
+uma Flash e uma Pro tem o maior impacto na cota.
+
+---
 
 ---
 

@@ -148,17 +148,28 @@ A única reprovação é o `arsenal-offline`, e ela é esperada, o motivo está 
 
 ### Os `modelOverrides` medidos um a um
 
-O bloco declara 14 mapeamentos. Cada chave foi pedida à CLI para verificar se a tradução acontece:
+A primeira versão do bloco declarava 14 mapeamentos, e a medição mostrou que **só 3 traduziam**:
+`claude-opus-4-6`, `claude-sonnet-4-6` e `claude-haiku-4-5-20251001`. Os outros 11 eram apelidos que
+a CLI recusa antes mesmo de consultar o mapeamento, com `There's an issue with the selected model`  -
+**resposta idêntica, e no mesmo tempo, à de um nome inventado**.
 
-| Resultado | Identificadores |
-| :--- | :--- |
-| **Traduzem** (3) | `claude-opus-4-6` · `claude-sonnet-4-6` · `claude-haiku-4-5-20251001` |
-| **Inertes** (11) | `claude-3-opus` · `claude-5-opus` · `claude-3-7-sonnet` · `claude-5-sonnet` · `claude-5` · `claude-haiku` · `claude-3-5-haiku` · `fable` · `claude-fable` · `gpt-oss` · `gpt-oss-120b` |
+A causa apareceu ao usar o menu `/model`: a CLI grava o identificador completo da geração atual,
+**com o sufixo de janela**, como `claude-opus-5[1m]` e `claude-fable-5-1[1m]`. Nenhum deles estava no
+bloco. O mapa foi então reconstruído com **33 chaves**, cobrindo cada família com e sem `[1m]` mais
+os aliases curtos, e reverificado com os identificadores que antes falhavam:
 
-A tradução dos três foi confirmada por eliminação: pedidos diretos ao gateway devolvem `404` para
-esses nomes, e com o `modelOverrides` ativo a mesma chamada passa pela CLI. Os onze restantes falham
-com `There's an issue with the selected model`  -  **resposta idêntica, e no mesmo tempo, à de um nome
-inventado**, o que mostra que a CLI valida contra uma lista fechada antes de consultar o mapeamento.
+```text
+--model claude-fable-5-1[1m]   OK    5,5s
+--model claude-opus-5[1m]      OK   25,9s
+--model claude-sonnet-5[1m]    OK    5,8s
+--model fable                  OK   11,3s
+--model sonnet                 OK    3,8s
+--model haiku                  OK    2,5s
+```
+
+Lição que vale registrar: um `modelOverrides` correto envelhece. Quando a CLI ganha uma geração
+nova de modelos, os identificadores mudam e o bloco precisa acompanhar  -  o sintoma é sempre o
+mesmo erro de modelo inexistente.
 
 ### Configurações validadas com `claude doctor`
 
@@ -201,6 +212,75 @@ exit=0
 Nenhum erro é levantado. É por isso que `arsenal-offline` serve como rede de segurança da cascata e
 garante que o combo sempre devolva alguma resposta, mas **nunca** deve ser atribuído a um papel de
 modelo (`ANTHROPIC_DEFAULT_*_MODEL`): a tarefa daquele papel falharia sem sinal visível.
+
+---
+
+## Papéis de Modelo, Advisor e Tarefas Longas
+
+O Claude Code expõe quatro papéis, e a ordem de capacidade vem da própria CLI: *Fable for the
+hardest problems, Opus for complex work, Sonnet for most tasks, Haiku for quick questions*.
+
+### Qual papel cada parte do harness aciona
+
+Cada papel recebeu um Gemini **diferente** e tarefas comuns foram executadas. A CLI identifica o
+consumidor pelo campo `query_source`, e o gateway registra o modelo servido:
+
+| `query_source` | Papel acionado | Frequência observada |
+| :--- | :--- | :--- |
+| `sdk` | modelo principal | Toda requisição do laço principal |
+| `generate_session_title` | **Haiku** | **Toda sessão**, sem exceção |
+| `agent:builtin:Explore` | **Opus** | A cada subagente de exploração despachado |
+
+Duas consequências para quem monta a configuração: o papel Haiku é chamado sempre, então um modelo
+caro ali é desperdício garantido; e subagentes consomem o papel **Opus**, não o rápido.
+
+### `modelOverrides` cobrindo os identificadores do seletor
+
+O menu `/model` grava o identificador completo, **incluindo o sufixo de janela**: `claude-opus-5[1m]`,
+`claude-fable-5-1[1m]`. Sem essas chaves no `modelOverrides`, a sessão morre com
+`There's an issue with the selected model`. Os `.example` passaram a declarar 33 chaves, cobrindo
+cada família com e sem `[1m]`, mais os aliases curtos.
+
+Verificação após a correção, exatamente com os identificadores que falhavam:
+
+```text
+--model claude-fable-5-1[1m]   OK   5,5s
+--model claude-opus-5[1m]      OK  25,9s
+--model claude-sonnet-5[1m]    OK   5,8s
+--model fable                  OK  11,3s
+--model sonnet                 OK   3,8s
+--model haiku                  OK   2,5s
+```
+
+### Latência por papel e o caso do alias `opus`
+
+| Invocação | Tempo |
+| :--- | ---: |
+| `--model sonnet` | 3,8s |
+| `--model fable` | 11,3s |
+| `--model claude-opus-5[1m]` | 25,9s |
+| `--model opus` | 62,2s |
+
+O alias `opus` **não** é sinônimo de `claude-opus-5`: ele liga o **Opus Plan Mode**, que planeja
+antes de responder e custa dezesseis vezes o tempo do `sonnet` na tarefa mais simples possível.
+
+### Advisor
+
+A CLI descreve a ferramenta como *"an advisor tool backed by a stronger reviewer model"* e impõe que
+o advisor seja **ao menos tão capaz quanto o modelo principal**. Nos `.example`, `advisorModel`
+aponta para o `ag/gemini-pro-agent` (papel Fable) enquanto o principal fica no
+`ag/gemini-3.8-flash-high`.
+
+### Processos órfãos que consomem cota
+
+Um `claude -p` interrompido por timeout **não necessariamente morre**. Durante as medições,
+processos de tentativas anteriores continuaram emitindo requisições por minutos e sobreviveram a
+`pkill -9` no processo pai. Com alguns acumulados, o gateway registrou **79 requisições em 10
+segundos com ninguém usando**, e toda medição nova saía lenta.
+
+O efeito é enganoso: a primeira leitura sugeria que o alias `opus` provocava tempestade de
+retentativas. Com o gateway limpo, o `opus` respondeu normalmente. **A lentidão era dos órfãos, não
+do modelo.** Confira o gateway ocioso antes de culpar qualquer identificador.
 
 ---
 
