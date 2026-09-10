@@ -286,15 +286,18 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 {
   "model": "ag/gemini-3.8-flash-high",
   "modelOverrides": {
-    "claude-opus-4-6": "ag/claude-sonnet-4-6",
-    "claude-sonnet-4-6": "ag/claude-sonnet-4-6",
-    "claude-haiku-4-5-20251001": "ag/gpt-oss-120b-medium",
-    "claude-haiku": "ag/gpt-oss-120b-medium",
-    "claude-5": "ag/gemini-3.8-flash-high",
-    "claude-5-sonnet": "ag/gemini-3.8-flash-high",
-    "claude-5-opus": "ag/gemini-3.8-flash-high",
-    "fable": "ag/gemini-3.8-flash-high",
-    "claude-fable": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-6": "ag/gemini-3.1-pro-low",
+    "claude-3-opus": "ag/gemini-3.1-pro-low",
+    "claude-5-opus": "ag/gemini-3.1-pro-low",
+    "claude-sonnet-4-6": "ag/gemini-3.7-flash-high",
+    "claude-3-7-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5": "ag/gemini-3.7-flash-high",
+    "claude-haiku-4-5-20251001": "ag/gemini-3.6-flash-high",
+    "claude-haiku": "ag/gemini-3.6-flash-high",
+    "claude-3-5-haiku": "ag/gemini-3.6-flash-high",
+    "fable": "ag/gemini-3.6-flash-high",
+    "claude-fable": "ag/gemini-3.6-flash-high",
     "gpt-oss": "ag/gpt-oss-120b-medium",
     "gpt-oss-120b": "ag/gpt-oss-120b-medium"
   },
@@ -333,15 +336,18 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "model": "ag/gemini-3.8-flash-high",
   "advisorModel": "ag/gemini-3.8-flash-high",
   "modelOverrides": {
-    "claude-opus-4-6": "ag/claude-sonnet-4-6",
-    "claude-sonnet-4-6": "ag/claude-sonnet-4-6",
-    "claude-haiku-4-5-20251001": "ag/gpt-oss-120b-medium",
-    "claude-haiku": "ag/gpt-oss-120b-medium",
-    "claude-5": "ag/gemini-3.8-flash-high",
-    "claude-5-sonnet": "ag/gemini-3.8-flash-high",
-    "claude-5-opus": "ag/gemini-3.8-flash-high",
-    "fable": "ag/gemini-3.8-flash-high",
-    "claude-fable": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-6": "ag/gemini-3.1-pro-low",
+    "claude-3-opus": "ag/gemini-3.1-pro-low",
+    "claude-5-opus": "ag/gemini-3.1-pro-low",
+    "claude-sonnet-4-6": "ag/gemini-3.7-flash-high",
+    "claude-3-7-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5-sonnet": "ag/gemini-3.7-flash-high",
+    "claude-5": "ag/gemini-3.7-flash-high",
+    "claude-haiku-4-5-20251001": "ag/gemini-3.6-flash-high",
+    "claude-haiku": "ag/gemini-3.6-flash-high",
+    "claude-3-5-haiku": "ag/gemini-3.6-flash-high",
+    "fable": "ag/gemini-3.6-flash-high",
+    "claude-fable": "ag/gemini-3.6-flash-high",
     "gpt-oss": "ag/gpt-oss-120b-medium",
     "gpt-oss-120b": "ag/gpt-oss-120b-medium"
   },
@@ -369,7 +375,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
         "description": "Latência mínima para tarefas rápidas"
       },
       {
-        "model": "ag/gemini-pro-agent",
+        "model": "ag/gemini-3.1-pro-low",
         "label": "Gemini 3.1 Pro (Deep Complex)",
         "description": "Planejamento arquitetural complexo e agentes profundos"
       },
@@ -440,11 +446,12 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 
 ### Mapeamento de Modelos Primários, Secundários e Subagentes
 
-No arquivo `.claude/settings.json`, o parâmetro `modelOverrides` faz um trabalho cirúrgico:
-* Quando o Claude Code tenta chamar o modelo de raciocínio profundo padrão (`claude-opus-4-6`), ele é mapeado automaticamente para o **`ag/claude-sonnet-4-6`**.
-* Quando ele busca o modelo de velocidade balanceada (`claude-sonnet-4-6`), o gateway também o direciona para o **`ag/claude-sonnet-4-6`**, preservando a família Claude servida na infraestrutura do Google.
-* Para tarefas rápidas de triagem ou resumos em lote (`claude-haiku`), ele usa o **`ag/gpt-oss-120b-medium`**, modelo open-weights de resposta imediata.
-* O modelo principal declarado em `"model"` (`ag/gemini-3.8-flash-high`) continua sendo o motor de raciocínio da sessão; os `modelOverrides` atuam apenas quando o harness solicita explicitamente um identificador nativo da Anthropic.
+No arquivo `.claude/settings.json`, o parâmetro `modelOverrides` faz a emulação cirúrgica da família Claude utilizando a geração avançada do Gemini:
+* **Claude Opus (`claude-opus-4-6`, `claude-3-opus`, `claude-5-opus`)**: Mapeado para o **`ag/gemini-3.1-pro-low`**, o motor denso de raciocínio profundo da Google, ideal para planejamento arquitetural complexo e refatorações pesadas.
+* **Claude Sonnet (`claude-sonnet-4-6`, `claude-3-7-sonnet`, `claude-5-sonnet`, `claude-5`)**: Mapeado para o **`ag/gemini-3.7-flash-high`**, modelo híbrido de alto raciocínio para pareamento contínuo de código e desenvolvimento no dia a dia.
+* **Claude Haiku e Fable (`claude-haiku`, `claude-3-5-haiku`, `fable`)**: Mapeados para o **`ag/gemini-3.6-flash-high`**, entregando latência ultrabaixa (abaixo de 1 segundo) para subagentes rápidos, varreduras com ripgrep e triagens ágeis.
+* **GPT-OSS (`gpt-oss`, `gpt-oss-120b`)**: Mapeado para o **`ag/gpt-oss-120b-medium`**, garantindo resposta com pesos abertos.
+* O modelo principal declarado em `"model"` (`ag/gemini-3.8-flash-high`) continua sendo o motor primário da sessão; os `modelOverrides` atuam com total transparência quando o Claude Code solicita identificadores nativos da Anthropic.
 
 Além disso, com a configuração de `modelPicker` no `settings.local.json`, você pode a qualquer momento digitar `/model` no terminal do Claude Code e alternar instantaneamente entre qualquer variante Gemini, Claude ou GPT-OSS catalogada no Antigravity.
 
