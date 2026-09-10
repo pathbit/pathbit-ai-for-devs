@@ -88,10 +88,14 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 
 #### 1. Pré-requisitos do Ambiente
 
-Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as ferramentas e credenciais abaixo estejam prontas:
+Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as ferramentas e credenciais abaixo estejam instaladas e prontas:
 
 1. **Python 3.10 ou Superior:**
-   - Verifique com `python3 --version`.
+   - Verifique com `python3 --version`. Se necessário, instale:
+     - macOS: `brew install python` ou via pyenv `pyenv install 3.12`
+     - Linux (Ubuntu/Debian): `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
+     - Windows: `winget install Python.Python.3.12`
+
 2. **Ambiente Virtual Dedicado (venv):**
    - Crie e ative o ambiente virtual para isolar as dependências e ferramentas do módulo:
    ```bash
@@ -107,14 +111,27 @@ Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as fer
    pip install --upgrade pip
    pip install -r requirements.txt
    ```
+
 3. **Docker e Docker Compose:**
-   - Docker Desktop (macOS / Windows) ou Docker Engine + Docker Compose Plugin (Linux).
-   - Valide que o serviço está ativo com `docker info` e `docker compose version`.
-4. **Claude Code CLI:**
-   - Instalação global via npm: `npm install -g @anthropic-ai/claude-code` ou instalador nativo oficial.
+   - O 9Router é executado em container Docker. Caso ainda não tenha o Docker instalado:
+     - **macOS:** Instale o Docker Desktop com `brew install --cask docker` ou pelo instalador DMG em [docker.com](https://www.docker.com/).
+     - **Linux:** Instale via script oficial com `curl -fsSL https://get.docker.com | sh` e adicione seu usuário com `sudo usermod -aG docker $USER`.
+     - **Windows:** Instale o Docker Desktop com `winget install Docker.DockerDesktop` habilitando o backend WSL2.
+   - Valide que o serviço está ativo com `docker --version` e `docker compose version`.
+
+4. **Node.js e Claude Code CLI:**
+   - O Claude Code requer Node.js 18 ou superior. Se necessário, instale:
+     - **macOS:** `brew install node`
+     - **Linux:** `sudo apt install -y nodejs npm`
+     - **Windows:** `winget install OpenJS.NodeJS`
+   - Instale o Claude Code globalmente:
+     ```bash
+     npm install -g @anthropic-ai/claude-code
+     ```
    - Verifique com `claude --version`.
+
 5. **Conta Google com Antigravity / Google AI Pro Ativa:**
-   - Faça login prévio no **Google Antigravity IDE** ou na CLI `agy` na sua máquina. Esse passo gera as credenciais OAuth locais em `~/.gemini/` que o script `src/sync_antigravity_token.py` consome e renova automaticamente para o gateway.
+   - Faça login prévio no **Google Antigravity IDE** ou na CLI `agy` na sua máquina (`agy --version`). Esse passo gera as credenciais OAuth locais em `~/.gemini/` que o script `src/sync_antigravity_token.py` consome e renova automaticamente para o gateway.
 
 #### 2. Preparar Arquivos de Configuração
 

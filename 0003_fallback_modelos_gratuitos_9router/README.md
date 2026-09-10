@@ -92,6 +92,10 @@ Antes de iniciar a configuração da cascata e dos combos de fallback, garanta o
 
 1. **Python 3.10 ou superior:**
    - Verifique a versão com `python3 --version`.
+   - Se ainda não tiver o Python instalado:
+     - **macOS:** `brew install python` ou `pyenv install 3.12`
+     - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
+     - **Windows:** `winget install Python.Python.3.12`
    - Crie e ative um ambiente virtual dedicado para o módulo:
      ```bash
      # macOS e Linux
@@ -109,9 +113,14 @@ Antes de iniciar a configuração da cascata e dos combos de fallback, garanta o
      ```
 
 2. **Docker e Docker Compose:**
-   - O gateway 9Router e o Ollama rodam em containers isolados. Instale o Docker Desktop ou Docker Engine com o plugin Compose (`docker --version` e `docker compose version`).
+   - O gateway 9Router e o Ollama rodam em containers isolados. Se necessário, instale:
+     - **macOS:** `brew install --cask docker` ou instalador DMG oficial.
+     - **Linux:** `curl -fsSL https://get.docker.com | sh` e adicione seu usuário com `sudo usermod -aG docker $USER`.
+     - **Windows:** `winget install Docker.DockerDesktop` com suporte a WSL2.
+   - Valide que o serviço está ativo com `docker --version` e `docker compose version`.
 
 3. **Node.js 18+ e Claude Code CLI:**
+   - O Claude Code requer Node.js 18+. Instale via `brew install node` (macOS), `sudo apt install -y nodejs npm` (Linux) ou `winget install OpenJS.NodeJS` (Windows).
    - Instale a ferramenta oficial da Anthropic globalmente:
      ```bash
      npm install -g @anthropic-ai/claude-code
@@ -119,7 +128,7 @@ Antes de iniciar a configuração da cascata e dos combos de fallback, garanta o
    - Verifique a instalação com `claude --version`.
 
 4. **Contas e Tokens nas Plataformas Gratuitas:**
-   - **OpenRouter (Custo Zero Travado):** Crie conta em [openrouter.ai](https://openrouter.ai/settings/keys). Gere uma API Key e defina o limite de gastos para `$0.00`. Isso garante que apenas modelos gratuitos com sufixo `:free` sejam consumidos.
+   - **OpenRouter (Custo Zero Travado):** Crie conta em [openrouter.ai](https://openrouter.ai/settings/keys). Gere uma API Key e defina o limite de gastos para `$0.00`. Isso garante que apenas modelos gratuitos com sufixo `:free` sejam consumidos sem qualquer cobrança.
    - **Groq Cloud (Inferência Ultrarrápida em LPU):** Crie conta gratuita em [console.groq.com/keys](https://console.groq.com/keys) e gere uma chave com prefixo `gsk_...`.
    - **Google AI Studio (Gemini 2.5 Flash e Pro):** Acesse [aistudio.google.com/apikey](https://aistudio.google.com/apikey) com sua conta Google e gere uma chave `AIza...`.
    - **Mistral AI (Codestral e Mistral Small):** Crie conta em [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys) e gere uma chave de API para o modelo Codestral.

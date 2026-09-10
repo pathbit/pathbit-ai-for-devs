@@ -658,9 +658,12 @@ O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Py
 
 ### Pré-requisitos do Ambiente e Credenciais
 
-Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as seguintes ferramentas e credenciais estejam prontas:
+Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as seguintes ferramentas e credenciais estejam instaladas e prontas:
 
-1. **Python 3.10 ou Superior:** Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
+1. **Python 3.10 ou Superior:**
+   - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
+   - Se necessário, instale via `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.12` (Windows).
+
 2. **Ambiente Virtual Dedicado:** Crie e ative o ambiente virtual para isolamento das dependências:
    ```bash
    # Criar o ambiente virtual na pasta do modulo
@@ -676,9 +679,18 @@ Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as se
    pip install --upgrade pip
    pip install -r requirements.txt
    ```
-3. **Docker e Docker Compose:** O gateway `claudegravity-router` é orquestrado em container. Tenha o Docker Desktop ou Docker Engine rodando com o Compose habilitado.
-4. **Claude Code CLI:** Tenha o cliente oficial instalado no terminal (`npm install -g @anthropic-ai/claude-code`).
-5. **Conta Google com Antigravity / Google AI Pro:** Faça login na IDE do Google Antigravity ou CLI `agy` para inicializar a sessão OAuth local em `~/.gemini/`.
+
+3. **Docker e Docker Compose:**
+   - O gateway `claudegravity-router` é orquestrado em container. Instale o Docker Desktop (macOS / Windows via winget / site oficial) ou Docker Engine (Linux via `curl -fsSL https://get.docker.com | sh`).
+   - Valide que o serviço está ativo com `docker info` e `docker compose version`.
+
+4. **Node.js e Claude Code CLI:**
+   - O Claude Code requer Node.js 18+. Instale via `brew install node`, `sudo apt install nodejs npm` ou `winget install OpenJS.NodeJS`.
+   - Instale o Claude Code globalmente com `npm install -g @anthropic-ai/claude-code` e valide com `claude --version`.
+
+5. **Conta Google com Antigravity / Google AI Pro:**
+   - Faça login na IDE do Google Antigravity ou CLI `agy` (`agy --version`) para inicializar a sessão OAuth local em `~/.gemini/jetski-standalone-oauth-token`.
+
 6. **Variáveis de Ambiente (.env):** Inicialize o arquivo `.env` a partir de `.env.example` definindo `INITIAL_PASSWORD` e `JWT_SECRET` para proteger a interface administrativa do gateway.
 
 ### Executando os Scripts de Diagnóstico e Teste

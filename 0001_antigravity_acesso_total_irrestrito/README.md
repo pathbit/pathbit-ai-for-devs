@@ -65,10 +65,15 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 
 ### 📋 Pré-requisitos do Ambiente
 
-Antes de executar os scripts de configuração e validação, assegure que as seguintes ferramentas e contas estejam disponíveis na sua máquina:
+Antes de executar os scripts de configuração e validação, assegure que as seguintes ferramentas e contas estejam disponíveis e instaladas na sua máquina:
 
 1. **Python 3.10 ou Superior:**
    - Verifique a versão instalada no terminal com `python3 --version`.
+   - Se ainda não tiver o Python instalado:
+     - **macOS:** Instale via Homebrew com `brew install python` ou pyenv com `pyenv install 3.12`.
+     - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`.
+     - **Windows:** Instale via terminal com `winget install Python.Python.3.12` ou baixe o instalador oficial em [python.org](https://www.python.org/downloads/).
+
 2. **Ambiente Virtual Isolado (venv):**
    - Recomendamos criar um ambiente virtual dedicado para isolar a execução dos scripts e utilitários:
    ```bash
@@ -84,17 +89,28 @@ Antes de executar os scripts de configuração e validação, assegure que as se
    # Ativar no Windows (Prompt de Comando)
    .venv\Scripts\activate.bat
    ```
+
 3. **Dependências Python:**
    - Os utilitários utilizam exclusivamente a biblioteca padrão do Python 3 (`json`, `os`, `sys`, `platform`, `subprocess`), sem necessidade de pacotes externos pesados:
    ```bash
    pip install --upgrade pip
    pip install -r requirements.txt
    ```
+
 4. **Instalação e Login no Google Antigravity:**
-   - Tenha o **Google Antigravity IDE** ou a ferramenta de linha de comando **Antigravity CLI (`agy`)** instalada.
-   - Faça login prévio com sua conta Google no Antigravity para que o diretório `~/.gemini/` e os arquivos de configuração base sejam inicializados pelo motor.
+   - Obtenha o **Google Antigravity IDE** ou a ferramenta de linha de comando **Antigravity CLI (`agy`)** disponível para assinantes Google AI Pro.
+   - Faça login prévio com sua conta Google no Antigravity (`agy` ou IDE) para que o diretório `~/.gemini/` e os arquivos de configuração base (`config.json`, `jetski-standalone-oauth-token`) sejam inicializados pelo motor.
+   - Valide se o comando CLI responde com:
+   ```bash
+   agy --version
+   ```
+
 5. **Git Instalado e Configurado:**
    - O configurador registra automaticamente o hook global de higienização de commits (`core.hooksPath`), exigindo que o comando `git` esteja disponível no `PATH`.
+   - Instale caso necessário:
+     - **macOS:** `xcode-select --install` ou `brew install git`.
+     - **Linux:** `sudo apt install -y git`.
+     - **Windows:** `winget install Git.Git`.
 
 ---
 
