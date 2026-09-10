@@ -689,27 +689,81 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 ```json
 {
   "model": "arsenal-supremo",
+  "advisorModel": "arsenal-supremo",
   "modelOverrides": {
-    "claude-opus-4-6": "ag/gemini-3.1-pro-low",
-    "claude-3-opus": "ag/gemini-3.1-pro-low",
-    "claude-5-opus": "ag/gemini-3.1-pro-low",
-    "claude-sonnet-4-6": "ag/gemini-3.7-flash-high",
-    "claude-3-7-sonnet": "ag/gemini-3.7-flash-high",
-    "claude-5-sonnet": "ag/gemini-3.7-flash-high",
-    "claude-5": "ag/gemini-3.7-flash-high",
-    "claude-haiku-4-5-20251001": "ag/gemini-3.6-flash-high",
-    "claude-haiku": "ag/gemini-3.6-flash-high",
-    "claude-3-5-haiku": "ag/gemini-3.6-flash-high",
-    "fable": "ag/gemini-3.6-flash-high",
-    "claude-fable": "ag/gemini-3.6-flash-high",
-    "gpt-oss": "ag/gpt-oss-120b-medium",
-    "gpt-oss-120b": "ag/gpt-oss-120b-medium"
+    "claude-fable-5": "arsenal-supremo",
+    "claude-fable-5[1m]": "arsenal-supremo",
+    "claude-fable-5-1": "arsenal-supremo",
+    "claude-fable-5-1[1m]": "arsenal-supremo",
+    "claude-fable-5-mythos-5": "arsenal-supremo",
+    "claude-fable-5-mythos-5[1m]": "arsenal-supremo",
+    "claude-opus-5": "arsenal-supremo",
+    "claude-opus-5[1m]": "arsenal-supremo",
+    "claude-opus-4-8": "arsenal-supremo",
+    "claude-opus-4-8[1m]": "arsenal-supremo",
+    "claude-opus-4-7": "arsenal-supremo",
+    "claude-opus-4-7[1m]": "arsenal-supremo",
+    "claude-opus-4-6": "arsenal-supremo",
+    "claude-opus-4-6[1m]": "arsenal-supremo",
+    "claude-sonnet-5": "arsenal-rapido",
+    "claude-sonnet-5[1m]": "arsenal-rapido",
+    "claude-sonnet-4-6": "arsenal-rapido",
+    "claude-sonnet-4-6[1m]": "arsenal-rapido",
+    "claude-sonnet-4-5": "arsenal-rapido",
+    "claude-sonnet-4-5[1m]": "arsenal-rapido",
+    "claude-haiku-4-5-20251001": "arsenal-rapido",
+    "claude-haiku-4-5-20251001[1m]": "arsenal-rapido",
+    "claude-haiku-4-5": "arsenal-rapido",
+    "claude-haiku-4-5[1m]": "arsenal-rapido",
+    "fable": "arsenal-supremo",
+    "fable[1m]": "arsenal-supremo",
+    "opus": "arsenal-supremo",
+    "opus[1m]": "arsenal-supremo",
+    "opusplan": "arsenal-supremo",
+    "opusplan[1m]": "arsenal-supremo",
+    "sonnet": "arsenal-rapido",
+    "sonnet[1m]": "arsenal-rapido",
+    "haiku": "arsenal-rapido"
+  },
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "arsenal-supremo",
+        "label": "Arsenal Supremo (cascata completa)",
+        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "arsenal-rapido",
+        "label": "Arsenal Rapido (baixa latencia)",
+        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis dentro do Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "arsenal-offline",
+        "label": "Arsenal Offline (contingencia)",
+        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      }
+    ]
   },
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
+    "ANTHROPIC_MODEL": "arsenal-supremo"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -751,6 +805,38 @@ Dois avisos sobre os identificadores citados acima:
 
 - **`ag/gemini-3.1-pro-low`** é o Gemini 3.1 Pro servido pelo Antigravity com raciocínio direto, sem inferência prolongada. Ele não aparece na lista de fontes gratuitas do início deste artigo porque não é um provedor à parte: entra pela mesma conexão Antigravity já configurada. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) traz o catálogo completo dessa conexão.
 - **Existem dois "GPT-OSS 120B" em jogo, de provedores diferentes.** A cascata usa `groq/openai/gpt-oss-120b`, servido pela Groq, que é o nível de alta velocidade do `arsenal-rapido`. Já o `ag/gpt-oss-120b-medium` do bloco acima é o mesmo modelo aberto servido pelo Antigravity. Mesmos pesos, contas e cotas distintas  -  não os troque um pelo outro ao montar sua própria cascata.
+
+### Aponte os Papéis para Combos, não para Modelos Diretos
+
+Há uma decisão de configuração que só mostra o seu valor no pior dia, e vale explicitar.
+
+Durante a validação deste artigo a conta do Antigravity atingiu o teto e o gateway registrou:
+
+```text
+[AG_QUOTA] CACHE_BLOCK gemini-3.7-flash-high - skip upstream until 23:47:37
+[AUTH] antigravity | all 1 accounts locked for gemini-3.7-flash-high (reset after 2h 3m)
+```
+
+Duas horas de bloqueio. Qualquer sessão apontada **direto** para um `ag/*` morria com `API Error: 503`
+a cada mensagem. As sessões apontadas para **combos** seguiram trabalhando, saltando para Groq e
+Mistral, e responderam em 2,5s a 3,3s:
+
+```text
+--model arsenal-rapido          OK   2,5s
+--model claudegravity-fallback  OK   3,3s
+(padrao do settings)            OK  14,1s
+```
+
+Por isso, nos arquivos deste artigo, **os quatro papéis apontam para combos**, e não para modelos
+individuais:
+
+| Papel | Aponta para | Efeito no bloqueio |
+| :--- | :--- | :--- |
+| Fable e Opus | `arsenal-supremo` | Desce 7 níveis até achar quem responda |
+| Sonnet e Haiku | `arsenal-rapido` | Groq e Codestral seguem fora do Antigravity |
+
+Um modelo individual num papel é um ponto único de falha que você só descobre quando a cota acaba  -
+e, como o papel Haiku é acionado em **toda sessão**, é o primeiro a te derrubar.
 
 ### Estrutura do `settings.local.json.example` (Menu Interativo)
 

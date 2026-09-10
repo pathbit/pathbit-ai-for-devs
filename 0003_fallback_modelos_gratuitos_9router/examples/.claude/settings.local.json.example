@@ -37,52 +37,31 @@
     "haiku": "arsenal-rapido"
   },
   "modelPicker": {
-    "replaceBuiltInOptions": false,
+    "replaceBuiltInOptions": true,
     "options": [
       {
         "model": "arsenal-supremo",
-        "label": "Arsenal Supremo (Cascata Completa de Fallback)",
-        "description": "Gemini 3.8/3.7/3.6, Nemotron 3.5 Lightning, GPT-OSS 120B, Codestral e Ollama local"
+        "label": "Arsenal Supremo (cascata completa)",
+        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "arsenal-rapido",
-        "label": "Arsenal Rápido (Alta Velocidade)",
-        "description": "GPT-OSS 120B na Groq com fallback para Codestral, Gemini 3.7 e Gemini 3.6 Flash"
+        "label": "Arsenal Rapido (baixa latencia)",
+        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis dentro do Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-offline",
-        "label": "Arsenal Offline (Continuidade Local via Ollama)",
-        "description": "Continuidade local via Ollama: mantém a cascata respondendo, não substitui os níveis em nuvem"
-      },
-      {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash (High Reasoning)",
-        "description": "Inferência direta do Gemini 3.8 via Antigravity AI Pro"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash (High Reasoning)",
-        "description": "Raciocínio balanceado e alta velocidade"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash (Low Latency)",
-        "description": "Latência mínima para tarefas rápidas"
-      },
-      {
-        "model": "ag/gemini-3.1-pro-low",
-        "label": "Gemini 3.1 Pro (Deep Complex)",
-        "description": "Planejamento arquitetural complexo e agentes profundos"
-      },
-      {
-        "model": "ag/claude-sonnet-4-6",
-        "label": "Claude Sonnet 4.6 (Thinking)",
-        "description": "Sonnet 4.6 Thinking roteado via Antigravity AI Pro"
-      },
-      {
-        "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B (Medium)",
-        "description": "Modelo open-weights via Antigravity"
+        "label": "Arsenal Offline (contingencia)",
+        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "behavesAs": "claude-haiku-4-5-20251001"
       }
     ]
   },
@@ -94,7 +73,8 @@
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
+    "ANTHROPIC_MODEL": "arsenal-supremo"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
