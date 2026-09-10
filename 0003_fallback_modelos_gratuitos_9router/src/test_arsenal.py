@@ -2,7 +2,7 @@
 
 Testa cada nível da cascata isoladamente antes de testar o combo. Sem isso, um
 combo cujo primeiro nível responde é aprovado mesmo com os níveis seguintes
-mortos — a rede de segurança só é descoberta quebrada quando já é tarde.
+mortos, e a rede de segurança só é descoberta quebrada quando já é tarde.
 """
 
 import json
@@ -73,7 +73,7 @@ def extract_response(raw):
     """Extrai (texto, caracteres_de_raciocínio, erro) de resposta JSON ou SSE.
 
     O gateway responde em text/event-stream. Modelos com raciocínio podem gastar
-    todo o orçamento pensando e não emitir texto — isso ainda é uma resposta
+    todo o orçamento pensando e não emitir texto, o que ainda é uma resposta
     válida, não uma falha.
     """
     raw = raw.strip()
@@ -153,12 +153,12 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=18
 
 def test_cascade(combo_name, models):
     """Testa cada nível da cascata isoladamente. Devolve a lista de níveis quebrados."""
-    print(f"[*] Cascata de '{combo_name}' — {len(models)} nível(is):")
+    print(f"[*] Cascata de '{combo_name}' - {len(models)} nível(is):")
     broken = []
     for position, model in enumerate(models, start=1):
         ok, elapsed, detail = probe(model)
         status = "OK   " if ok else "FALHA"
-        print(f"  [{status}] {position}º {model} — {elapsed:.2f}s · {detail}")
+        print(f"  [{status}] {position}º {model} - {elapsed:.2f}s · {detail}")
         if not ok:
             broken.append((position, model, detail))
     return broken
@@ -168,7 +168,7 @@ def test_combo(combo_name):
     """Testa o combo como um todo, do jeito que o Claude Code o consome."""
     ok, elapsed, detail = probe(combo_name)
     status = "OK   " if ok else "FALHA"
-    print(f"  [{status}] combo '{combo_name}' — {elapsed:.2f}s · {detail}")
+    print(f"  [{status}] combo '{combo_name}' - {elapsed:.2f}s · {detail}")
     return ok
 
 
@@ -198,7 +198,7 @@ def main():
 
     for combo_name, broken in broken_by_combo.items():
         for position, model, detail in broken:
-            print(f"  [!] {combo_name} nível {position}: {model} — {detail}")
+            print(f"  [!] {combo_name} nível {position}: {model} - {detail}")
     for combo_name in failed_combos:
         print(f"  [!] combo '{combo_name}' não respondeu")
 
