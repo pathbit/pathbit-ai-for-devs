@@ -725,13 +725,13 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "options": [
       {
         "model": "arsenal-supremo",
-        "label": "Arsenal Supremo (cascata completa)",
-        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "label": "Arsenal Supremo",
+        "description": "7 niveis: Gemini, Nemotron, GPT-OSS, Codestral e Ollama local",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "arsenal-rapido",
-        "label": "Arsenal Rapido (baixa latencia)",
+        "label": "Arsenal Rapido",
         "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
         "behavesAs": "claude-sonnet-4-6"
       },
@@ -743,7 +743,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
       },
       {
         "model": "arsenal-offline",
-        "label": "Arsenal Offline (contingencia)",
+        "label": "Arsenal Offline",
         "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
         "behavesAs": "claude-haiku-4-5-20251001"
       }

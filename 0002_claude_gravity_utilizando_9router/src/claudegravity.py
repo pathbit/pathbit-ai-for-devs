@@ -81,18 +81,31 @@ def ensure_fallback_combo(container_name=DEFAULT_CONTAINER):
         except Exception as e:
             print(f"⚠️  Falha ao sincronizar credenciais do Antigravity: {e}", file=sys.stderr)
 
+        # Dois combos, para que o seletor de modelos nunca ofereca um ponto unico de falha.
+        # A cota do Antigravity e contabilizada por familia: um bloqueio do Gemini nao atinge
+        # os modelos Claude nem o GPT-OSS servidos pela mesma conta.
         node_script = """
 const db = require('/app/node_modules/better-sqlite3')('/app/data/db/data.sqlite');
 const now = new Date().toISOString();
-const models = JSON.stringify([
-  "ag/gemini-3.8-flash-high",
-  "ag/gemini-3.7-flash-high",
-  "ag/gemini-3.6-flash-high",
-  "ag/claude-sonnet-4-6",
-  "ag/gpt-oss-120b-medium"
-]);
-db.prepare('INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)')
-  .run('claudegravity-fallback', 'claudegravity-fallback', 'llm', models, now, now);
+const combos = [
+  ['claudegravity-fallback', [
+    "ag/gemini-3.8-flash-high",
+    "ag/gemini-3.7-flash-high",
+    "ag/gemini-3.6-flash-high",
+    "ag/claude-sonnet-4-6",
+    "ag/gpt-oss-120b-medium"
+  ]],
+  ['claudegravity-thinking', [
+    "ag/claude-opus-4-6-thinking",
+    "ag/claude-sonnet-4-6",
+    "ag/gemini-3.8-flash-high",
+    "ag/gpt-oss-120b-medium"
+  ]]
+];
+const stmt = db.prepare('INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)');
+for (const [nome, models] of combos) {
+  stmt.run(nome, nome, 'llm', JSON.stringify(models), now, now);
+}
 """
         subprocess.run(["docker", "exec", container_name, "node", "-e", node_script], capture_output=True)
     except Exception as e:

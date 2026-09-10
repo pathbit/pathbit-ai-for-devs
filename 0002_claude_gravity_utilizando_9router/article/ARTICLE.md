@@ -375,17 +375,17 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "ag/gemini-3.8-flash-high",
+  "model": "claudegravity-fallback",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_MODEL": "claudegravity-fallback"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -406,45 +406,21 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "ag/gemini-pro-agent",
+  "advisorModel": "claudegravity-thinking",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash High",
-        "description": "Primario: raciocinio alto e 1M de contexto",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
         "model": "claudegravity-fallback",
         "label": "ClaudeGravity Resiliente",
-        "description": "Cascata de 5 niveis no Antigravity",
+        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
         "behavesAs": "claude-opus-4-8"
       },
       {
-        "model": "ag/gemini-pro-agent",
-        "label": "Gemini 3.1 Pro High",
-        "description": "O mais denso da conta. Use com parcimonia",
+        "model": "claudegravity-thinking",
+        "label": "ClaudeGravity Thinking",
+        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash High",
-        "description": "Trabalho corrente",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash High",
-        "description": "Latencia minima, alta frequencia",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      },
-      {
-        "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B",
-        "description": "Pesos abertos via Antigravity",
-        "behavesAs": "claude-sonnet-4-6"
       }
     ]
   }
@@ -455,17 +431,17 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "ag/gemini-3.8-flash-high",
+  "model": "claudegravity-fallback",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_MODEL": "claudegravity-fallback"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -486,45 +462,21 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "ag/gemini-pro-agent",
+  "advisorModel": "claudegravity-thinking",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash High",
-        "description": "Primario: raciocinio alto e 1M de contexto",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
         "model": "claudegravity-fallback",
         "label": "ClaudeGravity Resiliente",
-        "description": "Cascata de 5 niveis no Antigravity",
+        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
         "behavesAs": "claude-opus-4-8"
       },
       {
-        "model": "ag/gemini-pro-agent",
-        "label": "Gemini 3.1 Pro High",
-        "description": "O mais denso da conta. Use com parcimonia",
+        "model": "claudegravity-thinking",
+        "label": "ClaudeGravity Thinking",
+        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash High",
-        "description": "Trabalho corrente",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash High",
-        "description": "Latencia minima, alta frequencia",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      },
-      {
-        "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B",
-        "description": "Pesos abertos via Antigravity",
-        "behavesAs": "claude-sonnet-4-6"
       }
     ]
   }
@@ -658,6 +610,56 @@ ps -eo pid,etime,command | grep "claude -p" | grep -v grep
 # Encerrar por PID, porque o pkill por padrao nem sempre alcanca
 for p in $(ps -eo pid,command | grep "claude -p" | grep -v grep | awk '{print $1}'); do kill -9 "$p"; done
 ```
+
+---
+
+### Nunca Deixe um Modelo Individual como Padrão
+
+Esta é a regra que mais dói aprender na prática, e aprendemos com a conta bloqueada.
+
+A cota do Antigravity é contabilizada **por família de modelo**. Quando o teto do Gemini estourou, o
+gateway registrou:
+
+```text
+[AG_QUOTA] CACHE_BLOCK gemini-3.8-flash-high - skip upstream until 23:47:37
+[AUTH] antigravity | all 1 accounts locked for gemini-3.8-flash-high (reset after 2h)
+```
+
+Uma verificação modelo a modelo mostrou o alcance exato do bloqueio:
+
+| Modelo | Estado durante o bloqueio |
+| :--- | :--- |
+| `ag/gemini-3.8-flash-high` · `3.7` · `3.6` · `pro-agent` | **503** |
+| `ag/claude-sonnet-4-6` | OK, 2,17s |
+| `ag/gpt-oss-120b-medium` | OK, 0,58s |
+
+Ou seja: **a conta continuava boa, só a família Gemini estava no teto.** Quem tinha um `ag/gemini-*`
+como modelo padrão via a sessão morrer a cada mensagem. Quem tinha um combo seguiu trabalhando, e o
+log mostra por quê:
+
+```text
+[COMBO] Trying model 1/5: ag/gemini-3.8-flash-high  -> failed {"status":503}
+[COMBO] Trying model 2/5: ag/gemini-3.7-flash-high  -> failed {"status":503}
+[COMBO] Trying model 3/5: ag/gemini-3.6-flash-high  -> failed {"status":503}
+[COMBO] Trying model 4/5: ag/claude-sonnet-4-6      -> succeeded
+```
+
+Os três saltos custaram menos de um segundo no total, porque o gateway guarda o bloqueio em cache e
+nem tenta o upstream. A resposta chegou em 1,97s.
+
+Por isso este artigo provisiona **dois combos** e o seletor não oferece nenhum modelo solto:
+
+| Combo | Cascata | Serve para |
+| :--- | :--- | :--- |
+| `claudegravity-fallback` | Gemini 3.8 → 3.7 → 3.6 → Sonnet 4.6 → GPT-OSS 120B | Padrão. Prefere Gemini e cai para os demais |
+| `claudegravity-thinking` | Opus 4.6 Thinking → Sonnet 4.6 → Gemini 3.8 → GPT-OSS 120B | Raciocínio denso, e **não depende da cota do Gemini** |
+
+Os quatro papéis também apontam para combos, nunca para modelos individuais. Como o papel Haiku é
+acionado em **toda sessão**, um modelo solto ali é o primeiro a derrubar você quando a cota acaba.
+
+> **Regra prática:** modelo individual serve para medir e comparar, com `--model` na linha de comando.
+> Para o padrão da sessão e para os papéis, use sempre combo. A diferença aparece exatamente no dia em
+> que você não pode parar.
 
 ---
 
