@@ -13,7 +13,7 @@ import urllib.error
 import urllib.request
 
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
-PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", ""}
+PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
 
 def require_api_key():
@@ -117,7 +117,7 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=18
     payload = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": max_tokens,
+        "max_tokens": max_tokens
     }).encode("utf-8")
     request = urllib.request.Request(
         f"{BASE_URL}/v1/messages",
@@ -125,7 +125,7 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=18
         headers={
             "Content-Type": "application/json",
             "x-api-key": API_KEY,
-            "anthropic-version": "2023-06-01",
+            "anthropic-version": "2023-06-01"
         },
     )
     started = time.time()

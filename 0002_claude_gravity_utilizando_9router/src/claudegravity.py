@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
-PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", ""}
+PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
 
 def require_api_key(valor):
@@ -34,7 +34,8 @@ AVAILABLE_MODELS = [
     ("claudegravity-fallback", "ClaudeGravity Resiliente (Fallback Automatico com Modelos Gratuitos)"),
     ("ag/gemini-3.7-flash-high", "Gemini 3.7 Flash High (Hybrid Reasoning)"),
     ("ag/gemini-3.6-flash-high", "Gemini 3.6 Flash High (Alta velocidade)"),
-    ("ag/gemini-pro-agent",       "Gemini 3.1 Pro (Deep Agentic Reasoning)"),
+    ("ag/gemini-pro-agent",       "Gemini 3.1 Pro High (raciocinio profundo, mais lento)"),
+    ("ag/gemini-3.1-pro-low",     "Gemini 3.1 Pro Low (resposta direta, usado no modelOverrides)"),
     ("ag/claude-sonnet-4-6",     "Claude Sonnet 4.6 (Roteamento via Antigravity)"),
     ("ag/claude-opus-4-6-thinking", "Claude Opus 4.6 Thinking (Extended Reasoning)"),
     ("ag/gpt-oss-120b-medium",   "GPT-OSS 120B (Open-Weight Sovereign Model)"),
@@ -54,7 +55,8 @@ def load_dotenv():
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     key, value = line.split("=", 1)
-                    os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+                    value = value.split("#", 1)[0].strip().strip("'\"")
+                    os.environ.setdefault(key.strip(), value)
     except OSError as e:
         print(f"⚠️  Não foi possível ler {env_path}: {e}", file=sys.stderr)
 
@@ -170,15 +172,14 @@ def main():
     env["ANTHROPIC_BASE_URL"] = args.base_url
     env["ANTHROPIC_API_KEY"] = args.api_key
     env["ANTHROPIC_MODEL"] = args.model
-    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = args.model
-    # Mesmo mapeamento declarado em examples/.claude/settings.json (fonte da verdade)
-    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "ag/claude-sonnet-4-6"
-    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "ag/gpt-oss-120b-medium"
+    # Papéis espelham o modelOverrides de examples/.claude/settings.json.example,
+    # que é a fonte da verdade: Opus para raciocínio denso, Sonnet para o trabalho
+    # corrente e Haiku para triagem de baixa latência. Alterar aqui exige alterar lá.
+    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "ag/gemini-3.1-pro-low"
+    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "ag/gemini-3.7-flash-high"
+    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "ag/gemini-3.6-flash-high"
 
     env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
-    env["CLAUDE_CODE_ENABLE_LOOPS"] = "1"
-    env["CLAUDE_CODE_ENABLE_ADVISOR"] = "1"
-    env["CLAUDE_CODE_ENABLE_GOAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
 
     print_banner(args.base_url, args.model)

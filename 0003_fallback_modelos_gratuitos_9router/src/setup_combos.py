@@ -26,7 +26,7 @@ COMBOS = [
             "ag/gemini-3.6-flash-high",
             "ag/claude-sonnet-4-6",
             "ag/gpt-oss-120b-medium",
-        ],
+        ]
     },
     {
         "id": "combo_arsenal_supremo",
@@ -40,7 +40,7 @@ COMBOS = [
             "groq/openai/gpt-oss-120b",
             "mistral/codestral-latest",
             "openai-compatible-chat-ollama-local/qwen2.5-coder:latest",
-        ],
+        ]
     },
     {
         "id": "combo_arsenal_rapido",
@@ -51,7 +51,7 @@ COMBOS = [
             "mistral/codestral-latest",
             "ag/gemini-3.7-flash-high",
             "ag/gemini-3.6-flash-high",
-        ],
+        ]
     },
     {
         "id": "combo_arsenal_offline",
@@ -59,7 +59,7 @@ COMBOS = [
         "kind": "llm",
         "models": [
             "openai-compatible-chat-ollama-local/qwen2.5-coder:latest",
-        ],
+        ]
     },
 ]
 
@@ -103,31 +103,31 @@ def get_providers_config():
             "provider": "groq",
             "name": "Groq Cloud PathBit",
             "authType": "apikey",
-            "apiKey": os.environ.get("GROQ_API_KEY", ""),
+            "apiKey": os.environ.get("GROQ_API_KEY", "")
         },
         {
             "provider": "openrouter",
             "name": "OpenRouter PathBit",
             "authType": "apikey",
-            "apiKey": os.environ.get("OPENROUTER_API_KEY", ""),
+            "apiKey": os.environ.get("OPENROUTER_API_KEY", "")
         },
         {
             "provider": "gemini",
             "name": "Google AI Studio PathBit",
             "authType": "apikey",
-            "apiKey": os.environ.get("GEMINI_API_KEY", ""),
+            "apiKey": os.environ.get("GEMINI_API_KEY", "")
         },
         {
             "provider": "ollama",
             "name": "Ollama Cloud PathBit",
             "authType": "apikey",
-            "apiKey": os.environ.get("OLLAMA_API_KEY", ""),
+            "apiKey": os.environ.get("OLLAMA_API_KEY", "")
         },
         {
             "provider": "mistral",
             "name": "Mistral AI PathBit",
             "authType": "apikey",
-            "apiKey": os.environ.get("MISTRAL_API_KEY", ""),
+            "apiKey": os.environ.get("MISTRAL_API_KEY", "")
         },
     ]
 
