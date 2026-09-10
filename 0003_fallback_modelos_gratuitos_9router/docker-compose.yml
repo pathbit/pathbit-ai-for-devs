@@ -1,0 +1,54 @@
+name: claudegravity
+
+services:
+  9router:
+    image: decolua/9router:0.5.69
+    container_name: claudegravity-router
+    restart: unless-stopped
+    ports:
+      # Apenas localhost: o gateway carrega credenciais reais (OAuth do Antigravity
+      # e chaves dos provedores) e nao deve ficar acessivel na rede local.
+      - "127.0.0.1:20128:20128"
+    environment:
+      - DATA_DIR=/app/data
+      - PORT=20128
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_BASE_URL=http://localhost:20128
+      - NODE_ENV=production
+      - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no .env}
+      - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no .env}
+      - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
+      - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
+    volumes:
+      - 9router_data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:20128/dashboard',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: claudegravity-ollama
+    restart: unless-stopped
+    ports:
+      # Apenas localhost, pelo mesmo motivo do gateway.
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  9router_data:
+  ollama_data:

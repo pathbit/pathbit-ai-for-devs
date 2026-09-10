@@ -1,0 +1,2 @@
+# Este modulo utiliza prioritariamente a biblioteca padrao do Python 3.10+
+# Nenhuma biblioteca externa obrigatoria e necessaria para execucao dos scripts

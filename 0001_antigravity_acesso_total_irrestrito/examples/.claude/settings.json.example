@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "*",
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL": "1",
+    "CLAUDE_CODE_ENABLE_LOOPS": "1",
+    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
+    "CLAUDE_CODE_ENABLE_GOAL": "1"
+  },
+  "includeCoAuthoredBy": false
+}

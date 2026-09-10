@@ -1,0 +1,12 @@
+{
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "explorer.autoReveal": true,
+    "explorer.compactFolders": false,
+    "files.exclude": {
+        "**/.git": false
+    },
+    "claudeCode.includeCoAuthoredBy": false,
+    "git.includeCoAuthoredBy": false
+}
