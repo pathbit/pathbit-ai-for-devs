@@ -1,3 +1,2 @@
-requests>=2.31.0
-urllib3>=2.0.0
-rich>=13.7.0
+# Este modulo utiliza exclusivamente a biblioteca padrao do Python 3.10+
+# (urllib, json, subprocess, sqlite3). Nenhuma dependencia externa e necessaria.

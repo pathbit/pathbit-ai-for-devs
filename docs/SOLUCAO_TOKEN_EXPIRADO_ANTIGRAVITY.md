@@ -41,7 +41,7 @@ Para renovar o token e atualizar o container automaticamente, criamos o utilitá
 2. O script realiza os seguintes passos em frações de segundo:
    - Localiza o arquivo de credenciais mais recente em `~/.gemini/jetski-standalone-oauth-token` ou `~/.config/antigravity/`.
    - Lê o `refresh_token` e solicita um novo `access_token` aos servidores do Google OAuth.
-   - Conecta-se ao container `claudegravity-router` e atualiza a tabela `connections` do banco SQLite `/app/data/db/data.sqlite`.
+   - Conecta-se ao container `claudegravity-router` e atualiza a tabela `providerConnections` do banco SQLite `/app/data/db/data.sqlite`.
    - Limpa bloqueios de rate limit anteriores.
 
 Saída esperada:

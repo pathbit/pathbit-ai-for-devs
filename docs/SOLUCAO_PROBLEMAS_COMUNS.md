@@ -55,7 +55,7 @@ O container `claudegravity-ollama` foi iniciado, mas o download do modelo especi
 Execute o download e a cópia da tag padrão no container:
 
 ```bash
-# 1. Baixar o modelo especialista leve (apenas 379 MB)
+# 1. Baixar o modelo especialista leve (397 MB)
 docker exec -it claudegravity-ollama ollama pull qwen2.5-coder:0.5b
 
 # 2. Criar a tag 'latest' para o modelo

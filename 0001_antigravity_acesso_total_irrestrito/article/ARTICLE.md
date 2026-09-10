@@ -306,10 +306,7 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
   },
   "skipDangerousModePermissionPrompt": true,
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_ENABLE_LOOPS": "1",
-    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
-    "CLAUDE_CODE_ENABLE_GOAL": "1"
+    "CLAUDE_CODE_EXPERIMENTAL": "1"
   },
   "includeCoAuthoredBy": false
 }
@@ -320,12 +317,9 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
 | Chave | Valor | Função Técnica |
 | :--- | :--- | :--- |
 | `permissions.defaultMode` | `"bypassPermissions"` | Concede execução direta para ferramentas de arquivo, terminal e rede. |
-| `permissions.allow` | Lista de wildcards | Abrange comandos de terminal (`Bash(*)`), leitura (`Read(*)`), edição (`Edit(*)`), escrita (`Write(*)`), listagem (`Glob(*)`), busca (`Grep(*)`), requisições (`WebFetch(*)`) e ferramentas MCP (`mcp__*`). |
+| `permissions.allow` | Lista de wildcards | Abrange comandos de terminal (`Bash(*)`), leitura (`Read(*)`), edição (`Edit(*)`), escrita (`Write(*)`), listagem (`Glob(*)`), busca (`Grep(*)`), requisições (`WebFetch(*)`) e busca (`WebSearch(*)`), além de `NotebookEdit(*)`, `TodoWrite(*)`, `Agent(*)` e `Skill(*)`. |
 | `skipDangerousModePermissionPrompt` | `true` | Suprime o diálogo de confirmação inicial sobre operar em modo irrestrito. |
 | `env.CLAUDE_CODE_EXPERIMENTAL` | `"1"` | Desbloqueia capacidades avançadas do motor agêntico. |
-| `env.CLAUDE_CODE_ENABLE_LOOPS` | `"1"` | Permite iteração em laço para execução de testes e autocorreção. |
-| `env.CLAUDE_CODE_ENABLE_ADVISOR` | `"1"` | Permite atuação de conselheiro secundário em segundo plano. |
-| `env.CLAUDE_CODE_ENABLE_GOAL` | `"1"` | Habilita planejamento de metas de longo prazo via `/goal`. |
 | `includeCoAuthoredBy` | `false` | Garante commits com autoria exclusivamente humana. |
 
 ---
@@ -362,7 +356,7 @@ O arquivo local repete as concessões de permissões para a máquina do desenvol
 
 ### 8. Estrutura do Relatório de Diagnóstico e Saúde (`health_report.json`)
 
-Para comprovar que o ambiente está operacional e que todas as permissões foram aceitas pelo motor Agent 2.0, a ferramenta de validação gera um relatório estruturado em JSON com a evidência técnica do estado atual:
+Para demonstrar a autonomia de leitura e escrita dentro do ambiente isolado, o script de exemplo `examples/sample_task.py` grava um relatório estruturado em JSON no formato de diagnóstico esperado:
 
 ```json
 {
@@ -378,7 +372,7 @@ Para comprovar que o ambiente está operacional e que todas as permissões foram
 }
 ```
 
-Esse arquivo comprova que:
+Esse arquivo reproduz o estado esperado após a configuração:
 - O motor reconhece a política `CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`.
 - A revisão de artefatos opera em modo `TURBO`.
 - O sandbox artificial de terminal está desativado (`false`).
@@ -414,7 +408,7 @@ O artigo disponibiliza uma suíte completa de ferramentas em Python puro, com su
 
 - script de configuração idempotente (`setup_permissions.py`) que aplica os merges em todos os arquivos de configuração;
 - diagnóstico automatizado (`verify_permissions.py`) que valida a presença de cada política e wildcard no sistema;
-- ferramenta de restauração segura (`restore_permissions.py`) para reverter qualquer alteração com um comando;
+- ferramenta de restauração segura (`restore_permissions.py`) para reverter os arquivos de configuração do Antigravity  -  motor, projetos, CLI, trust de pastas e IDE  -  com um comando;
 - ambiente prático e isolado (`examples/`) com configurações de modelo e script de teste (`sample_task.py`).
 
 **Opção 1** Execute a configuração e o diagnóstico localmente pelo terminal.

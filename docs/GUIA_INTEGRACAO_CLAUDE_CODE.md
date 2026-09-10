@@ -66,7 +66,7 @@ claude --dangerously-skip-permissions --model claudegravity-fallback
 
 | Identificador do Modelo | Descrição |
 | :--- | :--- |
-| `claudegravity-fallback` | Combo com salto automático entre Gemini 3.8, Gemini 3.7, Sonnet 4.6 e GPT-OSS |
+| `claudegravity-fallback` | Combo de 5 níveis, com salto automático entre Gemini 3.8, Gemini 3.7, Gemini 3.6, Sonnet 4.6 e GPT-OSS 120B |
 | `arsenal-supremo` | Combo com 7 níveis de contingência incluindo OpenRouter, Groq, Mistral e Ollama local |
 | `arsenal-rapido` | Focado em velocidade extrema com chips LPU da Groq Cloud |
 | `arsenal-offline` | Atendido pelo modelo local `qwen2.5-coder`, sem depender de internet. Mantém a cascata respondendo, mas **não conduz uma sessão de trabalho no harness**, portanto não o use em `ANTHROPIC_DEFAULT_*_MODEL` |

@@ -1,1 +1,2 @@
-requests>=2.32.0
+# Este modulo utiliza exclusivamente a biblioteca padrao do Python 3.10+
+# (urllib, json, subprocess). Nenhuma dependencia externa e necessaria.

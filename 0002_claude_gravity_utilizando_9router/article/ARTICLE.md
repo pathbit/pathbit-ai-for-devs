@@ -339,7 +339,7 @@ Ao selecionar **Claude Code**, o gateway apresenta as instruções com as variá
 
 ### Configurando o Claude Code a partir dos Modelos Example
 
-Para que todas as sessões do Claude Code iniciem com permissões completas, loops, advisors e os modelos Gemini pré-configurados, disponibilizamos modelos `.example` exclusivamente dentro da pasta de testes do artigo (`examples/.claude/`). Para inicializar sua configuração local:
+Para que toda sessão do Claude Code inicie com as permissões completas e os modelos Gemini já mapeados, disponibilizamos modelos `.example` dentro da pasta de testes do artigo (`examples/.claude/`). Para inicializar sua configuração local:
 
 ```bash
 cp examples/.claude/settings.json.example examples/.claude/settings.json
@@ -396,9 +396,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_ENABLE_LOOPS": "1",
-    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
-    "CLAUDE_CODE_ENABLE_GOAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
   },
   "permissions": {
@@ -494,9 +491,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_ENABLE_LOOPS": "1",
-    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
-    "CLAUDE_CODE_ENABLE_GOAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
   },
   "permissions": {
@@ -534,9 +528,6 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 | `skipDangerousModePermissionPrompt` | Suprime o diálogo de aviso inicial do Claude Code sobre estar rodando em modo desprotegido. | Elimina o prompt de confirmação inicial toda vez que uma nova sessão é disparada. |
 | `includeCoAuthoredBy: false` | Impede que o Claude Code anexe trailers de coautoria (`Co-Authored-By`) nos commits. | Assegura autoria estritamente humana nos commits e preserva a integridade do histórico do repositório. |
 | `CLAUDE_CODE_EXPERIMENTAL=1` | Ativa recursos experimentais do motor de execução da CLI da Anthropic. | Desbloqueia novas capacidades do motor agêntico. |
-| `CLAUDE_CODE_ENABLE_LOOPS=1` | Habilita a execução contínua de loops de feedback e tentativa e erro pelo agente. | Permite que o Gemini 3.8 rode testes, capture erros e tente novamente até o código passar. |
-| `CLAUDE_CODE_ENABLE_ADVISOR=1` | Permite que um modelo secundário atue como conselheiro (*Advisor*) do modelo primário. | Permite usar o `ag/gemini-3.8-flash-high` como revisor arquitetural em segundo plano. |
-| `CLAUDE_CODE_ENABLE_GOAL=1` | Ativa o modo de metas de longo prazo (`/goal`) no Claude Code. | Ideal para tarefas noturnas ou refatorações extensas que duram horas. |
 | `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` | Desativa a restrição rígida de contagem de janela de contexto baseada exclusivamente nos modelos proprietários da Anthropic. | Permite que o Claude Code utilize os identificadores `ag/gemini-*` sem reclamar de tamanho de janela desconhecido. |
 
 ---
@@ -826,7 +817,7 @@ python3 src/claudegravity.py
 Agora que você tem o ClaudeGravity funcionando na sua máquina:
 
 1. **Configure Combos de Fallback no 9Router:** Crie um combo no dashboard que tente primeiro o `ag/gemini-3.8-flash-high` e, caso o rate limit por minuto da Google seja atingido em tarefas brutas, comute automaticamente para `ag/gemini-3.7-flash-high` e `ag/gemini-3.6-flash-high`.
-2. **Adicione Servidores MCP:** Como o `.claude/settings.local.json` já libera permissões para ferramentas `mcp__*`, conecte servidores MCP de PostgreSQL, GitHub e navegadores locais sem atrito.
+2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
 4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
 

@@ -49,7 +49,7 @@ Container claudegravity-router   Up (healthy)   127.0.0.1:20128->20128/tcp
 | `src/verify_setup.py` | `AMBIENTE 100% OPERACIONAL` · Claude Code 2.1.266 detectado |
 | `src/test_gateway.py` (modo principal) | **HTTP 200 em 1.23s** · `PONG - ClaudeGravity Operacional` |
 | `src/test_gateway.py` (modo resiliente) | **HTTP 200 em 1.13s** · `PONG - ClaudeGravity Operacional` |
-| `src/claudegravity.py --list-models` | 8 modelos e combos listados |
+| `src/claudegravity.py --list-models` | 9 modelos e combos listados |
 | `src/manage_env.py status` | `Gateway HTTP Status: 200 OK` |
 
 A reconexão OAuth ocorreu a partir do refresh token local, com o volume do gateway destruído
@@ -126,20 +126,25 @@ Todos os identificadores declarados nos arquivos `.example` dos artigos foram su
 
 | Modelo / combo | Operou o harness | Tempo |
 | :--- | :--- | ---: |
-| `ag/gemini-3.8-flash-high` | ✅ | 6,7s |
-| `ag/gemini-3.7-flash-high` | ✅ | 5,4s |
-| `ag/gemini-3.6-flash-high` | ✅ | 4,9s |
-| `ag/gemini-3.1-pro-low` | ✅ | 11,2s |
-| `ag/claude-sonnet-4-6` | ✅ | 3,7s |
-| `ag/claude-opus-4-6-thinking` | ✅ | 9,4s |
-| `ag/gpt-oss-120b-medium` | ✅ | 7,1s |
-| `arsenal-supremo` | ✅ | 4,8s |
-| `arsenal-rapido` | ✅ | 2,7s |
-| `claudegravity-fallback` | ✅ | 8,6s |
-| `arsenal-offline` | ❌ | 4,0s |
+| `ag/gemini-3.8-flash-high` | ✅ | 7,5s |
+| `ag/gemini-3.7-flash-high` | ✅ | 5,2s |
+| `ag/gemini-3.6-flash-high` | ✅ | 4,0s |
+| `ag/gemini-pro-agent` | ✅ | 8,6s |
+| `ag/gemini-3.1-pro-low` | ✅ | 13,3s |
+| `ag/claude-sonnet-4-6` | ✅ | 8,3s |
+| `ag/claude-opus-4-6-thinking` | ✅ | 14,9s |
+| `ag/gpt-oss-120b-medium` | ✅ | 6,7s |
+| `arsenal-supremo` | ✅ | 7,2s |
+| `arsenal-rapido` | ✅ | 3,7s |
+| `claudegravity-fallback` | ✅ | 6,8s |
+| `arsenal-offline` | ❌ | 1,9s |
+| `claude-opus-4-6` *(via override)* | ✅ | 10,9s |
+| `claude-sonnet-4-6` *(via override)* | ✅ | 4,8s |
+| `claude-haiku-4-5-20251001` *(via override)* | ✅ | 9,3s |
 
-**10 de 11 operam o harness.** A única reprovação é o `arsenal-offline`, e ela é esperada, o motivo
-está logo abaixo.
+**14 de 15 operam o harness.** As três últimas linhas são os `modelOverrides` exercitados pelo nome
+que o Claude Code emite, e não pelo identificador do gateway: são a prova de que a tradução acontece.
+A única reprovação é o `arsenal-offline`, e ela é esperada, o motivo está logo abaixo.
 
 ### Os `modelOverrides` medidos um a um
 
