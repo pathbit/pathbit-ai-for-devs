@@ -1,0 +1,77 @@
+{
+  "model": "arsenal-supremo",
+  "advisorModel": "arsenal-supremo",
+  "modelOverrides": {
+    "claude-opus-4-6": "ag/claude-sonnet-4-6",
+    "claude-sonnet-4-6": "ag/claude-sonnet-4-6",
+    "claude-haiku-4-5-20251001": "ag/gpt-oss-120b-medium",
+    "claude-haiku": "ag/gpt-oss-120b-medium",
+    "claude-5": "ag/gemini-3.8-flash-high",
+    "claude-5-sonnet": "ag/gemini-3.8-flash-high",
+    "claude-5-opus": "ag/gemini-3.8-flash-high",
+    "fable": "ag/gemini-3.8-flash-high",
+    "claude-fable": "ag/gemini-3.8-flash-high",
+    "gpt-oss": "ag/gpt-oss-120b-medium",
+    "gpt-oss-120b": "ag/gpt-oss-120b-medium"
+  },
+  "modelPicker": {
+    "replaceBuiltInOptions": false,
+    "options": [
+      {
+        "model": "arsenal-supremo",
+        "label": "Arsenal Supremo (Cascata Completa de Fallback)",
+        "description": "Gemini 3.8/3.7/3.6, Nemotron 3.5 Lightning, GPT-OSS 120B, Codestral e Ollama local"
+      },
+      {
+        "model": "arsenal-rapido",
+        "label": "Arsenal Rápido (Alta Velocidade)",
+        "description": "GPT-OSS 120B na Groq com fallback para Codestral, Gemini 3.7 e Gemini 3.6 Flash"
+      },
+      {
+        "model": "arsenal-offline",
+        "label": "Arsenal Offline (Continuidade Local via Ollama)",
+        "description": "Continuidade local via Ollama: mantém a cascata respondendo, não substitui os níveis em nuvem"
+      },
+      {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash (High Reasoning)",
+        "description": "Inferência direta do Gemini 3.8 via Antigravity AI Pro"
+      },
+      {
+        "model": "ag/claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6 (Thinking)",
+        "description": "Sonnet 4.6 Thinking roteado via Antigravity AI Pro"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B (Medium)",
+        "description": "Modelo open-weights via Antigravity"
+      }
+    ]
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128",
+    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
+    "CLAUDE_CODE_EXPERIMENTAL": "1",
+    "CLAUDE_CODE_ENABLE_LOOPS": "1",
+    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
+    "CLAUDE_CODE_ENABLE_GOAL": "1",
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "*",
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "includeCoAuthoredBy": false
+}

@@ -1,0 +1,37 @@
+name: claudegravity
+
+services:
+  9router:
+    # Imagem fixada por tag para evitar quebras silenciosas: este projeto depende
+    # do endpoint interno /api/auth/status e do schema SQLite do gateway.
+    image: decolua/9router:0.5.69
+    container_name: claudegravity-router
+    restart: unless-stopped
+    ports:
+      # Apenas localhost: o gateway carrega credenciais reais (OAuth do Antigravity
+      # e chaves dos provedores) e nao deve ficar acessivel na rede local.
+      - "127.0.0.1:20128:20128"
+    volumes:
+      - 9router_data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DATA_DIR=/app/data
+      - PORT=20128
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_BASE_URL=http://localhost:20128
+      - NODE_ENV=production
+      # Credenciais lidas do arquivo .env local (nunca versionado)
+      - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no arquivo .env}
+      - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
+      - REQUIRE_API_KEY=false
+      - REQUIRE_LOGIN=false
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  9router_data:

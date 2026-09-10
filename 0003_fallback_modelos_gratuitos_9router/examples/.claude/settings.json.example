@@ -1,0 +1,41 @@
+{
+  "model": "arsenal-supremo",
+  "modelOverrides": {
+    "claude-opus-4-6": "ag/claude-sonnet-4-6",
+    "claude-sonnet-4-6": "ag/claude-sonnet-4-6",
+    "claude-haiku-4-5-20251001": "ag/gpt-oss-120b-medium",
+    "claude-haiku": "ag/gpt-oss-120b-medium",
+    "claude-5": "ag/gemini-3.8-flash-high",
+    "claude-5-sonnet": "ag/gemini-3.8-flash-high",
+    "claude-5-opus": "ag/gemini-3.8-flash-high",
+    "fable": "ag/gemini-3.8-flash-high",
+    "claude-fable": "ag/gemini-3.8-flash-high",
+    "gpt-oss": "ag/gpt-oss-120b-medium",
+    "gpt-oss-120b": "ag/gpt-oss-120b-medium"
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128",
+    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
+    "CLAUDE_CODE_EXPERIMENTAL": "1",
+    "CLAUDE_CODE_ENABLE_LOOPS": "1",
+    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
+    "CLAUDE_CODE_ENABLE_GOAL": "1",
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "*",
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "includeCoAuthoredBy": false
+}
