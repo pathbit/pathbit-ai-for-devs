@@ -376,27 +376,93 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 ```json
 {
   "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelOverrides": {
-    "claude-opus-4-6": "ag/gemini-3.1-pro-low",
-    "claude-3-opus": "ag/gemini-3.1-pro-low",
-    "claude-5-opus": "ag/gemini-3.1-pro-low",
+    "claude-fable-5": "ag/gemini-pro-agent",
+    "claude-fable-5[1m]": "ag/gemini-pro-agent",
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-fable-5-1[1m]": "ag/gemini-pro-agent",
+    "claude-fable-5-mythos-5": "ag/gemini-pro-agent",
+    "claude-fable-5-mythos-5[1m]": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-opus-5[1m]": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-8": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-8[1m]": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-7": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-7[1m]": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-6": "ag/gemini-3.8-flash-high",
+    "claude-opus-4-6[1m]": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high",
+    "claude-sonnet-5[1m]": "ag/gemini-3.7-flash-high",
     "claude-sonnet-4-6": "ag/gemini-3.7-flash-high",
-    "claude-3-7-sonnet": "ag/gemini-3.7-flash-high",
-    "claude-5-sonnet": "ag/gemini-3.7-flash-high",
-    "claude-5": "ag/gemini-3.7-flash-high",
+    "claude-sonnet-4-6[1m]": "ag/gemini-3.7-flash-high",
+    "claude-sonnet-4-5": "ag/gemini-3.7-flash-high",
+    "claude-sonnet-4-5[1m]": "ag/gemini-3.7-flash-high",
     "claude-haiku-4-5-20251001": "ag/gemini-3.6-flash-high",
-    "claude-haiku": "ag/gemini-3.6-flash-high",
-    "claude-3-5-haiku": "ag/gemini-3.6-flash-high",
-    "fable": "ag/gemini-3.6-flash-high",
-    "claude-fable": "ag/gemini-3.6-flash-high",
-    "gpt-oss": "ag/gpt-oss-120b-medium",
-    "gpt-oss-120b": "ag/gpt-oss-120b-medium"
+    "claude-haiku-4-5-20251001[1m]": "ag/gemini-3.6-flash-high",
+    "claude-haiku-4-5": "ag/gemini-3.6-flash-high",
+    "claude-haiku-4-5[1m]": "ag/gemini-3.6-flash-high",
+    "fable": "ag/gemini-pro-agent",
+    "fable[1m]": "ag/gemini-pro-agent",
+    "opus": "ag/gemini-3.8-flash-high",
+    "opus[1m]": "ag/gemini-3.8-flash-high",
+    "opusplan": "ag/gemini-3.8-flash-high",
+    "opusplan[1m]": "ag/gemini-3.8-flash-high",
+    "sonnet": "ag/gemini-3.7-flash-high",
+    "sonnet[1m]": "ag/gemini-3.7-flash-high",
+    "haiku": "ag/gemini-3.6-flash-high"
+  },
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto e 1M de contexto",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "Cascata de 5 niveis no Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-pro-agent",
+        "label": "Gemini 3.1 Pro High",
+        "description": "O mais denso da conta. Use com parcimonia",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B",
+        "description": "Pesos abertos via Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      }
+    ]
   },
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
-    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -638,6 +704,53 @@ ps -eo pid,etime,command | grep "claude -p" | grep -v grep
 # Encerrar por PID, porque o pkill por padrao nem sempre alcanca
 for p in $(ps -eo pid,command | grep "claude -p" | grep -v grep | awk '{print $1}'); do kill -9 "$p"; done
 ```
+
+---
+
+### Tirando os Modelos da Anthropic do Menu
+
+Mapear identificadores um a um resolve o sintoma, mas envelhece: a cada geração nova de modelos a CLI
+passa a emitir identificadores que o seu mapa não tem, e o erro `There's an issue with the selected
+model` volta. Há uma saída melhor, e ela deixa o menu `/model` mostrando **apenas os seus modelos**.
+
+São duas chaves do `modelPicker`:
+
+- **`replaceBuiltInOptions: true`** substitui a lista nativa em vez de somar a ela. O menu passa a
+  exibir só o que você declarou.
+- **`behavesAs`** resolve o outro lado. A CLI precisa saber o que esperar de um identificador que ela
+  não conhece, e a própria mensagem de erro diz como informar: *"isn't described by this version's
+  model catalog; update Claude Code, or map it with `behavesAs` on a modelPicker row"*. O valor é o
+  **ID de um modelo que a CLI conhece**, e serve de referência de capacidade.
+
+```json
+"modelPicker": {
+  "replaceBuiltInOptions": true,
+  "options": [
+    {
+      "model": "ag/gemini-3.8-flash-high",
+      "label": "Gemini 3.8 Flash High",
+      "description": "Primario: raciocinio alto e 1M de contexto",
+      "behavesAs": "claude-opus-4-8"
+    },
+    {
+      "model": "ag/gemini-3.6-flash-high",
+      "label": "Gemini 3.6 Flash High",
+      "description": "Latencia minima, alta frequencia",
+      "behavesAs": "claude-haiku-4-5-20251001"
+    }
+  ]
+}
+```
+
+O leitor nunca vê "Opus 5" ou "Fable 5.1" no menu: vê "Gemini 3.8 Flash High". O `behavesAs` fica nos
+bastidores, apenas dizendo à CLI que aquele modelo tem porte de Opus.
+
+> **Por que isso é mais robusto que o `modelOverrides`:** o override reage a um identificador que a
+> CLI escolheu; o picker define quais identificadores existem. Com a lista nativa substituída, não há
+> como o menu oferecer um modelo que o seu gateway não serve. Mantenha o `modelOverrides` mesmo assim,
+> como rede de segurança para os papéis internos, que continuam pedindo nomes nativos.
+
+Valide com `claude doctor`  -  ele aceita ou recusa cada linha do picker sem abrir sessão.
 
 ---
 

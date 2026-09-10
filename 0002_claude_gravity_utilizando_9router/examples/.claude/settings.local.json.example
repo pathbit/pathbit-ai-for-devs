@@ -37,47 +37,43 @@
     "haiku": "ag/gemini-3.6-flash-high"
   },
   "modelPicker": {
-    "replaceBuiltInOptions": false,
+    "replaceBuiltInOptions": true,
     "options": [
       {
         "model": "ag/gemini-3.8-flash-high",
-        "label": "ClaudeGravity Principal (Gemini 3.8 Flash High)",
-        "description": "Modelo primário ClaudeGravity via Antigravity AI Pro"
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto e 1M de contexto",
+        "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente (Fallback Gratuito)",
-        "description": "Combo resiliente com fallback automático para modelos gratuitos"
+        "label": "ClaudeGravity Resiliente",
+        "description": "Cascata de 5 niveis no Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-pro-agent",
+        "label": "Gemini 3.1 Pro High",
+        "description": "O mais denso da conta. Use com parcimonia",
+        "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash (High Reasoning)",
-        "description": "Raciocínio balanceado e alta velocidade"
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash (Low Latency)",
-        "description": "Latência mínima para tarefas rápidas"
-      },
-      {
-        "model": "ag/gemini-3.1-pro-low",
-        "label": "Gemini 3.1 Pro (Deep Complex)",
-        "description": "Planejamento arquitetural complexo e agentes profundos"
-      },
-      {
-        "model": "ag/claude-sonnet-4-6",
-        "label": "Claude Sonnet 4.6 (Thinking)",
-        "description": "Sonnet 4.6 Thinking roteado via Antigravity"
-      },
-      {
-        "model": "ag/claude-opus-4-6-thinking",
-        "label": "Claude Opus 4.6 (Thinking)",
-        "description": "Opus 4.6 Thinking roteado via Antigravity"
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
       },
       {
         "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B (Medium)",
-        "description": "Modelo open-weights via Antigravity"
+        "label": "GPT-OSS 120B",
+        "description": "Pesos abertos via Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
       }
     ]
   },
@@ -89,7 +85,8 @@
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",

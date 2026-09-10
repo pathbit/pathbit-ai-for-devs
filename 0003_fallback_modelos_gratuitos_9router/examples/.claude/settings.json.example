@@ -43,7 +43,8 @@
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
+    "ANTHROPIC_MODEL": "arsenal-supremo"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -64,5 +65,34 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "arsenal-supremo"
+  "advisorModel": "arsenal-supremo",
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "arsenal-supremo",
+        "label": "Arsenal Supremo (cascata completa)",
+        "description": "7 niveis: Gemini 3.8/3.7/3.6, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "arsenal-rapido",
+        "label": "Arsenal Rapido (baixa latencia)",
+        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis dentro do Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "arsenal-offline",
+        "label": "Arsenal Offline (contingencia)",
+        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      }
+    ]
+  }
 }
