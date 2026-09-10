@@ -375,7 +375,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "claudegravity-fallback",
+  "model": "claudegravity-thinking",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
@@ -385,7 +385,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-fallback"
+    "ANTHROPIC_MODEL": "claudegravity-thinking"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -423,6 +423,14 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
         "behavesAs": "claude-opus-4-8"
       }
     ]
+  },
+  "modelOverrides": {
+    "claude-fable-5-1": "claudegravity-thinking",
+    "claude-fable-5-1[1m]": "claudegravity-thinking",
+    "claude-opus-5": "claudegravity-thinking",
+    "claude-opus-5[1m]": "claudegravity-thinking",
+    "claude-sonnet-5": "claudegravity-fallback",
+    "claude-sonnet-5[1m]": "claudegravity-fallback"
   }
 }
 ```
@@ -431,7 +439,25 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "claudegravity-fallback",
+  "model": "claudegravity-thinking",
+  "advisorModel": "claudegravity-thinking",
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "claudegravity-thinking",
+        "label": "ClaudeGravity Thinking",
+        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "behavesAs": "claude-opus-4-8"
+      }
+    ]
+  },
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
@@ -441,7 +467,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-fallback"
+    "ANTHROPIC_MODEL": "claudegravity-thinking"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -462,23 +488,13 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "claudegravity-thinking",
-  "modelPicker": {
-    "replaceBuiltInOptions": true,
-    "options": [
-      {
-        "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "claudegravity-thinking",
-        "label": "ClaudeGravity Thinking",
-        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
-        "behavesAs": "claude-opus-4-8"
-      }
-    ]
+  "modelOverrides": {
+    "claude-fable-5-1": "claudegravity-thinking",
+    "claude-fable-5-1[1m]": "claudegravity-thinking",
+    "claude-opus-5": "claudegravity-thinking",
+    "claude-opus-5[1m]": "claudegravity-thinking",
+    "claude-sonnet-5": "claudegravity-fallback",
+    "claude-sonnet-5[1m]": "claudegravity-fallback"
   }
 }
 ```
@@ -500,118 +516,42 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 
 ---
 
-### O Caminho que Não Recomendamos: Mapear Identificador por Identificador
+### Um `modelOverrides` Curto, e Só Onde Faz Falta
 
-Existe uma chave chamada `modelOverrides` que traduz o identificador pedido pela CLI para um modelo
-do gateway. Ela funciona, e foi por ela que começamos  -  mas é uma armadilha de manutenção, e vale
-explicar por quê antes de mostrar a alternativa.
+A chave `modelOverrides` traduz o identificador pedido pela CLI para um modelo do gateway. A tentação
+é mapear tudo  -  chegamos a escrever 33 entradas cobrindo cada família com e sem sufixo de janela.
+Foi trabalho desperdiçado, e a medição mostrou por quê.
 
-O problema é que o menu `/model` grava o identificador **completo da geração corrente, com o sufixo
-de janela**: `claude-opus-5[1m]`, `claude-fable-5-1[1m]`. Um mapa escrito hoje não conhece os nomes
-de amanhã, e o sintoma é sempre o mesmo:
+Com o `modelPicker` substituindo a lista nativa e os quatro papéis declarados, testamos **removendo o
+bloco por completo**. Nada quebrou na operação normal, e nenhum consumidor pediu um `claude-*`: o
+`sdk` foi para o combo padrão e o `generate_session_title` para o combo rápido. O bloco só faz falta
+num caso, e é bem específico:
 
-```text
-There's an issue with the selected model (claude-opus-5[1m]).
-It may not exist or you may not have access to it.
+| Cenário | Precisa de override? |
+| :--- | :--- |
+| Operação normal, sem `--model` | Não |
+| Alias curto (`--model opus`, `sonnet`, `fable`) | Não, a CLI resolve pelo papel |
+| Combo próprio (`--model arsenal-supremo`) | Não |
+| **Identificador da geração corrente pinado antes** (`claude-opus-5[1m]`) | **Sim** |
+
+O caso que sobra é o de um `settings.local.json` que ficou apontando para um modelo escolhido no menu
+antes de você trocar a configuração. Para isso bastam **seis entradas**, cobrindo a geração corrente
+com e sem o sufixo `[1m]`:
+
+```json
+"modelOverrides": {
+  "claude-fable-5-1":     "claudegravity-thinking",
+  "claude-fable-5-1[1m]": "claudegravity-thinking",
+  "claude-opus-5":        "claudegravity-thinking",
+  "claude-opus-5[1m]":    "claudegravity-thinking",
+  "claude-sonnet-5":      "claudegravity-fallback",
+  "claude-sonnet-5[1m]":  "claudegravity-fallback"
+}
 ```
 
-A CLI valida o identificador contra um catálogo fechado **antes** de consultar o `modelOverrides`.
-Cobrir uma geração inteira exigiu 33 chaves, e a próxima geração exigiria outras tantas. É trabalho
-que volta.
-
-As duas seções a seguir mostram o caminho que resolve de vez: declarar **papéis** e **substituir o
-menu**, deixando de perseguir identificadores.
-
-### Os Quatro Papéis de Modelo, e Qual Gemini Colocar em Cada Um
-
-Em vez de perseguir identificadores, declare **papéis**. O Claude Code tem quatro, cada um com sua
-própria variável de ambiente, e eles são resolvidos sem passar pelo catálogo fechado. A ordem de
-capacidade vem da própria CLI:
-
-> *Fable for the hardest problems, Opus for complex work, Sonnet for most tasks, Haiku for quick questions.*
-
-Traduzindo para o catálogo do Antigravity, a escada fica assim:
-
-| Papel | Variável | Gemini sugerido | Por quê |
-| :--- | :--- | :--- | :--- |
-| **Fable** | `ANTHROPIC_DEFAULT_FABLE_MODEL` | `ag/gemini-pro-agent` | Gemini 3.1 Pro High. O motor mais denso da conta, reservado ao que realmente exige raciocínio longo |
-| **Opus** | `ANTHROPIC_DEFAULT_OPUS_MODEL` | `ag/gemini-3.8-flash-high` | Topo da linha Flash com `thinking` alto: trabalho complexo sem o custo do Pro |
-| **Sonnet** | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `ag/gemini-3.7-flash-high` | O cavalo de batalha, onde cai a maior parte das tarefas |
-| **Haiku** | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `ag/gemini-3.6-flash-high` | Alta frequência e baixa latência: é o papel mais chamado, e o que mais penaliza se for lento |
-
-#### Como descobrir qual papel está sendo usado
-
-Não é preciso adivinhar. Aponte cada papel para um modelo **diferente** e leia o log do gateway,
-que registra `modelo pedido → modelo servido`. A CLI ainda ajuda: quando o identificador não é
-nativo da Anthropic, ela emite uma linha de diagnóstico com o campo `query_source`, dizendo qual
-parte do harness fez o pedido.
-
-Foi assim que levantamos o mapa abaixo, atribuindo um Gemini distinto a cada papel e rodando
-tarefas comuns:
-
-| `query_source` | Papel acionado | Quando aparece |
-| :--- | :--- | :--- |
-| `sdk` | modelo principal (`ANTHROPIC_MODEL`) | O laço principal da sessão |
-| `generate_session_title` | **Haiku** | **Toda sessão**, para nomear a conversa |
-| `agent:builtin:Explore` | **Opus** | Quando um subagente de exploração é despachado |
-
-Duas conclusões práticas. Primeira: **o papel Haiku é chamado em toda sessão**, mesmo nas triviais.
-Colocar um modelo caro ali é desperdício garantido. Segunda: **subagentes não usam o papel rápido**,
-usam o papel de trabalho complexo  -  se você despacha subagentes com frequência, é o Opus que
-define seu consumo, não o modelo principal.
-
-#### O custo do `thinking`
-
-O log do gateway expõe uma diferença que a configuração não mostra:
-
-```text
-▶ POST ag/gemini-3.6-flash-high  → antigravity/gemini-3.6-flash-high  · THINK:high
-▶ POST ag/gemini-3.1-pro-low     → antigravity/gemini-3.1-pro-low     · (sem marcador)
-```
-
-As variantes `-high` viajam com raciocínio estendido; a `-low` não. Isso muda o consumo de tokens
-por chamada, e explica por que uma variante Pro em modo `low` pode sair mais barata que uma Flash
-em modo `high`. Não assuma que "Pro" significa sempre mais caro: o que pesa é o nível de raciocínio
-que a requisição carrega.
-
-#### Medições de latência por papel
-
-Com o gateway ocioso, pedindo apenas `Responda apenas OK`:
-
-| Invocação | Tempo | Observação |
-| :--- | ---: | :--- |
-| `--model sonnet` | 3,8s | Referência |
-| `--model fable` | 11,3s | Raciocínio mais denso cobra o seu preço |
-| `--model claude-opus-5[1m]` | 25,9s | Medido antes da troca, com o mapa de identificadores ativo |
-| `--model opus` | 62,2s | **O alias liga o Opus Plan Mode**, que planeja antes de responder |
-
-O `--model opus` merece destaque: ele não é sinônimo de `claude-opus-5`. O alias ativa o **Opus Plan
-Mode**, um fluxo que planeja antes de executar e custa, na tarefa mais simples possível, dezesseis
-vezes o tempo do `sonnet`. Útil quando você quer o planejamento; desperdício quando quer só uma
-resposta.
-
-#### Uma armadilha operacional que custa cota
-
-Durante as medições encontramos um comportamento que vale o aviso: **um `claude -p` interrompido por
-timeout não necessariamente morre**. Processos de tentativas anteriores continuaram emitindo
-requisições ao gateway por minutos, sobrevivendo inclusive a `pkill -9` no processo pai. Com alguns
-deles acumulados, o gateway registrava dezenas de requisições por segundo sem ninguém estar usando,
-e toda medição nova saía lenta  -  o que quase nos levou a culpar o modelo errado.
-
-Se o gateway parecer lento sem motivo, confira antes de trocar de modelo:
-
-```bash
-# Quantas requisicoes chegam com voce parado? Deveria ser zero.
-docker logs claudegravity-router --tail 0 -f | grep -c "POST"
-
-# Quem sobrou de execucoes anteriores
-ps -eo pid,etime,command | grep "claude -p" | grep -v grep
-
-# Encerrar por PID, porque o pkill por padrao nem sempre alcanca
-for p in $(ps -eo pid,command | grep "claude -p" | grep -v grep | awk '{print $1}'); do kill -9 "$p"; done
-```
-
----
+Repare que o destino é sempre um **combo**, nunca um modelo solto: um pin antigo não deve levar você
+para um ponto único de falha. E, quando a CLI ganhar uma geração nova, você acrescenta duas linhas em
+vez de reescrever o bloco  -  ou simplesmente apaga o pin e deixa os papéis trabalharem.
 
 ### Nunca Deixe um Modelo Individual como Padrão
 
