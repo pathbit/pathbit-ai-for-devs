@@ -63,3 +63,27 @@ python3 0002_claude_gravity_utilizando_9router/src/test_gateway.py
 ```
 
 Se o teste indicar `Status HTTP 200 recebido`, o canal primário está restabelecido e você pode continuar desenvolvendo normalmente sem interrupções.
+
+---
+
+## 🚫 Erro HTTP 403 Forbidden e a Armadilha da Conta Google sem Licença
+
+Outro erro frequente ocorre quando o 9Router é autenticado no navegador com uma conta Google pessoal comum (gratuita), em vez da conta titular da assinatura Google AI Pro / Antigravity.
+
+### Sintomas
+- O 9Router exibe `active • OAuth #1`, mas o Claude Code ou o script `test_gateway.py` devolve:
+  ```text
+  HTTP Error 403: Forbidden - PERMISSION_DENIED
+  ```
+- Ou erro de modelo não encontrado (`404 Not Found`).
+
+### Causa Raiz
+O navegador utilizou a conta Google padrão (perfil sem plano Pro) durante o consentimento OAuth. O Google emite o token, mas recusa o acesso aos modelos restritos do Antigravity.
+
+### Resolução Passo a Passo
+1. Abra o dashboard do 9Router em `http://localhost:20128/dashboard/providers`.
+2. Clique no card **Antigravity**.
+3. Exclua a conexão incorreta clicando no ícone de lixeira (**Delete Connection**).
+4. Em outra aba do mesmo navegador, acesse `myaccount.google.com` e verifique se o perfil ativo é a sua conta Google com a licença do Gemini Pro / Antigravity.
+5. Retorne ao 9Router, clique em **+ Add Connection** e autorize com a conta licenciada.
+6. Revalide no terminal com `python3 0002_claude_gravity_utilizando_9router/src/test_gateway.py`.

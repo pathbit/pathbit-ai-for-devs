@@ -159,9 +159,38 @@ Após entrar, navegue até a aba **Endpoint & Key**. O gateway já exibe a URL l
 
 > **Sobre a chave que aparece nos exemplos deste artigo.** Todos os blocos usam o placeholder `sk-sua-chave-do-9router`. A chave real é **gerada localmente na primeira execução** de `src/sync_antigravity_token.py`: o script sorteia um valor aleatório exclusivo da sua máquina, registra no gateway e grava no arquivo `.env` do módulo, que não é versionado. O script imprime a chave no terminal para você copiá-la. Nenhuma chave fixa é distribuída no repositório  -  se fosse, seria uma senha única compartilhada por todos os leitores, válida em qualquer instalação do tutorial.
 
+### O Papel Mandatório do Dashboard Aberto com a Conta Licenciada
+
+Um dos pontos mais críticos para o sucesso da integração entre Claude Code, 9Router e Google Antigravity reside na forma como a sessão de autenticação é estabelecida e mantida.
+
+Para que a ponte de inferência funcione de ponta a ponta sem erros de permissão, **o dashboard do 9Router (`http://localhost:20128/dashboard`) deve ser aberto no navegador exatamente sob a conta Google titular da licença Antigravity (Google AI Pro, Google One AI Premium ou Workspace com Gemini)**.
+
+Manter a aba do dashboard aberta no navegador durante suas sessões de desenvolvimento atende a três propósitos operacionais vitais:
+
+1. **Contexto de Sessão e Fluxo OAuth no Navegador:** O 9Router utiliza o mecanismo de autenticação web do Google para negociar e validar os tokens de autorização da API Code Assist. O navegador precisa estar com a sessão da conta licenciada ativa para que o handshake OAuth conceda os escopos corretos de inferência sem atrito.
+2. **Observabilidade Operacional em Tempo Real:** O dashboard exibe instantaneamente o status do provedor (`active • OAuth #1`), o volume de requisições por minuto, o tempo de resposta em milissegundos e o percentual de tokens economizados pelo compressor RTK. Se uma rajada de requisições exceder a cota momentânea de taxa (RPM), o painel reflete o estado imediatamente, permitindo ação preventiva.
+3. **Detecção e Renovação Visual de Sessão:** Caso ocorra alternância de rede, troca de IP ou revogação temporária de credenciais pelo Google, o card do provedor no dashboard altera seu status visual, indicando a necessidade de revalidação antes que o Claude Code enfrente erros no meio de uma refatoração crítica.
+
+### A Armadilha das Múltiplas Contas Google no Navegador
+
+Na rotina diária de desenvolvimento de software, é quase unânime que engenheiros mantenham múltiplos perfis Google logados no mesmo navegador: um e-mail pessoal gratuito (`dev.silva@gmail.com`), um e-mail corporativo (`nome@empresa.com`), e-mails acadêmicos ou contas de clientes.
+
+Essa convivência de perfis é a **principal causa de falhas misteriosas** ao conectar o 9Router pela primeira vez:
+
+* **O Mecanismo da Falha:** Quando você clica em **+ Add Connection** no 9Router, o Google abre a tela padrão de autorização OAuth. Se o seu navegador estiver com o perfil pessoal padrão selecionado e esse perfil **não possuir a assinatura Google AI Pro / Antigravity**, o fluxo de autenticação completa sem erros aparentes. O Google emite o token e o 9Router exibe a conexão como `active`.
+* **O Sintoma Silencioso no Terminal:** Embora a conexão aparente estar saudável, no instante em que o Claude Code ou o script de teste solicita inferência para `ag/gemini-3.8-flash-high`, os servidores do Google Code Assist recusam a chamada e devolvem erros como:
+  - `HTTP 403 Forbidden` (`PERMISSION_DENIED` ou `ResourceExhausted`);
+  - `HTTP 404 Model Not Found` (o modelo Gemini Flash High e as instâncias Antigravity simplesmente não são liberadas para contas sem o plano Pro);
+  - Bloqueio imediato por ausência de cota de inferência de engenharia.
+* **A Causa Raiz:** O Google valida a cota de computação contra a assinatura atrelada ao e-mail proprietário da credencial OAuth. Uma conta gratuita gera um token OAuth sintaticamente perfeito, mas sem qualquer permissão de inferência para os modelos do Antigravity.
+
+> **Regra Prática de Blindagem:** Antes de iniciar a vinculação, abra uma aba em `https://myaccount.google.com` no mesmo navegador e confirme visualmente que o avatar e o endereço exibidos pertencem à conta titular da assinatura Google AI Pro / Antigravity. Caso seu navegador utilize perfis separados (Chrome Profiles, Arc Spaces ou Edge Profiles), abra o dashboard do 9Router exclusivamente na janela do perfil que detém a licença.
+
 ### Vinculando a Conta Google no Menu Providers
 
-1. No menu lateral, clique em **Providers** (`http://localhost:20128/dashboard/providers`).
+Com a conta Google correta ativa no navegador, execute o pareamento formal no gateway:
+
+1. No menu lateral do dashboard, clique em **Providers** (`http://localhost:20128/dashboard/providers`).
 2. Na seção **OAuth Providers**, localize o card **Antigravity**:
 
 ![Catálogo de Provedores](../assets/05_9router_providers.png)
@@ -174,13 +203,76 @@ Após entrar, navegue até a aba **Endpoint & Key**. O gateway já exibe a URL l
 
 > **Figura 6:** Provedor Antigravity com a conta Google AI Pro ativa (`active • OAuth #1`) e catálogo completo de modelos Gemini disponíveis para roteamento.
 
-4. Clique no botão **+ Add Connection**. Uma janela segura de autenticação Google será aberta. Basta efetuar o login com a conta Google titular da sua assinatura AI Pro.
+4. Clique no botão **+ Add Connection**. Uma janela segura de autenticação Google será aberta. Certifique-se de selecionar a conta Google titular da sua assinatura AI Pro e aprove o consentimento de acesso.
 
 ![Modal de Conexão do Provedor Antigravity](../assets/07_9router_antigravity_provider.png)
 
 > **Figura 7:** Detalhe das conexões e modelos do provedor Antigravity no 9Router.
 
-5. O 9Router completará o handshake OAuth, registrará o `projectId` e manterá o status da conexão como **`active`**.
+5. O 9Router completará o handshake OAuth, registrará o `projectId` e manterá o status da conexão como **`active • OAuth #1`**.
+
+### Protocolo de Validação Visual no Dashboard e Recuperação de Conexão
+
+Após completar a vinculação, execute a verificação visual no painel:
+
+1. **Status da Conexão:** No card Antigravity, o rótulo deve exibir expressamente `active • OAuth #1` em verde.
+2. **Catálogo de Modelos Habilitados:** A lista deve exibir os 20 modelos disponíveis (Gemini 3.8, Gemini 3.7, Gemini 3.6, Gemini 3.1 Pro e variantes auxiliares).
+3. **Como Corrigir se a Conta Errada Foi Vinculada:**
+   Caso você perceba que vinculou uma conta pessoal sem assinatura ou se os testes apontarem erro 403:
+   - No card Antigravity em `http://localhost:20128/dashboard/providers`, localize a conexão ativa e clique no ícone de lixeira (**Delete Connection**).
+   - Abra uma aba em `myaccount.google.com` no mesmo navegador e alterne o usuário ativo para a conta detentora da licença Antigravity.
+   - Retorne ao painel do 9Router, clique novamente em **+ Add Connection** e selecione a conta licenciada.
+
+### Validação Automatizada de Inferência via Terminal
+
+Não basta a interface indicar que está conectado: na engenharia de software de ponta, tudo deve ser testado, provado e validado via código executável.
+
+Disponibilizamos no repositório o script `src/test_gateway.py` para atestar a comunicação real com a API do Google:
+
+```bash
+python3 src/test_gateway.py
+```
+
+O utilitário executa quatro baterias de verificação automática:
+
+1. **Disponibilidade do Endpoint Local:** Confirma que o 9Router está saudável na porta `20128` (retornando `HTTP 200`).
+2. **Listagem do Catálogo:** Valida a presença dos identificadores com prefixo `ag/`.
+3. **Inferência Direta no Gemini 3.8 Flash High:** Envia a mensagem `"Responda apenas: PONG - ClaudeGravity Operacional"` diretamente para o endpoint `/v1/messages` simulando uma chamada real do Claude Code.
+4. **Resiliência do Combo de Fallback:** Envia a mesma inferência para o combo virtual `claudegravity-fallback`.
+
+A saída no terminal comprova o sucesso em tempo real:
+
+```text
+======================================================================
+🧪 TESTE DE INTEGRACAO CLAUDEGRAVITY & GATEWAY 9ROUTER
+======================================================================
+🔍 [1/4] Verificando disponibilidade do gateway 9Router em http://localhost:20128...
+✅ Gateway 9Router está online e respondendo (HTTP 200)!
+
+🔍 [2/4] Listando modelos Antigravity registrados...
+✅ Total de modelos Antigravity identificados: 20
+Modelos em destaque:
+   • ag/gemini-3.8-flash-high
+   • ag/gemini-3.8-flash-medium
+   • ag/gemini-3.8-flash-low
+   • ag/gemini-3.8-flash
+   • ag/gemini-3.7-flash-high
+   • ag/gemini-3.7-flash-medium
+
+🔍 [3/4] Testando ClaudeGravity Principal (ag/gemini-3.8-flash-high direto via Antigravity Pro) (ag/gemini-3.8-flash-high)...
+✅ Status HTTP 200 recebido em 1.06s!
+💬 Resposta do modelo: PONG - ClaudeGravity Operacional
+
+🔍 [4/4] Testando ClaudeGravity Resiliente com Fallback Free (claudegravity-fallback) (claudegravity-fallback)...
+✅ Status HTTP 200 recebido em 1.28s!
+💬 Resposta do modelo: PONG - ClaudeGravity Operacional
+
+======================================================================
+🎉 TODOS OS TESTES PASSARAM COM SUCESSO!
+O ClaudeGravity está 100% operacional no modelo Principal e no Fallback.
+```
+
+Se o teste retornar `HTTP 200` e a resposta `PONG - ClaudeGravity Operacional` for impressa, sua conta Google licenciada está rigorosamente comprovada e pronta para assumir cargas pesadas de trabalho com o Claude Code.
 
 ---
 
@@ -313,7 +405,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -321,7 +412,11 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
@@ -408,7 +503,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
       "Bash(*)",
       "Read(*)",
       "Edit(*)",
@@ -416,7 +510,11 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
-      "mcp__*"
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
@@ -695,8 +793,10 @@ Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as se
    - O Claude Code requer Node.js 18+. Instale via `brew install node`, `sudo apt install nodejs npm` ou `winget install OpenJS.NodeJS`.
    - Instale o Claude Code globalmente com `npm install -g @anthropic-ai/claude-code` e valide com `claude --version`.
 
-5. **Conta Google com Antigravity / Google AI Pro:**
-   - Faça login na IDE do Google Antigravity ou CLI `agy` (`agy --version`) para inicializar a sessão OAuth local em `~/.gemini/jetski-standalone-oauth-token`.
+5. **Conta Google com Antigravity (Google AI Pro) e Sessão Ativa no Navegador:**
+   - Possuir uma conta Google ativa com a assinatura Google AI Pro, Google One AI Premium ou Google Workspace com Gemini.
+   - O login prévio no **Google Antigravity IDE** ou na CLI `agy` (`agy --version`) gera a credencial local em `~/.gemini/jetski-standalone-oauth-token` utilizada pelo utilitário de sincronização.
+   - **Mandatório para o 9Router:** O dashboard em `http://localhost:20128/dashboard` deve ser aberto no navegador exatamente sob a conta Google detentora da licença Antigravity. Conectar o 9Router através de uma conta pessoal sem assinatura causará erros imediatos `HTTP 403 Forbidden` na chamada aos modelos Gemini.
 
 6. **Variáveis de Ambiente (.env):** Inicialize o arquivo `.env` a partir de `.env.example` definindo `INITIAL_PASSWORD` e `JWT_SECRET` para proteger a interface administrativa do gateway.
 

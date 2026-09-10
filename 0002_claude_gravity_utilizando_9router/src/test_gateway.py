@@ -76,12 +76,20 @@ def test_models():
             data = json.loads(response.read().decode("utf-8"))
             models = [m.get("id") for m in data.get("data", []) if m.get("id", "").startswith("ag/")]
             print(f"✅ Total de modelos Antigravity identificados: {len(models)}")
+            if not models:
+                print("⚠️  Nenhum modelo Antigravity (ag/*) retornado pelo 9Router.")
+                print("\n💡 DICA DE LICENCIAMENTO E CONFIGURAÇÃO:")
+                print("   1. Certifique-se de que o dashboard http://localhost:20128/dashboard está aberto no navegador.")
+                print("   2. Você deve estar logado no navegador com a sua conta Google detentora da licença Antigravity (Google AI Pro).")
+                print("   3. Em Providers -> Antigravity, confirme que a conexão está com status 'active'.")
+                return False
             print("Modelos em destaque:")
             for m in models[:6]:
                 print(f"   • {m}")
-            return len(models) > 0
+            return True
     except Exception as e:
         print(f"❌ Erro ao listar modelos: {e}")
+        print("💡 DICA: Verifique se o container claudegravity-router está ativo e a chave ANTHROPIC_API_KEY está correta.")
         return False
 
 
@@ -125,7 +133,20 @@ def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3
             print(f"💬 Resposta do modelo: {content}")
             return True
     except urllib.error.HTTPError as e:
-        print(f"❌ Erro HTTP {e.code}: {e.read().decode('utf-8')[:200]}")
+        error_body = ""
+        try:
+            error_body = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            pass
+        print(f"❌ Erro HTTP {e.code}: {error_body[:250]}")
+        if e.code in (401, 403, 404, 429):
+            print("\n💡 DICA DE DIAGNÓSTICO E LICENCIAMENTO:")
+            print("   O Google recusou a requisição. As causas mais comuns são:")
+            print("   1. [CONTA GOOGLE INCORRETA NO NAVEGADOR] O dashboard do 9Router foi conectado a uma conta sem licença.")
+            print("      • Abra http://localhost:20128/dashboard no perfil de navegador onde sua conta Google AI Pro está ativa.")
+            print("      • Em Providers -> Antigravity, delete a conexão incorreta e clique em '+ Add Connection' com a conta certa.")
+            print("   2. [SESSÃO OU TOKEN EXPIRADO] Execute 'python3 src/sync_antigravity_token.py' para sincronizar o token da CLI agy.")
+            print("   3. [RATE LIMIT] Se for HTTP 429 temporário, o combo 'claudegravity-fallback' chaveará automaticamente.")
         return False
     except Exception as e:
         print(f"❌ Erro na requisicao: {e}")
