@@ -163,4 +163,4 @@ python3 src/restore_permissions.py --latest
 Este módulo estabelece a fundação de permissões do ecossistema de engenharia:
 
 * **[Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/):** Conecte a sessão do Antigravity ao Claude Code CLI sem pagar faturas de tokens de API.
-* **[Artigo 0003 - Arsenal de Modelos Gratuitos e Fallback sem Limites com 9Router](../0003_fallback_modelos_gratuitos_9router/):** Construa uma malha resiliente de 9 provedores com auto-cura e combos de alta disponibilidade.
+* **[Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../0003_fallback_modelos_gratuitos_9router/):** Construa uma malha resiliente de 9 provedores com auto-cura e combos de alta disponibilidade.

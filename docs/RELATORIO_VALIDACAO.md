@@ -8,7 +8,7 @@ todas as ferramentas que ele apresenta ao leitor.
 
 ---
 
-## Ciclo 1/3 - Artigo 0001 · Google Antigravity e o Acesso Total Irrestrito
+## Ciclo 1/3 - Artigo 0001 · Google Antigravity com Acesso Total Irrestrito e sem Interrupções
 
 Ambiente zerado antes do ciclo: `containers: 0 · volumes: 0`. O artigo configura permissões locais
 do Antigravity e não depende de Docker; a zeragem garante isolamento entre os ciclos.
@@ -57,7 +57,7 @@ segundos antes.
 
 ---
 
-## Ciclo 3/3 - Artigo 0003 · Arsenal de Modelos Gratuitos e Fallback sem Limites
+## Ciclo 3/3 - Artigo 0003 · Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router
 
 Ambiente zerado antes do ciclo: `containers: 0 · volumes: 0`.
 

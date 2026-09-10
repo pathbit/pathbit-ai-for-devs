@@ -1,4 +1,4 @@
-# Arsenal de Modelos Gratuitos e Fallback sem Limites com 9Router no Claude Code
+# Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router
 
 ![Capa do Artigo - Combos de Fallback e Modelos Gratuitos](../assets/00_cover_arsenal_fallback.png)
 
@@ -875,7 +875,7 @@ Para garantir estabilidade contínua ao longo de semanas de trabalho:
 
 Ao desacoplar a camada de execução (Claude Code CLI) da camada de inferência e conectá-la a uma malha de múltiplos provedores orquestrada pelo 9Router, você elimina a maior barreira operacional da programação assistida por inteligência artificial: a vulnerabilidade a limites de cota e interrupções de serviço.
 
-Para aprofundar na infraestrutura de permissões irrestritas do Google Antigravity, acesse o [Artigo 0001 - Google Antigravity e o Acesso Total Irrestrito sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md).
+Para aprofundar na infraestrutura de permissões irrestritas do Google Antigravity, acesse o [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md).
 
 Para aprofundar na configuração específica do Google Antigravity e na engenharia de tradução de chamadas do Claude Code, acesse o [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md).
 

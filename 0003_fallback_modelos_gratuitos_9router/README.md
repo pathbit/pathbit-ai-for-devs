@@ -252,5 +252,5 @@ claude --dangerously-skip-permissions --model arsenal-supremo
 
 ## Artigos Relacionados
 
-- [Artigo 0001 - Google Antigravity e o Acesso Total Irrestrito sem Interrupções](../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md)
+- [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md)
 - [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)

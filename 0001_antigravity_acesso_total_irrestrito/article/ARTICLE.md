@@ -1,4 +1,4 @@
-# Google Antigravity e o Acesso Total Irrestrito sem Interrupções
+# Google Antigravity com Acesso Total Irrestrito e sem Interrupções
 
 ![Capa do Artigo - Antigravity Acesso Irrestrito](../assets/00_cover_antigravity_permissoes.png)
 
@@ -88,7 +88,7 @@ A tabela abaixo resume as localizações exatas para cada arquivo de controle:
 
 ### 1. Configurando o Motor Global (`config/config.json`)
 
-Este é o arquivo central consumido por todos os processos do Antigravity.
+Este é o arquivo central consumido por todos os processos do Antigravity. Ele dita as políticas de execução, sandbox e permissões gerais para toda a máquina do desenvolvedor:
 
 ```json
 {
@@ -114,8 +114,18 @@ Este é o arquivo central consumido por todos os processos do Antigravity.
 }
 ```
 
-* O modo `EAGER` dispara comandos em cascata sem pausar entre eles, e o `TURBO` de `artifactReviewMode` aprova planos e artefatos sem reter o fluxo de execução.
-* `enableTerminalSandbox: false` evita que scripts falhem por restrições artificiais de containers temporários, enquanto `nonWorkspaceFileAccessPolicy` liberado autoriza o agente a inspecionar dependências fora da pasta do projeto.
+#### Anatomia dos Parâmetros do Motor Global
+
+| Parâmetro | Valor Configurado | Impacto Técnico no Comportamento do Agente |
+| :--- | :--- | :--- |
+| `artifactReviewMode` | `ARTIFACT_REVIEW_MODE_TURBO` | Aprova artefatos e planos automaticamente sem reter o ciclo de trabalho. |
+| `autoExecutionPolicy` | `CASCADE_COMMANDS_AUTO_EXECUTION_EAGER` | Dispara comandos encadeados em cascata sem pausas intermediárias de confirmação. |
+| `browserJsExecutionPolicy` | `BROWSER_JS_EXECUTION_POLICY_TURBO` | Executa scripts e automações web no navegador integrado sem bloquear a sessão. |
+| `enableTerminalSandbox` | `false` | Remove restrições de sandbox em containers temporários que impedem comandos nativos do sistema. |
+| `nonWorkspaceFileAccessPolicy` | `AGENT_SETTING_POLICY_ALLOW` | Permite ao agente inspecionar dependências, logs e arquivos localizados fora do workspace. |
+| `includeCoAuthoredBy` | `false` | Impede que o motor anexe trailers de coautoria sintética em commits git. |
+| `globalPermissionGrants.allow` | `6 wildcards universais` | Concede acesso global irrestrito para leitura, escrita, terminal, web e servidores MCP. |
+| `globalPermissionGrants.deny` | `[]` | Lista de bloqueios vazia para evitar sobreposição involuntária de regras. |
 
 > **Sobre a lista `allow`:** o script preserva entradas que você já tenha criado e remove apenas as que ficaram redundantes (uma regra antiga como `command(git status)` não tem mais efeito depois que `command(*)` entra na lista). Essa poda também elimina comandos antigos salvos com segredos embutidos.
 
@@ -123,10 +133,11 @@ Este é o arquivo central consumido por todos os processos do Antigravity.
 
 ### 2. Liberando os Projetos Locais (`config/projects/*.json`)
 
-Este é o passo que mais destrava autonomia no dia a dia e costuma passar despercebido. O Antigravity mantém um arquivo por projeto aberto, e as políticas globais **não sobrescrevem** o que está definido nesse escopo:
+Este é o passo que mais destrava autonomia no dia a dia e costuma passar despercebido. O Antigravity mantém um arquivo JSON para cada projeto aberto, e as políticas globais **não sobrescrevem** o que está gravado nesse escopo local:
 
 ```json
 {
+  "isWorkspaceOnly": false,
   "settings": {
     "fileAccessPolicy": "AGENT_SETTING_POLICY_ALLOW",
     "sandboxMode": false,
@@ -135,50 +146,78 @@ Este é o passo que mais destrava autonomia no dia a dia e costuma passar desper
   },
   "permissionGrants": {
     "permissionGrants": {
-      "allow": ["read_file(/)", "write_file(/)", "command(*)", "read_url(*)", "execute_url(*)", "mcp(*)"],
+      "allow": [
+        "read_file(/)",
+        "write_file(/)",
+        "command(*)",
+        "read_url(*)",
+        "execute_url(*)",
+        "mcp(*)"
+      ],
       "deny": []
     }
   }
 }
 ```
 
-Dois detalhes merecem atenção:
+#### Anatomia dos Parâmetros do Projeto Local
 
-* **`isWorkspaceOnly: false`** (na raiz do arquivo) é o que autoriza o agente a sair da pasta do projeto. Sem ele, o agente continua pedindo confirmação para ler dependências e arquivos vizinhos, mesmo com todos os wildcards globais aplicados.
-* O aninhamento **`permissionGrants.permissionGrants`** não é erro de digitação: o formato do arquivo realmente repete a chave, e escrever apenas um nível faz o Antigravity ignorar as permissões silenciosamente.
+| Parâmetro | Valor Configurado | Por que é Crucial |
+| :--- | :--- | :--- |
+| `isWorkspaceOnly` | `false` | **Chave na raiz do JSON.** Autoriza o agente a navegar além da pasta do repositório para ler bibliotecas globais e caches. |
+| `settings.fileAccessPolicy` | `AGENT_SETTING_POLICY_ALLOW` | Concede autorização contínua para acesso a arquivos do projeto sem perguntas. |
+| `settings.sandboxMode` | `false` | Desliga o isolamento rígido para o projeto específico. |
+| `settings.autoExecutionPolicy` | `CASCADE_COMMANDS_AUTO_EXECUTION_EAGER` | Mantém execução ágil e sem paradas para scripts desse repositório. |
+| `permissionGrants.permissionGrants` | `Objeto com allow e deny` | A duplicação da chave reflete a estrutura exata do parser interno do Antigravity. Declarar apenas um nível faz o motor ignorar a concessão silenciosamente. |
 
-O `setup_permissions.py` percorre todos os projetos já cadastrados e aplica esse bloco em cada um.
+O `setup_permissions.py` percorre todos os arquivos de projetos já existentes na pasta `~/.gemini/config/projects/` e injeta esses blocos de forma idempotente.
 
 ---
 
 ### 3. Configurando a Interface Visual (`User/settings.json` da IDE)
 
-Na IDE do Antigravity, integramos as chaves necessárias preservando as preferências existentes de tema e extensões:
+Na IDE do Antigravity (e em editores irmãos como VS Code, Cursor e Windsurf), integramos as chaves de automação e higienização preservando temas, fontes e configurações pessoais prévias:
 
 ```json
 {
   "antigravity.agent.terminal.autoExecutionPolicy": "always",
   "antigravity.agent.terminal.confirmCommands": false,
-  "antigravity.agent.terminal.allowedCommands": ["*"],
+  "antigravity.agent.terminal.allowedCommands": [
+    "*"
+  ],
   "antigravity.terminal.autoRun": true,
   "cortex.agent.autoRun": true,
   "geminicodeassist.agentYoloMode": true,
   "security.workspace.trust.enabled": false,
   "claudeCode.includeCoAuthoredBy": false,
-  "git.includeCoAuthoredBy": false
+  "git.includeCoAuthoredBy": false,
+  "github.copilot.git.includeCoAuthoredBy": false,
+  "cursor.composer.includeCoAuthoredBy": false,
+  "cursor.git.includeCoAuthoredBy": false,
+  "git.authorCommit": true
 }
 ```
 
-* `geminicodeassist.agentYoloMode`: Ativa o modo de auto-aprovação contínua do assistente de código.
-* `security.workspace.trust.enabled`: Desativa o diálogo recorrente de pasta confiável ao abrir novos repositórios.
-* `cortex.agent.autoRun`: Aplica edições e diffs nos arquivos sem requerer clique manual de confirmação.
-* `claudeCode.includeCoAuthoredBy` e `git.includeCoAuthoredBy`: Impedem a inserção de assinaturas e trailers de coautoria com IA nos commits.
+#### Anatomia das Configurações da IDE
+
+| Parâmetro da IDE | Tipo | Finalidade Prática |
+| :--- | :--- | :--- |
+| `antigravity.agent.terminal.autoExecutionPolicy` | `"always"` | Executa comandos no terminal integrado sem solicitar permissão. |
+| `antigravity.agent.terminal.confirmCommands` | `false` | Suprime janelas modais de confirmação ao rodar ferramentas de terminal. |
+| `antigravity.agent.terminal.allowedCommands` | `["*"]` | Lista branca irrestrita cobrindo todos os utilitários de linha de comando. |
+| `antigravity.terminal.autoRun` | `true` | Habilita inicialização e execução autônoma de scripts disparados pelo agente. |
+| `cortex.agent.autoRun` | `true` | Aplica refatorações e patches diretamente no editor de código. |
+| `geminicodeassist.agentYoloMode` | `true` | Liga o modo YOLO do Gemini Code Assist para aprovação contínua. |
+| `security.workspace.trust.enabled` | `false` | Elimina o diálogo de pasta confiável ao clonar ou abrir novos repositórios. |
+| `claudeCode.includeCoAuthoredBy` | `false` | Bloqueia coautoria sintética nas ferramentas de commit integradas. |
+| `git.includeCoAuthoredBy` | `false` | Desliga metadados de coautoria no módulo nativo de Git do editor. |
+| `git.authorCommit` | `true` | Força que todo commit seja assinado exclusivamente pelo autor humano configurado. |
 
 ---
 
 ### 4. Configurando a Linha de Comando (`antigravity-cli/settings.json`)
 
-Para o utilitário CLI `agy`, definimos:
+Para a CLI oficial do Antigravity (`agy`), gravamos o arquivo de preferências que parametriza a interação no terminal:
 
 ```json
 {
@@ -189,6 +228,16 @@ Para o utilitário CLI `agy`, definimos:
   "includeCoAuthoredBy": false
 }
 ```
+
+#### Anatomia dos Parâmetros da CLI `agy`
+
+| Parâmetro CLI | Valor | Função Técnica |
+| :--- | :--- | :--- |
+| `agentMode` | `"accept-edits"` | Aplica edições geradas pelo agente sem travar esperando digitação manual. |
+| `toolPermission` | `"always-proceed"` | Autoriza execução imediata de todas as ferramentas invocadas pela CLI. |
+| `allowNonWorkspaceAccess` | `true` | Permite leitura e escrita fora do diretório de chamada da CLI. |
+| `disableWorkspaceTrustCheck` | `true` | Desativa verificação de pasta confiável no terminal. |
+| `includeCoAuthoredBy` | `false` | Bloqueia assinatura automática nos commits criados pela CLI. |
 
 Para garantir execução permanente sem necessidade de digitar flags manuais a cada comando, configuramos um alias no arquivo de perfil do shell:
 
@@ -212,6 +261,8 @@ function agy-safe { & (Get-Command agy.cmd).Source @args }
 
 Para eliminar qualquer bloqueio de segurança em árvores de diretórios, declaramos `TRUST_PARENT` na raiz do sistema e na pasta pessoal do usuário:
 
+**macOS e Linux (`~/.gemini/trustedFolders.json`):**
+
 ```json
 {
   "/": "TRUST_PARENT",
@@ -219,7 +270,7 @@ Para eliminar qualquer bloqueio de segurança em árvores de diretórios, declar
 }
 ```
 
-No Windows:
+**Windows (`%USERPROFILE%\.gemini\trustedFolders.json`):**
 
 ```json
 {
@@ -227,6 +278,105 @@ No Windows:
   "C:\\Users\\SEU_USUARIO": "TRUST_PARENT"
 }
 ```
+
+---
+
+### 6. Configuração de Sandbox para Projetos de Pareamento (`settings.json.example`)
+
+Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento agêntico, o projeto deve conter na pasta isolada `examples/.claude/` o arquivo `settings.json.example`. Esse arquivo define as permissões completas de execução para o harness da Anthropic sem exigir aprovações manuais:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "*",
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL": "1",
+    "CLAUDE_CODE_ENABLE_LOOPS": "1",
+    "CLAUDE_CODE_ENABLE_ADVISOR": "1",
+    "CLAUDE_CODE_ENABLE_GOAL": "1"
+  },
+  "includeCoAuthoredBy": false
+}
+```
+
+#### Anatomia da Configuração Compartilhada de Pareamento
+
+| Chave | Valor | Função Técnica |
+| :--- | :--- | :--- |
+| `permissions.defaultMode` | `"bypassPermissions"` | Concede execução direta para ferramentas de arquivo, terminal e rede. |
+| `permissions.allow` | Lista de wildcards | Abrange comandos de terminal (`Bash(*)`), leitura (`Read(*)`), edição (`Edit(*)`), escrita (`Write(*)`), listagem (`Glob(*)`), busca (`Grep(*)`), requisições (`WebFetch(*)`) e ferramentas MCP (`mcp__*`). |
+| `skipDangerousModePermissionPrompt` | `true` | Suprime o diálogo de confirmação inicial sobre operar em modo irrestrito. |
+| `env.CLAUDE_CODE_EXPERIMENTAL` | `"1"` | Desbloqueia capacidades avançadas do motor agêntico. |
+| `env.CLAUDE_CODE_ENABLE_LOOPS` | `"1"` | Permite iteração em laço para execução de testes e autocorreção. |
+| `env.CLAUDE_CODE_ENABLE_ADVISOR` | `"1"` | Permite atuação de conselheiro secundário em segundo plano. |
+| `env.CLAUDE_CODE_ENABLE_GOAL` | `"1"` | Habilita planejamento de metas de longo prazo via `/goal`. |
+| `includeCoAuthoredBy` | `false` | Garante commits com autoria exclusivamente humana. |
+
+---
+
+### 7. Configuração Local de Máquina (`settings.local.json.example`)
+
+O arquivo local repete as concessões de permissões para a máquina do desenvolvedor e tem precedência sobre o arquivo compartilhado:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "*",
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "mcp__*"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "includeCoAuthoredBy": false
+}
+```
+
+---
+
+### 8. Estrutura do Relatório de Diagnóstico e Saúde (`health_report.json`)
+
+Para comprovar que o ambiente está operacional e que todas as permissões foram aceitas pelo motor Agent 2.0, a ferramenta de validação gera um relatório estruturado em JSON com a evidência técnica do estado atual:
+
+```json
+{
+  "timestamp": "2026-09-09T21:24:18.871046",
+  "status": "OPERATIONAL",
+  "agent": "Google Antigravity Agent 2.0",
+  "features": {
+    "autoExecution": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER",
+    "artifactReview": "TURBO",
+    "terminalSandbox": false,
+    "permissions": "ALL_GRANTED"
+  }
+}
+```
+
+Esse arquivo comprova que:
+- O motor reconhece a política `CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`.
+- A revisão de artefatos opera em modo `TURBO`.
+- O sandbox artificial de terminal está desativado (`false`).
+- O estado de permissões está plenamente concedido (`ALL_GRANTED`).
 
 ---
 
@@ -275,22 +425,32 @@ Antes de executar as ferramentas de configuração e validação, assegure que s
 
 1. **Python 3.10 ou Superior:**
    - Verifique com `python3 --version`. Se necessário, instale:
-     - macOS: `brew install python`
-     - Linux (Ubuntu/Debian): `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
-     - Windows: `winget install Python.Python.3.12`
+     - **macOS:** `brew install python`
+     - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
+     - **Linux (Fedora/RHEL):** `sudo dnf install -y python3 python3-pip`
+     - **Windows:** `winget install Python.Python.3.12`
 2. **Ambiente Virtual Isolado:** Crie e ative um ambiente virtual dedicado antes de disparar os scripts:
    ```bash
    # Criar o ambiente virtual na raiz do modulo
    python3 -m venv .venv
 
-   # Ativar no macOS e Linux
+   # Ativar no macOS e Linux (bash/zsh)
    source .venv/bin/activate
 
    # Ativar no Windows (PowerShell)
    .venv\Scripts\Activate.ps1
    ```
+   Com o ambiente ativo, atualize as ferramentas de pacote:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
 3. **Google Antigravity Conectado:** O Google Antigravity IDE ou a CLI `agy` deve estar instalado com login prévio realizado em sua conta Google (assinatura Google AI Pro ativa), garantindo que o diretório `~/.gemini/` e os arquivos base (`config.json`, token OAuth) já tenham sido gerados pelo motor.
-4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit (instale com `brew install git`, `sudo apt install git` ou `winget install Git.Git`).
+4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit para bloquear coautorias sintéticas (instale com `brew install git`, `sudo apt install git` ou `winget install Git.Git`).
+5. **Claude Code CLI (Opcional para Pareamento):** Caso utilize o Antigravity integrado ao harness da Anthropic na pasta `examples/`:
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
 
 ### Executando os Scripts de Configuração e Diagnóstico
 
@@ -323,7 +483,7 @@ python3 src/test_permissions.py
 Com o motor do Google Antigravity configurado para autonomia desimpedida, o ecossistema está pronto para avançar para as próximas etapas da engenharia agêntica:
 
 1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API.
-2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Arsenal de Modelos Gratuitos e Fallback sem Limites com 9Router no Claude Code](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 4 delas em combos com fallback automático, eliminando as paradas por limite de cota.
+2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 4 delas em combos com fallback automático, eliminando as paradas por limite de cota.
 
 ---
 
