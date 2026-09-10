@@ -131,8 +131,10 @@ Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as fer
      ```
    - Verifique com `claude --version`.
 
-5. **Conta Google com Antigravity / Google AI Pro Ativa:**
+5. **Conta Google com Antigravity (Google AI Pro) e Navegador Logado:**
+   - Possuir uma conta Google ativa com o plano Google AI Pro, Google One AI Premium ou Workspace com Gemini.
    - Faça login prévio no **Google Antigravity IDE** ou na CLI `agy` na sua máquina (`agy --version`). Esse passo gera as credenciais OAuth locais em `~/.gemini/` que o script `src/sync_antigravity_token.py` consome e renova automaticamente para o gateway.
+   - **Mandatório para o 9Router:** O dashboard (`http://localhost:20128/dashboard`) deve ser aberto no mesmo perfil de navegador em que essa conta com a licença está autenticada.
 
 #### 2. Preparar Arquivos de Configuração
 
@@ -182,15 +184,21 @@ docker compose down -v --remove-orphans
 O dashboard estará disponível em:
 👉 **http://localhost:20128** (ou `http://localhost:20128/dashboard`)
 
-#### 4. Conectar a Conta Antigravity no Dashboard
+#### 4. Conectar a Conta Antigravity no Dashboard (Atenção ao Perfil Correto)
+
+> **Pré-requisito Vital:** Abra o navegador na janela ou perfil onde você está logado na **conta Google titular da assinatura Antigravity / AI Pro**. Se o 9Router for vinculado a uma conta gratuita pessoal por engano, os modelos recusarão requisições com erro `HTTP 403 Forbidden`.
 
 1. Abra `http://localhost:20128/dashboard/providers` no seu navegador.
 2. Localize o card **Antigravity** na seção *OAuth Providers* e clique nele.
 3. Clique no botão **+ Add Connection**.
-4. Uma janela segura de autenticação Google será aberta. Faça o login com sua conta Google que possui o plano **AI Pro / Antigravity**.
-5. O 9Router validará a assinatura, salvará o token OAuth seguro e habilitará os modelos `ag/gemini-*`.
+4. Uma janela segura de autenticação Google será aberta. Selecione expressamente sua conta Google que possui o plano **AI Pro / Antigravity**.
+5. O 9Router validará a assinatura, salvará o token OAuth seguro e exibirá o status **`active • OAuth #1`**.
+6. Valide a conexão no terminal executando:
+   ```bash
+   python3 src/test_gateway.py
+   ```
 
-#### 4. Alternativa de Instalação Nativa (Sem Docker)
+#### 5. Alternativa de Instalação Nativa (Sem Docker)
 
 Se preferir rodar direto na máquina host via Node.js/npm:
 

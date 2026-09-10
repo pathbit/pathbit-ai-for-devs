@@ -90,12 +90,19 @@ def check_models():
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             models = [m.get("id") for m in data.get("data", []) if m.get("id", "").startswith("ag/")]
+            if not models:
+                print("  ⚠️  Nenhum modelo Antigravity (ag/*) catalogado no 9Router.")
+                print("  💡 Abra http://localhost:20128/dashboard no navegador com sua conta Google AI Pro / Antigravity logada")
+                print("     e conecte em Providers -> Antigravity (+ Add Connection).")
+                return False
             print(f"  ✅ {len(models)} modelos Antigravity catalogados:")
             for m in models[:6]:
                 print(f"     • {m}")
             return True
     except Exception as e:
         print(f"  ❌ Falha ao listar modelos: {e}")
+        print("  💡 Dica: Verifique se o container está ativo e se o dashboard http://localhost:20128/dashboard")
+        print("     foi configurado com a conta Google detentora da licença Antigravity.")
         return False
 
 

@@ -84,3 +84,5 @@ python3 src/test_gateway.py
 ```
 
 Se todos os 4 testes apresentarem status `HTTP 200 OK`, seu ambiente está 100% pronto para codificar.
+
+> **Importante:** Certifique-se de que o dashboard do 9Router (`http://localhost:20128/dashboard`) esteja acessível no navegador e com a conta Google titular da licença Antigravity (Google AI Pro) conectada em **Providers → Antigravity**. Se os testes acusarem erro `HTTP 403 Forbidden`, verifique se o navegador não vinculou inadvertidamente uma conta pessoal secundária sem assinatura.
