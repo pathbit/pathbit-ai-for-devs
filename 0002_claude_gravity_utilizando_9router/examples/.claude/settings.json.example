@@ -1,15 +1,15 @@
 {
-  "model": "ag/gemini-3.8-flash-high",
+  "model": "claudegravity-fallback",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
+    "ANTHROPIC_MODEL": "claudegravity-fallback"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -30,45 +30,21 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "ag/gemini-pro-agent",
+  "advisorModel": "claudegravity-thinking",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash High",
-        "description": "Primario: raciocinio alto e 1M de contexto",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
         "model": "claudegravity-fallback",
         "label": "ClaudeGravity Resiliente",
-        "description": "Cascata de 5 niveis no Antigravity",
+        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
         "behavesAs": "claude-opus-4-8"
       },
       {
-        "model": "ag/gemini-pro-agent",
-        "label": "Gemini 3.1 Pro High",
-        "description": "O mais denso da conta. Use com parcimonia",
+        "model": "claudegravity-thinking",
+        "label": "ClaudeGravity Thinking",
+        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash High",
-        "description": "Trabalho corrente",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash High",
-        "description": "Latencia minima, alta frequencia",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      },
-      {
-        "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B",
-        "description": "Pesos abertos via Antigravity",
-        "behavesAs": "claude-sonnet-4-6"
       }
     ]
   }
