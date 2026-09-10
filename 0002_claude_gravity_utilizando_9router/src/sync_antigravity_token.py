@@ -20,11 +20,7 @@ DEFAULT_CONTAINER = "claudegravity-router"
 ENV_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
-PLACEHOLDERS = {
-    "coloque_aqui_sua_chave_do_9router",
-    "sk-sua-chave-gerada-localmente",
-    "",
-}
+PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
 
 def load_dotenv():
@@ -134,7 +130,7 @@ def refresh_access_token(refresh_token, container_name=DEFAULT_CONTAINER):
         "client_id": client_id,
         "client_secret": client_secret,
         "refresh_token": refresh_token,
-        "grant_type": "refresh_token",
+        "grant_type": "refresh_token"
     }).encode("utf-8")
     req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data)
     with urllib.request.urlopen(req, timeout=10) as resp:
@@ -218,10 +214,12 @@ try {{
 }} catch (e) {{}}
 
 // 3. Provider Connection for Antigravity
+// Credenciais recebidas por argumento: nunca interpoladas no corpo do script,
+// para que aspas ou barras no token nao quebrem nem injetem codigo.
 const connData = {{
-  accessToken: "{new_access_token}",
-  refreshToken: "{refresh_token}",
-  expiresAt: {expires_at_ms},
+  accessToken: process.argv[2],
+  refreshToken: process.argv[3],
+  expiresAt: Number(process.argv[4]),
   scope: "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid",
   projectId: "aicode-consumers",
   testStatus: "ok",
@@ -257,7 +255,10 @@ console.log('OK_SYNCED');
 
     try:
         res = subprocess.run(
-            ["docker", "exec", container_name, "node", "-e", node_script, api_key],
+            [
+                "docker", "exec", container_name, "node", "-e", node_script,
+                api_key, new_access_token, refresh_token, str(expires_at_ms),
+            ],
             capture_output=True, text=True, check=True
         )
         if "OK_SYNCED" in res.stdout:

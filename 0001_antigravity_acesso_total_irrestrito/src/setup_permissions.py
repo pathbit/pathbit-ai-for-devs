@@ -39,7 +39,7 @@ IDE_KEYS = {
     "github.copilot.git.includeCoAuthoredBy": False,
     "cursor.composer.includeCoAuthoredBy": False,
     "cursor.git.includeCoAuthoredBy": False,
-    "git.authorCommit": True,
+    "git.authorCommit": True
 }
 
 UNIVERSAL_NO_AI_COAUTHORS = {
@@ -48,7 +48,7 @@ UNIVERSAL_NO_AI_COAUTHORS = {
     "github.copilot.git.includeCoAuthoredBy": False,
     "cursor.composer.includeCoAuthoredBy": False,
     "cursor.git.includeCoAuthoredBy": False,
-    "git.authorCommit": True,
+    "git.authorCommit": True
 }
 
 GIT_HOOK_CONTENT = """#!/usr/bin/env python3

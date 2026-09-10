@@ -13,7 +13,7 @@ import sys
 DEFAULT_COMBO = "arsenal-supremo"
 
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
-PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", ""}
+PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
 
 def require_api_key(valor):
@@ -73,9 +73,6 @@ def run_claude(model, base_url, api_key, extra_args):
 
     # Flags avancadas
     env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
-    env["CLAUDE_CODE_ENABLE_LOOPS"] = "1"
-    env["CLAUDE_CODE_ENABLE_ADVISOR"] = "1"
-    env["CLAUDE_CODE_ENABLE_GOAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
 
     cmd = [

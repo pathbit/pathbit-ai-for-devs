@@ -21,7 +21,7 @@ import urllib.request
 
 GATEWAY_URL = "http://localhost:20128"
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
-PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", ""}
+PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
 
 def require_api_key():
@@ -109,12 +109,12 @@ def send_chat_request(model_name, prompt="Diga apenas: PONG", max_tokens=100):
     payload = {
         "model": model_name,
         "max_tokens": max_tokens,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": prompt}]
     }
     headers = {
         "content-type": "application/json",
         "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": "2023-06-01"
     }
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
 
