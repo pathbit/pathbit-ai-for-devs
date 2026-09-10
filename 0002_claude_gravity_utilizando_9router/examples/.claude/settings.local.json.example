@@ -1,5 +1,5 @@
 {
-  "model": "claudegravity-fallback",
+  "model": "claudegravity-thinking",
   "advisorModel": "claudegravity-thinking",
   "modelPicker": {
     "replaceBuiltInOptions": true,
@@ -27,7 +27,7 @@
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-fallback"
+    "ANTHROPIC_MODEL": "claudegravity-thinking"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -47,5 +47,13 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "modelOverrides": {
+    "claude-fable-5-1": "claudegravity-thinking",
+    "claude-fable-5-1[1m]": "claudegravity-thinking",
+    "claude-opus-5": "claudegravity-thinking",
+    "claude-opus-5[1m]": "claudegravity-thinking",
+    "claude-sonnet-5": "claudegravity-fallback",
+    "claude-sonnet-5[1m]": "claudegravity-fallback"
+  }
 }

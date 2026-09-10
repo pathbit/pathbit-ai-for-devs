@@ -1,5 +1,5 @@
 {
-  "model": "claudegravity-fallback",
+  "model": "claudegravity-thinking",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
@@ -9,7 +9,7 @@
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-fallback"
+    "ANTHROPIC_MODEL": "claudegravity-thinking"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -47,5 +47,13 @@
         "behavesAs": "claude-opus-4-8"
       }
     ]
+  },
+  "modelOverrides": {
+    "claude-fable-5-1": "claudegravity-thinking",
+    "claude-fable-5-1[1m]": "claudegravity-thinking",
+    "claude-opus-5": "claudegravity-thinking",
+    "claude-opus-5[1m]": "claudegravity-thinking",
+    "claude-sonnet-5": "claudegravity-fallback",
+    "claude-sonnet-5[1m]": "claudegravity-fallback"
   }
 }
