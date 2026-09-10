@@ -271,9 +271,13 @@ O artigo disponibiliza uma suíte completa de ferramentas em Python puro, com su
 
 ### Pré-requisitos e Preparação do Ambiente
 
-Antes de executar as ferramentas de configuração e validação, assegure que seu ambiente local atenda aos seguintes requisitos:
+Antes de executar as ferramentas de configuração e validação, assegure que seu ambiente local atenda aos seguintes requisitos e tenha as ferramentas instaladas:
 
-1. **Python 3.10 ou Superior:** O configurador e os testes utilizam recursos da biblioteca padrão do Python 3 sem dependências externas complexas.
+1. **Python 3.10 ou Superior:**
+   - Verifique com `python3 --version`. Se necessário, instale:
+     - macOS: `brew install python`
+     - Linux (Ubuntu/Debian): `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
+     - Windows: `winget install Python.Python.3.12`
 2. **Ambiente Virtual Isolado:** Crie e ative um ambiente virtual dedicado antes de disparar os scripts:
    ```bash
    # Criar o ambiente virtual na raiz do modulo
@@ -285,8 +289,8 @@ Antes de executar as ferramentas de configuração e validação, assegure que s
    # Ativar no Windows (PowerShell)
    .venv\Scripts\Activate.ps1
    ```
-3. **Google Antigravity Conectado:** O Google Antigravity IDE ou a CLI `agy` deve estar instalado com login prévio realizado em sua conta Google, garantindo que o diretório `~/.gemini/` e os arquivos base já tenham sido gerados.
-4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit.
+3. **Google Antigravity Conectado:** O Google Antigravity IDE ou a CLI `agy` deve estar instalado com login prévio realizado em sua conta Google (assinatura Google AI Pro ativa), garantindo que o diretório `~/.gemini/` e os arquivos base (`config.json`, token OAuth) já tenham sido gerados pelo motor.
+4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit (instale com `brew install git`, `sudo apt install git` ou `winget install Git.Git`).
 
 ### Executando os Scripts de Configuração e Diagnóstico
 

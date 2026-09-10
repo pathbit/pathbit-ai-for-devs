@@ -777,6 +777,7 @@ O artigo disponibiliza uma malha resiliente completa de infraestrutura e execuç
 Antes de rodar os scripts de provisionamento e iniciar a cascata com o Claude Code, configure os seguintes componentes na sua máquina:
 
 1. **Python 3.10 ou superior:**
+   - Verifique com `python3 --version`. Se necessário, instale via `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.12` (Windows).
    - Crie o ambiente virtual e instale as dependências mínimas (`requests`):
      ```bash
      python3 -m venv .venv
@@ -785,14 +786,19 @@ Antes de rodar os scripts de provisionamento e iniciar a cascata com o Claude Co
      ```
 
 2. **Docker e Docker Compose:**
-   - Necessário para executar os serviços do 9Router e do Ollama local em containers. Garanta que o Docker daemon esteja em execução (`docker compose up -d`).
+   - Necessário para executar os serviços do 9Router e do Ollama local em containers. Instale via Docker Desktop (macOS/Windows) ou script oficial no Linux (`curl -fsSL https://get.docker.com | sh`).
+   - Garanta que os containers estejam em execução com `docker compose up -d`.
 
-3. **Claude Code CLI:**
-   - Instale a ferramenta oficial da Anthropic globalmente via Node.js (`npm install -g @anthropic-ai/claude-code`).
+3. **Node.js e Claude Code CLI:**
+   - Instale Node.js 18+ e a ferramenta oficial da Anthropic globalmente:
+     ```bash
+     npm install -g @anthropic-ai/claude-code
+     ```
+   - Verifique com `claude --version`.
 
 4. **Credenciais e Chaves Gratuitas:**
    - **OpenRouter:** Obtenha sua API Key em [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys) e configure limite financeiro de `$0.00` para restringir chamadas apenas aos modelos gratuitos (`:free`).
-   - **Groq Cloud:** Obtenha sua chave gratuita em [console.groq.com/keys](https://console.groq.com/keys).
+   - **Groq Cloud:** Obtenha sua chave gratuita com prefixo `gsk_...` em [console.groq.com/keys](https://console.groq.com/keys).
    - **Google AI Studio:** Obtenha sua chave gratuita em [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
    - **Mistral AI:** Obtenha sua chave gratuita em [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys).
    - **Ollama Local:** Não exige chave externa, sendo executado diretamente no container local via Docker Compose.
