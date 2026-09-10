@@ -63,6 +63,41 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 
 ---
 
+### 📋 Pré-requisitos do Ambiente
+
+Antes de executar os scripts de configuração e validação, assegure que as seguintes ferramentas e contas estejam disponíveis na sua máquina:
+
+1. **Python 3.10 ou Superior:**
+   - Verifique a versão instalada no terminal com `python3 --version`.
+2. **Ambiente Virtual Isolado (venv):**
+   - Recomendamos criar um ambiente virtual dedicado para isolar a execução dos scripts e utilitários:
+   ```bash
+   # Criar o ambiente virtual na pasta do artigo
+   python3 -m venv .venv
+
+   # Ativar no macOS e Linux
+   source .venv/bin/activate
+
+   # Ativar no Windows (PowerShell)
+   .venv\Scripts\Activate.ps1
+
+   # Ativar no Windows (Prompt de Comando)
+   .venv\Scripts\activate.bat
+   ```
+3. **Dependências Python:**
+   - Os utilitários utilizam exclusivamente a biblioteca padrão do Python 3 (`json`, `os`, `sys`, `platform`, `subprocess`), sem necessidade de pacotes externos pesados:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+4. **Instalação e Login no Google Antigravity:**
+   - Tenha o **Google Antigravity IDE** ou a ferramenta de linha de comando **Antigravity CLI (`agy`)** instalada.
+   - Faça login prévio com sua conta Google no Antigravity para que o diretório `~/.gemini/` e os arquivos de configuração base sejam inicializados pelo motor.
+5. **Git Instalado e Configurado:**
+   - O configurador registra automaticamente o hook global de higienização de commits (`core.hooksPath`), exigindo que o comando `git` esteja disponível no `PATH`.
+
+---
+
 ### Como Executar
 
 #### 1. Diagnóstico Inicial

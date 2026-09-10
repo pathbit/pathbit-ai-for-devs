@@ -86,7 +86,46 @@ Para reproduzir esta configuração em qualquer máquina:
 
 > ⚠️ **Modelos gratuitos são voláteis.** Identificadores com sufixo `:free` podem ser descontinuados, migrados para a versão paga, saturados (`429`) ou passar a exigir permissão (`403`) a qualquer momento. A cascata existe justamente para absorver isso: revalide com `python3 src/test_arsenal.py`, que testa cada nível isoladamente.
 
-### 1. Obter as Chaves Gratuitas
+### 📋 Pré-requisitos do Ambiente e Plataformas
+
+Antes de iniciar a configuração da cascata e dos combos de fallback, garanta os seguintes componentes instalados e configurados na sua máquina:
+
+1. **Python 3.10 ou superior:**
+   - Verifique a versão com `python3 --version`.
+   - Crie e ative um ambiente virtual dedicado para o módulo:
+     ```bash
+     # macOS e Linux
+     python3 -m venv .venv
+     source .venv/bin/activate
+
+     # Windows (PowerShell)
+     python -m venv .venv
+     .venv\Scripts\Activate.ps1
+     ```
+   - Atualize o gerenciador de pacotes e instale as dependências:
+     ```bash
+     pip install --upgrade pip
+     pip install -r requirements.txt
+     ```
+
+2. **Docker e Docker Compose:**
+   - O gateway 9Router e o Ollama rodam em containers isolados. Instale o Docker Desktop ou Docker Engine com o plugin Compose (`docker --version` e `docker compose version`).
+
+3. **Node.js 18+ e Claude Code CLI:**
+   - Instale a ferramenta oficial da Anthropic globalmente:
+     ```bash
+     npm install -g @anthropic-ai/claude-code
+     ```
+   - Verifique a instalação com `claude --version`.
+
+4. **Contas e Tokens nas Plataformas Gratuitas:**
+   - **OpenRouter (Custo Zero Travado):** Crie conta em [openrouter.ai](https://openrouter.ai/settings/keys). Gere uma API Key e defina o limite de gastos para `$0.00`. Isso garante que apenas modelos gratuitos com sufixo `:free` sejam consumidos.
+   - **Groq Cloud (Inferência Ultrarrápida em LPU):** Crie conta gratuita em [console.groq.com/keys](https://console.groq.com/keys) e gere uma chave com prefixo `gsk_...`.
+   - **Google AI Studio (Gemini 2.5 Flash e Pro):** Acesse [aistudio.google.com/apikey](https://aistudio.google.com/apikey) com sua conta Google e gere uma chave `AIza...`.
+   - **Mistral AI (Codestral e Mistral Small):** Crie conta em [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys) e gere uma chave de API para o modelo Codestral.
+   - **Ollama Local (Continuidade Offline):** Não requer conta ou token externo. O serviço sobe diretamente no container Docker e garante resposta mesmo se toda a conexão cair.
+
+### 1. Obter as Chaves Gratuitas nas Plataformas
 1. **OpenRouter:** Acesse `https://openrouter.ai/settings/keys`, crie uma chave com limite `$0.00` para usufruir dos modelos com sufixo `:free`. Até a data de escrita deste arquivo, respondiam corretamente: `cohere/north-mini-code:free` (código), `nvidia/nemotron-3.5-lightning:free` (contexto de 1M) e `nex-agi/nex-n2.5-mini:free` (o mais rápido).
 2. **Groq Cloud:** Acesse `https://console.groq.com/keys`, gere sua chave gratuita `gsk_...` para inferência ultra rápida com chips LPU (validamos o `openai/gpt-oss-120b`).
 3. **Google AI Studio:** Acesse `https://aistudio.google.com/apikey`, gere sua chave no projeto associado; os limites do tier gratuito variam por modelo, consulte a [tabela oficial](https://ai.google.dev/gemini-api/docs/rate-limits).
