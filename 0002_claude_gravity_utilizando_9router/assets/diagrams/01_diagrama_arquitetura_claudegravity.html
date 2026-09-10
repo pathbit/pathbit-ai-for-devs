@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitetura ClaudeGravity e Roteamento de Modelos Gemini via 9Router</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame {
+      max-width: 1200px;
+      width: 100%;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="claudegravity-arquitetura-title claudegravity-arquitetura-desc">
+      <title id="claudegravity-arquitetura-title">Arquitetura ClaudeGravity e Roteamento de Modelos Gemini via 9Router</title>
+      <desc id="claudegravity-arquitetura-desc">Diagrama de arquitetura mostrando o fluxo do Claude Code CLI através do gateway 9Router para o Google Antigravity e modelos Gemini.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      
+      <!-- Cabeçalho Editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">ARQUITETURA CLAUDEGRAVITY · GATEWAY INTELIGENTE</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Roteamento de Modelos Gemini e Claude via 9Router</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- CONECTORES PRIMEIRO -->
+      <!-- Dev -> Claude Code -->
+      <line x1="210" y1="280" x2="260" y2="280" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- Claude Code -> 9Router -->
+      <line x1="460" y1="280" x2="510" y2="280" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      
+      <!-- 9Router -> Antigravity (Top branch) -->
+      <path d="M 760,230 H 800 Q 808,230 808,222 V 156 Q 808,148 816,148 H 830"
+            fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+            
+      <!-- 9Router -> Modelos (Bottom branch) -->
+      <path d="M 760,330 H 800 Q 808,330 808,338 V 344 Q 808,352 816,352 H 830"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- RÓTULOS DE CONECTORES COM MÁSCARA -->
+      <rect x="218" y="264" width="34" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="235" y="273" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RUN</text>
+
+      <rect x="466" y="264" width="38" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="485" y="273" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PROXY</text>
+
+      <rect x="768" y="160" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="792" y="169" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OAUTH</text>
+
+      <rect x="768" y="336" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="792" y="345" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ROTA</text>
+
+      <!-- NÓS -->
+      <!-- Nó 1: Desenvolvedor -->
+      <rect x="40" y="236" width="170" height="88" rx="6" fill="#ffffff" stroke="#7a8399" stroke-width="1"/>
+      <rect x="48" y="244" width="34" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.4)" stroke-width="0.8"/>
+      <text x="65" y="253" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">USER</text>
+      <text x="125" y="274" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Desenvolvedor</text>
+      <text x="125" y="294" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">terminal local · claude</text>
+
+      <!-- Nó 2: Claude Code CLI -->
+      <rect x="260" y="236" width="200" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="268" y="244" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="286" y="253" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CLIENT</text>
+      <text x="360" y="274" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Claude Code CLI</text>
+      <text x="360" y="294" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">harness agêntico anthropic</text>
+
+      <!-- Nó 3: 9Router Gateway (FOCAL CORAL) -->
+      <rect x="510" y="196" width="250" height="168" rx="6" fill="rgba(235,108,54,0.06)" stroke="#eb6c36" stroke-width="1.5"/>
+      <rect x="518" y="204" width="46" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.5)" stroke-width="0.8"/>
+      <text x="541" y="213" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GATEWAY</text>
+      <text x="635" y="230" fill="#eb6c36" font-size="15" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">9Router Gateway</text>
+      <text x="635" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">docker · porta :20128</text>
+      <line x1="526" y1="260" x2="744" y2="260" stroke="rgba(235,108,54,0.2)" stroke-width="0.8"/>
+      <text x="635" y="282" fill="#2d3142" font-size="9.5" font-family="'Geist', sans-serif" text-anchor="middle">Tradução Messages API ↔ Gemini</text>
+      <text x="635" y="302" fill="#2d3142" font-size="9.5" font-family="'Geist', sans-serif" text-anchor="middle">Compressor RTK (-20% a -40%)</text>
+      <text x="635" y="322" fill="#2d3142" font-size="9.5" font-family="'Geist', sans-serif" text-anchor="middle">Gestão e Renovação de Sessão</text>
+      <text x="635" y="342" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">SSE Streaming · Tool Calling</text>
+
+      <!-- Nó 4: Google Antigravity -->
+      <rect x="830" y="116" width="330" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="838" y="124" width="48" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="862" y="133" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BACKEND</text>
+      <text x="995" y="146" fill="#2d3142" font-size="13.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Google Antigravity (AI Pro)</text>
+      <text x="995" y="166" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">OAuth 2.0 · Auto Token Refresh</text>
+
+      <!-- Nó 5: Modelos Disponíveis -->
+      <rect x="830" y="212" width="330" height="280" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="838" y="220" width="42" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="859" y="229" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MODELS</text>
+      <text x="995" y="238" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Modelos Roteados no Gateway</text>
+      <line x1="846" y1="250" x2="1144" y2="250" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- Detalhe dos Modelos -->
+      <rect x="846" y="260" width="298" height="48" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.1)"/>
+      <text x="856" y="278" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Gemini 3.8 / 3.7 / 3.6 Flash High</text>
+      <text x="856" y="296" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">ag/gemini-3.8-flash-high · alta velocidade</text>
+
+      <rect x="846" y="316" width="298" height="48" rx="4" fill="rgba(235,108,54,0.06)" stroke="rgba(235,108,54,0.3)"/>
+      <text x="856" y="334" fill="#eb6c36" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Gemini 3.1 Pro (Deep Reasoning)</text>
+      <text x="856" y="352" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">ag/gemini-pro-agent · raciocínio agêntico profundo</text>
+
+      <rect x="846" y="372" width="298" height="48" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.1)"/>
+      <text x="856" y="390" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Claude Sonnet 4.6 / Opus 4.6 Thinking</text>
+      <text x="856" y="408" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">ag/claude-sonnet-4-6 · emulação transparente</text>
+
+      <rect x="846" y="428" width="298" height="48" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.1)"/>
+      <text x="856" y="446" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">GPT-OSS 120B (Open-Weight)</text>
+      <text x="856" y="464" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">ag/gpt-oss-120b-medium · modelo aberto soberano</text>
+
+      <!-- LEGENDA INFERIOR -->
+      <line x1="40" y1="576" x2="1160" y2="576" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="602" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGENDA</text>
+      
+      <!-- Itens da legenda -->
+      <rect x="130" y="594" width="16" height="10" rx="2" fill="#ffffff" stroke="#7a8399" stroke-width="0.8"/>
+      <text x="154" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Usuário / Entrada</text>
+
+      <rect x="280" y="594" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="304" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Harness Claude Code</text>
+
+      <rect x="460" y="594" width="16" height="10" rx="2" fill="rgba(235,108,54,0.15)" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="484" y="602" fill="#eb6c36" font-size="9" font-family="'Geist', sans-serif" font-weight="600">Gateway Focal (9Router)</text>
+
+      <rect x="660" y="594" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="684" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Infraestrutura Backend</text>
+
+      <line x1="840" y1="599" x2="864" y2="599" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <text x="874" y="602" fill="#2e5aa8" font-size="9" font-family="'Geist', sans-serif">Chamada HTTP / API</text>
+    
+    </svg>
+  </div>
+</body>
+</html>

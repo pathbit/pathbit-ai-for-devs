@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balanceamento de Carga e Escalar Claude Code em Equipes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame {
+      max-width: 1200px;
+      width: 100%;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="claudegravity-equipes-title claudegravity-equipes-desc">
+      <title id="claudegravity-equipes-title">Balanceamento de Carga e Escalar Claude Code em Equipes</title>
+      <desc id="claudegravity-equipes-desc">Diagrama de connection pooling corporativo com o 9Router distribuindo sessões multi-dev entre contas Antigravity.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      
+      <!-- Cabeçalho Editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">CONNECTION POOLING CORPORATIVO · MULTI-CONTAS</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Balanceamento de Carga e Escalar Claude Code em Equipes</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- CONECTORES PRIMEIRO (FANNED COM r=8, SEM MERGE) -->
+      <!-- Dev 1 -> 9Router (Attach point left: y=210) -->
+      <path d="M 260,176 H 330 Q 338,176 338,184 V 202 Q 338,210 346,210 H 420"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+            
+      <!-- Dev 2 -> 9Router (Attach point left: y=296) -->
+      <line x1="260" y1="296" x2="420" y2="296" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Dev 3 / CI -> 9Router (Attach point left: y=380) -->
+      <path d="M 260,416 H 330 Q 338,416 338,408 V 388 Q 338,380 346,380 H 420"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 9Router -> Conta 1 (Attach point right: y=210) -->
+      <path d="M 760,210 H 830 Q 838,210 838,202 V 184 Q 838,176 846,176 H 900"
+            fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- 9Router -> Conta 2 (Attach point right: y=296) -->
+      <line x1="760" y1="296" x2="900" y2="296" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 9Router -> Conta 3 (Attach point right: y=380) -->
+      <path d="M 760,380 H 830 Q 838,380 838,388 V 408 Q 838,416 846,416 H 900"
+            fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- RÓTULOS DE CONECTORES COM MÁSCARA -->
+      <rect x="272" y="160" width="38" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="291" y="169" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DEV 1</text>
+
+      <rect x="325" y="280" width="38" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="344" y="289" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DEV 2</text>
+
+      <rect x="272" y="422" width="38" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="291" y="431" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CI/CD</text>
+
+      <rect x="844" y="160" width="46" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="867" y="169" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CONTA 1</text>
+
+      <rect x="815" y="280" width="46" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="838" y="289" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CONTA 2</text>
+
+      <rect x="844" y="422" width="46" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="867" y="431" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CONTA 3</text>
+
+      <!-- NÓS ESQUERDA (DESENVOLVEDORES) -->
+      <!-- Dev 1 -->
+      <rect x="40" y="140" width="220" height="72" rx="6" fill="#ffffff" stroke="#7a8399" stroke-width="1"/>
+      <rect x="48" y="148" width="28" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.4)" stroke-width="0.8"/>
+      <text x="62" y="157" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DEV</text>
+      <text x="150" y="168" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dev 1 (Feature Branch)</text>
+      <text x="150" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">claude code cli</text>
+
+      <!-- Dev 2 -->
+      <rect x="40" y="260" width="220" height="72" rx="6" fill="#ffffff" stroke="#7a8399" stroke-width="1"/>
+      <rect x="48" y="268" width="28" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.4)" stroke-width="0.8"/>
+      <text x="62" y="277" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DEV</text>
+      <text x="150" y="288" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dev 2 (Code Review)</text>
+      <text x="150" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">claude code cli</text>
+
+      <!-- Dev 3 / CI -->
+      <rect x="40" y="380" width="220" height="72" rx="6" fill="#ffffff" stroke="#7a8399" stroke-width="1"/>
+      <rect x="48" y="388" width="36" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.4)" stroke-width="0.8"/>
+      <text x="66" y="397" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CI/CD</text>
+      <text x="150" y="408" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dev 3 / CI Runner</text>
+      <text x="150" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">pipeline automatizado</text>
+
+      <!-- NÓ CENTRAL (FOCAL CORAL - 9ROUTER POOL) -->
+      <rect x="420" y="160" width="340" height="272" rx="6" fill="rgba(235,108,54,0.06)" stroke="#eb6c36" stroke-width="1.5"/>
+      <rect x="428" y="168" width="56" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.5)" stroke-width="0.8"/>
+      <text x="456" y="177" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">POOL HUB</text>
+      <text x="590" y="196" fill="#eb6c36" font-size="16" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">9Router Gateway Pool</text>
+      <text x="590" y="216" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">balanceamento round-robin de tokens</text>
+      <line x1="436" y1="230" x2="744" y2="230" stroke="rgba(235,108,54,0.2)" stroke-width="0.8"/>
+
+      <text x="590" y="258" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Rotação Dinâmica de Credenciais</text>
+      <text x="590" y="284" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Isolamento Estrito de Sessões por Dev</text>
+      <text x="590" y="310" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Blindagem contra Rate Limit (HTTP 429)</text>
+      <text x="590" y="336" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Compressão RTK de Tokens (-30%)</text>
+      <text x="590" y="362" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Healthcheck e Failover Automático</text>
+      <text x="590" y="394" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">docker swarm · k8s · standalone</text>
+
+      <!-- NÓS DIREITA (CONTAS GOOGLE UPSTREAM) -->
+      <!-- Conta 1 -->
+      <rect x="900" y="140" width="260" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="908" y="148" width="38" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="927" y="157" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OAUTH</text>
+      <text x="1030" y="168" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Conta Google 1 (AI Pro)</text>
+      <text x="1030" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cota individual dedicada</text>
+
+      <!-- Conta 2 -->
+      <rect x="900" y="260" width="260" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="908" y="268" width="38" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="927" y="277" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OAUTH</text>
+      <text x="1030" y="288" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Conta Google 2 (AI Pro)</text>
+      <text x="1030" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cota individual dedicada</text>
+
+      <!-- Conta 3 -->
+      <rect x="900" y="380" width="260" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="908" y="388" width="38" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="927" y="397" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OAUTH</text>
+      <text x="1030" y="408" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Conta Google 3 (Pool)</text>
+      <text x="1030" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">reserva de contingência</text>
+
+      <!-- LEGENDA INFERIOR -->
+      <line x1="40" y1="576" x2="1160" y2="576" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="602" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGENDA</text>
+      
+      <!-- Itens da legenda -->
+      <rect x="130" y="594" width="16" height="10" rx="2" fill="#ffffff" stroke="#7a8399" stroke-width="0.8"/>
+      <text x="154" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Desenvolvedor / CI (Entrada)</text>
+
+      <rect x="360" y="594" width="16" height="10" rx="2" fill="rgba(235,108,54,0.15)" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="384" y="602" fill="#eb6c36" font-size="9" font-family="'Geist', sans-serif" font-weight="600">Gateway Pool (Focal)</text>
+
+      <rect x="560" y="594" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="584" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Conta Upstream (AI Pro)</text>
+
+      <line x1="770" y1="599" x2="794" y2="599" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="804" y="602" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Roteamento Round-Robin</text>
+    
+    </svg>
+  </div>
+</body>
+</html>

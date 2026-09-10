@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hierarquia da Cascata de Fallback Automático no Combo Arsenal Supremo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame {
+      max-width: 1200px;
+      width: 100%;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fallback-cascata-arsenal-title fallback-cascata-arsenal-desc">
+      <title id="fallback-cascata-arsenal-title">Hierarquia da Cascata de Fallback Automático no Combo Arsenal Supremo</title>
+      <desc id="fallback-cascata-arsenal-desc">Fluxo hierárquico com 7 níveis de redundância para Claude Code sem limites e sem interrupções.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      
+      <!-- Cabeçalho Editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">COMBO ARSENAL-SUPREMO · RESILIÊNCIA NÍVEL 7</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Hierarquia da Cascata de Fallback Automático</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- CONECTORES PRIMEIRO -->
+      <!-- Col 1 Steps: Card 0 -> 1 -> 2 -> 3 -->
+      <line x1="290" y1="168" x2="290" y2="204" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="290" y1="268" x2="290" y2="304" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="290" y1="368" x2="290" y2="404" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Transição Col 1 (Nível 3) -> Col 2 (Nível 4) -->
+      <!-- Exit right Nível 3 at (530, 436) -> right to 600 -> UP to 144 -> right into Nível 4 at (670, 144) -->
+      <path d="M 530,436 H 592 Q 600,436 600,428 V 152 Q 600,144 608,144 H 670"
+            fill="none" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+
+      <!-- Col 2 Steps: Nível 4 -> 5 -> 6 -> 7 -->
+      <line x1="910" y1="176" x2="910" y2="212" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="910" y1="276" x2="910" y2="312" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="910" y1="376" x2="910" y2="412" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- RÓTULOS DE CONECTORES COM MÁSCARA OPACA -->
+      <rect x="246" y="180" width="88" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="290" y="189" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1ª TENTATIVA</text>
+
+      <rect x="250" y="280" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="290" y="289" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SE 429/503</text>
+
+      <rect x="250" y="380" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="290" y="389" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SE 429/503</text>
+
+      <!-- Transição Coluna -->
+      <rect x="550" y="284" width="100" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="600" y="293" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FALLBACK APIS</text>
+
+      <rect x="870" y="188" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="910" y="197" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SE 429/503</text>
+
+      <rect x="870" y="288" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="910" y="297" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SE 429/503</text>
+
+      <rect x="856" y="388" width="108" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="910" y="397" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SE REDE CAIR</text>
+
+      <!-- COLUNA 1: REQUISIÇÃO + ANTIGRAVITY -->
+      <!-- Card 0: Entrada -->
+      <rect x="50" y="112" width="480" height="56" rx="6" fill="#ffffff" stroke="#7a8399" stroke-width="1"/>
+      <rect x="58" y="118" width="38" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.4)" stroke-width="0.8"/>
+      <text x="77" y="127" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">INPUT</text>
+      <text x="290" y="136" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Requisição do Claude Code</text>
+      <text x="290" y="154" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">claude --model arsenal-supremo</text>
+
+      <!-- Nível 1: Gemini 3.8 Flash High -->
+      <rect x="50" y="204" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="58" y="212" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="98" y="221" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1º · PRIMÁRIO</text>
+      <text x="290" y="232" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Gemini 3.8 Flash High</text>
+      <text x="290" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ag/gemini-3.8-flash-high · Google Antigravity Pro</text>
+
+      <!-- Nível 2: Gemini 3.7 Flash High -->
+      <rect x="50" y="304" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="58" y="312" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="98" y="321" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">2º · FALLBACK</text>
+      <text x="290" y="332" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Gemini 3.7 Flash High</text>
+      <text x="290" y="352" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ag/gemini-3.7-flash-high · Google Antigravity Pro</text>
+
+      <!-- Nível 3: Gemini 3.6 Flash High -->
+      <rect x="50" y="404" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="58" y="412" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="98" y="421" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3º · FALLBACK</text>
+      <text x="290" y="432" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Gemini 3.6 Flash High</text>
+      <text x="290" y="452" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ag/gemini-3.6-flash-high · Google Antigravity Pro</text>
+
+
+      <!-- COLUNA 2: FREE TIERS + CONTINGÊNCIA OFFLINE -->
+      <!-- Nível 4: Nemotron 3.5 Lightning -->
+      <rect x="670" y="112" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="678" y="120" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="718" y="129" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">4º · FREE TIER</text>
+      <text x="910" y="140" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Nemotron 3.5 Lightning</text>
+      <text x="910" y="160" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">openrouter/nvidia/nemotron-3.5-lightning:free</text>
+
+      <!-- Nível 5: GPT-OSS 120B (Groq) -->
+      <rect x="670" y="212" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="678" y="220" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="718" y="229" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">5º · FREE TIER</text>
+      <text x="910" y="240" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">GPT-OSS 120B (Groq LPU)</text>
+      <text x="910" y="260" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">groq/openai/gpt-oss-120b · inferência em hardware LPU</text>
+
+      <!-- Nível 6: Codestral Latest (Mistral) -->
+      <rect x="670" y="312" width="480" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="678" y="320" width="80" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.4)" stroke-width="0.8"/>
+      <text x="718" y="329" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">6º · FREE TIER</text>
+      <text x="910" y="340" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Codestral Latest (Mistral AI)</text>
+      <text x="910" y="360" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">mistral/codestral-latest · engenharia de software</text>
+
+      <!-- Nível 7: Qwen 2.5 Coder (Ollama Local - FOCAL CORAL) -->
+      <rect x="670" y="412" width="480" height="80" rx="6" fill="rgba(235,108,54,0.06)" stroke="#eb6c36" stroke-width="1.5"/>
+      <rect x="678" y="420" width="94" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.5)" stroke-width="0.8"/>
+      <text x="725" y="429" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">7º · CONTINGÊNCIA</text>
+      <text x="910" y="444" fill="#eb6c36" font-size="14" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Qwen 2.5 Coder (Ollama Local)</text>
+      <text x="910" y="462" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">openai-compatible-chat-ollama-local/qwen2.5-coder:latest</text>
+      <text x="910" y="478" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">rede de contingência local perpétua · 100% offline</text>
+
+      <!-- LEGENDA INFERIOR -->
+      <line x1="40" y1="612" x2="1160" y2="612" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="638" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGENDA</text>
+      
+      <!-- Itens da legenda -->
+      <rect x="130" y="630" width="16" height="10" rx="2" fill="#ffffff" stroke="#7a8399" stroke-width="0.8"/>
+      <text x="154" y="638" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Requisição Inicial</text>
+
+      <rect x="280" y="630" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="304" y="638" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Modelos Primários (Antigravity)</text>
+
+      <rect x="490" y="630" width="16" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="514" y="638" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">APIs Gratuitas em Nuvem</text>
+
+      <rect x="690" y="630" width="16" height="10" rx="2" fill="rgba(235,108,54,0.15)" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="714" y="638" fill="#eb6c36" font-size="9" font-family="'Geist', sans-serif" font-weight="600">Contingência Local Offline (Focal)</text>
+
+      <line x1="930" y1="635" x2="954" y2="635" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="964" y="638" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Salto Automático de Fallback</text>
+    
+    </svg>
+  </div>
+</body>
+</html>
