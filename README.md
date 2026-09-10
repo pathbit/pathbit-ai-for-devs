@@ -6,7 +6,7 @@ Arquiteturas agênticas e engenharia de inteligência artificial para desenvolve
 
 ## 📚 Artigos Disponíveis
 
-### [0001 - Google Antigravity e o Acesso Total Irrestrito sem Interrupções](./0001_antigravity_acesso_total_irrestrito/)
+### [0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](./0001_antigravity_acesso_total_irrestrito/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Autonomia de Agentes
 
@@ -26,7 +26,7 @@ Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de
 
 ---
 
-### [0003 - Arsenal de Modelos Gratuitos e Fallback sem Limites com 9Router](./0003_fallback_modelos_gratuitos_9router/)
+### [0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](./0003_fallback_modelos_gratuitos_9router/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Alta Disponibilidade
 

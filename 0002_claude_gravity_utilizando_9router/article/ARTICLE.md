@@ -12,7 +12,7 @@ A comunidade de engenharia já provou o valor de desacoplar o harness do provedo
 
 E o melhor: **sem pagar tokens adicionais na API do Google AI Studio**. Você utiliza legitimamente a capacidade computacional da assinatura que você já possui.
 
-> Caso você ainda não tenha configurado o seu ambiente Google Antigravity para autonomia total e sem confirmações manuais, recomendamos iniciar pelo [Artigo 0001 - Google Antigravity e o Acesso Total Irrestrito sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), no qual cobrimos o destravamento do motor Agent 2.0 e da CLI `agy`.
+> Caso você ainda não tenha configurado o seu ambiente Google Antigravity para autonomia total e sem confirmações manuais, recomendamos iniciar pelo [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), no qual cobrimos o destravamento do motor Agent 2.0 e da CLI `agy`.
 
 ---
 
@@ -722,7 +722,7 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 1. **Configure Combos de Fallback no 9Router:** Crie um combo no dashboard que tente primeiro o `ag/gemini-3.8-flash-high` e, caso o rate limit por minuto da Google seja atingido em tarefas brutas, comute automaticamente para `ag/gemini-3.7-flash-high` e `ag/gemini-3.6-flash-high`.
 2. **Adicione Servidores MCP:** Como o `.claude/settings.local.json` já libera permissões para ferramentas `mcp__*`, conecte servidores MCP de PostgreSQL, GitHub e navegadores locais sem atrito.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
-4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Arsenal de Modelos Gratuitos e Fallback sem Limites via 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
+4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
 
 ---
 

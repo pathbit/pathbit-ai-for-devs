@@ -17,7 +17,7 @@ Este módulo apresenta o **ClaudeGravity**, arquitetura que conecta o harness de
 
 Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebro de raciocínio dentro do harness do Claude Code), o **ClaudeGravity** desbloqueia o ecossistema Gemini (3.8, 3.7, 3.6 e Gemini Pro) com contexto de 1 milhão de tokens, aproveitando sua assinatura AI Pro sem cobrança de tokens na API do Google AI Studio.
 
-- Base fundamentada no [Artigo 0001 - Google Antigravity e o Acesso Total Irrestrito](../0001_antigravity_acesso_total_irrestrito/) para destravar o motor Agent 2.0.
+- Base fundamentada no [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../0001_antigravity_acesso_total_irrestrito/) para destravar o motor Agent 2.0.
 - Execução isolada via **Docker Compose** (método recomendado para produção).
 - Alternativa de instalação **Nativa (CLI)**.
 - Roteamento nativo para **Gemini 3.8 Flash**, **Gemini 3.7 Flash**, **Gemini 3.6 Flash**, **Gemini 3.1 Pro**, **Claude Sonnet 4.6 (Thinking)** e **GPT-OSS 120B**.
@@ -282,5 +282,5 @@ python3 src/test_gateway.py
 ### Links úteis
 
 - Artigo completo: [ARTICLE.md](./article/ARTICLE.md)
-- Artigo 0003 (Arsenal de Modelos Gratuitos e Fallback sem Limites): [0003_fallback_modelos_gratuitos_9router](../0003_fallback_modelos_gratuitos_9router/README.md)
+- Artigo 0003 (Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router): [0003_fallback_modelos_gratuitos_9router](../0003_fallback_modelos_gratuitos_9router/README.md)
 - Repositório: [pathbit-ai-for-devs](https://github.com/pathbit/pathbit-ai-for-devs)
