@@ -79,6 +79,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
     ├── claudegravity.py           # Launcher CLI do Claude Code pré-configurado (Python)
     ├── manage_env.py              # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
     ├── sync_antigravity_token.py  # Sincronizador de tokens OAuth Google Antigravity para o 9Router (Python)
+    ├── keep_connected.py          # Renovacao preventiva da credencial, evita o 503 na virada da hora
     ├── test_gateway.py            # Script de validação dos endpoints e modelos do gateway (Python)
     └── verify_setup.py            # Diagnóstico automatizado do ambiente (Python)
 ```
@@ -135,6 +136,11 @@ Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as fer
    - Possuir uma conta Google ativa com o plano Google AI Pro, Google One AI Premium ou Workspace com Gemini.
    - Faça login prévio no **Google Antigravity IDE** ou na CLI `agy` na sua máquina (`agy --version`). Esse passo gera as credenciais OAuth locais em `~/.gemini/` que o script `src/sync_antigravity_token.py` consome e renova automaticamente para o gateway.
    - **Mandatório para o 9Router:** O dashboard (`http://localhost:20128/dashboard`) deve ser aberto no mesmo perfil de navegador em que essa conta com a licença está autenticada.
+
+> **Sessões longas:** deixe `python3 src/keep_connected.py --daemon` rodando num terminal à parte.
+> Ele renova a credencial antes do gateway precisar, o que evita o `API Error: 503` que costuma
+> aparecer depois de cerca de uma hora de uso.
+
 
 #### 2. Preparar Arquivos de Configuração
 
