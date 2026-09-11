@@ -148,28 +148,33 @@ A única reprovação é o `arsenal-offline`, e ela é esperada, o motivo está 
 
 ### Os `modelOverrides` medidos um a um
 
-A primeira versão do bloco declarava 14 mapeamentos, e a medição mostrou que **só 3 traduziam**:
-`claude-opus-4-6`, `claude-sonnet-4-6` e `claude-haiku-4-5-20251001`. Os outros 11 eram apelidos que
-a CLI recusa antes mesmo de consultar o mapeamento, com `There's an issue with the selected model`  -
-**resposta idêntica, e no mesmo tempo, à de um nome inventado**.
+A primeira versão do bloco declarava 14 mapeamentos e a medição mostrou que **só 3 traduziam**. A
+causa apareceu ao usar o menu `/model`: a CLI grava o identificador da geração corrente, e nenhum
+deles estava no bloco. A reação inicial foi cobrir tudo, com 33 chaves incluindo o sufixo `[1m]`  -
+e isso também estava errado.
 
-A causa apareceu ao usar o menu `/model`: a CLI grava o identificador completo da geração atual,
-**com o sufixo de janela**, como `claude-opus-5[1m]` e `claude-fable-5-1[1m]`. Nenhum deles estava no
-bloco. O mapa foi então reconstruído com **33 chaves**, cobrindo cada família com e sem `[1m]` mais
-os aliases curtos, e reverificado com os identificadores que antes falhavam:
+O teste seguinte desfez o excesso. Declarando apenas `claude-opus-5`, o pedido `--model
+claude-opus-5[1m]` **resolve normalmente**: a CLI normaliza o sufixo antes de consultar o mapa, e o
+próprio binário trata a variante como opcional no padrão que usa para reconhecer modelos:
 
 ```text
---model claude-fable-5-1[1m]   OK    5,5s
---model claude-opus-5[1m]      OK   25,9s
---model claude-sonnet-5[1m]    OK    5,8s
---model fable                  OK   11,3s
---model sonnet                 OK    3,8s
---model haiku                  OK    2,5s
+(?:[-@]\d{8})?(?:-v\d+(?::\d+)?)?(?:\[[12]m\])?$
 ```
 
-Lição que vale registrar: um `modelOverrides` correto envelhece. Quando a CLI ganha uma geração
-nova de modelos, os identificadores mudam e o bloco precisa acompanhar  -  o sintoma é sempre o
-mesmo erro de modelo inexistente.
+E um terceiro teste mostrou que quase nada precisa de override. Com o `modelPicker` substituindo a
+lista nativa e os quatro papéis declarados, removemos o bloco inteiro e reexecutamos as tarefas,
+inclusive com subagente: **nenhuma falhou, e nenhum consumidor pediu um `claude-*`**. Restou um único
+cenário, o de um `settings.local.json` com pin antigo.
+
+O bloco final tem **três entradas, uma por família**, todas apontando para combos:
+
+| Chave | Destino no 0002 | Destino no 0003 |
+| :--- | :--- | :--- |
+| `claude-fable-5-1` | `claudegravity-thinking` | `arsenal-supremo` |
+| `claude-opus-5` | `claudegravity-thinking` | `arsenal-supremo` |
+| `claude-sonnet-5` | `claudegravity-fallback` | `arsenal-rapido` |
+
+De 33 para 3, com o mesmo resultado nos testes.
 
 ### Configurações validadas com `claude doctor`
 
@@ -268,8 +273,8 @@ antes de responder e custa dezesseis vezes o tempo do `sonnet` na tarefa mais si
 
 A CLI descreve a ferramenta como *"an advisor tool backed by a stronger reviewer model"* e impõe que
 o advisor seja **ao menos tão capaz quanto o modelo principal**. Nos `.example`, `advisorModel`
-aponta para o `ag/gemini-pro-agent` (papel Fable) enquanto o principal fica no
-`ag/gemini-3.8-flash-high`.
+aponta para o mesmo combo do modelo principal e do papel Fable  -  `claudegravity-thinking` no 0002 e
+`arsenal-supremo` no 0003  -  de modo que não há degrau de capacidade nem ponto único de falha.
 
 ### Processos órfãos que consomem cota
 
