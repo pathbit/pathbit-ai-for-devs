@@ -464,8 +464,37 @@ na contabilidade, e aparece quando o token de fato vence.
 
 Para que a correção deixe de depender de alguém lembrar de rodar o script, a renovação foi promovida
 a serviço do sistema, em `~/Library/LaunchAgents/co.pathbit.claudegravity.keepconnected.plist`:
-roda ao entrar na sessão e a cada 5 minutos, com margem de 25 min. Três execuções registradas, todas
-com código 0, incluindo uma que corrigiu a corrupção sozinha.
+roda ao entrar na sessão e a cada 5 minutos, com margem de 25 min.
+
+### Cadeia de continuidade, verificada elo a elo
+
+Renovar a credencial resolve um elo só. A pergunta que importa é outra: **depois de um reboot, ou de
+uma queda do container, o ambiente volta sozinho?** Cada elo foi conferido:
+
+| Elo | Estado | Como foi verificado |
+| :--- | :--- | :--- |
+| Docker Desktop abre no login | `AutoStart = True` | `settings-store.json` do Docker |
+| Containers voltam com o Docker | `unless-stopped` nos 3 serviços | `docker inspect` da política efetiva |
+| Gateway volta a servir | **2,6 s** após `docker restart` | medido com sondagem a cada 2 s |
+| Credencial sobrevive ao restart | `expiresAt` numérico, `isActive: 1` | lida do banco depois do restart |
+| Inferência volta | modelo direto e combo responderam | chamada real pós-restart |
+| Renovação roda sozinha | LaunchAgent a cada 5 min | `launchctl print`, exit 0 |
+
+O elo que faltava era a **visibilidade da falha**: o agente escrevia num log que ninguém lê. Foi
+adicionado um guardião em `~/.claudegravity/guard.sh`, chamado pelo LaunchAgent, que faz o ciclo
+completo e **avisa na tela** quando algo quebra:
+
+1. Docker parado → notifica e sai
+2. Container caído → **tenta subir sozinho** e só notifica se não conseguir
+3. Renova a credencial
+4. Confere o estado **gravado** (numérico, não vencido)  -  renovar sem conferir não prova nada
+5. Confirma que `/v1/models` devolve `200`
+6. Notifica a recuperação quando o problema passa, e não repete o mesmo alerta a cada 5 min
+
+Os quatro caminhos foram exercitados: cenário saudável (`OK - credencial valida por 57 min, gateway
+HTTP 200`), container parado à força (**religou sozinho em 8 s** e validou), gateway inalcançável
+(`FALHA: Gateway nao responde - HTTP 000`) e credencial de origem ausente (mensagem clara apontando
+`~/.gemini/`).
 
 ---
 
