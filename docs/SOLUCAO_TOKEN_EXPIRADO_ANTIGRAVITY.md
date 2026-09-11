@@ -54,7 +54,7 @@ Saída esperada:
 
 ---
 
-## 🛡️ Prevenção: Renovar Antes de Quebrar
+## 🛡️ Prevenção e Renovação Antes de Quebrar
 
 Todo o procedimento acima é **reativo**: você descobre o problema quando a sessão morre. Há uma causa
 recorrente que dá para eliminar antes disso.

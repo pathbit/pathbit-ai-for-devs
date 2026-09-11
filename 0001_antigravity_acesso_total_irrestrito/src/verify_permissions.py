@@ -10,6 +10,7 @@ import sys
 import json
 import glob
 import platform
+import re
 
 WILDCARDS = [
     "read_file(/)",
@@ -19,6 +20,58 @@ WILDCARDS = [
     "execute_url(*)",
     "mcp(*)"
 ]
+
+def remover_comentarios_jsonc(texto):
+    """Remove comentários // e /* */ preservando o que estiver dentro de strings."""
+    saida = []
+    i, n = 0, len(texto)
+    em_string = False
+    while i < n:
+        c = texto[i]
+        if em_string:
+            saida.append(c)
+            if c == "\\" and i + 1 < n:
+                saida.append(texto[i + 1]); i += 2; continue
+            if c == '"':
+                em_string = False
+            i += 1
+            continue
+        if c == '"':
+            em_string = True; saida.append(c); i += 1; continue
+        if c == "/" and i + 1 < n:
+            if texto[i + 1] == "/":
+                while i < n and texto[i] != "\n":
+                    i += 1
+                continue
+            if texto[i + 1] == "*":
+                i += 2
+                while i + 1 < n and not (texto[i] == "*" and texto[i + 1] == "/"):
+                    i += 1
+                i += 2
+                continue
+        saida.append(c); i += 1
+    return "".join(saida)
+
+def load_json_lenient(path):
+    """Carrega JSON suportando comentarios JSONC e virgulas sobrando do VSCode."""
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    if not content.strip():
+        return {}
+    for tentativa in (
+        content,
+        remover_comentarios_jsonc(content),
+        re.sub(r",(\s*[}\]])", r"\1", remover_comentarios_jsonc(content)),
+    ):
+        try:
+            dados = json.loads(tentativa)
+            if isinstance(dados, dict):
+                return dados
+        except json.JSONDecodeError:
+            continue
+    return json.loads(content)
 
 def get_paths():
     home = os.path.expanduser("~")
@@ -53,8 +106,7 @@ def check_agent_engine(paths):
         return False
 
     try:
-        with open(p, "r", encoding="utf-8") as f:
-            d = json.load(f)
+        d = load_json_lenient(p)
         us = d.get("userSettings", {})
         policy = us.get("autoExecutionPolicy")
         review = us.get("artifactReviewMode")
@@ -129,8 +181,7 @@ def check_projects(paths):
     for pf in files:
         name = os.path.basename(pf)
         try:
-            with open(pf, "r", encoding="utf-8") as f:
-                d = json.load(f)
+            d = load_json_lenient(pf)
             pg = d.get("permissionGrants", {}).get("permissionGrants", {})
             allow = pg.get("allow", [])
             missing = [w for w in WILDCARDS if w not in allow]
@@ -152,8 +203,7 @@ def check_cli(paths):
         return False
 
     try:
-        with open(p, "r", encoding="utf-8") as f:
-            d = json.load(f)
+        d = load_json_lenient(p)
         mode = d.get("agentMode")
         tool = d.get("toolPermission")
 
@@ -183,8 +233,7 @@ def check_trusted_folders(paths):
         return False
 
     try:
-        with open(p, "r", encoding="utf-8") as f:
-            d = json.load(f)
+        d = load_json_lenient(p)
 
         ok = True
         # No Windows a raiz confiável vem do drive do perfil: um usuário com
@@ -221,8 +270,7 @@ def check_ide(paths):
         found_any = True
         v_name = "Antigravity IDE" if "Antigravity IDE" in p else "Antigravity"
         try:
-            with open(p, "r", encoding="utf-8") as f:
-                d = json.load(f)
+            d = load_json_lenient(p)
 
             policy = d.get("antigravity.agent.terminal.autoExecutionPolicy")
             yolo = d.get("geminicodeassist.agentYoloMode")

@@ -387,7 +387,7 @@ O mecanismo central de alta disponibilidade é o **Combo com estratégia Fallbac
    * **Nível 1:** `ag/gemini-3.8-flash-high` (Modelo primário de alto raciocínio via Antigravity)
    * **Nível 2:** `ag/gemini-3.7-flash-high` (Modelo secundário veloz)
    * **Nível 3:** `ag/gemini-3.6-flash-high` (Modelo de apoio)
-   * **Nível 4:** `openrouter/nvidia/nemotron-3.5-lightning:free` (Fallback gratuito com contexto de 1M)
+   * **Nível 4:** `openrouter/cohere/north-mini-code:free` (Fallback gratuito especializado em código no OpenRouter)
    * **Nível 5:** `groq/openai/gpt-oss-120b` (Fallback de baixa latência em LPU)
    * **Nível 6:** `mistral/codestral-latest` (Fallback especializado em código)
    * **Nível 7:** `openai-compatible-chat-ollama-local/qwen2.5-coder:latest` (Continuidade local: garante resposta, não conduz a sessão)
@@ -406,7 +406,7 @@ No 9Router, agrupamos os provedores em três perfis complementares, além do `cl
 
 ![Cascata de Fallback Automático do Combo arsenal-supremo](../assets/17_diagrama_cascata_fallback.png)
 
-> **Figura 17:** Sequência de execução e comutação automática em cascata do combo `arsenal-supremo`, exatamente na ordem provisionada por `src/setup_combos.py`: Gemini 3.8 Flash High -> Gemini 3.7 Flash High -> Gemini 3.6 Flash High -> Nemotron 3.5 Lightning (OpenRouter) -> GPT-OSS 120B (Groq LPU) -> Codestral (Mistral) -> Ollama Local.
+> **Figura 17:** Sequência de execução e comutação automática em cascata do combo `arsenal-supremo`, exatamente na ordem provisionada por `src/setup_combos.py`: Gemini 3.8 Flash High -> Gemini 3.7 Flash High -> Gemini 3.6 Flash High -> Cohere North Mini Code (OpenRouter) -> GPT-OSS 120B (Groq LPU) -> Codestral (Mistral) -> Ollama Local.
 
 
 ### Combo 1 - `arsenal-supremo` (Resiliência Máxima)
@@ -415,15 +415,15 @@ A cadeia principal para trabalho pesado diário, com os sete níveis listados ac
 
 | Nível | Modelo | Papel | Latência medida |
 | :---: | :--- | :--- | ---: |
-| 1 | `ag/gemini-3.8-flash-high` | Máxima capacidade analítica | 2,11s |
-| 2 | `ag/gemini-3.7-flash-high` | Raciocínio balanceado | 1,19s |
-| 3 | `ag/gemini-3.6-flash-high` | Baixa latência | 0,65s |
-| 4 | `openrouter/nvidia/nemotron-3.5-lightning:free` | Fallback gratuito, contexto 1M | 4,97s |
-| 5 | `groq/openai/gpt-oss-120b` | Velocidade bruta em LPU | 0,55s |
-| 6 | `mistral/codestral-latest` | Especialista em código | 0,50s |
-| 7 | `openai-compatible-chat-ollama-local/qwen2.5-coder:latest` | Continuidade local | 0,13s |
+| 1 | `ag/gemini-3.8-flash-high` | Máxima capacidade analítica | 1,44s |
+| 2 | `ag/gemini-3.7-flash-high` | Raciocínio balanceado | 1,05s |
+| 3 | `ag/gemini-3.6-flash-high` | Baixa latência | 0,77s |
+| 4 | `openrouter/cohere/north-mini-code:free` | Fallback gratuito especialista em código | 0,91s |
+| 5 | `groq/openai/gpt-oss-120b` | Velocidade bruta em LPU | 0,47s |
+| 6 | `mistral/codestral-latest` | Especialista em código | 0,55s |
+| 7 | `openai-compatible-chat-ollama-local/qwen2.5-coder:latest` | Continuidade local | 0,08s |
 
-Repare que os níveis não estão em ordem de velocidade, e isso é proposital: a cascata é ordenada por **capacidade**, não por latência. O modelo mais lento da lista (o Nemotron, no nível 4) entrega 1M de contexto de graça; os mais rápidos ficam abaixo porque servem melhor como rede de contenção do que como motor principal.
+Repare que os níveis não estão em ordem de velocidade, e isso é proposital: a cascata é ordenada por **capacidade**, não por latência. O Cohere North Mini Code no nível 4 entrega especialização de sintaxe e código sem custo; os mais rápidos em nuvem ficam abaixo porque servem melhor como rede de contenção rápida do que como motor principal.
 
 ### Combo 2 - `arsenal-rapido` (Iteração e Testes Ágeis)
 Projetado para ciclos curtos de teste e revisão de sintaxe, priorizando baixa latência **sem abrir mão de capacidade**:
@@ -573,14 +573,14 @@ importa: um combo pode responder pelo primeiro nível e esconder que os seis seg
     Gateway: http://localhost:20128
 
 [*] Cascata de 'arsenal-supremo' - 7 nível(is):
-  [OK   ] 1º ag/gemini-3.8-flash-high - 3.11s · 'PONG'
-  [OK   ] 2º ag/gemini-3.7-flash-high - 1.29s · 'PONG'
-  [OK   ] 3º ag/gemini-3.6-flash-high - 4.45s · 'PONG'
-  [OK   ] 4º openrouter/nvidia/nemotron-3.5-lightning:free - 19.59s · 'PONG'
+  [OK   ] 1º ag/gemini-3.8-flash-high - 1.44s · 'PONG'
+  [OK   ] 2º ag/gemini-3.7-flash-high - 1.05s · 'PONG'
+  [OK   ] 3º ag/gemini-3.6-flash-high - 0.77s · 'PONG'
+  [OK   ] 4º openrouter/cohere/north-mini-code:free - 0.91s · 'PONG'
   [OK   ] 5º groq/openai/gpt-oss-120b - 0.47s · 'PONG'
-  [OK   ] 6º mistral/codestral-latest - 0.61s · 'PONG'
-  [OK   ] 7º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.89s · 'OK'
-  [OK   ] combo 'arsenal-supremo' - 1.31s · 'PONG'
+  [OK   ] 6º mistral/codestral-latest - 0.55s · 'PONG'
+  [OK   ] 7º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.08s · 'PONG'
+  [OK   ] combo 'arsenal-supremo' - 1.24s · 'PONG'
 
 [*] Cascata de 'arsenal-rapido' - 4 nível(is):
   [OK   ] 1º groq/openai/gpt-oss-120b - 0.34s · 'PONG'
