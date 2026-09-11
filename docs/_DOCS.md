@@ -20,8 +20,8 @@ Esta pasta centraliza toda a documentação técnica, padrões de engenharia, gu
 
 | Documento | Descrição | Quando Usar |
 | :--- | :--- | :--- |
-| **[SOLUCAO_PROBLEMAS_COMUNS.md](./SOLUCAO_PROBLEMAS_COMUNS.md)** | Resolução de portas ocupadas, download de modelos locais e bloqueios de SQLite | Ao encontrar erros de conexão, portas ou serviços offline |
-| **[SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](./SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md)** | Procedimento de auto-cura para renovação e injeção do token OAuth do Antigravity | Ao receber erro HTTP 401 ou 503 no gateway 9Router |
+| **[SOLUCAO_PROBLEMAS_COMUNS.md](./SOLUCAO_PROBLEMAS_COMUNS.md)** | Resolução de portas ocupadas, download de modelos locais, locks no SQLite e tokens expirados | Ao encontrar erros de conexão, portas, permissões ou serviços offline |
+| **[SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](./SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md)** | Diagnóstico, auto-cura e container sidecar para renovação e injeção contínua de tokens OAuth | Ao receber erro HTTP 401 ou 503 no gateway 9Router |
 
 ---
 

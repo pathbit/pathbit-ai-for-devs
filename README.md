@@ -20,7 +20,7 @@ Elimina as confirmações manuais que interrompem tarefas agênticas longas, con
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Gateways e Model Routing
 
-Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de modelos do **Google Antigravity (Google AI Pro)** através do gateway **9Router** em container Docker, sem custo adicional de tokens de API. Aborda a tradução bidirecional de protocolo, a compressão RTK de saídas de ferramentas, a renovação automática de credenciais OAuth e o mapeamento de modelos primários, secundários e de subagentes. Inclui análise de risco, arquitetura multi-conta com Round-Robin e scripts de diagnóstico e inferência.
+Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de modelos do **Google Antigravity (Google AI Pro)** através do gateway **9Router** em container Docker, sem custo adicional de tokens de API. Aborda a tradução bidirecional de protocolo, a compressão RTK de saídas de ferramentas, a auto-renovação contínua de tokens via container sidecar (`claudegravity-token-sync` em Alpine) e o mapeamento de modelos primários, secundários e de subagentes. Inclui análise de risco, arquitetura multi-conta com Round-Robin e scripts de diagnóstico e inferência.
 
 [📖 Ler Artigo](./0002_claude_gravity_utilizando_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0002_claude_gravity_utilizando_9router/README.md) | [🧪 Exemplos Práticos](./0002_claude_gravity_utilizando_9router/examples/README.md)
 

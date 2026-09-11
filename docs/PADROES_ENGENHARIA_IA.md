@@ -76,8 +76,9 @@ Para manter a consistência e evitar colisões entre projetos na máquina do des
 1. **Nome do Projeto Compose:** Definido como `name: claudegravity`.
 2. **Container do Gateway:** Sempre explicitado como `container_name: claudegravity-router`.
 3. **Container do LLM Local:** Sempre explicitado como `container_name: claudegravity-ollama`.
-4. **Volumes de Dados:** Persistidos como volumes nomeados (`9router_data`, `ollama_data`).
-5. **Rede do Host:** Utilizar a diretiva `extra_hosts: ["host.docker.internal:host-gateway"]` para assegurar paridade de roteamento local entre macOS, Linux e Windows WSL2.
+4. **Container Sidecar de Tokens:** Sempre explicitado como `container_name: claudegravity-token-sync` (usando a imagem oficial `python:3.14-alpine` para executar o daemon contínuo `token_daemon.py` sem poluir o host).
+5. **Volumes de Dados:** Persistidos como volumes nomeados (`9router_data`, `ollama_data`).
+6. **Rede do Host:** Utilizar a diretiva `extra_hosts: ["host.docker.internal:host-gateway"]` para assegurar paridade de roteamento local entre macOS, Linux e Windows WSL2.
 
 ---
 
@@ -130,7 +131,7 @@ Todos os arquivos `.md` (artigos, readmes e documentações) devem respeitar as 
 6. **Seção Obrigatória de Pré-requisitos do Ambiente:**
    - Todo artigo e README de módulo deve apresentar detalhadamente a seção de pré-requisitos antes dos passos de execução.
    - Deve cobrir:
-     - Versão do Python (3.10+ recomendada) e comandos exatos de criação e ativação do ambiente virtual (`python3 -m venv .venv`, ativação para macOS/Linux e Windows).
+     - Versão do Python: mínimo 3.10+ com recomendação oficial explícita do [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) e comandos exatos de criação e ativação do ambiente virtual (`python3 -m venv .venv`, ativação para macOS/Linux e Windows).
      - Instalação de dependências (`pip install -r requirements.txt`).
      - Ferramentas de infraestrutura quando aplicável (Docker e Docker Compose, Node.js / Claude Code CLI).
      - Passo a passo explícito para criar contas e obter tokens/chaves de API nas plataformas correspondentes (OpenRouter com limite de $0.00, Groq Cloud, Google AI Studio, Mistral, Ollama), garantindo total autonomia e clareza ao leitor.
