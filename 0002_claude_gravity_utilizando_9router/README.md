@@ -40,6 +40,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 - **Outros Modelos via Antigravity:**
   - `ag/claude-sonnet-4-6` e `ag/claude-opus-4-6-thinking`
   - `ag/gpt-oss-120b-medium`
+- **Sidecar de Auto-Renovação Contínua:** Container `claudegravity-token-sync` (imagem oficial `python:3.14-alpine` com o daemon `token_daemon.py`), mantendo tokens OAuth eternamente ativos e prevenindo erros 401 e 503
 - **Ambiente:** Python 3.14.7+ (mínimo 3.10+), Node.js 18+ e Docker com o plugin Compose v2
 
 ---
