@@ -36,7 +36,7 @@ AVAILABLE_MODELS = [
     ("ag/gemini-3.7-flash-high", "Gemini 3.7 Flash High (Hybrid Reasoning)"),
     ("ag/gemini-3.6-flash-high", "Gemini 3.6 Flash High (Alta velocidade)"),
     ("ag/gemini-pro-agent",       "Gemini 3.1 Pro High (raciocinio profundo, mais lento)"),
-    ("ag/gemini-3.1-pro-low",     "Gemini 3.1 Pro Low (resposta direta, usado no modelOverrides)"),
+    ("ag/gemini-3.1-pro-low",     "Gemini 3.1 Pro Low (resposta direta, sem raciocinio estendido)"),
     ("ag/claude-sonnet-4-6",     "Claude Sonnet 4.6 (Roteamento via Antigravity)"),
     ("ag/claude-opus-4-6-thinking", "Claude Opus 4.6 Thinking (Extended Reasoning)"),
     ("ag/gpt-oss-120b-medium",   "GPT-OSS 120B (Open-Weight Sovereign Model)"),
