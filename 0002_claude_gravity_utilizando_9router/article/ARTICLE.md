@@ -426,11 +426,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "modelOverrides": {
     "claude-fable-5-1": "claudegravity-thinking",
-    "claude-fable-5-1[1m]": "claudegravity-thinking",
     "claude-opus-5": "claudegravity-thinking",
-    "claude-opus-5[1m]": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback",
-    "claude-sonnet-5[1m]": "claudegravity-fallback"
+    "claude-sonnet-5": "claudegravity-fallback"
   }
 }
 ```
@@ -490,11 +487,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "includeCoAuthoredBy": false,
   "modelOverrides": {
     "claude-fable-5-1": "claudegravity-thinking",
-    "claude-fable-5-1[1m]": "claudegravity-thinking",
     "claude-opus-5": "claudegravity-thinking",
-    "claude-opus-5[1m]": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback",
-    "claude-sonnet-5[1m]": "claudegravity-fallback"
+    "claude-sonnet-5": "claudegravity-fallback"
   }
 }
 ```
@@ -535,23 +529,29 @@ num caso, e é bem específico:
 | **Identificador da geração corrente pinado antes** (`claude-opus-5[1m]`) | **Sim** |
 
 O caso que sobra é o de um `settings.local.json` que ficou apontando para um modelo escolhido no menu
-antes de você trocar a configuração. Para isso bastam **seis entradas**, cobrindo a geração corrente
-com e sem o sufixo `[1m]`:
+antes de você trocar a configuração. Para isso bastam **três entradas**, uma por família:
 
 ```json
 "modelOverrides": {
-  "claude-fable-5-1":     "claudegravity-thinking",
-  "claude-fable-5-1[1m]": "claudegravity-thinking",
-  "claude-opus-5":        "claudegravity-thinking",
-  "claude-opus-5[1m]":    "claudegravity-thinking",
-  "claude-sonnet-5":      "claudegravity-fallback",
-  "claude-sonnet-5[1m]":  "claudegravity-fallback"
+  "claude-fable-5-1": "claudegravity-thinking",
+  "claude-opus-5":    "claudegravity-thinking",
+  "claude-sonnet-5":  "claudegravity-fallback"
 }
 ```
 
+**Não é preciso duplicar com o sufixo de janela.** A CLI normaliza o identificador antes de consultar
+o mapa, e o próprio binário trata o sufixo como opcional no padrão que usa para reconhecer modelos:
+
+```text
+(?:[-@]\d{8})?(?:-v\d+(?::\d+)?)?(?:\[[12]m\])?$
+```
+
+Verificamos na prática: com apenas `claude-opus-5` declarado, `--model claude-opus-5[1m]` resolve
+normalmente. Uma entrada por família dá conta das duas formas.
+
 Repare que o destino é sempre um **combo**, nunca um modelo solto: um pin antigo não deve levar você
-para um ponto único de falha. E, quando a CLI ganhar uma geração nova, você acrescenta duas linhas em
-vez de reescrever o bloco  -  ou simplesmente apaga o pin e deixa os papéis trabalharem.
+para um ponto único de falha. E, quando a CLI ganhar uma geração nova, é uma linha por família  -  ou
+simplesmente apague o pin e deixe os papéis trabalharem.
 
 ### Quando Parece Desconexão, mas é Outra Coisa
 

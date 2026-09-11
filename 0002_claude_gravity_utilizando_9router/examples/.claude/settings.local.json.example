@@ -50,10 +50,7 @@
   "includeCoAuthoredBy": false,
   "modelOverrides": {
     "claude-fable-5-1": "claudegravity-thinking",
-    "claude-fable-5-1[1m]": "claudegravity-thinking",
     "claude-opus-5": "claudegravity-thinking",
-    "claude-opus-5[1m]": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback",
-    "claude-sonnet-5[1m]": "claudegravity-fallback"
+    "claude-sonnet-5": "claudegravity-fallback"
   }
 }
