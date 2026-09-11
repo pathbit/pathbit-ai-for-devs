@@ -929,22 +929,36 @@ mostra o elemento assim:
 AXPopUpButton (Modelo: Fable 5.1  Máx  3× ou mais de uso)
 ```
 
-Repare no que o rótulo carrega: além do nome do modelo, ele traz o **nível de esforço** (`Máx`) e o
-**multiplicador de consumo** (`3× ou mais de uso`). O terminal não exibe essa informação.
+Abrindo esse controle, a hierarquia dos quatro papéis aparece escrita, com a descrição de cada um:
+
+| Opção | Descrição no aplicativo |
+| :--- | :--- |
+| **Fable 5.1** | Para seus desafios mais difíceis |
+| **Opus 5** | Para tarefas complexas |
+| **Sonnet 5** | Mais eficiente para tarefas do dia a dia |
+| **Haiku 4.5** | Mais rápido para respostas rápidas |
+| **Esforço** | `Máx`, com submenu próprio |
+| **Mais modelos** | Submenu com o catálogo completo |
+
+É a mesma ordem que a CLI declara internamente (*Fable for the hardest problems, Opus for complex
+work, Sonnet for most tasks, Haiku for quick questions*), agora confirmada na interface. Se você
+estava em dúvida sobre qual papel mapear para qual Gemini, esta tela é a referência: ela diz, com
+todas as letras, para que serve cada um.
 
 Duas consequências práticas:
 
 - **A escolha feita nesse controle vale para a janela**, e é independente do que você configurou para
-  o terminal. Se você mudou o modelo no app e continua vendo o comportamento antigo no terminal, os
-  dois estão simplesmente em camadas diferentes.
-- **O multiplicador é a informação que falta no terminal.** Um modelo marcado como `3× ou mais de uso`
-  consome cota numa proporção que o `--model` na linha de comando não anuncia. Vale olhar o rótulo
-  antes de deixar uma tarefa longa rodando.
+  o terminal. Se mudou o modelo no app e continua vendo o comportamento antigo no terminal, os dois
+  estão em camadas diferentes.
+- **O multiplicador de consumo só aparece aqui.** O rótulo `3× ou mais de uso` avisa que aquele modelo
+  gasta cota numa proporção que o `--model` na linha de comando não anuncia. Vale olhar antes de deixar
+  uma tarefa longa rodando.
 
 > **O que não conseguimos confirmar.** Não verificamos se as entradas de `modelPicker` declaradas em
-> `~/.claude/settings.json` aparecem nesse controle do aplicativo, nem se o app aceita um identificador
-> de gateway por ali. O teste exigiria interagir com uma janela em uso. O caminho que **está**
-> confirmado é o do bloco `env` no arquivo de usuário, descrito acima.
+> `~/.claude/settings.json` aparecem no submenu **Mais modelos**, nem se o aplicativo aceita um
+> identificador de gateway por ali. O caminho que **está** confirmado para apontar o app ao seu
+> gateway é o do bloco `env` no arquivo de usuário, descrito acima.
+
 
 #### Três cuidados específicos do app
 
