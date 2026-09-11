@@ -159,24 +159,77 @@ def get_root_key(paths):
         return (drive + "\\") if drive else "C:\\"
     return "/"
 
+def remover_comentarios_jsonc(texto):
+    """Remove comentários // e /* */ preservando o que estiver dentro de strings.
+
+    O settings.json do VS Code, do Cursor e do Windsurf é JSONC: comentários são
+    válidos e vêm no arquivo padrão. Tratá-lo como JSON estrito faria o parse
+    falhar e o arquivo do usuário ser regravado vazio.
+    """
+    saida = []
+    i, n = 0, len(texto)
+    em_string = False
+    while i < n:
+        c = texto[i]
+        if em_string:
+            saida.append(c)
+            if c == "\\" and i + 1 < n:
+                saida.append(texto[i + 1]); i += 2; continue
+            if c == '"':
+                em_string = False
+            i += 1
+            continue
+        if c == '"':
+            em_string = True; saida.append(c); i += 1; continue
+        if c == "/" and i + 1 < n:
+            if texto[i + 1] == "/":
+                while i < n and texto[i] != "\n":
+                    i += 1
+                continue
+            if texto[i + 1] == "*":
+                i += 2
+                while i + 1 < n and not (texto[i] == "*" and texto[i + 1] == "/"):
+                    i += 1
+                i += 2
+                continue
+        saida.append(c); i += 1
+    return "".join(saida)
+
+
+class ArquivoIlegivel(Exception):
+    """O arquivo existe mas não pôde ser interpretado. Nunca sobrescrever nesse caso."""
+
+
 def load_json(path):
     if not os.path.exists(path):
         return {}
     try:
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
-        if not content.strip():
-            return {}
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            # Recuperação de último recurso: remove vírgula sobrando antes de } ou ].
-            # Só roda quando o arquivo já é JSON inválido, para não corromper conteúdo válido.
-            cleaned = re.sub(r",(\s*[}\]])", r"\1", content)
-            return json.loads(cleaned)
     except Exception as e:
-        print(f"  ⚠️ Aviso ao ler {path}: {e}")
+        raise ArquivoIlegivel(f"{path}: {e}")
+
+    if not content.strip():
         return {}
+
+    for tentativa in (
+        content,
+        remover_comentarios_jsonc(content),
+        re.sub(r",(\s*[}\]])", r"\1", remover_comentarios_jsonc(content)),
+    ):
+        try:
+            dados = json.loads(tentativa)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(dados, dict):
+            return dados
+
+    # Devolver {} aqui faria o chamador regravar o arquivo apenas com as chaves
+    # injetadas, apagando a configuração do usuário. Preferimos abortar este arquivo.
+    raise ArquivoIlegivel(
+        f"{path}: não foi possível interpretar o conteúdo. "
+        "O arquivo NÃO foi alterado; ajuste-o manualmente e rode de novo."
+    )
 
 def save_json(path, data, dry_run=False):
     if dry_run:
@@ -257,7 +310,11 @@ def create_backup(paths, dry_run=False):
 
 def apply_agent_engine(paths, dry_run=False):
     print("\n[1/5] Configurando Motor Unificado Agent 2.0...")
-    d = load_json(paths["config_json"])
+    try:
+        d = load_json(paths["config_json"])
+    except ArquivoIlegivel as e:
+        print(f"  ⚠️ config do motor: {e}")
+        return
     us = d.setdefault("userSettings", {})
     us["autoExecutionPolicy"] = "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
     us["artifactReviewMode"] = "ARTIFACT_REVIEW_MODE_TURBO"
@@ -299,7 +356,11 @@ def apply_projects(paths, dry_run=False):
 def apply_cli_and_trust(paths, dry_run=False):
     print("\n[3/5] Configurando Antigravity CLI (agy) e Trust de Pastas...")
     # CLI
-    cli_d = load_json(paths["cli_settings"])
+    try:
+        cli_d = load_json(paths["cli_settings"])
+    except ArquivoIlegivel as e:
+        print(f"  ⚠️ settings da CLI: {e}")
+        return
     cli_d.update({
         "agentMode": "accept-edits",
         "toolPermission": "always-proceed",
@@ -311,7 +372,11 @@ def apply_cli_and_trust(paths, dry_run=False):
     save_json(paths["cli_settings"], cli_d, dry_run=dry_run)
 
     # Trusted Folders
-    trust_d = load_json(paths["trusted_folders"])
+    try:
+        trust_d = load_json(paths["trusted_folders"])
+    except ArquivoIlegivel as e:
+        print(f"  ⚠️ trustedFolders: {e}")
+        return
     trust_d[get_root_key(paths)] = "TRUST_PARENT"
     trust_d[paths["home"]] = "TRUST_PARENT"
     save_json(paths["trusted_folders"], trust_d, dry_run=dry_run)
@@ -325,7 +390,12 @@ def apply_ide_settings(paths, dry_run=False):
             print(f"  ℹ️ IDE variante '{v}' não encontrada em: {ide_path}")
             continue
         found = True
-        d = load_json(ide_path)
+        try:
+            d = load_json(ide_path)
+        except ArquivoIlegivel as e:
+            # Um settings.json quebrado de uma IDE nao pode abortar as demais.
+            print(f"  ⚠️ Pulando '{v}': {e}")
+            continue
         d.update(IDE_KEYS)
         save_json(ide_path, d, dry_run=dry_run)
     if not found:
@@ -334,7 +404,11 @@ def apply_ide_settings(paths, dry_run=False):
     for other in paths.get("other_ides", []):
         other_path = os.path.join(paths["appdata"], other, "User", "settings.json")
         if os.path.exists(other_path):
-            d = load_json(other_path)
+            try:
+                d = load_json(other_path)
+            except ArquivoIlegivel as e:
+                print(f"  ⚠️ Pulando '{other}': {e}")
+                continue
             d.update(UNIVERSAL_NO_AI_COAUTHORS)
             save_json(other_path, d, dry_run=dry_run)
 
