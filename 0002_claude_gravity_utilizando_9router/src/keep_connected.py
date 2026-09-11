@@ -112,7 +112,7 @@ def ciclo(container, margem, silencioso=False):
     motivo = {
         "ausente": "nenhuma credencial encontrada",
         "corrompido": "expiresAt gravado como texto pelo gateway",
-        "expirado": "token vencido",
+        "expirado": "token vencido"
     }.get(situacao, f"faltam {restante // 60} min, abaixo da margem")
 
     print(f"[*] Renovando: {motivo}.")

@@ -203,8 +203,6 @@ def main():
                           ("HAIKU", "ag/gemini-3.6-flash-high")):
         chave = f"ANTHROPIC_DEFAULT_{papel}_MODEL"
         env[chave] = os.environ.get(chave) or padrao
-
-    env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
 
     print_banner(args.base_url, args.model)

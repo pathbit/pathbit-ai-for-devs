@@ -75,7 +75,6 @@ def run_claude(model, base_url, api_key, extra_args):
         env[chave] = os.environ.get(chave) or model
 
     # Flags avancadas
-    env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
 
     cmd = [

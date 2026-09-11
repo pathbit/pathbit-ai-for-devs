@@ -17,8 +17,5 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL": "1"
-  },
   "includeCoAuthoredBy": false
 }
