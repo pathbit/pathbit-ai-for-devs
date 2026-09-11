@@ -1329,19 +1329,28 @@ $RECYCLE.BIN/
 **/.venv/
 **/.DS_Store
 **/.env
-**/*demo*
-**/*test*
 **/tmp/
 **/temp/
 tmp/
 temp/
 **/health_report.json
 
+# Saidas geradas por execucao  -  nao os scripts em si.
+#
+# Aqui existiam as regras `**/*demo*` e `**/*test*`, que casam em qualquer
+# posicao do nome e engoliam conteudo legitimo em silencio: um diretorio
+# `tests/`, um `arsenal_test.py`, o `docs/GUIA_TESTES.md` e ate um
+# `demonstracao.png` desapareciam sem aviso. Os scripts de teste sao material
+# dos artigos e precisam continuar versionados, entao as regras foram
+# estreitadas para casar apenas com diretorios de saida.
+**/demo_output/
+**/test_output/
+**/test-results/
+**/*.test.log
+
 ### Not Ignored ###
 !**/.vscode/
 !**/highlights/
-!**/src/test_*.py
-!**/test_gateway.py
 
 # Estado interno de hooks (mimosa) - nao pertence ao repositorio
 .mimosa/
