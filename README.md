@@ -136,4 +136,13 @@ zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ---
 
+## 📄 Licença
+
+Distribuído sob a **Licença MIT**. O texto completo está em [LICENSE](./LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de
+copyright e a licença acompanhem as cópias. O software é fornecido *como está*, sem garantias.
+
+---
+
 **Desenvolvido com ❤️ pela [Pathbit](https://pathbit.com)**
