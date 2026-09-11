@@ -19,6 +19,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no .env}
       - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
       - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
+    command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec /entrypoint.sh node server.js"]
     volumes:
       - 9router_data:/app/data
     extra_hosts:
@@ -47,7 +48,25 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 10s
+  token-sync:
+    image: python:3.11-alpine
+    container_name: claudegravity-token-sync
+    restart: unless-stopped
+    volumes:
+      - 9router_data:/app/data
+      - ${HOME}/.gemini:/root/.gemini:ro
+      - ./src:/app/src:ro
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DB_PATH=/app/data/db/data.sqlite
+      - SYNC_INTERVAL=300
+      - REFRESH_MARGIN=900
+      - MODULE=0003
+    command: ["python3", "/app/src/token_daemon.py"]
+    depends_on:
+      9router:
+        condition: service_healthy
 
 volumes:
   9router_data:

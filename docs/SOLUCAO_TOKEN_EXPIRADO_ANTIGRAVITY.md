@@ -86,6 +86,19 @@ python3 0002_claude_gravity_utilizando_9router/src/keep_connected.py --daemon
 O script só age quando precisa: com o token novo, sai sem gastar chamada. Ele sai com código `1`
 quando a renovação era necessária e não teve efeito, o que permite usá-lo em automação.
 
+### Solução Definitiva com Container Sidecar (`claudegravity-token-sync`)
+
+Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem um container sidecar oficial (`token-sync`).
+
+O sidecar roda continuamente com baixíssimo consumo (~14 MB de RAM e 0% de CPU), monta o banco SQLite compartilhado e a pasta `~/.gemini` em modo somente-leitura. A cada 5 minutos ele valida a integridade do token e renova preventivamente quando restam 15 minutos ou menos:
+
+```bash
+# Acompanhar a auto-renovacao em tempo real
+docker logs -f claudegravity-token-sync
+```
+
+Com o sidecar ativo, a sessão nunca mais expira e o bug do `expiresAt` em string ISO é corrigido no momento em que ocorrer, sem intervenção humana.
+
 > **Não confunda com bloqueio de cota.** Se o erro citar um modelo específico e o log do gateway
 > trouxer `[AG_QUOTA] CACHE_BLOCK` ou `all 1 accounts locked for <modelo>`, a credencial está boa e o
 > que acabou foi a cota daquela família. Nesse caso o `keep_connected.py` não ajuda: use um combo, que

@@ -77,6 +77,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
     ├── manage_env.py                      # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
     ├── setup_combos.py                    # Provisionamento idempotente de combos no SQLite do 9Router
     ├── simulate_fallback.py               # Laboratório de simulação de falhas, rate limits e auto-cura
+    ├── token_daemon.py                    # Daemon continuo do container sidecar para auto-renovacao eterna de tokens
     └── test_arsenal.py                    # Script de teste de inferência e validação de latência
 ```
 

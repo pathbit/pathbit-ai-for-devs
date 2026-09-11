@@ -84,6 +84,26 @@ services:
       retries: 3
       start_period: 20s
 
+  token-sync:
+    image: python:3.11-alpine
+    container_name: claudegravity-token-sync
+    restart: unless-stopped
+    volumes:
+      - 9router_data:/app/data
+      - ${HOME}/.gemini:/root/.gemini:ro
+      - ./src:/app/src:ro
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DB_PATH=/app/data/db/data.sqlite
+      - SYNC_INTERVAL=300
+      - REFRESH_MARGIN=900
+      - MODULE=0002
+    command: ["python3", "/app/src/token_daemon.py"]
+    depends_on:
+      9router:
+        condition: service_healthy
+
 volumes:
   9router_data:
 ```
@@ -727,8 +747,11 @@ E, diante do campo corrompido, reconhece a causa pelo nome:
 [+] Credencial renovada. Válida por mais 59 min.
 ```
 
-Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas. É a diferença entre uma
-sessão que atravessa a tarde e uma que morre na virada da hora.
+Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize o container
+sidecar `claudegravity-token-sync` já embutido no `docker-compose.yml`, que roda silenciosamente em
+segundo plano no Docker (consumindo menos de 14 MB de RAM) e realiza essa auto-renovação de forma 100%
+autônoma sem ocupar uma janela de terminal. É a diferença entre uma sessão que atravessa a tarde e uma
+que morre na virada da hora.
 
 ---
 

@@ -63,6 +63,13 @@ def check_docker():
         output = res.stdout.strip()
         if output:
             print(f"  ✅ Container ativo: {output}")
+            res_sync = subprocess.run(
+                ["docker", "ps", "--filter", "name=claudegravity-token-sync", "--format", "{{.Names}} - {{.Status}}"],
+                capture_output=True, text=True
+            )
+            out_sync = res_sync.stdout.strip()
+            if out_sync:
+                print(f"  ✅ Sidecar de auto-renovação: {out_sync}")
             return True
         else:
             print("  ⚠️  Container claudegravity-router não encontrado em execução.")
