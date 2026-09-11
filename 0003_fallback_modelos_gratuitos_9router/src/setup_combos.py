@@ -65,6 +65,12 @@ COMBOS = [
 ]
 
 
+def ollama_tags_url():
+    """URL de tags do Ollama, resolvida no uso para respeitar o .env."""
+    base = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    return base.rstrip("/") + "/api/tags"
+
+
 def run_node_script(container_name, script, *args, check=True):
     """Executa um script Node dentro do container.
 
@@ -136,7 +142,7 @@ def get_providers_config():
 def list_local_ollama_models():
     """Retorna os modelos disponíveis no Ollama local, ou None se o serviço não responder."""
     try:
-        with urllib.request.urlopen(f"{os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags", timeout=5) as resp:
+        with urllib.request.urlopen(ollama_tags_url(), timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return [m.get("name", "") for m in data.get("models", [])]
     except (urllib.error.URLError, OSError, json.JSONDecodeError, TimeoutError):
@@ -160,7 +166,7 @@ def check_ollama_models():
 
     available = list_local_ollama_models()
     if available is None:
-        print(f"  [!] Ollama local não respondeu em {f"{os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags"}.")
+        print(f"  [!] Ollama local não respondeu em {ollama_tags_url()}.")
         print("      Os combos que dependem dele serão cadastrados, mas falharão na inferência.")
         print("      Suba o serviço com: docker compose up -d ollama")
         return

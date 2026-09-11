@@ -193,13 +193,16 @@ def main():
     env["ANTHROPIC_API_KEY"] = args.api_key
     env["ANTHROPIC_MODEL"] = args.model
     # Os quatro papéis espelham o bloco env de examples/.claude/settings.json.example,
-    # que é a fonte da verdade. Todos apontam para COMBOS, nunca para modelos
-    # individuais: o papel Haiku é acionado em toda sessão, e um modelo solto ali
-    # derruba a sessão inteira quando a cota daquela família acaba.
-    env["ANTHROPIC_DEFAULT_FABLE_MODEL"] = "claudegravity-thinking"
-    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "claudegravity-thinking"
-    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claudegravity-fallback"
-    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claudegravity-fallback"
+    # que é a fonte da verdade. Cada papel usa um modelo ag/* individual, o que torna
+    # o consumo previsível: você sabe exatamente qual modelo atende cada situação.
+    # Os combos ficam disponíveis no modelPicker e via --model, para quando a cota de
+    # uma família estourar. Uma variável já definida no ambiente tem precedência.
+    for papel, padrao in (("FABLE", "ag/gemini-pro-agent"),
+                          ("OPUS", "ag/gemini-3.8-flash-high"),
+                          ("SONNET", "ag/gemini-3.7-flash-high"),
+                          ("HAIKU", "ag/gemini-3.6-flash-high")):
+        chave = f"ANTHROPIC_DEFAULT_{papel}_MODEL"
+        env[chave] = os.environ.get(chave) or padrao
 
     env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
