@@ -698,7 +698,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
+    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -889,7 +890,8 @@ O arquivo completo:
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
+    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",

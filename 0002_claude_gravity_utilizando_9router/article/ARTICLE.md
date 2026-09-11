@@ -385,7 +385,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
+    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -548,7 +549,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
+    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -965,8 +967,24 @@ laço principal. A configuração é a chave `advisorModel` no `settings.json`.
 
 A regra que a própria CLI impõe é a parte importante: **o advisor precisa ser pelo menos tão capaz
 quanto o modelo principal**. Não faz sentido pedir segunda opinião a quem sabe menos. Nos arquivos
-`.example` deste artigo o advisor aponta para o mesmo combo do modelo principal e do papel Fable, o
-`claudegravity-thinking`  -  combo com combo, sem degrau de capacidade e sem ponto único de falha.
+`.example` deste artigo o advisor aponta para o `ag/gemini-pro-agent`, o mesmo do papel Fable,
+enquanto o principal fica no `ag/gemini-3.8-flash-high`.
+
+> **Uma ressalva honesta sobre o advisor com modelo de gateway.** A CLI decide a capacidade relativa
+> pelo campo `advisor_rank`, que existe apenas nas entradas do **catálogo dela**:
+>
+> ```text
+> claude-haiku-4-5 … advisor_rank:1
+> claude-sonnet-5  … advisor_rank:2
+> claude-opus-4-0  … advisor_rank:3
+> ```
+>
+> Um identificador `ag/*` não tem esse campo, então a comparação de capacidade não encontra referência.
+> Por isso os `.example` também declaram `CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL=1`, que existe
+> no binário e destrava a ferramenta. Confirmamos que a variável e o campo existem, e que a chave
+> `advisorModel` é aceita sem reclamação  -  **não confirmamos** a ativação completa do advisor com um
+> modelo de gateway, porque não encontramos um sinal observável que provasse a chamada. Trate esta
+> parte como configuração preparada, não como comportamento medido.
 
 ```json
 {

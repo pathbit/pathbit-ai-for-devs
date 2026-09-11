@@ -2,7 +2,8 @@ name: claudegravity
 
 services:
   9router:
-    # Imagem fixada por tag para evitar quebras silenciosas: este projeto depende
+    # Acompanha a ultima versao publicada. Este projeto depende do endpoint interno
+# /api/auth/status e do schema SQLite do gateway: rode src/verify_setup.py apos um pull.
     # do endpoint interno /api/auth/status e do schema SQLite do gateway.
     image: decolua/9router:latest
     container_name: claudegravity-router

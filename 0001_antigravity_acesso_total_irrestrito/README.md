@@ -45,7 +45,7 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 ├── article/
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
 ├── assets/                                # Diagramas visuais e capas (sequenciados 00 a 02)
-│   ├── diagrams/                          # Fontes vetoriais semânticas em HTML e SVG (diagram-design)
+│   ├── diagrams/                          # Fontes vetoriais semânticas em HTML (diagram-design)
 │   ├── 00_cover_antigravity_permissoes.png # Capa oficial do artigo
 │   ├── cover_linkedin.png                 # Capa oficial para compartilhamento no LinkedIn
 │   ├── 01_diagrama_arquitetura_permissoes.png # Diagrama de fluxo do motor Agent 2.0
@@ -164,4 +164,4 @@ python3 src/restore_permissions.py --latest
 Este módulo estabelece a fundação de permissões do ecossistema de engenharia:
 
 * **[Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/):** Conecte a sessão do Antigravity ao Claude Code CLI sem pagar faturas de tokens de API.
-* **[Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../0003_fallback_modelos_gratuitos_9router/):** Construa uma malha resiliente de 9 provedores com auto-cura e combos de alta disponibilidade.
+* **[Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../0003_fallback_modelos_gratuitos_9router/):** Construa uma malha resiliente com 9 fontes gratuitas mapeadas e 5 integradas com auto-cura e combos de alta disponibilidade.
