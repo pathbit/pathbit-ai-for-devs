@@ -107,7 +107,13 @@ for (const [nome, models] of combos) {
   stmt.run(nome, nome, 'llm', JSON.stringify(models), now, now);
 }
 """
-        subprocess.run(["docker", "exec", container_name, "node", "-e", node_script], capture_output=True)
+        r = subprocess.run(["docker", "exec", container_name, "node", "-e", node_script],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            # Sem esta checagem o provisionamento falharia em silêncio e o leitor
+            # só descobriria ao ver a sessão morrer por combo inexistente.
+            detalhe = (r.stderr or r.stdout or "").strip().splitlines()[-1:] or [""]
+            print(f"⚠️  Não foi possível provisionar os combos: {detalhe[0]}", file=sys.stderr)
     except Exception as e:
         print(f"⚠️  Falha ao provisionar o combo claudegravity-fallback: {e}", file=sys.stderr)
 
@@ -185,12 +191,14 @@ def main():
     env["ANTHROPIC_BASE_URL"] = args.base_url
     env["ANTHROPIC_API_KEY"] = args.api_key
     env["ANTHROPIC_MODEL"] = args.model
-    # Papéis espelham o modelOverrides de examples/.claude/settings.json.example,
-    # que é a fonte da verdade: Opus para raciocínio denso, Sonnet para o trabalho
-    # corrente e Haiku para triagem de baixa latência. Alterar aqui exige alterar lá.
-    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "ag/gemini-3.1-pro-low"
-    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "ag/gemini-3.7-flash-high"
-    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "ag/gemini-3.6-flash-high"
+    # Os quatro papéis espelham o bloco env de examples/.claude/settings.json.example,
+    # que é a fonte da verdade. Todos apontam para COMBOS, nunca para modelos
+    # individuais: o papel Haiku é acionado em toda sessão, e um modelo solto ali
+    # derruba a sessão inteira quando a cota daquela família acaba.
+    env["ANTHROPIC_DEFAULT_FABLE_MODEL"] = "claudegravity-thinking"
+    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "claudegravity-thinking"
+    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claudegravity-fallback"
+    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claudegravity-fallback"
 
     env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"

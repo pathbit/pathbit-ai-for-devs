@@ -105,12 +105,22 @@ def ciclo(container, margem, silencioso=False):
 
     print(f"[*] Renovando: {motivo}.")
     ok, ultima = renovar()
-    if ok:
-        _, novo = diagnosticar(ler_conexao(container))
-        print(f"[+] Credencial renovada. Válida por mais {novo // 60} min.")
+
+    # Sair com código zero não prova nada: só o estado gravado prova. Sem esta
+    # conferência, um container ausente produziria "renovada" com 0 min de validade.
+    situacao, restante = diagnosticar(ler_conexao(container))
+    if ok and situacao == "valido" and restante > 0:
+        print(f"[+] Credencial renovada. Válida por mais {restante // 60} min.")
+        return True
+
+    if situacao == "ausente":
+        detalhe = f"nenhuma credencial gravada em '{container}'. O container está no ar?"
+    elif situacao == "corrompido":
+        detalhe = "o campo expiresAt continua inválido após a renovação."
     else:
-        print(f"[!] Falha ao renovar: {ultima[0]}", file=sys.stderr)
-    return ok
+        detalhe = ultima[0] if ultima and ultima[0] else "o sincronizador não gravou credencial válida."
+    print(f"[!] Renovação não teve efeito: {detalhe}", file=sys.stderr)
+    return False
 
 
 def main():
@@ -127,8 +137,12 @@ def main():
     args = p.parse_args()
 
     if not args.daemon:
-        ciclo(args.container, args.margem)
-        return
+        # Nada a fazer também é sucesso: o que importa é a credencial estar utilizável
+        # ao final. Sai com código 1 apenas quando a renovação era necessária e falhou.
+        situacao, restante = diagnosticar(ler_conexao(args.container))
+        precisava = situacao != "valido" or restante <= args.margem
+        houve = ciclo(args.container, args.margem)
+        sys.exit(1 if (precisava and not houve) else 0)
 
     print(f"[*] Modo contínuo: conferindo a cada {args.intervalo // 60} min, "
           f"margem de {args.margem // 60} min. Ctrl+C para encerrar.")

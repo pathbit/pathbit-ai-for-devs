@@ -67,9 +67,12 @@ def run_claude(model, base_url, api_key, extra_args):
     env["ANTHROPIC_BASE_URL"] = base_url
     env["ANTHROPIC_API_KEY"] = api_key
     env["ANTHROPIC_MODEL"] = model
-    env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = model
-    env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = model
-    env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = model
+    # Os quatro papéis respeitam o que o .env do módulo definir, e só caem para o
+    # combo de --model quando a variável não existe. Sobrescrever sempre apagaria a
+    # separação entre papel pesado e papel de alta frequência declarada no .env.
+    for papel in ("FABLE", "OPUS", "SONNET", "HAIKU"):
+        chave = f"ANTHROPIC_DEFAULT_{papel}_MODEL"
+        env[chave] = os.environ.get(chave) or model
 
     # Flags avancadas
     env["CLAUDE_CODE_EXPERIMENTAL"] = "1"
