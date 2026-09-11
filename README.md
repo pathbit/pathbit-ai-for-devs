@@ -59,7 +59,7 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 
 ### 📁 Estrutura do Projeto
 
-```bash
+```text
 pathbit-ai-for-devs/
 ├── README.md                                # Este arquivo
 ├── docs/                                    # Documentação técnica
@@ -111,7 +111,7 @@ pathbit-ai-for-devs/
 
 ## 📋 Estrutura Padrão dos Artigos
 
-```bash
+```text
 XXXX_titulo_do_artigo/
 ├── README.md                            # Instruções de execução e resumo
 ├── requirements.txt                     # Dependências Python

@@ -66,6 +66,7 @@ claude --dangerously-skip-permissions --model claudegravity-fallback
 
 | Identificador do Modelo | Descrição |
 | :--- | :--- |
+| `claudegravity-thinking` | Combo de 4 níveis, começando pelo Opus 4.6 Thinking, depois Sonnet 4.6, Gemini 3.8 e GPT-OSS 120B. Não depende da cota do Gemini |
 | `claudegravity-fallback` | Combo de 5 níveis, com salto automático entre Gemini 3.8, Gemini 3.7, Gemini 3.6, Sonnet 4.6 e GPT-OSS 120B |
 | `arsenal-supremo` | Combo com 7 níveis de contingência incluindo OpenRouter, Groq, Mistral e Ollama local |
 | `arsenal-rapido` | Focado em velocidade extrema com chips LPU da Groq Cloud |

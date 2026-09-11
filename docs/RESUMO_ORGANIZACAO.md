@@ -65,7 +65,7 @@ Ao criar um novo módulo (por exemplo, `0004_novo_artigo/`), siga este checklist
    - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros.
    - Forneça scripts de verificação e testes com saída limpa no terminal.
 6. **Integração Cruzada:**
-   - Atualize a tabela de catálogo no [`README.md`](../README.md) raiz marcando o status como `Publicado`.
+- Acrescente a seção do artigo no `README.md` raiz seguindo o padrão dos existentes: título H3 com link para a pasta, linha `**Ano:** … | **Categoria:** …`, parágrafo de resumo e a linha de três links.
    - Adicione referências cruzadas entre artigos anteriores e futuros na seção de conclusão.
 7. **Auditoria de Regras Editoriais:**
    - Verifique que não existam dois-pontos em títulos.
