@@ -364,6 +364,111 @@ apontando direto para modelos de custo zero, retornando corretamente em ambos.
 
 ---
 
+## Execução Completa de Ponta a Ponta (11/09/2026)
+
+Bateria final com o ambiente real no ar: 9Router `v0.5.75`, container `Up 15h (healthy)`, as duas
+imagens em `:latest`, conexão Antigravity `active` via OAuth.
+
+### Suítes dos próprios artigos
+
+| Módulo | Suíte | Resultado |
+| :--- | :--- | :--- |
+| 0001 | `verify_permissions.py` | 5/5 seções verdes (IDE, projetos, CLI `agy`, pastas confiáveis, VS Code) |
+| 0001 | `test_permissions.py` | **35/35** testes, cobrindo macOS, Linux e Windows |
+| 0002 | `verify_setup.py` | 5/5 (Docker, HTTP, 20 modelos, 5 combos, CLI 2.1.266) |
+| 0002 | `test_gateway.py` | **4/4** com inferência real: direto 2,64 s · combo 1,34 s |
+| 0003 | `test_arsenal.py` | **12/12 níveis · 3/3 combos**, zero quebrados |
+| 0003 | `simulate_fallback.py` | **5/5 cenários**, incluindo auto-cura e Claude Code CLI real |
+
+### Cascatas: documentado vs. servido
+
+Lidas do banco do container e comparadas linha a linha com as tabelas publicadas. **Batem na ordem
+exata**, sem exceção:
+
+| Combo | Cascata servida |
+| :--- | :--- |
+| `claudegravity-fallback` | Gemini 3.8 → 3.7 → 3.6 → Sonnet 4.6 → GPT-OSS |
+| `claudegravity-thinking` | Opus 4.6 Thinking → Sonnet 4.6 → Gemini 3.8 → GPT-OSS |
+| `arsenal-supremo` | Gemini 3.8 → 3.7 → 3.6 → OpenRouter → Groq → Mistral → Ollama |
+| `arsenal-rapido` | Groq → Mistral → Gemini 3.7 → 3.6 |
+| `arsenal-offline` | Ollama `qwen2.5-coder:latest` |
+
+### Papel de modelo confirmado em sessão real
+
+Uma sessão `claude -p` rodando sobre `examples/.claude/` emitiu a telemetria da própria CLI:
+
+```text
+[claude-code:unrecognized_model] {"model":"ag/gemini-3.6-flash-high","query_source":"generate_session_title"}
+```
+
+`generate_session_title` é o papel **Haiku**, e `ag/gemini-3.6-flash-high` é exatamente o que os
+`.example` mapeiam em `ANTHROPIC_DEFAULT_HAIKU_MODEL`. A tabela de papéis do artigo está provada em
+execução, não apenas por leitura de binário.
+
+### Tráfego real do dia
+
+240 requisições atendidas, com **todos os cinco provedores** exercitados e todo modelo documentado
+servindo tráfego:
+
+| Provedor | Requisições | Modelos |
+| :--- | ---: | :--- |
+| Antigravity | 192 | `3.8-flash-high` 106 · `3.6-flash-high` 41 · `opus-4-6-thinking` 28 · `3.7-flash-high` 10 · `pro-agent` 6 · `sonnet-4-6` 1 |
+| Groq | 18 | `openai/gpt-oss-120b` |
+| Ollama local | 15 | `qwen2.5-coder:latest` |
+| Mistral | 11 | `codestral-latest` |
+| OpenRouter | 4 | `nvidia/nemotron-3.5-lightning:free` |
+
+### A família 3.5, verificada literalmente
+
+O artigo 0002 afirma que o `-high` responde 404 e que as variantes `-low` devolvem a mensagem do
+Google. Ambas se confirmaram:
+
+```text
+ag/gemini-3.5-flash-high → HTTP 503 encapsulando [404] "Requested entity was not found."
+ag/gemini-3.5-flash-low  → HTTP 200 com o texto:
+   "Gemini 3.5 Flash is no longer available. Please switch to Gemini 3.7 Flash
+    in the latest version of Antigravity."
+```
+
+### Não existe desconexão: o que parece logout é cota
+
+O histórico completo do gateway desmente a hipótese de sessão caindo:
+
+| Evento | Ocorrências |
+| :--- | ---: |
+| `Successfully refreshed Google token` | **21** |
+| Falhas de refresh | **0** |
+| `401` / `invalid_grant` / reauth | **0** espontâneas |
+| `ERROR 404` em modelo servido | **1**, e apenas no descontinuado `gemini-3.5-flash-high` |
+| `all 1 accounts locked` | **36**, todas por cota de família |
+
+Os bloqueios por cota concentraram-se num único episódio (10/09, 22:06–22:08) sobre `gemini-3.8`,
+`3.7` e `3.6`, mais `openai`. **É a Falha 1 do artigo**, e a resposta correta é a cascata, não
+reautenticar.
+
+### `expiresAt`: corrupção confirmada ao vivo e automatizada
+
+A regravação como string ISO **voltou a acontecer durante esta bateria**, e o `keep_connected.py` a
+identificou pelo nome:
+
+```text
+[*] Renovando: expiresAt gravado como texto pelo gateway.
+[+] Credencial renovada. Válida por mais 59 min.
+```
+
+O log do gateway mostra que ele renova sozinho a cada 30 min com sucesso
+(`hasNewAccessToken:true, expiresIn:3599`) e, ao gravar, corrompe o campo. Um teste de injeção
+confirmou o mecanismo: com `expiresAt` em texto, `Number(...)` é `NaN` e a comparação de validade
+falha  -  embora a inferência ainda responda `200` enquanto o token em si continua válido. O dano é
+na contabilidade, e aparece quando o token de fato vence.
+
+Para que a correção deixe de depender de alguém lembrar de rodar o script, a renovação foi promovida
+a serviço do sistema, em `~/Library/LaunchAgents/co.pathbit.claudegravity.keepconnected.plist`:
+roda ao entrar na sessão e a cada 5 minutos, com margem de 25 min. Três execuções registradas, todas
+com código 0, incluindo uma que corrigiu a corrupção sozinha.
+
+---
+
 ## Observações para quem for reproduzir
 
 1. **Pré-requisito entre artigos:** o 0003 usa `sync_antigravity_token.py`, que pertence ao 0002.
