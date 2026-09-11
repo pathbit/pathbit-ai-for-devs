@@ -109,12 +109,13 @@ volumes:
   9router_data:
 ```
 
-Quatro decisões de engenharia neste manifesto:
+Cinco decisões de engenharia neste manifesto:
 
 * **`extra_hosts: ["host.docker.internal:host-gateway"]`** garante compatibilidade entre plataformas (macOS, Linux e Windows WSL2), permitindo que o container resolva o endereço do host local de forma idêntica em qualquer distribuição.
 * **Senha e segredo JWT vêm do `.env`**, nunca literais no arquivo versionado. A sintaxe `${VAR:?mensagem}` interrompe a subida com um erro claro caso a variável não exista, em vez de silenciosamente aplicar um padrão fraco.
 * **`healthcheck` ativo:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda HTTP a cada 30 segundos marca o container como `unhealthy` e torna o problema visível no `docker ps`.
 * **Porta publicada apenas em `127.0.0.1`:** o gateway guarda o token OAuth da sua conta Google e as chaves dos provedores. Publicar como `"20128:20128"` o exporia em todas as interfaces de rede, permitindo que qualquer máquina da mesma rede consumisse sua cota. O prefixo de loopback restringe o acesso à própria máquina.
+* **Container sidecar de renovação contínua (`token-sync`):** baseado na imagem oficial `python:3.14-alpine`, roda em segundo plano consumindo apenas ~14 MB de RAM para validar o token OAuth e renová-lo preventivamente 15 minutos antes de expirar, eliminando erros 401 e 503 e curando automaticamente o bug de expiração do 9Router.
 
 > **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: ele confere o endpoint e a tabela `combos`, e se qualquer um mudar, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
 
@@ -132,15 +133,19 @@ Em seguida suba o serviço:
 docker compose up -d
 ```
 
-Verifique a saúde do container:
+Verifique a saúde dos containers:
 
 ```bash
-docker ps --filter "name=claudegravity-router"
+# Conferir status dos containers do ambiente
+docker ps --filter "name=claudegravity"
+
+# Inspecionar os logs do sidecar de renovacao de tokens
+docker logs -f claudegravity-token-sync
 ```
 
 ![Container Docker Rodando](../assets/02_docker_container_running.png)
 
-> **Figura 2:** Evidência do container `claudegravity-router` em execução e saudável na porta local `20128`.
+> **Figura 2:** Evidência dos containers `claudegravity-router` e `claudegravity-token-sync` em execução saudável na porta local `20128`.
 
 ---
 
@@ -748,11 +753,23 @@ E, diante do campo corrompido, reconhece a causa pelo nome:
 [+] Credencial renovada. Válida por mais 59 min.
 ```
 
-Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize o container
-sidecar `claudegravity-token-sync` já embutido no `docker-compose.yml`, que roda silenciosamente em
-segundo plano no Docker (consumindo menos de 14 MB de RAM) e realiza essa auto-renovação de forma 100%
-autônoma sem ocupar uma janela de terminal. É a diferença entre uma sessão que atravessa a tarde e uma
-que morre na virada da hora.
+Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize a solução definitiva: o container sidecar `claudegravity-token-sync`.
+
+### Auto-Renovação Definitiva com o Container Sidecar claudegravity-token-sync
+
+Para que a renovação não dependa de um terminal aberto ou de scripts executados manualmente pelo desenvolvedor, o `docker-compose.yml` deste módulo já provisiona o serviço `token-sync` com o container `claudegravity-token-sync`:
+
+1. **Imagem e Consumo Mínimo:** Baseado na imagem oficial `python:3.14-alpine`, consome menos de 14 MB de memória RAM e 0% de CPU.
+2. **Isolamento de Credenciais:** O container monta o diretório `${HOME}/.gemini` como somente-leitura (`:ro`), impedindo qualquer modificação acidental nas chaves do host, e extrai as credenciais de cliente OAuth do Google diretamente de `/app/data/shared.js` gerado pelo 9Router em tempo de execução, garantindo zero segredos versionados no Git.
+3. **Monitoramento do SQLite em Tempo Real:** A cada 5 minutos, o script `src/token_daemon.py` inspeciona a tabela `providerConnections` do banco `/app/data/db/data.sqlite`. Se o token for expirar em menos de 15 minutos ou se o 9Router tiver gravado o campo `expiresAt` como texto ISO, o sidecar solicita um novo token aos servidores OAuth do Google e regrava o timestamp como número inteiro.
+
+Para acompanhar a operação contínua do sidecar no terminal:
+
+```bash
+docker logs -f claudegravity-token-sync
+```
+
+Com essa arquitetura, você pode desenvolver ininterruptamente sem se preocupar com sessões derrubadas ou tokens expirados.
 
 ---
 

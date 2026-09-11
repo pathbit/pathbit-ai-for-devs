@@ -486,8 +486,8 @@ python3 src/test_permissions.py
 
 Com o motor do Google Antigravity configurado para autonomia desimpedida, o ecossistema está pronto para avançar para as próximas etapas da engenharia agêntica:
 
-1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API.
-2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático, eliminando as paradas por limite de cota.
+1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a autenticação eternamente ativa através do container sidecar de auto-renovação (`claudegravity-token-sync`).
+2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático e suporte do sidecar contínuo, eliminando paradas por limite de cota.
 
 ---
 

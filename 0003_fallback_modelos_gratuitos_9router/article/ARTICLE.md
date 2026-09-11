@@ -540,6 +540,12 @@ Para subir a infraestrutura completa em segundo plano:
 
 ```bash
 docker compose up -d
+
+# Conferir status dos 3 containers (gateway, ollama e sidecar de tokens)
+docker ps --filter "name=claudegravity"
+
+# Acompanhar logs da auto-renovacao preventiva de tokens
+docker logs -f claudegravity-token-sync
 ```
 
 Para efetuar o download do modelo leve de contingência no Ollama:
@@ -553,7 +559,7 @@ docker exec claudegravity-ollama ollama cp qwen2.5-coder:0.5b qwen2.5-coder:late
 
 ![Container Docker do 9Router em Execução](../assets/20_docker_container.png)
 
-> **Figura 20:** Containers Docker `claudegravity-router` e `claudegravity-ollama` ativos e testes de provisionamento dos combos executados com sucesso.
+> **Figura 20:** Containers Docker `claudegravity-router`, `claudegravity-ollama` e o sidecar `claudegravity-token-sync` ativos e testes de provisionamento dos combos executados com sucesso.
 
 ---
 
@@ -645,7 +651,8 @@ Simula a situação em que a conta Google é desconectada ou o token OAuth expir
 
 ### 4. Cenário de Auto-Cura e Restauração
 
-> Para sessões longas, a cura preventiva vem antes do estrago: `python3 ../0002_claude_gravity_utilizando_9router/src/keep_connected.py --daemon` renova a credencial do Antigravity antes que o gateway a grave em formato inválido. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) explica a causa.
+> Para sessões longas e contínuas, o container sidecar oficial `claudegravity-token-sync` (já embutido no `docker-compose.yml` e rodando com a imagem oficial `python:3.14-alpine`) executa o daemon `token_daemon.py` a cada 5 minutos, inspecionando o SQLite e auto-renovando a credencial 15 minutos antes da expiração. Alternativamente, você pode rodar a verificação avulsa no host com `python3 src/token_daemon.py` ou `python3 ../0002_claude_gravity_utilizando_9router/src/keep_connected.py`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e do bug de data em formato ISO.
+
 Aciona o utilitário `sync_antigravity_token.py`, que renova o access token via Google OAuth e restabelece a conexão primária. O script limpa quaisquer travas residuais de rate limit e dispara uma nova requisição, confirmando que o canal com o Gemini 3.8 Flash High volta a responder instantaneamente.
 
 ### 5. Cenário de Execução Real no Claude Code CLI
