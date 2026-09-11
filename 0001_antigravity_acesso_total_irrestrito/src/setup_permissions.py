@@ -78,7 +78,7 @@ except Exception:
         sys.exit(0)
 
 AI_AGENTS_REGEX = (
-    r"(claude|antigravity|gemini|anthropic|google|openai|chatgpt|gpt|cursor|copilot|"
+    r"(claude|antigravity|gemini|anthropic|openai|chatgpt|gpt|cursor|copilot|"
     r"windsurf|codeium|devin|cognition|kimi|moonshot|kiro|minimax|mavis|grok|xai|"
     r"aider|cline|roo|continue|kilo|qwen|mistral|codestral|deepseek|meta-ai|llama|"
     r"tabnine|amazon-q|codewhisperer|cody|sourcegraph|mentat|sweep|goose|"

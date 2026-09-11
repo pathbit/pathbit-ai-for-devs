@@ -130,7 +130,10 @@ def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3
                     except Exception:
                         pass
 
-            content = "".join(extracted).strip() or raw_body[:100]
+            content = "".join(extracted).strip()
+            if not content:
+                print("❌ Resposta sem bloco de texto: o modelo respondeu vazio.")
+                return False
             print(f"💬 Resposta do modelo: {content}")
             return True
     except urllib.error.HTTPError as e:

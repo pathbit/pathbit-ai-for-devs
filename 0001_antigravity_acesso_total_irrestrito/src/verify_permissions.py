@@ -6,6 +6,7 @@ Verifica o motor Agent 2.0, projetos locais, CLI agy, trust de pastas e configur
 """
 
 import os
+import sys
 import json
 import glob
 import platform
