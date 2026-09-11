@@ -32,6 +32,7 @@ def require_api_key(valor):
 AVAILABLE_MODELS = [
     ("ag/gemini-3.8-flash-high", "ClaudeGravity Principal (Gemini 3.8 Flash High - Antigravity Pro)"),
     ("claudegravity-fallback", "ClaudeGravity Resiliente (Fallback Automatico com Modelos Gratuitos)"),
+    ("claudegravity-thinking", "ClaudeGravity Thinking (Opus 4.6 Thinking primeiro, nao depende da cota do Gemini)"),
     ("ag/gemini-3.7-flash-high", "Gemini 3.7 Flash High (Hybrid Reasoning)"),
     ("ag/gemini-3.6-flash-high", "Gemini 3.6 Flash High (Alta velocidade)"),
     ("ag/gemini-pro-agent",       "Gemini 3.1 Pro High (raciocinio profundo, mais lento)"),

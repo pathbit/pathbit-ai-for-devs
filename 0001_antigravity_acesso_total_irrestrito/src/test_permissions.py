@@ -31,6 +31,9 @@ class TempHomeTestCase(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self._original_home = os.environ.get("HOME")
         os.environ["HOME"] = self._tmp.name
+        # O git ignora HOME: sem estas duas, apply_git_hooks escreveria no gitconfig real.
+        os.environ["GIT_CONFIG_GLOBAL"] = os.path.join(self._tmp.name, ".gitconfig")
+        os.environ["XDG_CONFIG_HOME"] = os.path.join(self._tmp.name, ".config")
         self.home = self._tmp.name
         self.paths = sp.get_system_paths()
         # Os utilitários são conversacionais por natureza; o relatório de

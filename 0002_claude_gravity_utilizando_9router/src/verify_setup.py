@@ -121,6 +121,13 @@ def check_combos():
         for c in combos:
             models = json.loads(c.get("models", "[]"))
             print(f"     • {c.get('name')} ({len(models)} modelos)")
+        ESPERADOS = {"claudegravity-fallback", "claudegravity-thinking"}
+        nomes = {c.get("name") for c in combos} if combos else set()
+        faltando = ESPERADOS - nomes
+        if faltando:
+            print(f"  ❌ Combos obrigatórios ausentes: {', '.join(sorted(faltando))}")
+            print("     Rode: python3 src/claudegravity.py")
+            return False
         return True
     except Exception as e:
         print(f"  ⚠️  Não foi possível inspecionar combos: {e}")
