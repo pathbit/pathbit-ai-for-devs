@@ -505,15 +505,36 @@ services:
       retries: 5
       start_period: 10s
 
+  token-sync:
+    image: python:3.11-alpine
+    container_name: claudegravity-token-sync
+    restart: unless-stopped
+    volumes:
+      - 9router_data:/app/data
+      - ${HOME}/.gemini:/root/.gemini:ro
+      - ./src:/app/src:ro
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DB_PATH=/app/data/db/data.sqlite
+      - SYNC_INTERVAL=300
+      - REFRESH_MARGIN=900
+      - MODULE=0003
+    command: ["python3", "/app/src/token_daemon.py"]
+    depends_on:
+      9router:
+        condition: service_healthy
+
 volumes:
   9router_data:
   ollama_data:
 ```
 
-Três detalhes de arquitetura essenciais foram incorporados neste manifesto:
+Quatro detalhes de arquitetura essenciais foram incorporados neste manifesto:
 1. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
 2. **Streaming Nativo SSE com Ollama Local:** O 9Router consome a API compatível da OpenAI exposta pelo Ollama em `http://host.docker.internal:11434/v1` via nós `openai-compatible-*`. Ao contrário da rota proprietária `/api/chat` (que emite `application/x-ndjson`), a rota `/v1/chat/completions` entrega Server-Sent Events (`text/event-stream`), garantindo streaming nativo na inferência local. Em nossos testes com o `qwen2.5-coder:0.5b` já carregado em memória, o modelo respondeu ao gateway em **0,03s a 0,13s**; a primeira chamada após subir o container é bem mais lenta (medimos **5,09s**), porque inclui o carregamento do modelo na memória.
 3. **Segredos fora do manifesto e ordem de subida:** `INITIAL_PASSWORD` e `JWT_SECRET` são lidos do `.env` (a sintaxe `${VAR:?mensagem}` aborta o `up` com um erro claro se a variável faltar), e os `healthcheck` combinados ao `depends_on: service_healthy` garantem que o 9Router só suba depois que o Ollama estiver respondendo  -  eliminando a corrida que obrigava a inserir esperas manuais nos scripts.
+4. **Renovação Contínua sem Quedas (`token-sync`):** O container sidecar em Alpine Linux roda com consumo mínimo (~14 MB de RAM) e garante a longevidade dos tokens Google Antigravity e combos multi-provedor. A cada 5 minutos ele valida a credencial no SQLite compartilhado e efetua a renovação preventiva via Google OAuth antes que ocorram erros 503 ou expiração de 1 hora.
 
 Para subir a infraestrutura completa em segundo plano:
 

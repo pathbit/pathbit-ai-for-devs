@@ -74,7 +74,7 @@ def status():
     print("=" * 60)
     print("🔍 STATUS DO AMBIENTE CLAUDEGRAVITY")
     print("=" * 60)
-    run_cmd(["docker", "ps", "--filter", "name=claudegravity-router"], check=False)
+    run_cmd(["docker", "ps", "--filter", "name=claudegravity"], check=False)
     try:
         req = urllib.request.urlopen("http://localhost:20128/api/auth/status", timeout=2)
         print(f"✅ Gateway HTTP Status: {req.status} OK")

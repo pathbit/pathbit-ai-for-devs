@@ -79,7 +79,7 @@ def status():
     print("=" * 60)
     print("🔍 STATUS DO AMBIENTE DO ARSENAL")
     print("=" * 60)
-    run_cmd(["docker", "ps", "--filter", "name=claudegravity-router", "--filter", "name=claudegravity-ollama"], check=False)
+    run_cmd(["docker", "ps", "--filter", "name=claudegravity"], check=False)
     try:
         req = urllib.request.urlopen("http://localhost:20128/api/auth/status", timeout=2)
         print(f"✅ 9Router HTTP Status: {req.status} OK (porta 20128)")

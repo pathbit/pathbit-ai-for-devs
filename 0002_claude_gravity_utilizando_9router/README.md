@@ -83,6 +83,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
     ├── manage_env.py              # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
     ├── sync_antigravity_token.py  # Sincronizador de tokens OAuth Google Antigravity para o 9Router (Python)
     ├── keep_connected.py          # Renovacao preventiva da credencial, evita o 503 na virada da hora
+    ├── token_daemon.py            # Daemon continuo do container sidecar para auto-renovacao eterna de tokens
     ├── test_gateway.py            # Script de validação dos endpoints e modelos do gateway (Python)
     └── verify_setup.py            # Diagnóstico automatizado do ambiente (Python)
 ```
@@ -177,16 +178,19 @@ python3 src/manage_env.py destroy
 ##### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar o gateway em segundo plano
+# Iniciar o gateway e o container sidecar de renovacao continua em segundo plano
 docker compose up -d
 
-# Verificar se o container está saudável
-docker ps --filter "name=claudegravity-router"
+# Verificar se os containers estao saudaveis e ativos
+docker ps --filter "name=claudegravity"
 
-# Pausar o gateway
+# Inspecionar os logs da renovacao automatica de tokens
+docker logs -f claudegravity-token-sync
+
+# Pausar os serviços
 docker compose stop
 
-# DESTRUIR TUDO (remover container e volume persistente)
+# DESTRUIR TUDO (remover containers e volume persistente)
 docker compose down -v --remove-orphans
 ```
 
