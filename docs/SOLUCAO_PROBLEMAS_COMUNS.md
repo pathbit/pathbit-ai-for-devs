@@ -2,6 +2,8 @@
 
 Este documento reúne soluções práticas para os erros e incidentes operacionais mais frequentes encontrados ao executar os ambientes do **Pathbit AI for Devs**.
 
+> **Onde executar os comandos.** Os caminhos `src/...`, `.env` e `docker-compose.yml` citados aqui são relativos à **pasta do módulo** (`0001_antigravity_acesso_total_irrestrito`, `0002_claude_gravity_utilizando_9router` ou `0003_fallback_modelos_gratuitos_9router`), não à raiz do repositório. Entre na pasta correspondente antes de rodar.
+
 ---
 
 ## ❌ Problema 1 - Porta 20128 ou 11434 Já em Uso
