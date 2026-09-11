@@ -673,7 +673,7 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 
 Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e informa o motivo  -  a cascata continua funcionando com os níveis restantes, apenas mais curta.
 
-> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual combo usar em cada classe de tarefa. Todas apontam para combos validados no harness. **Não coloque `arsenal-offline` em nenhuma delas:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
+> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual modelo usar em cada classe de tarefa. Nos arquivos deste artigo elas apontam para modelos individuais do Antigravity, e os combos ficam disponíveis no menu `/model`  -  a comparação entre os dois arranjos está no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-a-escolha-do-padrão). **Não coloque `arsenal-offline` em nenhuma delas, nem como padrão:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
 
 ### Os dois arquivos de configuração do Claude Code
 
@@ -681,7 +681,7 @@ Ambos ficam em `examples/.claude/`, isolados do restante do repositório  -  por
 
 | Arquivo | Papel | Contém |
 | :--- | :--- | :--- |
-| `settings.json` | Políticas compartilhadas do projeto | Combo padrão, papéis de modelo, permissões e variáveis de ambiente |
+| `settings.json` | Políticas compartilhadas do projeto | Modelo padrão, papéis de modelo, permissões e variáveis de ambiente |
 | `settings.local.json` | Preferências da sua máquina | O menu interativo `/model` e ajustes pessoais. **Tem precedência** sobre o anterior |
 
 Os dois são versionados apenas na forma `.example`; as cópias ativas ficam fora do controle de versão.
@@ -694,7 +694,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
-    "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
@@ -790,7 +789,7 @@ trocar a configuração. Não é preciso duplicar com o sufixo de janela (`[1m]`
 identificador antes de consultar o mapa. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)
 detalha a medição que levou a esse formato enxuto.
 
-#### Os quatro papéis, apontados para combos
+#### Os quatro papéis e para onde eles apontam
 
 O Claude Code escolhe sozinho qual modelo usar em cada situação, através de quatro papéis. A ordem
 de capacidade vem da própria CLI: *Fable for the hardest problems, Opus for complex work, Sonnet for
@@ -798,13 +797,18 @@ most tasks, Haiku for quick questions*. Cada papel tem sua variável:
 
 | Papel | Variável | Aponta para | Quando é acionado |
 | :--- | :--- | :--- | :--- |
-| Fable e Opus | `ANTHROPIC_DEFAULT_FABLE_MODEL` e `..._OPUS_MODEL` | `arsenal-supremo` | Trabalho complexo e **todo subagente despachado** |
-| Sonnet | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `arsenal-rapido` | A maior parte das tarefas |
-| Haiku | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `arsenal-rapido` | Alta frequência: **toda sessão**, para nomear a conversa |
+| Fable | `ANTHROPIC_DEFAULT_FABLE_MODEL` | `ag/gemini-pro-agent` | O que a CLI considerar mais difícil |
+| Opus | `ANTHROPIC_DEFAULT_OPUS_MODEL` | `ag/gemini-3.8-flash-high` | Trabalho complexo e **todo subagente despachado** |
+| Sonnet | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `ag/gemini-3.7-flash-high` | A maior parte das tarefas |
+| Haiku | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `ag/gemini-3.6-flash-high` | Alta frequência: **toda sessão**, para nomear a conversa |
 
-Descobrir isso não exige adivinhação. Aponte cada papel para um combo diferente e leia o log do
-gateway: ele registra `modelo pedido → modelo servido`. A CLI ainda ajuda, emitindo uma linha de
-diagnóstico com o campo `query_source`, que nomeia quem fez o pedido:
+São modelos individuais, e não os combos  -  a mesma escolha do [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-a-escolha-do-padrão),
+pelo mesmo motivo: consumo previsível. Os combos `arsenal-*` continuam a um `/model` de distância,
+e nada impede apontar um papel para eles se você preferir resiliência a previsibilidade.
+
+Descobrir qual papel atende o quê não exige adivinhação. Aponte cada papel para um modelo diferente e
+leia o log do gateway: ele registra `modelo pedido → modelo servido`. A CLI ainda ajuda, emitindo uma
+linha de diagnóstico com o campo `query_source`, que nomeia quem fez o pedido:
 
 | `query_source` | Papel acionado |
 | :--- | :--- |
@@ -826,9 +830,10 @@ isoladamente. O que muda é a ênfase: é aqui que você ajusta o menu e as pref
   e não há como selecionar por engano um modelo que o seu gateway não serve.
 - **`behavesAs`** em cada linha diz à CLI qual modelo conhecido serve de referência de capacidade
   para aquele combo. Sem isso ela recusaria o identificador, porque não o encontra no catálogo dela.
-- **`advisorModel`** define quem atende as funções auxiliares de revisão. Apontar para um combo, e
-  não para um modelo fixo, faz essas chamadas herdarem a mesma cascata: se o nível de topo estiver
-  saturado, elas descem junto em vez de falhar.
+- **`advisorModel`** define quem atende as funções auxiliares de revisão. Aqui ele aponta para
+  `ag/gemini-pro-agent`, o modelo mais denso da conta  -  a regra é que o revisor seja **ao menos tão
+  capaz** quanto o principal. Se preferir que a revisão também herde a cascata, aponte-o para
+  `arsenal-supremo`: as chamadas passam a descer de nível junto com o restante em vez de falhar.
 
 O arquivo completo:
 
@@ -892,7 +897,6 @@ O arquivo completo:
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
-    "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",

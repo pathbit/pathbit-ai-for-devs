@@ -307,12 +307,14 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL": "1"
-  },
   "includeCoAuthoredBy": false
 }
 ```
+
+> **Sem bloco `env` aqui, e é de propósito.** Este artigo trata de permissões e autonomia, não de
+> roteamento de modelos: nada aponta para um gateway. As variáveis de ambiente, os papéis de modelo e
+> o `modelPicker` entram no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md),
+> junto com o 9Router.
 
 #### Anatomia da Configuração Compartilhada de Pareamento
 
@@ -321,7 +323,6 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
 | `permissions.defaultMode` | `"bypassPermissions"` | Concede execução direta para ferramentas de arquivo, terminal e rede. |
 | `permissions.allow` | Lista de wildcards | Abrange comandos de terminal (`Bash(*)`), leitura (`Read(*)`), edição (`Edit(*)`), escrita (`Write(*)`), listagem (`Glob(*)`), busca (`Grep(*)`), requisições (`WebFetch(*)`) e busca (`WebSearch(*)`), além de `NotebookEdit(*)`, `TodoWrite(*)`, `Agent(*)` e `Skill(*)`. |
 | `skipDangerousModePermissionPrompt` | `true` | Suprime o diálogo de confirmação inicial sobre operar em modo irrestrito. |
-| `env.CLAUDE_CODE_EXPERIMENTAL` | `"1"` | Desbloqueia capacidades avançadas do motor agêntico. |
 | `includeCoAuthoredBy` | `false` | Garante commits com autoria exclusivamente humana. |
 
 ---

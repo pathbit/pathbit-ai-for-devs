@@ -379,7 +379,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
-    "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
@@ -543,7 +542,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
-    "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
@@ -591,7 +589,6 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 | `bypassPermissions` | Modo padrão declarado dentro de `.claude/settings.json` na seção `permissions`. | Garante que subagentes, ferramentas e comandos herdados iniciem sem restrições. |
 | `skipDangerousModePermissionPrompt` | Suprime o diálogo de aviso inicial do Claude Code sobre estar rodando em modo desprotegido. | Elimina o prompt de confirmação inicial toda vez que uma nova sessão é disparada. |
 | `includeCoAuthoredBy: false` | Impede que o Claude Code anexe trailers de coautoria (`Co-Authored-By`) nos commits. | Assegura autoria estritamente humana nos commits e preserva a integridade do histórico do repositório. |
-| `CLAUDE_CODE_EXPERIMENTAL=1` | Ativa recursos experimentais do motor de execução da CLI da Anthropic. | Desbloqueia novas capacidades do motor agêntico. |
 | `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` | Desativa a restrição rígida de contagem de janela de contexto baseada exclusivamente nos modelos proprietários da Anthropic. | Permite que o Claude Code utilize os identificadores `ag/gemini-*` sem reclamar de tamanho de janela desconhecido. |
 
 ---
@@ -619,9 +616,9 @@ antes de você trocar a configuração. Para isso bastam **três entradas**, uma
 
 ```json
 "modelOverrides": {
-  "claude-fable-5-1": "claudegravity-thinking",
-  "claude-opus-5":    "claudegravity-thinking",
-  "claude-sonnet-5":  "claudegravity-fallback"
+  "claude-fable-5-1": "ag/gemini-pro-agent",
+  "claude-opus-5":    "ag/gemini-3.8-flash-high",
+  "claude-sonnet-5":  "ag/gemini-3.7-flash-high"
 }
 ```
 
@@ -635,16 +632,20 @@ o mapa, e o próprio binário trata o sufixo como opcional no padrão que usa pa
 Verificamos na prática: com apenas `claude-opus-5` declarado, `--model claude-opus-5[1m]` resolve
 normalmente. Uma entrada por família dá conta das duas formas.
 
-Repare que o destino é sempre um **combo**, nunca um modelo solto: um pin antigo não deve levar você
-para um ponto único de falha. E, quando a CLI ganhar uma geração nova, é uma linha por família  -  ou
-simplesmente apague o pin e deixe os papéis trabalharem.
+Repare que o destino de cada linha é o **mesmo modelo do papel correspondente**: o pin antigo passa a
+resolver exatamente para onde o papel já apontava, sem introduzir um terceiro comportamento. Se você
+preferir que um pin esquecido caia na cascata em vez de num modelo único, troque o destino por
+`claudegravity-fallback`  -  é a mesma escolha entre previsibilidade e resiliência que a seção
+[Modelo Individual ou Combo](#modelo-individual-ou-combo-a-escolha-do-padrão) detalha. E, quando a CLI
+ganhar uma geração nova, é uma linha por família  -  ou simplesmente apague o pin e deixe os papéis
+trabalharem.
 
-### Quando Parece Desconexão, mas é Outra Coisa
+## Quando Parece Desconexão, mas é Outra Coisa
 
 Duas falhas diferentes chegam ao terminal com a mesma cara  -  `API Error: 503`  -  e a confusão custa
 tempo. Vale separar, porque a correção de uma não serve para a outra.
 
-#### Falha 1 - a cota da família estourou
+### Falha 1 - a cota da família estourou
 
 A cota do Antigravity é contabilizada **por família de modelo**, não pela conta inteira. Quando o teto
 do Gemini é atingido, o gateway registra:
@@ -663,9 +664,20 @@ Uma verificação modelo a modelo durante um desses bloqueios mostra o alcance r
 | `ag/claude-sonnet-4-6` | OK, 1,4s |
 | `ag/gpt-oss-120b-medium` | OK, 0,8s |
 
-A conta continua saudável: apenas uma família ficou indisponível. É por isso que o padrão e os papéis
-apontam para combos  -  a cascata desce até achar quem responda, e os saltos custam menos de um
-segundo porque o gateway guarda o bloqueio em cache e nem tenta o upstream.
+A conta continua saudável: apenas uma família ficou indisponível. Quem estivesse num `ag/gemini-*`
+via a sessão morrer a cada mensagem; quem estivesse num combo seguiu trabalhando, porque a cascata
+desce até achar quem responda:
+
+```text
+[COMBO] Trying model 1/5: ag/gemini-3.8-flash-high  -> failed {"status":503}
+[COMBO] Trying model 2/5: ag/gemini-3.7-flash-high  -> failed {"status":503}
+[COMBO] Trying model 3/5: ag/gemini-3.6-flash-high  -> failed {"status":503}
+[COMBO] Trying model 4/5: ag/claude-sonnet-4-6      -> succeeded
+```
+
+Os três saltos custaram menos de um segundo no total, porque o gateway guarda o bloqueio em cache e
+nem tenta o upstream  -  a resposta chegou em 1,97s. Este é o trade-off que a seção
+[Modelo Individual ou Combo](#modelo-individual-ou-combo-a-escolha-do-padrão) resolve.
 
 > **Round-Robin não resolve este caso com uma conta só.** Ele distribui chamadas entre conexões
 > distintas, e a cota é contabilizada pelo Google por conta. Cadastrar a mesma conta duas vezes cria
@@ -673,7 +685,7 @@ segundo porque o gateway guarda o bloqueio em cache e nem tenta o upstream.
 > Google com assinatura própria, ou provedores fora do Antigravity, que é o caminho do
 > [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md).
 
-#### Falha 2 - a credencial foi gravada em formato que quebra a validação
+### Falha 2 - a credencial foi gravada em formato que quebra a validação
 
 Esta é sutil e se manifesta como desconexão espontânea depois de cerca de uma hora de uso.
 
@@ -720,61 +732,40 @@ sessão que atravessa a tarde e uma que morre na virada da hora.
 
 ---
 
-### Nunca Deixe um Modelo Individual como Padrão
+### Modelo Individual ou Combo: a Escolha do Padrão
 
-Esta é a regra que mais dói aprender na prática, e aprendemos com a conta bloqueada.
+A falha de cota da seção anterior deixa uma decisão em aberto, e ela vale para o `"model"` e para os
+quatro papéis: apontar cada um para um **modelo individual** ou para um **combo**?
 
-A cota do Antigravity é contabilizada **por família de modelo**. Quando o teto do Gemini estourou, o
-gateway registrou:
-
-```text
-[AG_QUOTA] CACHE_BLOCK gemini-3.8-flash-high - skip upstream until 23:47:37
-[AUTH] antigravity | all 1 accounts locked for gemini-3.8-flash-high (reset after 2h)
-```
-
-Uma verificação modelo a modelo mostrou o alcance exato do bloqueio:
-
-| Modelo | Estado durante o bloqueio |
-| :--- | :--- |
-| `ag/gemini-3.8-flash-high` · `3.7` · `3.6` · `pro-agent` | **503** |
-| `ag/claude-sonnet-4-6` | OK, 2,17s |
-| `ag/gpt-oss-120b-medium` | OK, 0,58s |
-
-Ou seja: **a conta continuava boa, só a família Gemini estava no teto.** Quem tinha um `ag/gemini-*`
-como modelo padrão via a sessão morrer a cada mensagem. Quem tinha um combo seguiu trabalhando, e o
-log mostra por quê:
-
-```text
-[COMBO] Trying model 1/5: ag/gemini-3.8-flash-high  -> failed {"status":503}
-[COMBO] Trying model 2/5: ag/gemini-3.7-flash-high  -> failed {"status":503}
-[COMBO] Trying model 3/5: ag/gemini-3.6-flash-high  -> failed {"status":503}
-[COMBO] Trying model 4/5: ag/claude-sonnet-4-6      -> succeeded
-```
-
-Os três saltos custaram menos de um segundo no total, porque o gateway guarda o bloqueio em cache e
-nem tenta o upstream. A resposta chegou em 1,97s.
-
-Por isso este artigo provisiona **dois combos**, que ficam no seletor ao lado dos modelos individuais:
+Este artigo provisiona dois combos, que ficam no seletor ao lado dos modelos individuais:
 
 | Combo | Cascata | Serve para |
 | :--- | :--- | :--- |
-| `claudegravity-fallback` | Gemini 3.8 → 3.7 → 3.6 → Sonnet 4.6 → GPT-OSS 120B | Padrão. Prefere Gemini e cai para os demais |
+| `claudegravity-fallback` | Gemini 3.8 → 3.7 → 3.6 → Sonnet 4.6 → GPT-OSS 120B | Prefere Gemini e cai para os demais |
 | `claudegravity-thinking` | Opus 4.6 Thinking → Sonnet 4.6 → Gemini 3.8 → GPT-OSS 120B | Raciocínio denso, e **não depende da cota do Gemini** |
 
-Os quatro papéis, por outro lado, usam **modelos individuais**, e isso é uma escolha deliberada: o
-consumo fica previsível, porque você sabe exatamente qual modelo atende cada situação. A contrapartida
-é a que acabamos de ver  -  quando a cota de uma família estoura, o papel que aponta para ela para de
-responder. Vale a atenção redobrada no papel Haiku, acionado em **toda sessão**: é o primeiro a
-denunciar o problema. Se preferir trocar previsibilidade por resiliência, aponte os papéis para os
-combos; os dois arranjos estão testados.
+E os arquivos `.example` apontam o padrão e os quatro papéis para **modelos individuais**. É uma
+escolha deliberada, com uma contrapartida conhecida:
+
+| | Modelo individual (`ag/gemini-3.8-flash-high`) | Combo (`claudegravity-fallback`) |
+| :--- | :--- | :--- |
+| **Consumo** | Previsível: você sabe qual modelo atendeu cada chamada | Varia com o nível que respondeu |
+| **Cota estourada** | Para de responder até o teto liberar | Desce a cascata em menos de 1s |
+| **Depuração** | Direta: um identificador, um provedor | Exige ler o log do gateway para saber quem atendeu |
+| **Papel Haiku** | Acionado em toda sessão; é o primeiro a denunciar bloqueio | Absorve o bloqueio silenciosamente |
+
+O papel Haiku merece atenção redobrada nos dois arranjos, porque é o mais exercitado: a CLI o aciona
+em **toda sessão** para gerar o título da conversa. Se a família dele estourar, você percebe antes de
+qualquer outra coisa.
 
 > **Regra prática:** modelo individual dá previsibilidade de consumo e é o padrão deste artigo. Combo
-> dá resiliência e é o que você aciona  -  pelo `/model` ou por `--model`  -  no dia em que a cota de
-> uma família estourar. Os dois estão provisionados; a escolha é sua, e pode mudar no meio do caminho.
+> dá resiliência e é o que você aciona  -  pelo `/model`, por `--model`, ou apontando os papéis para
+> ele  -  no dia em que a cota de uma família estourar. Os dois arranjos estão provisionados e
+> testados; a escolha é sua, e pode mudar no meio do caminho.
 
 ---
 
-### Tirando os Modelos da Anthropic do Menu
+## Tirando os Modelos da Anthropic do Menu
 
 Mapear identificadores um a um resolve o sintoma, mas envelhece: a cada geração nova de modelos a CLI
 passa a emitir identificadores que o seu mapa não tem, e o erro `There's an issue with the selected
@@ -789,21 +780,30 @@ São duas chaves do `modelPicker`:
   model catalog; update Claude Code, or map it with `behavesAs` on a modelPicker row"*. O valor é o
   **ID de um modelo que a CLI conhece**, e serve de referência de capacidade.
 
+Um recorte das nove linhas declaradas nos arquivos deste artigo  -  o bloco completo está na seção
+[Estrutura do `settings.json.example`](#estrutura-do-settingsjsonexample):
+
 ```json
 {
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
-        "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto, 1M de contexto",
         "behavesAs": "claude-opus-4-8"
       },
       {
-        "model": "claudegravity-thinking",
-        "label": "ClaudeGravity Thinking",
-        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente (combo)",
+        "description": "5 niveis. Use quando a cota de uma familia estourar",
         "behavesAs": "claude-opus-4-8"
       }
     ]
@@ -811,9 +811,11 @@ São duas chaves do `modelPicker`:
 }
 ```
 
-O leitor nunca vê "Opus 5" ou "Fable 5.1" no menu: vê "ClaudeGravity Resiliente" e "ClaudeGravity
-Thinking". O `behavesAs` fica nos
-bastidores, apenas dizendo à CLI que aquele modelo tem porte de Opus.
+Depois disso o leitor nunca mais vê "Opus 5" ou "Fable 5.1" no menu: vê "Gemini 3.8 Flash High",
+"ClaudeGravity Resiliente (combo)" e as demais linhas que você declarou. O `behavesAs` fica nos
+bastidores, apenas dizendo à CLI de qual modelo conhecido cada entrada tem porte  -  repare que ele
+acompanha a capacidade real, e não o papel: a linha do 3.6 se descreve como Haiku porque é isso que
+ela é.
 
 > **Por que isso substitui o `modelOverrides`:** o override reage a um identificador que a CLI já
 > escolheu; o picker define quais identificadores sequer existem. Com a lista nativa substituída e os
@@ -826,25 +828,35 @@ Valide com `claude doctor`  -  ele aceita ou recusa cada linha do picker sem abr
 
 ---
 
-### Referência Completa: Onde Cada Configuração Mora
+## Referência Completa: Onde Cada Configuração Mora
 
 Esta seção existe porque a pergunta mais frequente não é *o que* configurar, e sim **em qual arquivo**.
 O Claude Code lê várias camadas, e o aplicativo de janela lê outra. Quem não conhece o mapa passa horas
 editando o arquivo errado.
 
-#### As camadas, da mais fraca para a mais forte
+### As camadas de settings, da mais fraca para a mais forte
 
-| Camada | Arquivo | Alcance | Quem usa |
+| Camada | Arquivo | Alcance | Observação |
 | :--- | :--- | :--- | :--- |
-| **Usuário** | `~/.claude/settings.json` | Toda sessão da sua máquina | Terminal **e** o aplicativo |
-| **Projeto** | `<repo>/.claude/settings.json` | Só dentro daquele repositório | Terminal. Versionável, compartilhável com o time |
-| **Local** | `<repo>/.claude/settings.local.json` | Só na sua máquina, naquele repositório | Terminal. **Tem precedência**, e fica fora do git |
-| **Aplicativo** | `~/Library/Application Support/Claude/claude_desktop_config.json` | O app de janela | Servidores MCP e preferências da interface |
+| **Usuário** | `~/.claude/settings.json` | Toda sessão da sua máquina | O ponto de entrada mais amplo. É onde o aplicativo de janela encontra a configuração |
+| **Projeto** | `<repo>/.claude/settings.json` | Só dentro daquele repositório | Versionável, compartilhável com o time |
+| **Local** | `<repo>/.claude/settings.local.json` | Só na sua máquina, naquele repositório | **Tem precedência**, e fica fora do git |
 
 A camada mais forte vence. Colocar o gateway em `~/.claude/settings.json` faz ele valer em tudo;
 colocar em `.claude/settings.local.json` limita ao repositório e à sua máquina.
 
-#### Todas as variáveis de ambiente que importam
+O que determina quais camadas entram na conta é o **diretório em que a sessão roda**. Uma sessão de
+terminal aberta dentro de um repositório soma as três; uma janela de conversa do aplicativo, que não
+tem repositório, enxerga só a de usuário. É a mesma regra, aplicada a contextos diferentes  -  e é o
+que a seção [Configurando o Aplicativo de Janela e o Cowork](#configurando-o-aplicativo-de-janela-e-o-cowork)
+detalha.
+
+> **Um arquivo que não é camada de settings.** O `claude_desktop_config.json` do aplicativo (caminho
+> na seção citada acima) guarda **servidores MCP e preferências da interface**. Ele não participa
+> desta precedência, não aceita `model`, `env` nem `permissions`, e editá-lo esperando trocar de
+> modelo não produz efeito nenhum.
+
+### Todas as variáveis de ambiente que importam
 
 Vão dentro do bloco `"env"` de qualquer camada de settings, ou exportadas no shell.
 
@@ -854,20 +866,40 @@ Vão dentro do bloco `"env"` de qualquer camada de settings, ou exportadas no sh
 | `ANTHROPIC_API_KEY` | Credencial que o gateway exige. Gerada localmente, nunca a da Anthropic |
 | `ANTHROPIC_AUTH_TOKEN` | Alternativa ao anterior, aceita pelos mesmos caminhos |
 | `ANTHROPIC_MODEL` | Modelo do laço principal da sessão |
+| `ANTHROPIC_DEFAULT_MODEL` | Modelo aplicado quando nada mais foi escolhido. Equivale ao `"model"` do `settings.json` |
 | `ANTHROPIC_DEFAULT_FABLE_MODEL` | Papel Fable: o mais capaz, para o que a CLI considerar mais difícil |
 | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Papel Opus: trabalho complexo e **todo subagente despachado** |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Papel Sonnet: a maior parte das tarefas |
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Papel Haiku: alta frequência. Acionado em **toda sessão** |
 | `ANTHROPIC_SMALL_FAST_MODEL` | Operações rápidas internas, quando declarado |
 | `ANTHROPIC_CUSTOM_MODEL_OPTION` | Entrada extra no menu, com `_NAME` e `_DESCRIPTION` |
-| `CLAUDE_CODE_EXPERIMENTAL` | Habilita recursos em avaliação |
 | `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT` | Desliga a checagem de janela por modelo. **Necessária** com modelos não-Anthropic |
 
-> Confira antes de adotar qualquer variável: `strings -a $(which claude) | grep ANTHROPIC_`. Foi assim
-> que descobrimos que `CLAUDE_CODE_ENABLE_LOOPS`, `_ADVISOR` e `_GOAL`, que chegamos a publicar, não
-> existem no binário  -  eram configuração decorativa.
+Os quatro papéis aceitam ainda três sufixos, úteis justamente porque o modelo apontado é de gateway e
+a CLI não tem como descrevê-lo sozinha:
 
-#### Todas as chaves de `settings.json`
+| Sufixo | Efeito |
+| :--- | :--- |
+| `_NAME` | Rótulo exibido no lugar do nome do papel  -  por exemplo, `ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME="Gemini 3.6 Flash High"` |
+| `_DESCRIPTION` | Texto de apoio ao lado do rótulo |
+| `_SUPPORTED_CAPABILITIES` | Declara o que aquele modelo aceita, no mesmo papel que o `behavesAs` cumpre no `modelPicker` |
+
+São o caminho equivalente ao `modelPicker` para quem prefere configurar por ambiente  -  em um
+contêiner de CI, por exemplo  -  em vez de por arquivo.
+
+> **Confira antes de adotar qualquer variável**, e confira com correspondência exata:
+>
+> ```bash
+> strings -a "$(which claude)" | grep -oE '\bCLAUDE_CODE_[A-Z0-9_]+\b' | sort -u
+> ```
+>
+> O `-oE` com `\b` é o que importa. Um `grep -c CLAUDE_CODE_EXPERIMENTAL` devolve 8 ocorrências e
+> parece confirmar a variável, mas todas são de `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`  -  um nome
+> maior que a contém. Caímos exatamente nessa armadilha: publicamos `CLAUDE_CODE_EXPERIMENTAL`,
+> `CLAUDE_CODE_ENABLE_LOOPS`, `_ADVISOR` e `_GOAL` como se existissem. Nenhuma existe. Eram
+> configuração decorativa, e o leitor não teria como perceber.
+
+### Todas as chaves de `settings.json`
 
 | Chave | Efeito |
 | :--- | :--- |
@@ -887,14 +919,39 @@ Valide qualquer combinação com `claude doctor`, que aponta chave inválida sem
 
 ---
 
-### Configurando o Aplicativo de Janela e o Cowork
+## Configurando o Aplicativo de Janela e o Cowork
 
 Tudo até aqui vale para o terminal. O aplicativo  -  e o **Cowork**, que roda dentro dele  -  tem uma
 disposição própria, e a boa notícia é que o ponto de entrada é o mesmo.
 
-#### O que vai em cada lugar
+### O aplicativo embute o mesmo Claude Code
 
-O app **não** lê o `.claude/settings.json` do seu repositório. Ele enxerga a camada de usuário:
+Vale começar desfazendo uma suposição fácil de fazer  -  nós fizemos. O aplicativo não reimplementa o
+harness: ele **empacota a mesma CLI**, numa pasta própria.
+
+```bash
+~/Library/Application Support/Claude/claude-code-vm/<versão>/claude
+```
+
+Na máquina em que este artigo foi escrito, a versão ali dentro e a do terminal eram idênticas
+(`2.1.266`), e o binário embutido reconhece exatamente as mesmas chaves  -  `modelPicker`,
+`replaceBuiltInOptions`, `behavesAs`, `advisorModel`, `modelOverrides`  -  além dos dois caminhos de
+projeto, `.claude/settings.json` e `.claude/settings.local.json`.
+
+A consequência é que **não existe um conjunto de regras diferente para o app**. O que muda é o
+diretório em que cada sessão roda:
+
+| Contexto | Camadas que valem |
+| :--- | :--- |
+| Terminal dentro de um repositório | Usuário + projeto + local |
+| Janela de conversa do aplicativo | Só a de usuário  -  não há repositório |
+| Tarefa do Cowork sobre uma pasta | Usuário + as camadas de projeto **daquela pasta** |
+
+A terceira linha é a que costuma surpreender: ao apontar o Cowork para um repositório, o
+`.claude/settings.local.json` dele volta a valer, com a precedência de sempre. As pastas liberadas
+para esse modo ficam registradas em `preferences.localAgentModeTrustedFolders`.
+
+### O que vai em cada lugar
 
 ```bash
 ~/.claude/settings.json                                    # modelo, papéis, env, permissões
@@ -902,7 +959,12 @@ O app **não** lê o `.claude/settings.json` do seu repositório. Ele enxerga a 
 ~/Library/Application Support/Claude/cowork-enabled-cli-ops.json  # conta dona das operações do Cowork
 ```
 
-Então, para que o aplicativo use o seu gateway, a configuração vai no **arquivo de usuário**:
+> **Fora do macOS.** Os caminhos acima são os do macOS. No Windows o diretório equivalente é
+> `%APPDATA%\Claude\`, e no Linux, `~/.config/Claude/`. O `~/.claude/settings.json` é o mesmo nos três
+> sistemas  -  e, por ser o arquivo que carrega modelo, papéis e `env`, é também o único que você
+> precisa editar para apontar o app ao gateway.
+
+Como a janela de conversa não tem repositório, a configuração vai no **arquivo de usuário**:
 
 ```json
 {
@@ -910,7 +972,7 @@ Então, para que o aplicativo use o seu gateway, a configuração vai no **arqui
   "advisorModel": "ag/gemini-pro-agent",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
-    "ANTHROPIC_API_KEY": "sua-chave-do-9router",
+    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
@@ -919,7 +981,7 @@ Então, para que o aplicativo use o seu gateway, a configuração vai no **arqui
 }
 ```
 
-#### O seletor de modelo do aplicativo é outro
+### O seletor de modelo do aplicativo é outro
 
 Uma diferença que só aparece ao inspecionar a janela: o aplicativo tem **seu próprio controle de
 modelo**, na barra inferior, e ele não é o menu `/model` do terminal. A árvore de acessibilidade
@@ -931,6 +993,11 @@ AXPopUpButton (Modelo: Fable 5.1  Máx  3× ou mais de uso)
 
 Abrindo esse controle, a hierarquia dos quatro papéis aparece escrita, com a descrição de cada um:
 
+![Seletor de modelo do aplicativo, com os quatro papéis](../assets/13a_app_seletor_modelo.png)
+
+> **Figura 13a:** O seletor de modelo do aplicativo. É a própria interface declarando para que serve
+> cada papel  -  a referência mais direta na hora de decidir qual Gemini mapear para qual.
+
 | Opção | Descrição no aplicativo |
 | :--- | :--- |
 | **Fable 5.1** | Para seus desafios mais difíceis |
@@ -938,7 +1005,7 @@ Abrindo esse controle, a hierarquia dos quatro papéis aparece escrita, com a de
 | **Sonnet 5** | Mais eficiente para tarefas do dia a dia |
 | **Haiku 4.5** | Mais rápido para respostas rápidas |
 | **Esforço** | `Máx`, com submenu próprio |
-| **Mais modelos** | Submenu com o catálogo completo |
+| **Mais modelos** | Submenu com gerações anteriores da Anthropic |
 
 É a mesma ordem que a CLI declara internamente (*Fable for the hardest problems, Opus for complex
 work, Sonnet for most tasks, Haiku for quick questions*), agora confirmada na interface. Se você
@@ -947,20 +1014,47 @@ todas as letras, para que serve cada um.
 
 Duas consequências práticas:
 
-- **A escolha feita nesse controle vale para a janela**, e é independente do que você configurou para
-  o terminal. Se mudou o modelo no app e continua vendo o comportamento antigo no terminal, os dois
+- **A escolha feita nesse controle vale para a janela**, e é independente do menu `/model` do
+  terminal. Se mudou o modelo no app e continua vendo o comportamento antigo no terminal, os dois
   estão em camadas diferentes.
 - **O multiplicador de consumo só aparece aqui.** O rótulo `3× ou mais de uso` avisa que aquele modelo
   gasta cota numa proporção que o `--model` na linha de comando não anuncia. Vale olhar antes de deixar
   uma tarefa longa rodando.
 
-> **O que não conseguimos confirmar.** Não verificamos se as entradas de `modelPicker` declaradas em
-> `~/.claude/settings.json` aparecem no submenu **Mais modelos**, nem se o aplicativo aceita um
-> identificador de gateway por ali. O caminho que **está** confirmado para apontar o app ao seu
-> gateway é o do bloco `env` no arquivo de usuário, descrito acima.
+#### O seletor do aplicativo ignora o `modelPicker`
+
+Esta parte nós medimos, porque a suposição natural  -  a de que o `modelPicker` do arquivo de usuário
+alimentaria o submenu **Mais modelos**  -  está errada.
+
+O teste: declaramos em `~/.claude/settings.json` um `modelPicker` com `replaceBuiltInOptions: true` e
+uma única entrada, rotulada de forma inconfundível, apontando para um modelo do gateway. Reiniciamos
+o aplicativo e abrimos o seletor.
+
+![Submenu Mais modelos do aplicativo](../assets/13b_app_submenu_mais_modelos.png)
+
+> **Figura 13b:** O submenu **Mais modelos** com o `modelPicker` declarado e `replaceBuiltInOptions`
+> ligado. A entrada de teste não aparece, e a lista nativa continua intacta.
+
+O resultado foi **nenhuma mudança**: os quatro papéis continuaram nativos, o submenu continuou
+listando apenas gerações anteriores da Anthropic (Fable 5, Opus 4.8, 4.7, 4.6 e Sonnet 4.6), e a
+entrada declarada não apareceu em lugar nenhum. O `replaceBuiltInOptions` não substituiu coisa
+alguma.
+
+A conclusão prática é direta:
+
+| Caminho | Terminal | Aplicativo |
+| :--- | :--- | :--- |
+| `env` no arquivo de usuário | Funciona | **Funciona**  -  é o caminho para apontar o app ao gateway |
+| Papéis `ANTHROPIC_DEFAULT_*_MODEL` | Funciona | **Funciona**, pelo mesmo bloco `env` |
+| `modelPicker` / `replaceBuiltInOptions` | Funciona | **Ignorado pelo seletor da janela** |
+
+Ou seja: no app você não escolhe o modelo do gateway pelo menu, você o **define** pelo `env`. O
+seletor da janela continua exibindo os nomes da Anthropic, e o que responde do outro lado é o que
+você mapeou nos papéis  -  o rótulo na tela deixa de corresponder ao modelo real, e vale ter isso em
+mente antes de estranhar.
 
 
-#### Três cuidados específicos do app
+### Três cuidados específicos do app
 
 1. **O gateway precisa estar de pé antes de abrir a janela.** O terminal falha com uma mensagem clara;
    o aplicativo tende a mostrar erro genérico. Suba o container primeiro.
@@ -970,13 +1064,29 @@ Duas consequências práticas:
 3. **Reinicie o aplicativo depois de editar.** Ele lê a configuração na inicialização, e não recarrega
    sozinho  -  o mesmo comportamento que o Antigravity IDE tem no [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md).
 
-O `claude_desktop_config.json` guarda `mcpServers` e um bloco `preferences` com os ajustes da interface,
-incluindo os do Cowork (navegador preferido, pastas confiáveis, modo de permissão para tarefas de
-código). Modelos e credenciais **não** moram ali: continuam no arquivo de usuário.
+### O que o `claude_desktop_config.json` controla
+
+Ele guarda `mcpServers` e um bloco `preferences`. Modelos e credenciais **não** moram ali: continuam
+no arquivo de usuário. As chaves que importam para quem opera com gateway são as de autonomia e as do
+Cowork:
+
+| Chave em `preferences` | Efeito |
+| :--- | :--- |
+| `bypassPermissionsModeEnabled` | O equivalente, na janela, ao `--dangerously-skip-permissions` do terminal |
+| `dispatchCodeTasksPermissionMode` | Modo de permissão aplicado às tarefas de código despachadas |
+| `localAgentModeTrustedFolders` | As pastas que o Cowork pode operar  -  e, portanto, de onde ele lê settings de projeto |
+| `coworkPreferredBrowser` · `coworkBrowserToolsEnabled` | Navegador usado pelas ferramentas de browser do Cowork |
+| `coworkWebSearchEnabled` | Liga a busca na web durante as tarefas |
+| `coworkScheduledTasksEnabled` | Habilita tarefas agendadas |
+| `coworkModelAutoFallbackByAccount` | Troca automática de modelo por conta  -  vale conhecer, porque é um fallback do app que convive com o do gateway |
+
+A última merece um parágrafo. Existem **duas camadas de fallback** quando você opera o app com
+gateway: a do 9Router, que desce a cascata do combo, e a do próprio aplicativo. Elas não se enxergam.
+Se uma tarefa trocar de modelo sem explicação aparente no log do gateway, é aqui que se procura.
 
 ---
 
-### Isto Não É Sobre o Antigravity
+## Isto Não É Sobre o Antigravity
 
 Vale explicitar, porque o artigo inteiro usa um provedor como exemplo e isso pode dar a impressão
 errada.
@@ -1004,7 +1114,7 @@ ele tem porte. O harness continua sem saber, e sem precisar saber.
 
 ---
 
-### O Advisor, uma Segunda Opinião Durante a Sessão
+## O Advisor, uma Segunda Opinião Durante a Sessão
 
 O Claude Code expõe uma ferramenta de **advisor**, descrita internamente como *"an advisor tool
 backed by a stronger reviewer model"*  -  um revisor acionado sob demanda para conferir decisões do
@@ -1038,12 +1148,15 @@ enquanto o principal fica no `ag/gemini-3.8-flash-high`.
 }
 ```
 
-Se você apontar o principal para um modelo mais forte que o advisor, a CLI reclama e pede que você
-troque ou remova a chave.
+Repare que essa regra de capacidade é verificável **entre modelos do catálogo da Anthropic**, onde o
+`advisor_rank` existe e pode ser comparado. Com dois identificadores `ag/*` não há o que comparar, e a
+CLI aceita a chave sem reclamar  -  inclusive numa combinação sem sentido, com o advisor mais fraco
+que o principal. A responsabilidade de escolher um revisor à altura passa a ser sua: aponte o
+`advisorModel` para o modelo mais denso que sua conta atende, que aqui é o `ag/gemini-pro-agent`.
 
 ---
 
-### Tarefas Longas: `/goal`, `/loop` e Trabalho com Subagentes
+## Tarefas Longas: `/goal`, `/loop` e Trabalho com Subagentes
 
 Esta é a dúvida que mais aparece: recursos de longo prazo dependem de algo proprietário da Anthropic,
 ou funcionam com qualquer modelo servido pelo gateway?

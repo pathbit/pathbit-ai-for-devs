@@ -166,13 +166,14 @@ lista nativa e os quatro papéis declarados, removemos o bloco inteiro e reexecu
 inclusive com subagente: **nenhuma falhou, e nenhum consumidor pediu um `claude-*`**. Restou um único
 cenário, o de um `settings.local.json` com pin antigo.
 
-O bloco final tem **três entradas, uma por família**, todas apontando para combos:
+O bloco final tem **três entradas, uma por família**, cada uma apontando para o mesmo modelo do papel
+correspondente  -  de modo que um pin esquecido resolve exatamente para onde o papel já apontava:
 
-| Chave | Destino no 0002 | Destino no 0003 |
+| Chave | Destino (0002 e 0003) | Papel equivalente |
 | :--- | :--- | :--- |
-| `claude-fable-5-1` | `claudegravity-thinking` | `arsenal-supremo` |
-| `claude-opus-5` | `claudegravity-thinking` | `arsenal-supremo` |
-| `claude-sonnet-5` | `claudegravity-fallback` | `arsenal-rapido` |
+| `claude-fable-5-1` | `ag/gemini-pro-agent` | Fable |
+| `claude-opus-5` | `ag/gemini-3.8-flash-high` | Opus |
+| `claude-sonnet-5` | `ag/gemini-3.7-flash-high` | Sonnet |
 
 De 33 para 3, com o mesmo resultado nos testes.
 
@@ -272,9 +273,14 @@ antes de responder e custa dezesseis vezes o tempo do `sonnet` na tarefa mais si
 ### Advisor
 
 A CLI descreve a ferramenta como *"an advisor tool backed by a stronger reviewer model"* e impõe que
-o advisor seja **ao menos tão capaz quanto o modelo principal**. Nos `.example`, `advisorModel`
-aponta para o mesmo combo do modelo principal e do papel Fable  -  `claudegravity-thinking` no 0002 e
-`arsenal-supremo` no 0003  -  de modo que não há degrau de capacidade nem ponto único de falha.
+o advisor seja **ao menos tão capaz quanto o modelo principal**. Nos `.example` dos dois módulos,
+`advisorModel` aponta para `ag/gemini-pro-agent`  -  o mesmo do papel Fable, e o modelo mais denso da
+conta  -  enquanto o principal fica em `ag/gemini-3.8-flash-high`. Não há degrau de capacidade.
+
+Essa checagem, porém, **só é verificável dentro do catálogo da Anthropic**: a comparação usa o campo
+`advisor_rank`, que existe nas entradas `claude-*` e não nos identificadores de gateway. Com dois
+`ag/*` a CLI aceita a chave sem conferir nada, inclusive numa combinação invertida. A escolha de um
+revisor à altura é responsabilidade de quem configura.
 
 ### Processos órfãos que consomem cota
 
@@ -286,6 +292,35 @@ segundos com ninguém usando**, e toda medição nova saía lenta.
 O efeito é enganoso: a primeira leitura sugeria que o alias `opus` provocava tempestade de
 retentativas. Com o gateway limpo, o `opus` respondeu normalmente. **A lentidão era dos órfãos, não
 do modelo.** Confira o gateway ocioso antes de culpar qualquer identificador.
+
+### O seletor do aplicativo de janela ignora o `modelPicker`
+
+Medido diretamente na interface, com a árvore de acessibilidade do app.
+
+Primeiro o que **é** verdade e costuma ser suposto ao contrário: o aplicativo não reimplementa o
+harness. Ele empacota a mesma CLI, em `~/Library/Application Support/Claude/claude-code-vm/<versão>/claude`
+ -  na máquina de teste, a mesma versão `2.1.266` do terminal  -  e o binário embutido reconhece
+`modelPicker`, `replaceBuiltInOptions`, `behavesAs`, `advisorModel`, `modelOverrides` e os dois
+caminhos de projeto. Não há regra de configuração diferente para o app; o que muda é o diretório em
+que cada sessão roda.
+
+O teste do seletor: declaramos em `~/.claude/settings.json` um `modelPicker` com
+`replaceBuiltInOptions: true` e uma única entrada de rótulo inconfundível apontando para um modelo do
+gateway, reiniciamos o aplicativo e abrimos o controle de modelo da janela.
+
+| Observação | Resultado |
+| :--- | :--- |
+| Quatro papéis no seletor | Inalterados (Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5) |
+| Submenu **Mais modelos** | Inalterado: Fable 5, Opus 4.8, Opus 4.7, Opus 4.6, Sonnet 4.6 |
+| Entrada declarada no `modelPicker` | **Não aparece em lugar nenhum** |
+| `replaceBuiltInOptions: true` | Sem efeito sobre a lista nativa |
+
+**O seletor da janela ignora o `modelPicker`.** O caminho confirmado para apontar o aplicativo ao
+gateway continua sendo o bloco `env` do arquivo de usuário, com os quatro papéis. A consequência
+editorial é que, no app, o rótulo exibido na tela deixa de corresponder ao modelo que de fato
+responde  -  e o artigo 0002 passou a dizer isso explicitamente.
+
+O `settings.json` do usuário foi restaurado a partir de backup e conferido byte a byte após o teste.
 
 ---
 
