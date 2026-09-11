@@ -754,19 +754,23 @@ log mostra por quê:
 Os três saltos custaram menos de um segundo no total, porque o gateway guarda o bloqueio em cache e
 nem tenta o upstream. A resposta chegou em 1,97s.
 
-Por isso este artigo provisiona **dois combos** e o seletor não oferece nenhum modelo solto:
+Por isso este artigo provisiona **dois combos**, que ficam no seletor ao lado dos modelos individuais:
 
 | Combo | Cascata | Serve para |
 | :--- | :--- | :--- |
 | `claudegravity-fallback` | Gemini 3.8 → 3.7 → 3.6 → Sonnet 4.6 → GPT-OSS 120B | Padrão. Prefere Gemini e cai para os demais |
 | `claudegravity-thinking` | Opus 4.6 Thinking → Sonnet 4.6 → Gemini 3.8 → GPT-OSS 120B | Raciocínio denso, e **não depende da cota do Gemini** |
 
-Os quatro papéis também apontam para combos, nunca para modelos individuais. Como o papel Haiku é
-acionado em **toda sessão**, um modelo solto ali é o primeiro a derrubar você quando a cota acaba.
+Os quatro papéis, por outro lado, usam **modelos individuais**, e isso é uma escolha deliberada: o
+consumo fica previsível, porque você sabe exatamente qual modelo atende cada situação. A contrapartida
+é a que acabamos de ver  -  quando a cota de uma família estoura, o papel que aponta para ela para de
+responder. Vale a atenção redobrada no papel Haiku, acionado em **toda sessão**: é o primeiro a
+denunciar o problema. Se preferir trocar previsibilidade por resiliência, aponte os papéis para os
+combos; os dois arranjos estão testados.
 
-> **Regra prática:** modelo individual serve para medir e comparar, com `--model` na linha de comando.
-> Para o padrão da sessão e para os papéis, use sempre combo. A diferença aparece exatamente no dia em
-> que você não pode parar.
+> **Regra prática:** modelo individual dá previsibilidade de consumo e é o padrão deste artigo. Combo
+> dá resiliência e é o que você aciona  -  pelo `/model` ou por `--model`  -  no dia em que a cota de
+> uma família estourar. Os dois estão provisionados; a escolha é sua, e pode mudar no meio do caminho.
 
 ---
 
@@ -915,6 +919,33 @@ Então, para que o aplicativo use o seu gateway, a configuração vai no **arqui
 }
 ```
 
+#### O seletor de modelo do aplicativo é outro
+
+Uma diferença que só aparece ao inspecionar a janela: o aplicativo tem **seu próprio controle de
+modelo**, na barra inferior, e ele não é o menu `/model` do terminal. A árvore de acessibilidade
+mostra o elemento assim:
+
+```text
+AXPopUpButton (Modelo: Fable 5.1  Máx  3× ou mais de uso)
+```
+
+Repare no que o rótulo carrega: além do nome do modelo, ele traz o **nível de esforço** (`Máx`) e o
+**multiplicador de consumo** (`3× ou mais de uso`). O terminal não exibe essa informação.
+
+Duas consequências práticas:
+
+- **A escolha feita nesse controle vale para a janela**, e é independente do que você configurou para
+  o terminal. Se você mudou o modelo no app e continua vendo o comportamento antigo no terminal, os
+  dois estão simplesmente em camadas diferentes.
+- **O multiplicador é a informação que falta no terminal.** Um modelo marcado como `3× ou mais de uso`
+  consome cota numa proporção que o `--model` na linha de comando não anuncia. Vale olhar o rótulo
+  antes de deixar uma tarefa longa rodando.
+
+> **O que não conseguimos confirmar.** Não verificamos se as entradas de `modelPicker` declaradas em
+> `~/.claude/settings.json` aparecem nesse controle do aplicativo, nem se o app aceita um identificador
+> de gateway por ali. O teste exigiria interagir com uma janela em uso. O caminho que **está**
+> confirmado é o do bloco `env` no arquivo de usuário, descrito acima.
+
 #### Três cuidados específicos do app
 
 1. **O gateway precisa estar de pé antes de abrir a janela.** O terminal falha com uma mensagem clara;
@@ -988,8 +1019,8 @@ enquanto o principal fica no `ag/gemini-3.8-flash-high`.
 
 ```json
 {
-  "model": "claudegravity-thinking",
-  "advisorModel": "claudegravity-thinking"
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent"
 }
 ```
 
