@@ -418,6 +418,24 @@ servindo tráfego:
 | Mistral | 11 | `codestral-latest` |
 | OpenRouter | 4 | `nvidia/nemotron-3.5-lightning:free` |
 
+### Afirmações do artigo conferidas uma a uma
+
+Cada uma destas é uma frase publicada que podia estar errada. Todas foram exercitadas contra o
+ambiente real:
+
+| Afirmação | Verificação |
+| :--- | :--- |
+| A CLI normaliza o sufixo de janela antes de consultar o `modelOverrides` | Com apenas `claude-opus-5` declarado, `--model 'claude-opus-5[1m]'` resolveu e respondeu |
+| `permissions.allow` recusa curinga solto | `claude doctor` recusou `"*"` e `"mcp__*"`, aceitou `mcp__github__*`, `Bash(*)` e `Read(*)` |
+| `deny` aceita curinga em qualquer posição | `Bash(rm -rf *)` e `*secret*` passaram sem aviso |
+| O compose falha de propósito sem as credenciais | `required variable INITIAL_PASSWORD is missing a value: defina INITIAL_PASSWORD no arquivo .env` |
+| `ANTHROPIC_BASE_URL` sem o sufixo `/v1` | Confirmado nos quatro arquivos de settings |
+| O 9Router tolera a rota duplicada | `/v1/messages` e `/v1/v1/messages` devolveram **200** |
+
+A mensagem que a CLI emite ao recusar um curinga é a mesma que o artigo transcreve: *"An allow
+pattern must name the scope it widens  -  globs are permitted only in the tool position after a
+literal `mcp__<server>__` prefix. Deny and ask rules accept wildcards anywhere"*.
+
 ### A família 3.5, verificada literalmente
 
 O artigo 0002 afirma que o `-high` responde 404 e que as variantes `-low` devolvem a mensagem do
@@ -479,6 +497,12 @@ uma queda do container, o ambiente volta sozinho?** Cada elo foi conferido:
 | Credencial sobrevive ao restart | `expiresAt` numérico, `isActive: 1` | lida do banco depois do restart |
 | Inferência volta | modelo direto e combo responderam | chamada real pós-restart |
 | Renovação roda sozinha | LaunchAgent a cada 5 min | `launchctl print`, exit 0 |
+
+E o teste de integração que fecha a cadeia: **o Docker inteiro foi encerrado**, com o gateway
+confirmadamente fora (`HTTP 000`), e religado em seguida. Os containers voltaram sozinhos pela
+política de restart  -  `Up 15 seconds` com `RestartCount: 0`, ou seja, partida limpa e não
+reinício por falha  -  e o ambiente inteiro estava servindo de novo em **4 segundos, sem nenhuma
+intervenção**. A credencial permaneceu numérica e válida, e o combo respondeu na sequência.
 
 O elo que faltava era a **visibilidade da falha**: o agente escrevia num log que ninguém lê. Foi
 adicionado um guardião em `~/.claudegravity/guard.sh`, chamado pelo LaunchAgent, que faz o ciclo
