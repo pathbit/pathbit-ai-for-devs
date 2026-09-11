@@ -426,12 +426,13 @@ O artigo disponibiliza uma suíte completa de ferramentas em Python puro, com su
 
 Antes de executar as ferramentas de configuração e validação, assegure que seu ambiente local atenda aos seguintes requisitos e tenha as ferramentas instaladas:
 
-1. **Python 3.10 ou Superior:**
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
    - Verifique com `python3 --version`. Se necessário, instale:
-     - **macOS:** `brew install python`
+     - **macOS:** Baixe o pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou instale via Homebrew com `brew install python`
      - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
      - **Linux (Fedora/RHEL):** `sudo dnf install -y python3 python3-pip`
-     - **Windows:** `winget install Python.Python.3.12`
+     - **Windows:** `winget install Python.Python.3.14`
 2. **Ambiente Virtual Isolado:** Crie e ative um ambiente virtual dedicado antes de disparar os scripts:
    ```bash
    # Criar o ambiente virtual na raiz do modulo

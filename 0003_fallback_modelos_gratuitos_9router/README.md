@@ -93,12 +93,13 @@ Para reproduzir esta configuração em qualquer máquina:
 
 Antes de iniciar a configuração da cascata e dos combos de fallback, garanta os seguintes componentes instalados e configurados na sua máquina:
 
-1. **Python 3.10 ou superior:**
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
    - Verifique a versão com `python3 --version`.
    - Se ainda não tiver o Python instalado:
-     - **macOS:** `brew install python` ou `pyenv install 3.12`
+     - **macOS:** Baixe o pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou instale via Homebrew com `brew install python`
      - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
-     - **Windows:** `winget install Python.Python.3.12`
+     - **Windows:** `winget install Python.Python.3.14`
    - Crie e ative um ambiente virtual dedicado para o módulo:
      ```bash
      # macOS e Linux

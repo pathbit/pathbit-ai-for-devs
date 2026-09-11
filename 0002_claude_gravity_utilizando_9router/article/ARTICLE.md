@@ -77,6 +77,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
       - REQUIRE_API_KEY=false
       - REQUIRE_LOGIN=false
+    command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]
       interval: 30s
@@ -85,7 +86,7 @@ services:
       start_period: 20s
 
   token-sync:
-    image: python:3.11-alpine
+    image: python:3.14-alpine
     container_name: claudegravity-token-sync
     restart: unless-stopped
     volumes:
@@ -1425,9 +1426,10 @@ O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Py
 
 Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as seguintes ferramentas e credenciais estejam instaladas e prontas:
 
-1. **Python 3.10 ou Superior:**
-   - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
-   - Se necessário, instale via `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.12` (Windows).
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
+   - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`), daemon (`src/token_daemon.py`) e diagnóstico (`src/verify_setup.py`).
+   - Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
 
 2. **Ambiente Virtual Dedicado:** Crie e ative o ambiente virtual para isolamento das dependências:
    ```bash

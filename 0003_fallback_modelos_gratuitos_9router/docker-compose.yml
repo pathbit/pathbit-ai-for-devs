@@ -19,7 +19,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no .env}
       - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
       - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
-    command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec /entrypoint.sh node server.js"]
+    command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     volumes:
       - 9router_data:/app/data
     extra_hosts:
@@ -49,7 +49,7 @@ services:
       timeout: 5s
       retries: 5
   token-sync:
-    image: python:3.11-alpine
+    image: python:3.14-alpine
     container_name: claudegravity-token-sync
     restart: unless-stopped
     volumes:

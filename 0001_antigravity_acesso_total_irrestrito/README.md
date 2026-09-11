@@ -31,7 +31,7 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 - **Interface Visual:** `Antigravity IDE` (base VSCode Core, variantes `Antigravity` e `Antigravity IDE`)
 - **Linha de Comando:** `Antigravity CLI` (`agy`)
 - **Controle de Pastas:** `trustedFolders.json` (`TRUST_PARENT`)
-- **Ambiente:** Python 3.10+, macOS (Darwin), Linux (todas as distros), Windows 10/11
+- **Ambiente:** Python 3.14.7+ (mínimo 3.10+), macOS (Darwin), Linux (todas as distros), Windows 10/11
 
 ---
 
@@ -69,12 +69,13 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 
 Antes de executar os scripts de configuração e validação, assegure que as seguintes ferramentas e contas estejam disponíveis e instaladas na sua máquina:
 
-1. **Python 3.10 ou Superior:**
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
    - Verifique a versão instalada no terminal com `python3 --version`.
    - Se ainda não tiver o Python instalado:
-     - **macOS:** Instale via Homebrew com `brew install python` ou pyenv com `pyenv install 3.12`.
+     - **macOS:** Baixe o pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou instale via Homebrew com `brew install python`.
      - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`.
-     - **Windows:** Instale via terminal com `winget install Python.Python.3.12` ou baixe o instalador oficial em [python.org](https://www.python.org/downloads/).
+     - **Windows:** Instale via terminal com `winget install Python.Python.3.14` ou baixe o instalador oficial em [python.org](https://www.python.org/downloads/).
 
 2. **Ambiente Virtual Isolado (venv):**
    - Recomendamos criar um ambiente virtual dedicado para isolar a execução dos scripts e utilitários:
