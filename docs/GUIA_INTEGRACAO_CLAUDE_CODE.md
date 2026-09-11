@@ -6,7 +6,7 @@ Este guia aborda os aspectos técnicos e práticos para plugar a CLI oficial do 
 
 ## 🏗️ Como Funciona o Roteamento
 
-O Claude Code foi desenvolvido nativamente para se comunicar com a API da Anthropic via endpoint `/v1/messages` com streaming de Server-Sent Events (SSE). 
+O Claude Code foi desenvolvido nativamente para se comunicar com a API da Anthropic via endpoint `/v1/messages` com streaming de Server-Sent Events (SSE).
 
 O container `claudegravity-router` atua como uma ponte transparente:
 1. Recebe as chamadas do Claude Code na porta local `20128`.

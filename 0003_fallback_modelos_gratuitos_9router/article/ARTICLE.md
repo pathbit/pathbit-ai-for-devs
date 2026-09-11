@@ -34,7 +34,7 @@ Escolhemos o 9Router pela previsibilidade: menos peças móveis significa menos 
 
 Uma dúvida técnica recorrente gerada por tutoriais de gateways locais envolve a variável `ANTHROPIC_BASE_URL`: devemos declarar `http://localhost:20128` ou `http://localhost:20128/v1`?
 
-A CLI da Anthropic monta o endereço final concatenando `baseUrl + "/v1/messages"`. Declarar a base já com `/v1` produz a rota duplicada `http://localhost:20128/v1/v1/messages` (que o 9Router tolera, ambas respondem HTTP 200), mas que quebra com **HTTP 404** em proxies estritos. 
+A CLI da Anthropic monta o endereço final concatenando `baseUrl + "/v1/messages"`. Declarar a base já com `/v1` produz a rota duplicada `http://localhost:20128/v1/v1/messages` (que o 9Router tolera, ambas respondem HTTP 200), mas que quebra com **HTTP 404** em proxies estritos.
 
 A regra de ouro, portanto, é declarar a base **sem** o sufixo:
 
@@ -84,7 +84,7 @@ Montar um arsenal que nunca para de programar exige diversificar as origens de t
 
 ### 4. Groq Cloud
 * **Modelo validado neste artigo:** `groq/openai/gpt-oss-120b`.
-* **Vantagem:** Inferência acelerada por chips LPU (Language Processing Units), com as menores latências que medimos entre os provedores em nuvem  -  **0,40s a 0,55s** por resposta curta nos nossos testes. Excelente para testes unitários, linting e geração rápida de código.
+* **Vantagem:** Inferência acelerada por chips LPU (Language Processing Units), com as menores latências que medimos entre os provedores em nuvem  -  **0,34s a 0,55s** por resposta curta nos nossos testes. Excelente para testes unitários, linting e geração rápida de código.
 * **Atenção ao catálogo:** os identificadores da Groq mudam com frequência. Confira o [catálogo vigente](https://console.groq.com/docs/models) e valide a cascata com `python3 src/test_arsenal.py` antes de confiar nela.
 
 ### 5. Cerebras Cloud
@@ -190,7 +190,7 @@ A Mistral entrou na cascata como o provedor em nuvem mais rápido que medimos. T
 
 | Identificador | Latência medida | Perfil |
 | :--- | ---: | :--- |
-| `mistral/ministral-3b-latest` | 0,35s | O mais rápido de todos os modelos que testamos |
+| `mistral/ministral-3b-latest` | 0,35s | O mais rápido entre os provedores em nuvem |
 | `mistral/magistral-small-latest` | 0,38s | Raciocínio, porte pequeno |
 | `mistral/ministral-8b-latest` | 0,39s | Pequeno e equilibrado |
 | `mistral/mistral-vibe-cli-latest` | 0,43s | Voltado a uso em linha de comando |
@@ -233,7 +233,7 @@ O OpenRouter reúne centenas de modelos e mantém um subconjunto gratuito identi
 
 ### 2. Obtendo a Chave de Alta Velocidade no Groq Cloud
 
-A Groq oferece inferência acelerada por chips LPU (Language Processing Units), e entregou **0,40s a 0,55s** por resposta curta com o `openai/gpt-oss-120b` no tier gratuito de desenvolvedor. Ficou logo atrás da Mistral na nossa medição, com diferença de centésimos.
+A Groq oferece inferência acelerada por chips LPU (Language Processing Units), e entregou **0,34s a 0,55s** por resposta curta com o `openai/gpt-oss-120b` no tier gratuito de desenvolvedor. Ficou logo atrás da Mistral na nossa medição, com diferença de centésimos.
 
 1. Acesse o console da Groq em [Groq Console Keys](https://console.groq.com/keys).
 2. Conecte-se com sua conta Google ou GitHub (sem necessidade de cartão de crédito).
@@ -281,7 +281,7 @@ O Ollama é o componente local do arsenal. Ele roda no hardware da sua máquina 
 > | `qwen2.5-coder:3b` | Sim | Não seguiu a instrução |
 > | `qwen2.5-coder:7b` | Sim | Não seguiu a instrução |
 >
-> Todos respondem normalmente pela API (`/v1/messages`): o combo `arsenal-offline` devolve `PONG` em 0,02s. Mas o Claude Code envia um *system prompt* extenso com definições de ferramentas e exige obediência estrita a instruções mais *tool calling*, e nenhum desses modelos deu conta disso. Eles respondem qualquer coisa, não o que foi pedido.
+> Todos respondem normalmente pela API (`/v1/messages`): o combo `arsenal-offline` devolve `PONG` em 0,04s. Mas o Claude Code envia um *system prompt* extenso com definições de ferramentas e exige obediência estrita a instruções mais *tool calling*, e nenhum desses modelos deu conta disso. Eles respondem qualquer coisa, não o que foi pedido.
 >
 > **Na prática:** o `arsenal-offline` serve para continuidade e para testar disponibilidade, não para conduzir uma sessão real de trabalho. Programar de fato sem internet exige modelo e hardware consideravelmente maiores, o que foge do escopo de uma contingência de 397 MB.
 
@@ -402,7 +402,7 @@ O mecanismo central de alta disponibilidade é o **Combo com estratégia Fallbac
 
 ## Arquitetura dos Combos de Fallback
 
-No 9Router, agrupamos os provedores em três perfis complementares de trabalho:
+No 9Router, agrupamos os provedores em três perfis complementares, além do `claudegravity-fallback` herdado do Artigo 0002 de trabalho:
 
 ![Cascata de Fallback Automático do Combo arsenal-supremo](../assets/17_diagrama_cascata_fallback.png)
 
@@ -544,7 +544,7 @@ Para desenvolvedores que preferem evitar cliques manuais na interface gráfica, 
 python3 src/setup_combos.py
 ```
 
-Saída da execução:
+Trecho final da saída:
 
 ```text
 [*] Provisionando combos no container claudegravity-router...
@@ -600,7 +600,7 @@ RESUMO
   Combos testados: 3 · com falha: 0
 ```
 
-Repare no nível 4: **19,59 s**, contra menos de 1 s dos vizinhos. O nível responde, então não está
+Repare no nível 4: **19,59 s**, contra 4,45 s e 0,47 s dos vizinhos. O nível responde, então não está
 quebrado, mas a diferença de duas ordens de grandeza é o tipo de sinal que só aparece testando um a
 um. O nível 7, local, devolveu `OK` em vez de `PONG`  -  o modelo de 0.5B nem sempre obedece à
 instrução literal, e é por isso que ele serve como rede de segurança e não como papel fixo.
@@ -623,6 +623,8 @@ Cria um combo de teste temporário no qual o primeiro modelo é apontado para um
 Simula a situação em que a conta Google é desconectada ou o token OAuth expira. O script altera temporariamente o token no banco SQLite para uma credencial inválida. Ao tentar acessar diretamente o modelo deslogado, o gateway barra a chamada com o status esperado HTTP 503 / 401 (`[AUTH] HTTP 401`). Em combos com rotas alternativas, o 9Router salta para o próximo provedor disponível da lista.
 
 ### 4. Cenário de Auto-Cura e Restauração
+
+> Para sessões longas, a cura preventiva vem antes do estrago: `python3 ../0002_claude_gravity_utilizando_9router/src/keep_connected.py --daemon` renova a credencial do Antigravity antes que o gateway a grave em formato inválido. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) explica a causa.
 Aciona o utilitário `sync_antigravity_token.py`, que renova o access token via Google OAuth e restabelece a conexão primária. O script limpa quaisquer travas residuais de rate limit e dispara uma nova requisição, confirmando que o canal com o Gemini 3.8 Flash High volta a responder instantaneamente.
 
 ### 5. Cenário de Execução Real no Claude Code CLI
@@ -671,7 +673,7 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 
 Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e informa o motivo  -  a cascata continua funcionando com os níveis restantes, apenas mais curta.
 
-> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual combo usar em cada classe de tarefa. Todas apontam para combos validados no harness. **Não coloque `arsenal-offline` em nenhuma delas:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
+> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual combo usar em cada classe de tarefa. Todas apontam para combos validados no harness. **Não coloque `arsenal-offline` em nenhuma delas:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
 
 ### Os dois arquivos de configuração do Claude Code
 
@@ -782,6 +784,12 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 }
 ```
 
+O bloco `modelOverrides` tem **três entradas, uma por família**. Ele cobre um caso específico: um
+`settings.local.json` que ficou apontando para um modelo escolhido no menu `/model` antes de você
+trocar a configuração. Não é preciso duplicar com o sufixo de janela (`[1m]`): a CLI normaliza o
+identificador antes de consultar o mapa. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)
+detalha a medição que levou a esse formato enxuto.
+
 #### Os quatro papéis, apontados para combos
 
 O Claude Code escolhe sozinho qual modelo usar em cada situação, através de quatro papéis. A ordem
@@ -809,8 +817,8 @@ sua rotina despacha subagentes, é o Opus que domina o seu consumo, não o model
 
 ### Estrutura do `settings.local.json.example` (Menu Interativo)
 
-O arquivo local repete `env`, `permissions`, `skipDangerousModePermissionPrompt` e
-`includeCoAuthoredBy` do `settings.json`  -  os dois trazem o conjunto completo, para que funcionem
+O arquivo local carrega a **mesma configuração completa** do `settings.json`. Ele existe para ficar
+fora do controle de versão e para ter precedência  -  os dois trazem o conjunto completo, para que funcionem
 isoladamente. O que muda é a ênfase: é aqui que você ajusta o menu e as preferências da sua máquina.
 
 - **`modelPicker`** popula o menu `/model`. Com **`replaceBuiltInOptions` em `true`**, suas entradas
@@ -968,7 +976,7 @@ Antes de rodar os scripts de provisionamento e iniciar a cascata com o Claude Co
 
 1. **Python 3.10 ou superior:**
    - Verifique com `python3 --version`. Se necessário, instale via `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.12` (Windows).
-   - Crie o ambiente virtual e instale as dependências mínimas (`requests`):
+   - Crie o ambiente virtual e instale o ambiente (o módulo roda só com a biblioteca padrão do Python 3.10+):
      ```bash
      python3 -m venv .venv
      source .venv/bin/activate  # No Windows: .venv\Scripts\Activate.ps1
