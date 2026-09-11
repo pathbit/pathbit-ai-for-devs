@@ -40,7 +40,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 - **Outros Modelos via Antigravity:**
   - `ag/claude-sonnet-4-6` e `ag/claude-opus-4-6-thinking`
   - `ag/gpt-oss-120b-medium`
-- **Ambiente:** Python 3.10+, Node.js 18+ e Docker com o plugin Compose v2
+- **Ambiente:** Python 3.14.7+ (mínimo 3.10+), Node.js 18+ e Docker com o plugin Compose v2
 
 ---
 
@@ -96,11 +96,12 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 
 Antes de iniciar o gateway e executar o Claude Code, certifique-se de que as ferramentas e credenciais abaixo estejam instaladas e prontas:
 
-1. **Python 3.10 ou Superior:**
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
    - Verifique com `python3 --version`. Se necessário, instale:
-     - macOS: `brew install python` ou via pyenv `pyenv install 3.12`
+     - macOS: Baixe o pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou via Homebrew com `brew install python`
      - Linux (Ubuntu/Debian): `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
-     - Windows: `winget install Python.Python.3.12`
+     - Windows: `winget install Python.Python.3.14`
 
 2. **Ambiente Virtual Dedicado (venv):**
    - Crie e ative o ambiente virtual para isolar as dependências e ferramentas do módulo:

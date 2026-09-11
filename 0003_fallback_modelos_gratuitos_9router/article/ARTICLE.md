@@ -506,7 +506,7 @@ services:
       start_period: 10s
 
   token-sync:
-    image: python:3.11-alpine
+    image: python:3.14-alpine
     container_name: claudegravity-token-sync
     restart: unless-stopped
     volumes:
@@ -999,9 +999,10 @@ O artigo disponibiliza uma malha resiliente completa de infraestrutura e execuç
 
 Antes de rodar os scripts de provisionamento e iniciar a cascata com o Claude Code, configure os seguintes componentes na sua máquina:
 
-1. **Python 3.10 ou superior:**
-   - Verifique com `python3 --version`. Se necessário, instale via `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.12` (Windows).
-   - Crie o ambiente virtual e instale o ambiente (o módulo roda só com a biblioteca padrão do Python 3.10+):
+1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
+   - Verifique com `python3 --version`. Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
+   - Crie o ambiente virtual e instale o ambiente (o módulo roda só com a biblioteca padrão do Python):
      ```bash
      python3 -m venv .venv
      source .venv/bin/activate  # No Windows: .venv\Scripts\Activate.ps1
