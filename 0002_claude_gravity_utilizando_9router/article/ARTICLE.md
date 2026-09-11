@@ -553,6 +553,87 @@ Repare que o destino é sempre um **combo**, nunca um modelo solto: um pin antig
 para um ponto único de falha. E, quando a CLI ganhar uma geração nova, você acrescenta duas linhas em
 vez de reescrever o bloco  -  ou simplesmente apaga o pin e deixa os papéis trabalharem.
 
+### Quando Parece Desconexão, mas é Outra Coisa
+
+Duas falhas diferentes chegam ao terminal com a mesma cara  -  `API Error: 503`  -  e a confusão custa
+tempo. Vale separar, porque a correção de uma não serve para a outra.
+
+#### Falha 1: a cota da família estourou
+
+A cota do Antigravity é contabilizada **por família de modelo**, não pela conta inteira. Quando o teto
+do Gemini é atingido, o gateway registra:
+
+```text
+[AG_QUOTA] CACHE_BLOCK gemini-3.8-flash-high - skip upstream until 23:47:37
+[AUTH] antigravity | all 1 accounts locked for gemini-3.8-flash-high (reset after 2h)
+```
+
+Uma verificação modelo a modelo durante um desses bloqueios mostra o alcance real:
+
+| Modelo | Estado durante o bloqueio |
+| :--- | :--- |
+| `ag/gemini-3.8-flash-high` · `3.7` · `3.6` · `pro-agent` | **503** |
+| `ag/claude-opus-4-6-thinking` | OK, 3,8s |
+| `ag/claude-sonnet-4-6` | OK, 1,4s |
+| `ag/gpt-oss-120b-medium` | OK, 0,8s |
+
+A conta continua saudável: apenas uma família ficou indisponível. É por isso que o padrão e os papéis
+apontam para combos  -  a cascata desce até achar quem responda, e os saltos custam menos de um
+segundo porque o gateway guarda o bloqueio em cache e nem tenta o upstream.
+
+> **Round-Robin não resolve este caso com uma conta só.** Ele distribui chamadas entre conexões
+> distintas, e a cota é contabilizada pelo Google por conta. Cadastrar a mesma conta duas vezes cria
+> duas entradas no gateway, mas o teto continua sendo um. Só aliviam de verdade: uma segunda conta
+> Google com assinatura própria, ou provedores fora do Antigravity, que é o caminho do
+> [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md).
+
+#### Falha 2: a credencial foi gravada em formato que quebra a validação
+
+Esta é sutil e se manifesta como desconexão espontânea depois de cerca de uma hora de uso.
+
+O token OAuth dura aproximadamente uma hora. Quando se aproxima do fim, o próprio 9Router renova  -  e,
+ao gravar o resultado, escreve o campo `expiresAt` como **string ISO** em vez de epoch em
+milissegundos:
+
+```text
+expiresAt valor : "2026-09-11T02:05:25.091Z"
+expiresAt tipo  : string
+comparacao > now: false
+```
+
+`Number("2026-09-11T02:05:25.091Z")` é `NaN`, e `NaN > Date.now()` é sempre falso. A partir dali a
+credencial é tratada como vencida mesmo estando ativa, com `isActive: 1`, `testStatus: active` e
+`backoffLevel: 0` no banco. Nada no painel indica problema.
+
+A correção é preventiva: renovar **antes** do gateway precisar renovar, gravando o campo como número.
+É o que o `src/keep_connected.py` faz.
+
+```bash
+# Confere e corrige, se necessario
+python3 src/keep_connected.py
+
+# Mantem valida enquanto voce trabalha, conferindo a cada 5 minutos
+python3 src/keep_connected.py --daemon
+```
+
+Ele só age quando precisa. Com o token novo, sai sem gastar chamada:
+
+```text
+[=] Credencial válida por mais 58 min. Nada a fazer.
+```
+
+E, diante do campo corrompido, reconhece a causa pelo nome:
+
+```text
+[*] Renovando: expiresAt gravado como texto pelo gateway.
+[+] Credencial renovada. Válida por mais 59 min.
+```
+
+Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas. É a diferença entre uma
+sessão que atravessa a tarde e uma que morre na virada da hora.
+
+---
+
 ### Nunca Deixe um Modelo Individual como Padrão
 
 Esta é a regra que mais dói aprender na prática, e aprendemos com a conta bloqueada.
