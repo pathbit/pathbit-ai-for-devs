@@ -418,7 +418,14 @@ def main():
         delete_test_combo(TEST_COMBO_ID)
 
         restored = backup_antigravity_credentials()
-        if restored == backup:
+        try:
+            b_obj = json.loads(backup) if backup else {}
+            r_obj = json.loads(restored) if restored else {}
+            is_equal = (b_obj == r_obj)
+        except Exception:
+            is_equal = (restored == backup)
+
+        if is_equal:
             print("\n[*] Credenciais originais do Antigravity restauradas e conferidas.")
         else:
             print("\n[!] ATENÇÃO: a restauração das credenciais não pôde ser confirmada.")

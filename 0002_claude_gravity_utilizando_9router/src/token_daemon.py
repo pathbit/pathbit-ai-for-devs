@@ -274,7 +274,7 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
         combos_padrao = [
             (
                 "claudegravity-fallback",
-                "round-robin",
+                "llm",
                 json.dumps([
                     "ag/gemini-3.8-flash-high",
                     "ag/gemini-3.7-flash-high",
@@ -285,7 +285,7 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
             ),
             (
                 "claudegravity-thinking",
-                "round-robin",
+                "llm",
                 json.dumps([
                     "ag/claude-opus-4-6-thinking",
                     "ag/claude-sonnet-4-6",
@@ -299,7 +299,7 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
             combos_padrao.extend([
                 (
                     "arsenal-supremo",
-                    "round-robin",
+                    "llm",
                     json.dumps([
                         "ag/gemini-3.8-flash-high",
                         "ag/gemini-3.7-flash-high",
@@ -312,7 +312,7 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
                 ),
                 (
                     "arsenal-rapido",
-                    "round-robin",
+                    "llm",
                     json.dumps([
                         "groq/openai/gpt-oss-120b",
                         "mistral/codestral-latest",
@@ -322,7 +322,7 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
                 ),
                 (
                     "arsenal-offline",
-                    "round-robin",
+                    "llm",
                     json.dumps([
                         "openai-compatible-chat-ollama-local/qwen2.5-coder:latest"
                     ])
@@ -330,11 +330,13 @@ def update_db(db_path, access_token, refresh_token, expires_in, api_key, module=
             ])
 
         for c_id, c_kind, c_models in combos_padrao:
-            cursor.execute("SELECT id FROM combos WHERE id = ?", (c_id,))
-            if cursor.fetchone():
+            cursor.execute("SELECT id FROM combos WHERE name = ? OR id = ?", (c_id, c_id))
+            row = cursor.fetchone()
+            if row:
+                existing_id = row[0]
                 cursor.execute(
-                    "UPDATE combos SET models = ?, updatedAt = ? WHERE id = ?",
-                    (c_models, now_iso, c_id)
+                    "UPDATE combos SET models = ?, kind = ?, updatedAt = ? WHERE id = ?",
+                    (c_models, c_kind, now_iso, existing_id)
                 )
             else:
                 cursor.execute(
