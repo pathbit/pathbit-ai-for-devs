@@ -171,7 +171,10 @@ def sync_to_container(container_name=DEFAULT_CONTAINER):
         # no gateway só adia a descoberta do problema para o primeiro HTTP 401.
         refresh_failed = True
         new_access_token = access_token
-        expires_in = 3600
+        # Validade curta de propósito: o token local pode já estar morto, e carimbar
+        # uma hora cheia faria o keep_connected.py considerá-lo saudável e parar de
+        # tentar justamente quando mais precisa insistir.
+        expires_in = 120
         print("")
         print("=" * 70)
         print("[!] ATENCAO: a renovacao do token via Google OAuth FALHOU.")
