@@ -784,70 +784,92 @@ sua rotina despacha subagentes, é o Opus que domina o seu consumo, não o model
 
 ### Estrutura do `settings.local.json.example` (Menu Interativo)
 
-O arquivo local repete `env`, `permissions`, `skipDangerousModePermissionPrompt` e `includeCoAuthoredBy` do `settings.json`. O que ele acrescenta são duas chaves:
+O arquivo local repete `env`, `permissions`, `skipDangerousModePermissionPrompt` e
+`includeCoAuthoredBy` do `settings.json`  -  os dois trazem o conjunto completo, para que funcionem
+isoladamente. O que muda é a ênfase: é aqui que você ajusta o menu e as preferências da sua máquina.
 
-- **`modelPicker`** popula o menu `/model` do Claude Code, para alternar de arsenal sem sair da sessão. Com `replaceBuiltInOptions` em `false`, suas entradas somam-se às padrão em vez de substituí-las.
-- **`advisorModel`** define quem atende as funções auxiliares da CLI  -  sugestões e análises de apoio  -  separando-as do modelo de trabalho. Apontar para um combo, e não para um modelo fixo, faz essas chamadas herdarem a mesma cascata de fallback: se o nível de topo estiver saturado, elas descem junto em vez de falhar.
+- **`modelPicker`** popula o menu `/model`. Com **`replaceBuiltInOptions` em `true`**, suas entradas
+  **substituem** a lista nativa em vez de somar a ela: o menu passa a oferecer apenas os seus combos,
+  e não há como selecionar por engano um modelo que o seu gateway não serve.
+- **`behavesAs`** em cada linha diz à CLI qual modelo conhecido serve de referência de capacidade
+  para aquele combo. Sem isso ela recusaria o identificador, porque não o encontra no catálogo dela.
+- **`advisorModel`** define quem atende as funções auxiliares de revisão. Apontar para um combo, e
+  não para um modelo fixo, faz essas chamadas herdarem a mesma cascata: se o nível de topo estiver
+  saturado, elas descem junto em vez de falhar.
 
-Abaixo, apenas as chaves exclusivas deste arquivo:
+O arquivo completo:
 
 ```json
 {
   "model": "arsenal-supremo",
   "advisorModel": "arsenal-supremo",
   "modelPicker": {
-    "replaceBuiltInOptions": false,
+    "replaceBuiltInOptions": true,
     "options": [
       {
         "model": "arsenal-supremo",
-        "label": "Arsenal Supremo (Cascata Completa de Fallback)",
-        "description": "Gemini 3.8/3.7/3.6, Nemotron 3.5 Lightning, GPT-OSS 120B, Codestral e Ollama local"
+        "label": "Arsenal Supremo",
+        "description": "7 niveis: Gemini, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "arsenal-rapido",
-        "label": "Arsenal Rápido (Alta Velocidade)",
-        "description": "GPT-OSS 120B na Groq com fallback para Codestral, Gemini 3.7 e Gemini 3.6 Flash"
+        "label": "Arsenal Rapido",
+        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis dentro do Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-offline",
-        "label": "Arsenal Offline (Continuidade Local via Ollama)",
-        "description": "Continuidade local via Ollama: mantém a cascata respondendo, não substitui os níveis em nuvem"
-      },
-      {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash (High Reasoning)",
-        "description": "Inferência direta do Gemini 3.8 via Antigravity AI Pro"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash (High Reasoning)",
-        "description": "Raciocínio balanceado e alta velocidade"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash (Low Latency)",
-        "description": "Latência mínima para tarefas rápidas"
-      },
-      {
-        "model": "ag/gemini-3.1-pro-low",
-        "label": "Gemini 3.1 Pro (Deep Complex)",
-        "description": "Planejamento arquitetural complexo e agentes profundos"
-      },
-      {
-        "model": "ag/claude-sonnet-4-6",
-        "label": "Claude Sonnet 4.6 (Thinking)",
-        "description": "Sonnet 4.6 Thinking roteado via Antigravity AI Pro"
-      },
-      {
-        "model": "ag/gpt-oss-120b-medium",
-        "label": "GPT-OSS 120B (Medium)",
-        "description": "Modelo open-weights via Antigravity"
+        "label": "Arsenal Offline",
+        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "behavesAs": "claude-haiku-4-5-20251001"
       }
     ]
   },
-  "includeCoAuthoredBy": false
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128",
+    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
+    "CLAUDE_CODE_EXPERIMENTAL": "1",
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
+    "ANTHROPIC_MODEL": "arsenal-supremo"
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "TodoWrite(*)",
+      "Agent(*)",
+      "Skill(*)"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "includeCoAuthoredBy": false,
+  "modelOverrides": {
+    "claude-fable-5-1": "arsenal-supremo",
+    "claude-opus-5": "arsenal-supremo",
+    "claude-sonnet-5": "arsenal-rapido"
+  }
 }
 ```
+
 
 O arquivo completo, com todos os blocos herdados, está em `examples/.claude/settings.local.json.example`.
 

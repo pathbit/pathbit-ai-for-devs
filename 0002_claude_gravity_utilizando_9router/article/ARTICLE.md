@@ -700,33 +700,37 @@ São duas chaves do `modelPicker`:
   **ID de um modelo que a CLI conhece**, e serve de referência de capacidade.
 
 ```json
-"modelPicker": {
-  "replaceBuiltInOptions": true,
-  "options": [
-    {
-      "model": "ag/gemini-3.8-flash-high",
-      "label": "Gemini 3.8 Flash High",
-      "description": "Primario: raciocinio alto e 1M de contexto",
-      "behavesAs": "claude-opus-4-8"
-    },
-    {
-      "model": "ag/gemini-3.6-flash-high",
-      "label": "Gemini 3.6 Flash High",
-      "description": "Latencia minima, alta frequencia",
-      "behavesAs": "claude-haiku-4-5-20251001"
-    }
-  ]
+{
+  "modelPicker": {
+    "replaceBuiltInOptions": true,
+    "options": [
+      {
+        "model": "claudegravity-fallback",
+        "label": "ClaudeGravity Resiliente",
+        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "claudegravity-thinking",
+        "label": "ClaudeGravity Thinking",
+        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "behavesAs": "claude-opus-4-8"
+      }
+    ]
+  }
 }
 ```
 
-O leitor nunca vê "Opus 5" ou "Fable 5.1" no menu: vê "Gemini 3.8 Flash High". O `behavesAs` fica nos
+O leitor nunca vê "Opus 5" ou "Fable 5.1" no menu: vê "ClaudeGravity Resiliente" e "ClaudeGravity
+Thinking". O `behavesAs` fica nos
 bastidores, apenas dizendo à CLI que aquele modelo tem porte de Opus.
 
 > **Por que isso substitui o `modelOverrides`:** o override reage a um identificador que a CLI já
 > escolheu; o picker define quais identificadores sequer existem. Com a lista nativa substituída e os
 > quatro papéis declarados, nada mais no harness pede um nome da Anthropic  -  verificamos removendo
 > o bloco por completo e reexecutando as tarefas, inclusive com subagente: **nenhuma falhou, e nenhum
-> consumidor pediu um `claude-*`**. Por isso os arquivos deste artigo não trazem `modelOverrides`.
+> consumidor pediu um `claude-*`**. Por isso os arquivos deste artigo mantêm apenas as três entradas
+> de pin da seção anterior, e nada além disso.
 
 Valide com `claude doctor`  -  ele aceita ou recusa cada linha do picker sem abrir sessão.
 
@@ -739,14 +743,14 @@ backed by a stronger reviewer model"*  -  um revisor acionado sob demanda para c
 laço principal. A configuração é a chave `advisorModel` no `settings.json`.
 
 A regra que a própria CLI impõe é a parte importante: **o advisor precisa ser pelo menos tão capaz
-quanto o modelo principal**. Não faz sentido pedir segunda opinião a quem sabe menos. Por isso, nos
-arquivos `.example` deste artigo o advisor aponta para o `ag/gemini-pro-agent`, o mesmo do papel
-Fable, enquanto o modelo principal fica no `ag/gemini-3.8-flash-high`.
+quanto o modelo principal**. Não faz sentido pedir segunda opinião a quem sabe menos. Nos arquivos
+`.example` deste artigo o advisor aponta para o mesmo combo do modelo principal e do papel Fable, o
+`claudegravity-thinking`  -  combo com combo, sem degrau de capacidade e sem ponto único de falha.
 
 ```json
 {
-  "model": "ag/gemini-3.8-flash-high",
-  "advisorModel": "ag/gemini-pro-agent"
+  "model": "claudegravity-thinking",
+  "advisorModel": "claudegravity-thinking"
 }
 ```
 
@@ -808,7 +812,7 @@ claude --dangerously-skip-permissions --model ag/gemini-3.8-flash-high
 python3 src/claudegravity.py
 ```
 
-> **Nota sobre o launcher:** o `claudegravity.py` sincroniza as credenciais do Antigravity, garante o combo de fallback no gateway e, antes de entregar o controle ao Claude Code, muda o diretório de trabalho para `examples/`. Isso mantém a sessão dentro do sandbox de testes do artigo, com as políticas de `examples/.claude/` já aplicadas. Para trabalhar no seu próprio repositório, chame o `claude` diretamente com as variáveis de ambiente acima.
+> **Nota sobre o launcher:** o `claudegravity.py` sincroniza as credenciais do Antigravity, garante os dois combos no gateway e, antes de entregar o controle ao Claude Code, muda o diretório de trabalho para `examples/`. Isso mantém a sessão dentro do sandbox de testes do artigo, com as políticas de `examples/.claude/` já aplicadas. Para trabalhar no seu próprio repositório, chame o `claude` diretamente com as variáveis de ambiente acima.
 
 ### Modo 2 - ClaudeGravity com Fallback Gratuito (Alta Disponibilidade Ininterrupta)
 Neste modo resiliente, você utiliza o combo virtual configurado no 9Router. Se o Gemini 3.8 atingir qualquer teto de cota momentâneo (HTTP 429), o gateway percorre a cascata até Gemini 3.7, 3.6, Sonnet 4.6 e GPT-OSS 120B sem interromper o raciocínio nem fechar a sessão. A troca não é instantânea: o gateway aplica até 3 retentativas com backoff exponencial antes de descer um nível  -  em nossos testes, o salto completo levou cerca de 3 segundos. O que importa é que a sessão do Claude Code não cai e o contexto é preservado.
@@ -951,7 +955,14 @@ No menu **Combos** do 9Router (`/dashboard/combos`), você pode criar um modelo 
    * **5º:** `ag/gpt-oss-120b-medium` (Modelo open-weights como última camada)
 
    > Essa é exatamente a cascata que o script `src/sync_antigravity_token.py` provisiona automaticamente ao registrar a conta. Se você criar o combo pela interface, replique os cinco níveis para obter o mesmo comportamento.
-3. Para ativar a resiliência por padrão, no `.claude/settings.json`, configure:
+3. Crie um segundo combo, `claudegravity-thinking`, que é o **modelo padrão entregue nos arquivos `.example`**:
+   * **1º:** `ag/claude-opus-4-6-thinking` (raciocínio denso, e fora da cota do Gemini)
+   * **2º:** `ag/claude-sonnet-4-6`
+   * **3º:** `ag/gemini-3.8-flash-high`
+   * **4º:** `ag/gpt-oss-120b-medium`
+
+   > Ele existe justamente para o caso da seção anterior: quando a cota da família Gemini estoura, este combo continua respondendo pelo primeiro nível, sem gastar saltos. Rodar `python3 src/claudegravity.py` uma única vez provisiona os dois combos automaticamente, e é o caminho mais rápido.
+4. Para ativar a resiliência por padrão, no `.claude/settings.json`, configure:
    ```json
    "model": "claudegravity-fallback"
    ```

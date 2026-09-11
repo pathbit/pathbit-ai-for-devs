@@ -54,6 +54,45 @@ Saída esperada:
 
 ---
 
+## 🛡️ Prevenção: Renovar Antes de Quebrar
+
+Todo o procedimento acima é **reativo**: você descobre o problema quando a sessão morre. Há uma causa
+recorrente que dá para eliminar antes disso.
+
+O token OAuth dura cerca de uma hora. Quando se aproxima do fim, o próprio 9Router renova  -  e, ao
+gravar o resultado, escreve o campo `expiresAt` como **string ISO** em vez de epoch em milissegundos:
+
+```text
+expiresAt valor : "2026-09-11T02:05:25.091Z"
+expiresAt tipo  : string
+comparacao > now: false
+```
+
+`Number("2026-09-11T02:05:25.091Z")` é `NaN`, e `NaN > Date.now()` é sempre falso. A partir dali a
+credencial passa a ser tratada como vencida mesmo estando ativa, com `isActive: 1`,
+`testStatus: active` e `backoffLevel: 0` no banco. Nada no painel indica problema, e o sintoma chega
+ao terminal como `HTTP 503`.
+
+A prevenção é renovar antes do gateway precisar, gravando o campo como número:
+
+```bash
+# Confere e corrige, se necessario
+python3 0002_claude_gravity_utilizando_9router/src/keep_connected.py
+
+# Mantem valida enquanto voce trabalha, conferindo a cada 5 minutos
+python3 0002_claude_gravity_utilizando_9router/src/keep_connected.py --daemon
+```
+
+O script só age quando precisa: com o token novo, sai sem gastar chamada. Ele sai com código `1`
+quando a renovação era necessária e não teve efeito, o que permite usá-lo em automação.
+
+> **Não confunda com bloqueio de cota.** Se o erro citar um modelo específico e o log do gateway
+> trouxer `[AG_QUOTA] CACHE_BLOCK` ou `all 1 accounts locked for <modelo>`, a credencial está boa e o
+> que acabou foi a cota daquela família. Nesse caso o `keep_connected.py` não ajuda: use um combo, que
+> salta para o próximo nível.
+
+---
+
 ## 🧪 Validação da Recuperação
 
 Após a sincronização, confirme que o modelo primário voltou a responder imediatamente:

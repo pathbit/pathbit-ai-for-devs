@@ -17,9 +17,24 @@ cp .claude/settings.json.example .claude/settings.json
 cp .claude/settings.local.json.example .claude/settings.local.json
 ```
 
-### 2. Iniciar o Claude Code
+### 2. Provisionar credenciais e combos
 
-Com o container do 9Router em execução na porta `20128`:
+Os arquivos copiados acima usam `claudegravity-thinking` como modelo padrão e apontam os quatro
+papéis para combos. Eles precisam existir no gateway antes da primeira sessão:
+
+```bash
+cd ..
+python3 src/sync_antigravity_token.py   # credenciais e a chave do gateway no .env
+python3 src/claudegravity.py            # provisiona os dois combos e abre a sessao
+cd examples
+```
+
+> Sem este passo o Claude Code sobe apontando para um combo inexistente e a primeira mensagem
+> falha. O `claudegravity.py` resolve os dois de uma vez, por isso é o caminho recomendado.
+
+### 3. Iniciar o Claude Code
+
+Com o container do 9Router em execução na porta `20128` e os combos provisionados:
 
 ```bash
 claude
