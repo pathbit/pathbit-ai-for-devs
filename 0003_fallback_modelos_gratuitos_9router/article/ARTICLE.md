@@ -751,11 +751,8 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "modelOverrides": {
     "claude-fable-5-1": "arsenal-supremo",
-    "claude-fable-5-1[1m]": "arsenal-supremo",
     "claude-opus-5": "arsenal-supremo",
-    "claude-opus-5[1m]": "arsenal-supremo",
-    "claude-sonnet-5": "arsenal-rapido",
-    "claude-sonnet-5[1m]": "arsenal-rapido"
+    "claude-sonnet-5": "arsenal-rapido"
   }
 }
 ```
