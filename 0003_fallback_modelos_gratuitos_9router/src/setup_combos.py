@@ -12,7 +12,8 @@ import urllib.error
 import urllib.request
 
 DEFAULT_CONTAINER = "claudegravity-router"
-OLLAMA_TAGS_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434") + "/api/tags"
+# Resolvida no uso, dentro de list_local_ollama_models: no import o load_dotenv()
+# ainda nao rodou, e um OLLAMA_BASE_URL do .env seria ignorado.
 OLLAMA_LOCAL_PREFIX = "openai-compatible-chat-ollama-local/"
 
 COMBOS = [
@@ -135,7 +136,7 @@ def get_providers_config():
 def list_local_ollama_models():
     """Retorna os modelos disponíveis no Ollama local, ou None se o serviço não responder."""
     try:
-        with urllib.request.urlopen(OLLAMA_TAGS_URL, timeout=5) as resp:
+        with urllib.request.urlopen(f"{os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags", timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return [m.get("name", "") for m in data.get("models", [])]
     except (urllib.error.URLError, OSError, json.JSONDecodeError, TimeoutError):
@@ -159,7 +160,7 @@ def check_ollama_models():
 
     available = list_local_ollama_models()
     if available is None:
-        print(f"  [!] Ollama local não respondeu em {OLLAMA_TAGS_URL}.")
+        print(f"  [!] Ollama local não respondeu em {f"{os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags"}.")
         print("      Os combos que dependem dele serão cadastrados, mas falharão na inferência.")
         print("      Suba o serviço com: docker compose up -d ollama")
         return
