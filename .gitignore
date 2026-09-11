@@ -1342,3 +1342,6 @@ temp/
 !**/highlights/
 !**/src/test_*.py
 !**/test_gateway.py
+
+# Estado interno de hooks (mimosa) - nao pertence ao repositorio
+.mimosa/
