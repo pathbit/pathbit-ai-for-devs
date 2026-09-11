@@ -88,14 +88,14 @@ volumes:
   9router_data:
 ```
 
-Três decisões de engenharia neste manifesto:
+Quatro decisões de engenharia neste manifesto:
 
 * **`extra_hosts: ["host.docker.internal:host-gateway"]`** garante compatibilidade entre plataformas (macOS, Linux e Windows WSL2), permitindo que o container resolva o endereço do host local de forma idêntica em qualquer distribuição.
 * **Senha e segredo JWT vêm do `.env`**, nunca literais no arquivo versionado. A sintaxe `${VAR:?mensagem}` interrompe a subida com um erro claro caso a variável não exista, em vez de silenciosamente aplicar um padrão fraco.
 * **`healthcheck` ativo:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda HTTP a cada 30 segundos marca o container como `unhealthy` e torna o problema visível no `docker ps`.
 * **Porta publicada apenas em `127.0.0.1`:** o gateway guarda o token OAuth da sua conta Google e as chaves dos provedores. Publicar como `"20128:20128"` o exporia em todas as interfaces de rede, permitindo que qualquer máquina da mesma rede consumisse sua cota. O prefixo de loopback restringe o acesso à própria máquina.
 
-> **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: se o endpoint ou o schema mudarem, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
+> **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: ele confere o endpoint e a tabela `combos`, e se qualquer um mudar, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
 
 ### 2. Inicializando o serviço
 
@@ -366,8 +366,8 @@ Ambos ficam em `examples/.claude/`, isolados do restante do repositório  -  por
 
 | Arquivo | Papel | Contém |
 | :--- | :--- | :--- |
-| `settings.json` | Políticas compartilhadas do projeto | Modelo padrão, papéis de modelo, permissões e variáveis de ambiente |
-| `settings.local.json` | Preferências da sua máquina | O menu interativo `/model` e ajustes pessoais. **Tem precedência** sobre o anterior |
+| `settings.json` | Versão do projeto, compartilhável com o time | A configuração completa: modelo padrão, os quatro papéis, `modelPicker`, `modelOverrides`, permissões e `env` |
+| `settings.local.json` | A mesma configuração, na sua máquina | O **mesmo conteúdo**. Existe para ficar fora do controle de versão e **tem precedência** sobre o anterior |
 
 Os dois são versionados apenas na forma `.example`; as cópias ativas ficam fora do controle de versão.
 
@@ -604,14 +604,14 @@ Foi trabalho desperdiçado, e a medição mostrou por quê.
 
 Com o `modelPicker` substituindo a lista nativa e os quatro papéis declarados, testamos **removendo o
 bloco por completo**. Nada quebrou na operação normal, e nenhum consumidor pediu um `claude-*`: o
-`sdk` foi para o combo padrão e o `generate_session_title` para o combo rápido. O bloco só faz falta
+`sdk` foi para o combo padrão e o `generate_session_title` para o modelo do papel Haiku. O bloco só faz falta
 num caso, e é bem específico:
 
 | Cenário | Precisa de override? |
 | :--- | :--- |
 | Operação normal, sem `--model` | Não |
 | Alias curto (`--model opus`, `sonnet`, `fable`) | Não, a CLI resolve pelo papel |
-| Combo próprio (`--model arsenal-supremo`) | Não |
+| Combo próprio (`--model claudegravity-fallback`) | Não |
 | **Identificador da geração corrente pinado antes** (`claude-opus-5[1m]`) | **Sim** |
 
 O caso que sobra é o de um `settings.local.json` que ficou apontando para um modelo escolhido no menu
@@ -644,7 +644,7 @@ simplesmente apague o pin e deixe os papéis trabalharem.
 Duas falhas diferentes chegam ao terminal com a mesma cara  -  `API Error: 503`  -  e a confusão custa
 tempo. Vale separar, porque a correção de uma não serve para a outra.
 
-#### Falha 1: a cota da família estourou
+#### Falha 1 - a cota da família estourou
 
 A cota do Antigravity é contabilizada **por família de modelo**, não pela conta inteira. Quando o teto
 do Gemini é atingido, o gateway registra:
@@ -673,7 +673,7 @@ segundo porque o gateway guarda o bloqueio em cache e nem tenta o upstream.
 > Google com assinatura própria, ou provedores fora do Antigravity, que é o caminho do
 > [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md).
 
-#### Falha 2: a credencial foi gravada em formato que quebra a validação
+#### Falha 2 - a credencial foi gravada em formato que quebra a validação
 
 Esta é sutil e se manifesta como desconexão espontânea depois de cerca de uma hora de uso.
 
@@ -959,7 +959,7 @@ ele tem porte. O harness continua sem saber, e sem precisar saber.
 
 ---
 
-### O Advisor: uma Segunda Opinião Durante a Sessão
+### O Advisor, uma Segunda Opinião Durante a Sessão
 
 O Claude Code expõe uma ferramenta de **advisor**, descrita internamente como *"an advisor tool
 backed by a stronger reviewer model"*  -  um revisor acionado sob demanda para conferir decisões do
@@ -1021,11 +1021,9 @@ reprovou: ele responde ao gateway, mas não opera o harness. Um modelo assim ser
 segurança para a cascata não cair, e **nunca** deve ocupar um papel  -  numa tarefa longa ele falha
 em silêncio, com `exit code 0`, e você só descobre no fim.
 
-Para subagentes vale o mapa da seção anterior: quem os atende é o **papel Opus**. Se a sua rotina
+Para subagentes vale o mapa da seção sobre os quatro papéis: quem os atende é o **papel Opus**. Se a sua rotina
 despacha subagentes com frequência, é esse papel que domina o consumo, e é nele que a escolha entre
 uma Flash e uma Pro tem o maior impacto na cota.
-
----
 
 ---
 
@@ -1034,7 +1032,7 @@ uma Flash e uma Pro tem o maior impacto na cota.
 Com as configurações salvas, você pode operar em dois modos de trabalho:
 
 ### Modo 1 - ClaudeGravity Principal (Velocidade e Raciocínio Máximo com Gemini 3.8 Flash High)
-Neste modo padrão, o Claude Code executa diretamente contra o motor Gemini 3.8 Flash High conectado via Antigravity Pro, desfrutando de 1 milhão de tokens de contexto e custo zero.
+Neste modo de medição direta, o Claude Code executa contra o motor Gemini 3.8 Flash High conectado via Antigravity Pro, desfrutando de 1 milhão de tokens de contexto e custo zero.
 
 ```bash
 # macOS e Linux (bash / zsh)

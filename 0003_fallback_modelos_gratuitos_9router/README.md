@@ -17,7 +17,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 
 ---
 
-## Destaques da Solução
+### Destaques da Solução
 
 - **Zero Paradas por Rate Limit (HTTP 429):** Comutação automática para o próximo modelo do combo quando o provedor atual falha por cota, indisponibilidade ou descontinuação  -  sem derrubar a sessão do Claude Code.
 - **9 Provedores Gratuitos Mapeados:** Antigravity (Google AI Pro), Kiro AWS Builder, Google AI Studio, Groq Cloud, Cerebras, OpenRouter Free, Cloudflare Workers AI, Mistral e Ollama Local. Os combos de referência integram Antigravity, OpenRouter, Groq, Mistral e Ollama Local; os demais ficam documentados como extensões da mesma cascata.
@@ -30,7 +30,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 
 ---
 
-## Estrutura de Arquivos do Módulo
+### Estrutura de Arquivos do Módulo
 
 ```text
 0003_fallback_modelos_gratuitos_9router/
@@ -42,6 +42,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
 ├── assets/                                # Capturas reais de tela e capas (sequenciados 00 a 22)
 │   ├── diagrams/                          # Fontes vetoriais semânticas em HTML (diagram-design)
+│   ├── cover_linkedin.png              # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_arsenal_fallback.png      # Capa do artigo
 │   ├── 01_diagrama_malha_multiprovedor.png# Diagrama da malha multi-provedor
 │   ├── 02_openrouter_dashboard_keys.png   # Painel de chaves no OpenRouter
@@ -81,7 +82,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 
 ---
 
-## Roteiro Prático de Reprodução
+### Roteiro Prático de Reprodução
 
 Para reproduzir esta configuração em qualquer máquina:
 
@@ -258,7 +259,7 @@ claude --dangerously-skip-permissions --model arsenal-supremo
 
 ---
 
-## Artigos Relacionados
+### Artigos Relacionados
 
 - [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md)
 - [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)

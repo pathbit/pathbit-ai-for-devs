@@ -51,4 +51,4 @@ claude -p "Analise o arquivo sample_task.py e sugira melhorias de desempenho"
 ## Arquivos Disponíveis
 
 * **`.claude/`:** Contém os arquivos de política de permissões e menu interativo `/model`.
-* **`sample_task.py`:** Código Python de exemplo para testar refatoração e planejamento agêntico com o Gemini 3.8 Flash High.
+* **`sample_task.py`:** Código Python de exemplo para testar refatoração e planejamento agêntico com o modelo padrão do `settings.json`.

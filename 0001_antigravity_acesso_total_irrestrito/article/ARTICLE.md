@@ -123,6 +123,7 @@ Este é o arquivo central consumido por todos os processos do Antigravity. Ele d
 | `browserJsExecutionPolicy` | `BROWSER_JS_EXECUTION_POLICY_TURBO` | Executa scripts e automações web no navegador integrado sem bloquear a sessão. |
 | `enableTerminalSandbox` | `false` | Remove restrições de sandbox em containers temporários que impedem comandos nativos do sistema. |
 | `nonWorkspaceFileAccessPolicy` | `AGENT_SETTING_POLICY_ALLOW` | Permite ao agente inspecionar dependências, logs e arquivos localizados fora do workspace. |
+| `claudeCode.includeCoAuthoredBy` | `false` | Bloqueia a coautoria também no caminho do Claude Code |
 | `includeCoAuthoredBy` | `false` | Impede que o motor anexe trailers de coautoria sintética em commits git. |
 | `globalPermissionGrants.allow` | `6 wildcards universais` | Concede acesso global irrestrito para leitura, escrita, terminal, web e servidores MCP. |
 | `globalPermissionGrants.deny` | `[]` | Lista de bloqueios vazia para evitar sobreposição involuntária de regras. |
@@ -225,7 +226,8 @@ Para a CLI oficial do Antigravity (`agy`), gravamos o arquivo de preferências q
   "toolPermission": "always-proceed",
   "allowNonWorkspaceAccess": true,
   "disableWorkspaceTrustCheck": true,
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "claudeCode.includeCoAuthoredBy": false
 }
 ```
 
@@ -446,7 +448,7 @@ Antes de executar as ferramentas de configuração e validação, assegure que s
    pip install -r requirements.txt
    ```
 3. **Google Antigravity Conectado:** O Google Antigravity IDE ou a CLI `agy` deve estar instalado com login prévio realizado em sua conta Google (assinatura Google AI Pro ativa), garantindo que o diretório `~/.gemini/` e os arquivos base (`config.json`, token OAuth) já tenham sido gerados pelo motor.
-4. **Git Disponível:** O configurador aplica e valida automaticamente o hook global de higienização de mensagens de commit para bloquear coautorias sintéticas (instale com `brew install git`, `sudo apt install git` ou `winget install Git.Git`).
+4. **Git Disponível:** O configurador aplica automaticamente o hook global de higienização de mensagens de commit para bloquear coautorias sintéticas (instale com `brew install git`, `sudo apt install git` ou `winget install Git.Git`).
 5. **Claude Code CLI (Opcional para Pareamento):** Caso utilize o Antigravity integrado ao harness da Anthropic na pasta `examples/`:
    ```bash
    npm install -g @anthropic-ai/claude-code

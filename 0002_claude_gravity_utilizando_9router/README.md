@@ -56,6 +56,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 │   └── ARTICLE.md                 # Artigo técnico completo e aprofundado
 ├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 12)
 │   ├── diagrams/                  # Fontes vetoriais semânticas em HTML (diagram-design)
+│   ├── cover_linkedin.png              # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_claudegravity.png         # Capa do artigo
 │   ├── 01_diagrama_arquitetura_claudegravity.png # Diagrama da arquitetura ClaudeGravity
 │   ├── 02_docker_container_running.png    # Container Docker do 9Router em execução

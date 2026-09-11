@@ -17,9 +17,12 @@ cp .claude/settings.json.example .claude/settings.json
 cp .claude/settings.local.json.example .claude/settings.local.json
 ```
 
+> Em seguida substitua `sk-sua-chave-do-9router` nos dois arquivos pela chave que o
+> `sync_antigravity_token.py` grava no `.env` do módulo. O placeholder é recusado pelo gateway.
+
 ### 2. Iniciar o Claude Code Conectado ao Combo
 
-Com o 9Router ativo na porta `20128`:
+Com o ambiente iniciado por `python3 ../src/manage_env.py start`, que sobe os serviços **e provisiona os combos**:
 
 ```bash
 claude --model arsenal-supremo

@@ -12,6 +12,9 @@ As configurações de permissão ficam isoladas dentro de `.claude/` neste diret
 
 Gere os arquivos ativos a partir dos modelos `.example`:
 
+> Nesse modo o agente recebe a mesma autoridade de terminal que você. Use somente dentro desta
+> pasta de testes ou em ambiente isolado, e leia a seção de Gestão de Risco do artigo.
+
 ```bash
 cp .claude/settings.json.example .claude/settings.json
 cp .claude/settings.local.json.example .claude/settings.local.json
