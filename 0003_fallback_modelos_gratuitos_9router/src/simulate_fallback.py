@@ -19,7 +19,8 @@ import time
 import urllib.error
 import urllib.request
 
-GATEWAY_URL = "http://localhost:20128"
+# Resolvida no uso, respeitando o ANTHROPIC_BASE_URL do .env como os scripts irmãos.
+GATEWAY_URL = os.environ.get("ANTHROPIC_BASE_URL", "http://localhost:20128")
 # Valores do .env.example: presentes no arquivo, mas sem chave real configurada.
 PLACEHOLDERS = {"coloque_aqui_sua_chave_do_9router", "sk-sua-chave-gerada-localmente", "sk-sua-chave-do-9router", "coloque_aqui_sua_senha", "coloque_aqui_seu_jwt_secret", ""}
 
@@ -163,7 +164,7 @@ def backup_antigravity_credentials():
         "const row = db.prepare(\"SELECT data FROM providerConnections WHERE provider = 'antigravity'\").get();"
         "console.log(row ? row.data : '');"
     )
-    return run_node_script(script).stdout.strip()
+    return run_node_script(script, check=False).stdout.strip()
 
 
 def set_antigravity_credentials(cred_json_str):
@@ -173,7 +174,7 @@ def set_antigravity_credentials(cred_json_str):
         "db.prepare(\"UPDATE providerConnections SET data = ? WHERE provider = 'antigravity'\")"
         ".run(process.argv[1]);"
     )
-    run_node_script(script, cred_json_str)
+    run_node_script(script, cred_json_str, check=False)
 
 
 def register_test_combo(combo_id, combo_name, models_list):
@@ -372,7 +373,7 @@ def main():
         sync_script = os.path.join(
             os.path.dirname(__file__), "..", "..", "0002_claude_gravity_utilizando_9router", "src", "sync_antigravity_token.py"
         )
-        sync_res = subprocess.run(["python3", sync_script], capture_output=True, text=True)
+        sync_res = subprocess.run([sys.executable, sync_script], capture_output=True, text=True)
         print(sync_res.stdout.strip())
 
         clear_model_locks()

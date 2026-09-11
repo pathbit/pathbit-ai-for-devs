@@ -46,7 +46,11 @@ def load_dotenv():
 
 load_dotenv()
 
-API_KEY = require_api_key()
+# Sem sys.exit aqui: o diagnóstico precisa rodar mesmo sem chave, para dizer
+# o que está de pé. A ausência reprova apenas o check que depende dela.
+API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+if API_KEY in PLACEHOLDERS:
+    API_KEY = ""
 
 
 def check_docker():

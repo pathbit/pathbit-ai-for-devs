@@ -55,13 +55,21 @@ def ler_conexao(container):
     except (subprocess.SubprocessError, OSError) as e:
         print(f"[!] Não foi possível consultar o container: {e}", file=sys.stderr)
         return None
+    if saida.returncode != 0:
+        # Distinguir "container não respondeu" de "credencial ausente": colapsar os
+        # dois em None esconderia docker parado atrás de uma mensagem enganosa.
+        erro = (saida.stderr or "").strip()[:200]
+        print(f"[!] O container '{container}' não respondeu: {erro}", file=sys.stderr)
+        return None
     bruto = saida.stdout.strip()
     if not bruto:
         return None
     try:
-        return json.loads(bruto)
+        dados = json.loads(bruto)
     except json.JSONDecodeError:
         return None
+    # Um escalar JSON válido passaria pelo teste de diagnosticar e estouraria no .get
+    return dados if isinstance(dados, dict) else None
 
 
 def diagnosticar(dados):
@@ -83,7 +91,11 @@ def renovar():
     """Chama o sincronizador oficial do artigo, que grava expiresAt numérico."""
     script = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "sync_antigravity_token.py")
-    r = subprocess.run([sys.executable, script], capture_output=True, text=True)
+    try:
+        r = subprocess.run([sys.executable, script], capture_output=True,
+                           text=True, timeout=120)
+    except subprocess.TimeoutExpired:
+        return False, ["o sincronizador não respondeu em 120s"]
     return r.returncode == 0, (r.stdout + r.stderr).strip().splitlines()[-1:] or [""]
 
 

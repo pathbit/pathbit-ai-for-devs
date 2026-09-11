@@ -30,7 +30,8 @@ def check_gateway_ready(timeout=30):
                 if resp.status == 200:
                     return True
         except Exception:
-            time.sleep(1)
+            pass
+        time.sleep(1)
     return False
 
 def start():
