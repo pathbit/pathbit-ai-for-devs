@@ -37,7 +37,7 @@ COMBOS = [
             "ag/gemini-3.8-flash-high",
             "ag/gemini-3.7-flash-high",
             "ag/gemini-3.6-flash-high",
-            "openrouter/nvidia/nemotron-3.5-lightning:free",
+            "openrouter/cohere/north-mini-code:free",
             "groq/openai/gpt-oss-120b",
             "mistral/codestral-latest",
             "openai-compatible-chat-ollama-local/qwen2.5-coder:latest",

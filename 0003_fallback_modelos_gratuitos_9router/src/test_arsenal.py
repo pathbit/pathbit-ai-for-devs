@@ -112,7 +112,7 @@ def extract_response(raw):
     return "".join(chunks), thinking, error
 
 
-def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=180):
+def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=35):
     """Dispara uma inferência e devolve (sucesso, latência, detalhe)."""
     payload = json.dumps({
         "model": model,
@@ -153,12 +153,12 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=18
 
 def test_cascade(combo_name, models):
     """Testa cada nível da cascata isoladamente. Devolve a lista de níveis quebrados."""
-    print(f"[*] Cascata de '{combo_name}' - {len(models)} nível(is):")
+    print(f"[*] Cascata de '{combo_name}' - {len(models)} nível(is):", flush=True)
     broken = []
     for position, model in enumerate(models, start=1):
         ok, elapsed, detail = probe(model)
         status = "OK   " if ok else "FALHA"
-        print(f"  [{status}] {position}º {model} - {elapsed:.2f}s · {detail}")
+        print(f"  [{status}] {position}º {model} - {elapsed:.2f}s · {detail}", flush=True)
         if not ok:
             broken.append((position, model, detail))
     return broken
@@ -168,7 +168,7 @@ def test_combo(combo_name):
     """Testa o combo como um todo, do jeito que o Claude Code o consome."""
     ok, elapsed, detail = probe(combo_name)
     status = "OK   " if ok else "FALHA"
-    print(f"  [{status}] combo '{combo_name}' - {elapsed:.2f}s · {detail}")
+    print(f"  [{status}] combo '{combo_name}' - {elapsed:.2f}s · {detail}", flush=True)
     return ok
 
 

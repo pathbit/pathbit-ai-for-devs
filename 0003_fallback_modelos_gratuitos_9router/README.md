@@ -210,7 +210,7 @@ python3 src/setup_combos.py
 
 Combos criados e organizados por prioridade:
 - **`claudegravity-fallback`:** Gemini 3.8 -> Gemini 3.7 -> Gemini 3.6 -> Claude Sonnet 4.6 -> GPT-OSS 120B (todos via Antigravity)
-- **`arsenal-supremo`:** Gemini 3.8 -> Gemini 3.7 -> Gemini 3.6 -> Nemotron 3.5 Lightning (OpenRouter) -> GPT-OSS 120B (Groq) -> Codestral (Mistral) -> Ollama Qwen 2.5 Coder
+- **`arsenal-supremo`:** Gemini 3.8 -> Gemini 3.7 -> Gemini 3.6 -> Cohere North Mini Code (OpenRouter) -> GPT-OSS 120B (Groq) -> Codestral (Mistral) -> Ollama Qwen 2.5 Coder
 - **`arsenal-rapido`:** GPT-OSS 120B (Groq) -> Codestral (Mistral) -> Gemini Flash 3.7 -> Gemini Flash 3.6
 - **`arsenal-offline`:** Ollama Qwen 2.5 Coder (local e privado; continuidade, não sessão de trabalho)
 

@@ -380,7 +380,7 @@ imagens em `:latest`, conexão Antigravity `active` via OAuth.
 | 0003 | `test_arsenal.py` | **12/12 níveis · 3/3 combos**, zero quebrados |
 | 0003 | `simulate_fallback.py` | **5/5 cenários**, incluindo auto-cura e Claude Code CLI real |
 
-### Cascatas: documentado vs. servido
+### Cascatas e o Comportamento Documentado vs Servido
 
 Lidas do banco do container e comparadas linha a linha com as tabelas publicadas. **Batem na ordem
 exata**, sem exceção:
@@ -448,7 +448,7 @@ ag/gemini-3.5-flash-low  → HTTP 200 com o texto:
     in the latest version of Antigravity."
 ```
 
-### Não existe desconexão: o que parece logout é cota
+### Não Existe Desconexão e o que Parece Logout é Cota
 
 O histórico completo do gateway desmente a hipótese de sessão caindo:
 
@@ -464,7 +464,7 @@ Os bloqueios por cota concentraram-se num único episódio (10/09, 22:06–22:08
 `3.7` e `3.6`, mais `openai`. **É a Falha 1 do artigo**, e a resposta correta é a cascata, não
 reautenticar.
 
-### `expiresAt`: corrupção confirmada ao vivo e automatizada
+### `expiresAt` com Corrupção Confirmada ao Vivo e Automatizada
 
 A regravação como string ISO **voltou a acontecer durante esta bateria**, e o `keep_connected.py` a
 identificou pelo nome:

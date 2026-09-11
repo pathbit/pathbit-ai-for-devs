@@ -145,4 +145,4 @@ copyright e a licença acompanhem as cópias. O software é fornecido *como est�
 
 ---
 
-**Desenvolvido com ❤️ pela [Pathbit](https://pathbit.com)**
+**Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co)**

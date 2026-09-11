@@ -59,8 +59,8 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 └── src/                                   # Ferramentas de engenharia 100% em Python
     ├── setup_permissions.py               # Aplicador multiplataforma de permissões com backup
     ├── verify_permissions.py              # Diagnóstico automatizado de integridade
-    └── restore_permissions.py          # Restaurador seguro de backups
-└── test_permissions.py             # Suite de 35 testes multiplataforma
+    ├── restore_permissions.py             # Restaurador seguro de backups
+    └── test_permissions.py                # Suite de 35 testes multiplataforma
 ```
 
 ---

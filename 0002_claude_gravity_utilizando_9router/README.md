@@ -54,7 +54,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 ├── .env.example                   # Modelo de variáveis de ambiente do gateway e Claude
 ├── article/
 │   └── ARTICLE.md                 # Artigo técnico completo e aprofundado
-├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 12)
+├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 13b)
 │   ├── diagrams/                  # Fontes vetoriais semânticas em HTML (diagram-design)
 │   ├── cover_linkedin.png              # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_claudegravity.png         # Capa do artigo
@@ -69,7 +69,9 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 │   ├── 09_9router_claude_code_config.png  # Instruções de configuração do Claude Code
 │   ├── 10_9router_combos.png              # Visualização dos combos virtuais de fallback
 │   ├── 11_claude_gravity_terminal.png     # Validação de inferência em tempo real no terminal
-│   └── 12_diagrama_arquitetura_equipes.png# Diagrama de arquitetura para equipes
+│   ├── 12_diagrama_arquitetura_equipes.png# Diagrama de arquitetura para equipes
+│   ├── 13a_app_seletor_modelo.png         # Seletor de modelo nativo do app desktop Claude
+│   └── 13b_app_submenu_mais_modelos.png   # Submenu Mais modelos do app desktop Claude
 ├── examples/                      # Espaço isolado de execução e testes práticos do Claude Code
 │   ├── README.md                  # Instruções de execução do Claude Code
 │   ├── sample_task.py             # Código de exemplo para testes práticos

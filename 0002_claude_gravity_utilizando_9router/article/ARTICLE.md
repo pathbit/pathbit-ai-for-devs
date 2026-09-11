@@ -636,7 +636,7 @@ Repare que o destino de cada linha é o **mesmo modelo do papel correspondente**
 resolver exatamente para onde o papel já apontava, sem introduzir um terceiro comportamento. Se você
 preferir que um pin esquecido caia na cascata em vez de num modelo único, troque o destino por
 `claudegravity-fallback`  -  é a mesma escolha entre previsibilidade e resiliência que a seção
-[Modelo Individual ou Combo](#modelo-individual-ou-combo-a-escolha-do-padrão) detalha. E, quando a CLI
+[Modelo Individual ou Combo](#modelo-individual-ou-combo-e-a-escolha-do-padrão) detalha. E, quando a CLI
 ganhar uma geração nova, é uma linha por família  -  ou simplesmente apague o pin e deixe os papéis
 trabalharem.
 
@@ -677,7 +677,7 @@ desce até achar quem responda:
 
 Os três saltos custaram menos de um segundo no total, porque o gateway guarda o bloqueio em cache e
 nem tenta o upstream  -  a resposta chegou em 1,97s. Este é o trade-off que a seção
-[Modelo Individual ou Combo](#modelo-individual-ou-combo-a-escolha-do-padrão) resolve.
+[Modelo Individual ou Combo](#modelo-individual-ou-combo-e-a-escolha-do-padrão) resolve.
 
 > **Round-Robin não resolve este caso com uma conta só.** Ele distribui chamadas entre conexões
 > distintas, e a cota é contabilizada pelo Google por conta. Cadastrar a mesma conta duas vezes cria
@@ -732,7 +732,7 @@ sessão que atravessa a tarde e uma que morre na virada da hora.
 
 ---
 
-### Modelo Individual ou Combo: a Escolha do Padrão
+### Modelo Individual ou Combo e a Escolha do Padrão
 
 A falha de cota da seção anterior deixa uma decisão em aberto, e ela vale para o `"model"` e para os
 quatro papéis: apontar cada um para um **modelo individual** ou para um **combo**?
@@ -828,7 +828,7 @@ Valide com `claude doctor`  -  ele aceita ou recusa cada linha do picker sem abr
 
 ---
 
-## Referência Completa: Onde Cada Configuração Mora
+## Referência Completa e Onde Cada Configuração Mora
 
 Esta seção existe porque a pergunta mais frequente não é *o que* configurar, e sim **em qual arquivo**.
 O Claude Code lê várias camadas, e o aplicativo de janela lê outra. Quem não conhece o mapa passa horas
@@ -1156,7 +1156,7 @@ que o principal. A responsabilidade de escolher um revisor à altura passa a ser
 
 ---
 
-## Tarefas Longas: `/goal`, `/loop` e Trabalho com Subagentes
+## Tarefas Longas com `/goal`, `/loop` e Trabalho com Subagentes
 
 Esta é a dúvida que mais aparece: recursos de longo prazo dependem de algo proprietário da Anthropic,
 ou funcionam com qualquer modelo servido pelo gateway?

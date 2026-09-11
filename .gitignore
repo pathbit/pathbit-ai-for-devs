@@ -70,6 +70,23 @@ web_modules/
 .env.*
 !.env.example
 
+# Security, credentials, tokens and database dumps
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sqlite-journal
+*.pem
+*.key
+*.cert
+*.crt
+jetski*
+*token*.json
+*token*.txt
+*token*.secret
+oauth*
+credentials.json
+
 # Claude Code configurations (version only .example files)
 **/.claude/settings.json
 **/.claude/settings.local.json

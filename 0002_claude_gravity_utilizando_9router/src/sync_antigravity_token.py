@@ -240,17 +240,25 @@ if (existing) {{
     .run(id, JSON.stringify(connData), now, now);
 }}
 
-// 4. Default claudegravity-fallback combo
+// 4. Default claudegravity-fallback e claudegravity-thinking combos
 try {{
-  const models = JSON.stringify([
+  const stmtCombo = db.prepare("INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)");
+  const fallbackModels = JSON.stringify([
     "ag/gemini-3.8-flash-high",
     "ag/gemini-3.7-flash-high",
     "ag/gemini-3.6-flash-high",
     "ag/claude-sonnet-4-6",
     "ag/gpt-oss-120b-medium"
   ]);
-  db.prepare("INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
-    .run('claudegravity-fallback', 'claudegravity-fallback', 'llm', models, now, now);
+  stmtCombo.run('claudegravity-fallback', 'claudegravity-fallback', 'llm', fallbackModels, now, now);
+
+  const thinkingModels = JSON.stringify([
+    "ag/claude-opus-4-6-thinking",
+    "ag/claude-sonnet-4-6",
+    "ag/gemini-3.8-flash-high",
+    "ag/gpt-oss-120b-medium"
+  ]);
+  stmtCombo.run('claudegravity-thinking', 'claudegravity-thinking', 'llm', thinkingModels, now, now);
 }} catch (e) {{}}
 
 console.log('OK_SYNCED');
