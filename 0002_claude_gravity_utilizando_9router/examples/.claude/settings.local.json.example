@@ -1,19 +1,61 @@
 {
-  "model": "claudegravity-thinking",
-  "advisorModel": "claudegravity-thinking",
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto, 1M de contexto",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-pro-agent",
+        "label": "Gemini 3.1 Pro High",
+        "description": "O mais denso da conta. Use com parcimonia",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "ag/claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6",
+        "description": "Sonnet servido pelo Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/claude-opus-4-6-thinking",
+        "label": "Claude Opus 4.6 Thinking",
+        "description": "Opus Thinking servido pelo Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B",
+        "description": "Pesos abertos via Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
         "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "label": "ClaudeGravity Resiliente (combo)",
+        "description": "5 niveis. Use quando a cota de uma familia estourar",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "claudegravity-thinking",
-        "label": "ClaudeGravity Thinking",
-        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "label": "ClaudeGravity Thinking (combo)",
+        "description": "4 niveis, comeca no Opus 4.6. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
       }
     ]
@@ -23,11 +65,11 @@
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-thinking"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -49,8 +91,8 @@
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
   "modelOverrides": {
-    "claude-fable-5-1": "claudegravity-thinking",
-    "claude-opus-5": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback"
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
   }
 }

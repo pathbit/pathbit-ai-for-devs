@@ -375,17 +375,17 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "claudegravity-thinking",
+  "model": "ag/gemini-3.8-flash-high",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-thinking"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -406,28 +406,70 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "claudegravity-thinking",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto, 1M de contexto",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-pro-agent",
+        "label": "Gemini 3.1 Pro High",
+        "description": "O mais denso da conta. Use com parcimonia",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "ag/claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6",
+        "description": "Sonnet servido pelo Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/claude-opus-4-6-thinking",
+        "label": "Claude Opus 4.6 Thinking",
+        "description": "Opus Thinking servido pelo Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B",
+        "description": "Pesos abertos via Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
         "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "label": "ClaudeGravity Resiliente (combo)",
+        "description": "5 niveis. Use quando a cota de uma familia estourar",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "claudegravity-thinking",
-        "label": "ClaudeGravity Thinking",
-        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "label": "ClaudeGravity Thinking (combo)",
+        "description": "4 niveis, comeca no Opus 4.6. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
       }
     ]
   },
   "modelOverrides": {
-    "claude-fable-5-1": "claudegravity-thinking",
-    "claude-opus-5": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback"
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
   }
 }
 ```
@@ -436,21 +478,63 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "claudegravity-thinking",
-  "advisorModel": "claudegravity-thinking",
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario: raciocinio alto, 1M de contexto",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-pro-agent",
+        "label": "Gemini 3.1 Pro High",
+        "description": "O mais denso da conta. Use com parcimonia",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima, alta frequencia",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "ag/claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6",
+        "description": "Sonnet servido pelo Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/claude-opus-4-6-thinking",
+        "label": "Claude Opus 4.6 Thinking",
+        "description": "Opus Thinking servido pelo Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gpt-oss-120b-medium",
+        "label": "GPT-OSS 120B",
+        "description": "Pesos abertos via Antigravity",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
         "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis: Gemini 3.8/3.7/3.6, Sonnet 4.6 e GPT-OSS 120B",
+        "label": "ClaudeGravity Resiliente (combo)",
+        "description": "5 niveis. Use quando a cota de uma familia estourar",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "claudegravity-thinking",
-        "label": "ClaudeGravity Thinking",
-        "description": "4 niveis, comecando pelo Opus 4.6 Thinking. Nao depende da cota do Gemini",
+        "label": "ClaudeGravity Thinking (combo)",
+        "description": "4 niveis, comeca no Opus 4.6. Nao depende da cota do Gemini",
         "behavesAs": "claude-opus-4-8"
       }
     ]
@@ -460,11 +544,11 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claudegravity-thinking",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claudegravity-fallback",
-    "ANTHROPIC_MODEL": "claudegravity-thinking"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -486,9 +570,9 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
   "modelOverrides": {
-    "claude-fable-5-1": "claudegravity-thinking",
-    "claude-opus-5": "claudegravity-thinking",
-    "claude-sonnet-5": "claudegravity-fallback"
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
   }
 }
 ```
@@ -733,6 +817,143 @@ bastidores, apenas dizendo à CLI que aquele modelo tem porte de Opus.
 > de pin da seção anterior, e nada além disso.
 
 Valide com `claude doctor`  -  ele aceita ou recusa cada linha do picker sem abrir sessão.
+
+---
+
+### Referência Completa: Onde Cada Configuração Mora
+
+Esta seção existe porque a pergunta mais frequente não é *o que* configurar, e sim **em qual arquivo**.
+O Claude Code lê várias camadas, e o aplicativo de janela lê outra. Quem não conhece o mapa passa horas
+editando o arquivo errado.
+
+#### As camadas, da mais fraca para a mais forte
+
+| Camada | Arquivo | Alcance | Quem usa |
+| :--- | :--- | :--- | :--- |
+| **Usuário** | `~/.claude/settings.json` | Toda sessão da sua máquina | Terminal **e** o aplicativo |
+| **Projeto** | `<repo>/.claude/settings.json` | Só dentro daquele repositório | Terminal. Versionável, compartilhável com o time |
+| **Local** | `<repo>/.claude/settings.local.json` | Só na sua máquina, naquele repositório | Terminal. **Tem precedência**, e fica fora do git |
+| **Aplicativo** | `~/Library/Application Support/Claude/claude_desktop_config.json` | O app de janela | Servidores MCP e preferências da interface |
+
+A camada mais forte vence. Colocar o gateway em `~/.claude/settings.json` faz ele valer em tudo;
+colocar em `.claude/settings.local.json` limita ao repositório e à sua máquina.
+
+#### Todas as variáveis de ambiente que importam
+
+Vão dentro do bloco `"env"` de qualquer camada de settings, ou exportadas no shell.
+
+| Variável | Para que serve |
+| :--- | :--- |
+| `ANTHROPIC_BASE_URL` | Endereço do gateway. É a chave de tudo: aponta o harness para fora da API da Anthropic |
+| `ANTHROPIC_API_KEY` | Credencial que o gateway exige. Gerada localmente, nunca a da Anthropic |
+| `ANTHROPIC_AUTH_TOKEN` | Alternativa ao anterior, aceita pelos mesmos caminhos |
+| `ANTHROPIC_MODEL` | Modelo do laço principal da sessão |
+| `ANTHROPIC_DEFAULT_FABLE_MODEL` | Papel Fable: o mais capaz, para o que a CLI considerar mais difícil |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Papel Opus: trabalho complexo e **todo subagente despachado** |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Papel Sonnet: a maior parte das tarefas |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Papel Haiku: alta frequência. Acionado em **toda sessão** |
+| `ANTHROPIC_SMALL_FAST_MODEL` | Operações rápidas internas, quando declarado |
+| `ANTHROPIC_CUSTOM_MODEL_OPTION` | Entrada extra no menu, com `_NAME` e `_DESCRIPTION` |
+| `CLAUDE_CODE_EXPERIMENTAL` | Habilita recursos em avaliação |
+| `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT` | Desliga a checagem de janela por modelo. **Necessária** com modelos não-Anthropic |
+
+> Confira antes de adotar qualquer variável: `strings -a $(which claude) | grep ANTHROPIC_`. Foi assim
+> que descobrimos que `CLAUDE_CODE_ENABLE_LOOPS`, `_ADVISOR` e `_GOAL`, que chegamos a publicar, não
+> existem no binário  -  eram configuração decorativa.
+
+#### Todas as chaves de `settings.json`
+
+| Chave | Efeito |
+| :--- | :--- |
+| `model` | Modelo padrão da sessão |
+| `advisorModel` | Modelo do revisor. Precisa ser **ao menos tão capaz** quanto o principal |
+| `modelOverrides` | Traduz um identificador que a CLI pediu para um que o gateway serve |
+| `modelPicker.options` | As linhas do menu `/model`: `{ model, label, description, behavesAs }` |
+| `modelPicker.replaceBuiltInOptions` | `true` substitui a lista nativa; `false` soma a ela |
+| `permissions.defaultMode` | `bypassPermissions` para autonomia total |
+| `permissions.allow` | Ferramentas liberadas. Curinga solto (`*`, `mcp__*`) é **recusado** |
+| `permissions.deny` | Bloqueios. Aceita curinga em qualquer posição, e vence sobre tudo |
+| `skipDangerousModePermissionPrompt` | Remove a confirmação do modo irrestrito |
+| `includeCoAuthoredBy` | `false` impede a assinatura de coautoria nos commits |
+| `env` | O bloco de variáveis da tabela anterior |
+
+Valide qualquer combinação com `claude doctor`, que aponta chave inválida sem abrir sessão.
+
+---
+
+### Configurando o Aplicativo de Janela e o Cowork
+
+Tudo até aqui vale para o terminal. O aplicativo  -  e o **Cowork**, que roda dentro dele  -  tem uma
+disposição própria, e a boa notícia é que o ponto de entrada é o mesmo.
+
+#### O que vai em cada lugar
+
+O app **não** lê o `.claude/settings.json` do seu repositório. Ele enxerga a camada de usuário:
+
+```bash
+~/.claude/settings.json                                    # modelo, papéis, env, permissões
+~/Library/Application Support/Claude/claude_desktop_config.json   # servidores MCP e preferências
+~/Library/Application Support/Claude/cowork-enabled-cli-ops.json  # conta dona das operações do Cowork
+```
+
+Então, para que o aplicativo use o seu gateway, a configuração vai no **arquivo de usuário**:
+
+```json
+{
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent",
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128",
+    "ANTHROPIC_API_KEY": "sua-chave-do-9router",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high"
+  }
+}
+```
+
+#### Três cuidados específicos do app
+
+1. **O gateway precisa estar de pé antes de abrir a janela.** O terminal falha com uma mensagem clara;
+   o aplicativo tende a mostrar erro genérico. Suba o container primeiro.
+2. **`localhost` precisa ser alcançável pelo app.** Como o `docker-compose.yml` publica em
+   `127.0.0.1:20128`, e o app roda na mesma máquina, funciona. Se você mudar para outra interface,
+   ajuste o `ANTHROPIC_BASE_URL` de acordo.
+3. **Reinicie o aplicativo depois de editar.** Ele lê a configuração na inicialização, e não recarrega
+   sozinho  -  o mesmo comportamento que o Antigravity IDE tem no [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md).
+
+O `claude_desktop_config.json` guarda `mcpServers` e um bloco `preferences` com os ajustes da interface,
+incluindo os do Cowork (navegador preferido, pastas confiáveis, modo de permissão para tarefas de
+código). Modelos e credenciais **não** moram ali: continuam no arquivo de usuário.
+
+---
+
+### Isto Não É Sobre o Antigravity
+
+Vale explicitar, porque o artigo inteiro usa um provedor como exemplo e isso pode dar a impressão
+errada.
+
+Nada do que foi montado aqui é específico do Google. A arquitetura tem três peças, e só a do meio
+conhece o provedor:
+
+| Peça | Depende do provedor? |
+| :--- | :--- |
+| **Harness** (Claude Code, terminal ou app) | Não. Ele só fala a Messages API |
+| **Gateway** (9Router) | Sim. É ele que traduz protocolo e guarda credenciais |
+| **Provedor** (Antigravity, Groq, Mistral, Ollama…) | É o que se troca |
+
+O harness não sabe quem está do outro lado. Ele envia uma requisição no formato da Anthropic para o
+endereço de `ANTHROPIC_BASE_URL` e recebe uma resposta no mesmo formato. Trocar de provedor é trocar
+uma conexão no gateway e um identificador na configuração  -  nenhuma linha do harness muda.
+
+É por isso que o [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) mistura
+cinco provedores diferentes na mesma cascata sem nenhuma adaptação: Antigravity, OpenRouter, Groq,
+Mistral e um Ollama rodando na própria máquina convivem atrás do mesmo endereço.
+
+O mesmo raciocínio vale para o futuro. Quando surgir um motor novo, o caminho é o mesmo: uma conexão
+no gateway, um identificador na configuração, e o `behavesAs` dizendo à CLI de qual modelo conhecido
+ele tem porte. O harness continua sem saber, e sem precisar saber.
 
 ---
 

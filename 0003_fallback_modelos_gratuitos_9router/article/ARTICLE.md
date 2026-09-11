@@ -688,17 +688,17 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 
 ```json
 {
-  "model": "arsenal-supremo",
+  "model": "ag/gemini-3.8-flash-high",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
-    "ANTHROPIC_MODEL": "arsenal-supremo"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -719,40 +719,64 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "arsenal-supremo",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario do Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "groq/openai/gpt-oss-120b",
+        "label": "GPT-OSS 120B (Groq)",
+        "description": "LPU, resposta em fracao de segundo",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "mistral/codestral-latest",
+        "label": "Codestral (Mistral)",
+        "description": "Especialista em codigo",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
         "model": "arsenal-supremo",
-        "label": "Arsenal Supremo",
-        "description": "7 niveis: Gemini, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "label": "Arsenal Supremo (combo)",
+        "description": "7 niveis, do Gemini ao Ollama local",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "arsenal-rapido",
-        "label": "Arsenal Rapido",
-        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis dentro do Antigravity",
+        "label": "Arsenal Rapido (combo)",
+        "description": "4 niveis, otimizado para latencia",
         "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-offline",
-        "label": "Arsenal Offline",
-        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "label": "Arsenal Offline (combo)",
+        "description": "So Ollama local. Responde sempre, nao opera o harness",
         "behavesAs": "claude-haiku-4-5-20251001"
       }
     ]
   },
   "modelOverrides": {
-    "claude-fable-5-1": "arsenal-supremo",
-    "claude-opus-5": "arsenal-supremo",
-    "claude-sonnet-5": "arsenal-rapido"
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
   }
 }
 ```
@@ -801,33 +825,57 @@ O arquivo completo:
 
 ```json
 {
-  "model": "arsenal-supremo",
-  "advisorModel": "arsenal-supremo",
+  "model": "ag/gemini-3.8-flash-high",
+  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
       {
+        "model": "ag/gemini-3.8-flash-high",
+        "label": "Gemini 3.8 Flash High",
+        "description": "Primario do Antigravity",
+        "behavesAs": "claude-opus-4-8"
+      },
+      {
+        "model": "ag/gemini-3.7-flash-high",
+        "label": "Gemini 3.7 Flash High",
+        "description": "Trabalho corrente",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "ag/gemini-3.6-flash-high",
+        "label": "Gemini 3.6 Flash High",
+        "description": "Latencia minima",
+        "behavesAs": "claude-haiku-4-5-20251001"
+      },
+      {
+        "model": "groq/openai/gpt-oss-120b",
+        "label": "GPT-OSS 120B (Groq)",
+        "description": "LPU, resposta em fracao de segundo",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
+        "model": "mistral/codestral-latest",
+        "label": "Codestral (Mistral)",
+        "description": "Especialista em codigo",
+        "behavesAs": "claude-sonnet-4-6"
+      },
+      {
         "model": "arsenal-supremo",
-        "label": "Arsenal Supremo",
-        "description": "7 niveis: Gemini, Nemotron, GPT-OSS, Codestral e Ollama local",
+        "label": "Arsenal Supremo (combo)",
+        "description": "7 niveis, do Gemini ao Ollama local",
         "behavesAs": "claude-opus-4-8"
       },
       {
         "model": "arsenal-rapido",
-        "label": "Arsenal Rapido",
-        "description": "4 niveis: GPT-OSS na Groq, Codestral e Gemini 3.7/3.6",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "claudegravity-fallback",
-        "label": "ClaudeGravity Resiliente",
-        "description": "5 niveis dentro do Antigravity",
+        "label": "Arsenal Rapido (combo)",
+        "description": "4 niveis, otimizado para latencia",
         "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-offline",
-        "label": "Arsenal Offline",
-        "description": "Somente Ollama local. Responde sempre, mas nao opera o harness",
+        "label": "Arsenal Offline (combo)",
+        "description": "So Ollama local. Responde sempre, nao opera o harness",
         "behavesAs": "claude-haiku-4-5-20251001"
       }
     ]
@@ -837,11 +885,11 @@ O arquivo completo:
     "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_EXPERIMENTAL": "1",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "arsenal-supremo",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arsenal-supremo",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arsenal-rapido",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arsenal-rapido",
-    "ANTHROPIC_MODEL": "arsenal-supremo"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -863,9 +911,9 @@ O arquivo completo:
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
   "modelOverrides": {
-    "claude-fable-5-1": "arsenal-supremo",
-    "claude-opus-5": "arsenal-supremo",
-    "claude-sonnet-5": "arsenal-rapido"
+    "claude-fable-5-1": "ag/gemini-pro-agent",
+    "claude-opus-5": "ag/gemini-3.8-flash-high",
+    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
   }
 }
 ```
