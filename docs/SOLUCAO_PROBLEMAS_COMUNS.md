@@ -171,3 +171,36 @@ Confirme que a interpolação resolve antes de subir, sem criar nada:
 ```bash
 docker compose config >/dev/null && echo "manifesto válido"
 ```
+
+---
+
+## ❌ Problema 7 - Sessão Interrompida por Token Expirado ou Erro 503 no Antigravity
+
+### Sintoma
+
+Ao chamar modelos do Antigravity (como `ag/gemini-3.8-flash-high` ou combos), o terminal exibe:
+
+```text
+HTTP Error 503: Service Unavailable
+{"error":{"message":"[antigravity/gemini-3.8-flash-high] [401]: HTTP 401 (reset after 2m)"}}
+```
+
+### Causa
+
+O token OAuth do Antigravity expira a cada 60 minutos. Além disso, o 9Router possui um bug interno de serialização em que grava `expiresAt` como texto ISO (`"2026-09-11T02:05:25.091Z"`) em vez de timestamp numérico em milissegundos. Como `Number("string")` resulta em `NaN`, o gateway considera o token vencido mesmo quando ainda está ativo.
+
+### Solução
+
+1. **Correção Automática via Sidecar:** Os manifestos `docker-compose.yml` dos artigos 0002 e 0003 já incluem o container `claudegravity-token-sync` (imagem oficial `python:3.14-alpine`). Ele roda continuamente e renova o token preventivamente 15 minutos antes da expiração. Inspecione os logs com:
+
+   ```bash
+   docker logs -f claudegravity-token-sync
+   ```
+
+2. **Correção Manual Imediata:** Se precisar forçar a renovação imediata sem reiniciar containers:
+
+   ```bash
+   python3 0002_claude_gravity_utilizando_9router/src/sync_antigravity_token.py
+   ```
+
+3. Para entender todos os detalhes da análise forense e da auto-cura, consulte o guia dedicado [SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](./SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md).

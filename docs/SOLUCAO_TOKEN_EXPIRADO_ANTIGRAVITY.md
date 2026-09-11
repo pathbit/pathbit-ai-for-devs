@@ -90,7 +90,7 @@ quando a renovação era necessária e não teve efeito, o que permite usá-lo e
 
 Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem um container sidecar oficial (`token-sync`).
 
-O sidecar roda continuamente com baixíssimo consumo (~14 MB de RAM e 0% de CPU), monta o banco SQLite compartilhado e a pasta `~/.gemini` em modo somente-leitura. A cada 5 minutos ele valida a integridade do token e renova preventivamente quando restam 15 minutos ou menos:
+O sidecar utiliza a imagem oficial `python:3.14-alpine` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg)) e roda continuamente com baixíssimo consumo (~14 MB de RAM e 0% de CPU). Ele monta o banco SQLite compartilhado e a pasta `~/.gemini` em modo somente-leitura, executando o daemon `src/token_daemon.py`. A cada 5 minutos ele valida a integridade do token e renova preventivamente quando restam 15 minutos ou menos:
 
 ```bash
 # Acompanhar a auto-renovacao em tempo real

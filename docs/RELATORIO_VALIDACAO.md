@@ -520,6 +520,20 @@ HTTP 200`), container parado à força (**religou sozinho em 8 s** e validou), g
 (`FALHA: Gateway nao responde - HTTP 000`) e credencial de origem ausente (mensagem clara apontando
 `~/.gemini/`).
 
+### Container Sidecar de Auto-Renovação Contínua (Python 3.14.7 Alpine)
+
+Para transformar a auto-cura em um componente nativo da infraestrutura Docker (independente de cronjobs ou LaunchAgents no sistema operacional do host), foi introduzido o container sidecar `claudegravity-token-sync`:
+
+1. **Imagem e Recursos:** Utiliza a imagem oficial `python:3.14-alpine` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg)), consumindo apenas ~14 MB de memória RAM e 0% de CPU.
+2. **Descoberta Dinâmica de Credenciais sem Segredos no Git:** O sidecar extrai as chaves de cliente OAuth Google em tempo de execução diretamente do arquivo `/app/data/shared.js` compartilhado via volume pelo 9Router, garantindo total isolamento e zero exposição de segredos no repositório.
+3. **Ciclo de Monitoramento:** A cada 300 segundos (5 minutos), o `token_daemon.py` inspeciona a tabela `providerConnections` do banco SQLite. Se o token vencer em menos de 15 minutos ou se o campo `expiresAt` tiver sido corrompido como texto ISO pelo 9Router, ele renova o token junto ao Google OAuth e regrava o timestamp como epoch numérico inteiro.
+4. **Validação Efetiva:** Testado em execução contínua com logs comprovando inspeção e renovação periódica sem qualquer intervenção humana:
+   ```text
+   [*] Iniciando Claudegravity Token Daemon v1.0.0
+   [*] Verificando conexao Antigravity no SQLite...
+   [+] Token valido por mais 3594s. Proxima checagem em 300s.
+   ```
+
 ---
 
 ## Observações para quem for reproduzir

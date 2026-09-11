@@ -34,6 +34,7 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 ├── src/
 │   ├── manage_env.py              # Gerenciador de ciclo de vida (start, status, stop, destroy)
 │   ├── verify_*.py                # Script de auditoria e validação de saúde do ambiente
+│   ├── token_daemon.py            # Daemon continuo do container sidecar para auto-renovacao de tokens
 │   └── *.py                       # Scripts utilitários e testes de inferência em Python puro
 ├── examples/
 │   ├── .claude/                   # Sandbox isolado para testes com Claude Code

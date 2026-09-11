@@ -186,11 +186,14 @@ python3 src/manage_env.py destroy
 #### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar 9Router e Ollama em segundo plano
+# Iniciar 9Router, Ollama e o container sidecar de renovacao continua em segundo plano
 docker compose up -d
 
-# Verificar containers ativos
-docker ps --filter "name=claudegravity-router" --filter "name=claudegravity-ollama"
+# Verificar se os containers estao saudaveis e ativos
+docker ps --filter "name=claudegravity"
+
+# Inspecionar os logs da renovacao automatica de tokens
+docker logs -f claudegravity-token-sync
 
 # Pausar os serviços
 docker compose stop

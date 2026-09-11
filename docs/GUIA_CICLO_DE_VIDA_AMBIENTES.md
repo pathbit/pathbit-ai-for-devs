@@ -39,9 +39,10 @@ Exemplo de saída:
 ============================================================
 🔍 STATUS DO AMBIENTE CLAUDEGRAVITY
 ============================================================
-CONTAINER ID   IMAGE                    NAMES                  STATUS
-040ba3d88abb   decolua/9router:latest   claudegravity-router   Up 9 hours
-3558bb97c7fb   ollama/ollama:latest     claudegravity-ollama   Up 9 hours
+CONTAINER ID   IMAGE                    NAMES                      STATUS
+21f80dc8f517   python:3.14-alpine       claudegravity-token-sync   Up 4 minutes
+4ac03e22ff19   decolua/9router:latest   claudegravity-router       Up 7 minutes (healthy)
+a7f98d995e31   ollama/ollama:latest     claudegravity-ollama       Up 17 minutes (healthy)
 ✅ Gateway HTTP Status: 200 OK (porta 20128)
 ✅ Ollama HTTP Status: 200 OK (porta 11434)
 ```
@@ -77,10 +78,18 @@ cp .env.example .env
 docker compose up -d
 ```
 
-### Verificar containers ativos
+### Verificar containers ativos e logs
+
+Para checar os três serviços ativos (gateway, modelo local e sidecar de renovação contínua):
 
 ```bash
-docker ps --filter "name=claudegravity-router" --filter "name=claudegravity-ollama"
+docker ps --filter "name=claudegravity"
+```
+
+Para acompanhar em tempo real o log da auto-renovação de tokens gerenciada pelo sidecar em Alpine Linux:
+
+```bash
+docker logs -f claudegravity-token-sync
 ```
 
 ### Pausar serviços
@@ -103,10 +112,12 @@ docker compose down -v --remove-orphans
 | :--- | :--- | :---: | :--- |
 | **9Router Gateway** | `claudegravity-router` | `20128` | Proxy reverso, multi-provedor e tradução Anthropic Messages |
 | **Ollama Local** | `claudegravity-ollama` | `11434` | Servidor local de inferência para modelos de código offline |
+| **Token Sync Sidecar** | `claudegravity-token-sync` | Interno | Daemon em Python 3.14 Alpine para auto-renovação de tokens e prevenção do bug ISO |
 
 ---
 
 ## ⚠️ Boas Práticas e Dicas Operacionais
 
 - Se a porta `20128` estiver ocupada por outra aplicação, consulte o guia [SOLUCAO_PROBLEMAS_COMUNS.md](./SOLUCAO_PROBLEMAS_COMUNS.md).
+- O container sidecar `claudegravity-token-sync` roda silenciosamente consumindo apenas ~14 MB de RAM. Ele checa a validade do token a cada 5 minutos e renova automaticamente 15 minutos antes de expirar, eliminando erros 401 e 503.
 - Antes de destruir o ambiente, lembre-se de que os dados de chaves configurados na interface gráfica serão apagados junto com o volume `9router_data`. Ao subir novamente, o script `setup_combos.py` ou `sync_antigravity_token.py` recriará as configurações automaticamente a partir das variáveis do seu `.env`.
