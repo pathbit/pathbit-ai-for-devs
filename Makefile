@@ -1,4 +1,4 @@
-.PHONY: test test-container test-gateway test-arsenal test-local up down logs clean
+.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
@@ -20,6 +20,18 @@ test-arsenal:
 	  -e ROUTER_URL=http://claudegravity-router:20128 \
 	  -e ANTHROPIC_BASE_URL=http://claudegravity-router:20128 \
 	  python:3.14-alpine python3 0003_fallback_modelos_gratuitos_9router/src/test_arsenal.py
+
+# Confere que os composes dos artigos batem com os projetos RTK: imagem, porta
+# interna publicada e variaveis de ambiente. Um artigo publicado que manda o
+# leitor copiar um compose divergente e um artigo quebrado, e nada avisa.
+# Nao precisa de container de pe.
+valida-docs:
+	$(PYTHON) tools/valida_artigos_x_rtk.py
+
+# Validacao HTTP dos paineis das stacks. Exige as stacks de pe e as credenciais
+# no ambiente -- veja o cabecalho do script; ele TROCA a senha do painel.
+valida-paineis:
+	./tools/valida_paineis.sh
 
 # Testes locais opcionais no ambiente virtual
 test-local:
