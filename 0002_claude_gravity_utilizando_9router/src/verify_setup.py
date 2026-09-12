@@ -85,10 +85,13 @@ def check_docker():
         return False
 
 
+GATEWAY_URL = os.environ.get("ROUTER_URL") or os.environ.get("ANTHROPIC_BASE_URL") or "http://localhost:20128"
+
+
 def check_endpoint():
-    print("[2/5] Verificando endpoint HTTP do 9Router (http://localhost:20128)...")
+    print(f"[2/5] Verificando endpoint HTTP do 9Router ({GATEWAY_URL})...")
     try:
-        req = urllib.request.Request("http://localhost:20128/api/auth/status")
+        req = urllib.request.Request(f"{GATEWAY_URL}/api/auth/status")
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             print(f"  ✅ 9Router API online. requireLogin={data.get('requireLogin')}")
@@ -102,7 +105,7 @@ def check_models():
     print("[3/5] Verificando modelos Gemini e Antigravity disponíveis...")
     try:
         req = urllib.request.Request(
-            "http://localhost:20128/v1/models",
+            f"{GATEWAY_URL}/v1/models",
             headers={"Authorization": f"Bearer {API_KEY}"}
         )
         with urllib.request.urlopen(req, timeout=5) as resp:
