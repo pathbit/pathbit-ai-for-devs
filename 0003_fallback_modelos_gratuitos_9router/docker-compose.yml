@@ -51,7 +51,7 @@ services:
   9rtksync:
     # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
     image: ghcr.io/pathbit/9rtksync:latest
-    container_name: 9RTKSync
+    container_name: router-sync
     restart: unless-stopped
     ports:
       - "127.0.0.1:9190:9190"

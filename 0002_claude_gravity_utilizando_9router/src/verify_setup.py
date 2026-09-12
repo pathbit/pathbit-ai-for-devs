@@ -64,12 +64,18 @@ def check_docker():
         if output:
             print(f"  ✅ Container ativo: {output}")
             res_sync = subprocess.run(
-                ["docker", "ps", "--filter", "name=claudegravity-token-sync", "--format", "{{.Names}} - {{.Status}}"],
+                ["docker", "ps", "--filter", "name=router-sync", "--format", "{{.Names}} - {{.Status}}"],
                 capture_output=True, text=True
             )
             out_sync = res_sync.stdout.strip()
+            if not out_sync:
+                res_sync = subprocess.run(
+                    ["docker", "ps", "--filter", "name=9RTKSync", "--format", "{{.Names}} - {{.Status}}"],
+                    capture_output=True, text=True
+                )
+                out_sync = res_sync.stdout.strip()
             if out_sync:
-                print(f"  ✅ Sidecar de auto-renovação: {out_sync}")
+                print(f"  ✅ Guardião de sincronização (router-sync): {out_sync}")
             return True
         else:
             print("  ⚠️  Container claudegravity-router não encontrado em execução.")

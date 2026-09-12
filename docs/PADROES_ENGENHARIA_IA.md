@@ -76,7 +76,7 @@ Para manter a consistência e evitar colisões entre projetos na máquina do des
 1. **Nome do Projeto Compose:** Definido como `name: claudegravity`.
 2. **Container do Gateway:** Sempre explicitado como `container_name: claudegravity-router`.
 3. **Container do LLM Local:** Sempre explicitado como `container_name: claudegravity-ollama`.
-4. **Container Guardião de Conexões e Tokens:** Sempre explicitado como `container_name: 9RTKSync` (usando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*, executando com virtual environment dedicado em `/opt/venv`). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o guardião oficial correspondente é o [OminiRTKSync](https://github.com/pathbit/OminiRTkSync) (*OminiRoute Universal Token & Connection Synchronizer*).
+4. **Container Guardião de Conexões e Tokens:** Sempre explicitado como `container_name: router-sync` (usando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*, executando com virtual environment dedicado em `/opt/venv`). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o guardião oficial correspondente é o [OminiRTKSync](https://github.com/pathbit/OminiRTkSync) (*OminiRoute Universal Token & Connection Synchronizer*).
 5. **Volumes de Dados:** Persistidos como volumes nomeados (`9router_data`, `ollama_data`).
 6. **Rede do Host:** Utilizar a diretiva `extra_hosts: ["host.docker.internal:host-gateway"]` para assegurar paridade de roteamento local entre macOS, Linux e Windows WSL2.
 

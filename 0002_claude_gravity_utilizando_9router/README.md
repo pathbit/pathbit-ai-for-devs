@@ -40,7 +40,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 - **Outros Modelos via Antigravity:**
   - `ag/claude-sonnet-4-6` e `ag/claude-opus-4-6-thinking`
   - `ag/gpt-oss-120b-medium`
-- **Guardião de Auto-Renovação Contínua:** Container `9RTKSync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*), executando com virtual environment dedicado (`/opt/venv`), mantendo as conexões do [9Router](https://github.com/decolua/9router) eternamente ativas e prevenindo erros 401 e 503.
+- **Guardião de Auto-Renovação Contínua:** Container `router-sync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*), executando com virtual environment dedicado (`/opt/venv`), mantendo as conexões do [9Router](https://github.com/decolua/9router) eternamente ativas e prevenindo erros 401 e 503.
 - **Ambiente:** Python 3.14.7+ (mínimo 3.10+), Node.js 18+ e Docker com o plugin Compose v2
 
 ---
@@ -179,14 +179,14 @@ python3 src/manage_env.py destroy
 ##### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar o gateway e o container 9RTKSync em segundo plano
+# Iniciar o gateway e o container router-sync em segundo plano
 docker compose up -d
 
 # Verificar se os containers estao saudaveis e ativos
 docker ps --filter "name=claudegravity"
 
 # Inspecionar os logs do guardiao de tokens e conexoes
-docker logs -f 9RTKSync
+docker logs -f router-sync
 
 # Acessar o dashboard web do 9RTKSync
 # http://localhost:9190
