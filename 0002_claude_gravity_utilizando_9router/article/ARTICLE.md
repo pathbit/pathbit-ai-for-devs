@@ -105,6 +105,10 @@ services:
       - MODULE=0002
       - ENABLE_WEB_DASHBOARD=1
       - WEB_PORT=9190
+      # O painel exige autenticacao. Sem estas duas variaveis a stack sobe, mas
+      # o navegador responde 401 e nao ha senha documentada para informar.
+      - DASHBOARD_USER=${DASHBOARD_USER:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:?defina DASHBOARD_PASSWORD no .env}
     depends_on:
       9router:
         condition: service_healthy
@@ -765,7 +769,7 @@ Para que a sincronização e renovação de credenciais não dependa de terminai
 
 1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`), consumindo apenas ~18 MB de RAM e 0% de CPU.
 2. **Isolamento de Credenciais e Auto-Cura Universal:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório home do usuário host (`${HOME}:/root/host:ro`) em modo estritamente somente-leitura (`:ro`), descobrindo e sincronizando credenciais de múltiplos provedores locais (Google Antigravity, Claude, GitHub Copilot, Codex, Kiro, Codeium), curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
-3. **Dashboard Web em Tempo Real:** Servidor HTTP embutido expondo a interface web e endpoints de monitoramento em `http://localhost:9190` e `http://localhost:9190/healthz`.
+3. **Dashboard Web em Tempo Real:** Servidor HTTP embutido expondo a interface web e endpoints de monitoramento em `http://localhost:9190` e `http://localhost:9190/healthz`. A interface exige autenticação: informe as variáveis `DASHBOARD_USER` e `DASHBOARD_PASSWORD` no `.env` — o `docker compose` recusa subir sem a senha, justamente para que nenhuma credencial de fábrica circule em arquivo de exemplo. O endpoint `/healthz` continua aberto, para o healthcheck do container.
 
 Para acompanhar a operação contínua do guardião no terminal:
 
