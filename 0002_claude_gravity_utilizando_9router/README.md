@@ -40,7 +40,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 - **Outros Modelos via Antigravity:**
   - `ag/claude-sonnet-4-6` e `ag/claude-opus-4-6-thinking`
   - `ag/gpt-oss-120b-medium`
-- **Sidecar de Auto-Renovação Contínua:** Container `claudegravity-token-sync` (imagem oficial `python:3.14-alpine` com o daemon `token_daemon.py`), mantendo tokens OAuth eternamente ativos e prevenindo erros 401 e 503
+- **Guardião de Auto-Renovação Contínua:** Container `9RTKSync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*), executando com virtual environment dedicado (`/opt/venv`), mantendo as conexões do [9Router](https://github.com/decolua/9router) eternamente ativas e prevenindo erros 401 e 503.
 - **Ambiente:** Python 3.14.7+ (mínimo 3.10+), Node.js 18+ e Docker com o plugin Compose v2
 
 ---
@@ -51,7 +51,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 0002_claude_gravity_utilizando_9router/
 ├── README.md                      # Este arquivo
 ├── requirements.txt               # Dependências Python para scripts de diagnóstico
-├── docker-compose.yml             # Orquestração do gateway 9Router em container
+├── docker-compose.yml             # Orquestração do gateway 9Router e 9RTKSync em container
 ├── .env.example                   # Modelo de variáveis de ambiente do gateway e Claude
 ├── article/
 │   └── ARTICLE.md                 # Artigo técnico completo e aprofundado
@@ -84,7 +84,6 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
     ├── manage_env.py              # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
     ├── sync_antigravity_token.py  # Sincronizador de tokens OAuth Google Antigravity para o 9Router (Python)
     ├── keep_connected.py          # Renovacao preventiva da credencial, evita o 503 na virada da hora
-    ├── token_daemon.py            # Daemon continuo do container sidecar para auto-renovacao eterna de tokens
     ├── test_gateway.py            # Script de validação dos endpoints e modelos do gateway (Python)
     └── verify_setup.py            # Diagnóstico automatizado do ambiente (Python)
 ```
@@ -180,14 +179,17 @@ python3 src/manage_env.py destroy
 ##### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar o gateway e o container sidecar de renovacao continua em segundo plano
+# Iniciar o gateway e o container 9RTKSync em segundo plano
 docker compose up -d
 
 # Verificar se os containers estao saudaveis e ativos
 docker ps --filter "name=claudegravity"
 
-# Inspecionar os logs da renovacao automatica de tokens
-docker logs -f claudegravity-token-sync
+# Inspecionar os logs do guardiao de tokens e conexoes
+docker logs -f 9RTKSync
+
+# Acessar o dashboard web do 9RTKSync
+# http://localhost:9190
 
 # Pausar os serviços
 docker compose stop
@@ -307,4 +309,19 @@ python3 src/test_gateway.py
 
 - Artigo completo: [ARTICLE.md](./article/ARTICLE.md)
 - Artigo 0003 (Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router): [0003_fallback_modelos_gratuitos_9router](../0003_fallback_modelos_gratuitos_9router/README.md)
-- Repositório: [pathbit-ai-for-devs](https://github.com/pathbit/pathbit-ai-for-devs)
+- Repositório oficial do 9Router: [decolua/9router](https://github.com/decolua/9router)
+- Guardião oficial 9RTKSync: [pathbit/9RTKSync](https://github.com/pathbit/9RTKSync)
+- Guardião oficial OminiRTKSync: [pathbit/OminiRTkSync](https://github.com/pathbit/OminiRTkSync)
+- Repositório do Curso: [pathbit-ai-for-devs](https://github.com/pathbit/pathbit-ai-for-devs)
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

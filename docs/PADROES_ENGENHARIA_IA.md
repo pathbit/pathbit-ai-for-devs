@@ -76,7 +76,7 @@ Para manter a consistência e evitar colisões entre projetos na máquina do des
 1. **Nome do Projeto Compose:** Definido como `name: claudegravity`.
 2. **Container do Gateway:** Sempre explicitado como `container_name: claudegravity-router`.
 3. **Container do LLM Local:** Sempre explicitado como `container_name: claudegravity-ollama`.
-4. **Container Sidecar de Tokens:** Sempre explicitado como `container_name: claudegravity-token-sync` (usando a imagem oficial `python:3.14-alpine` para executar o daemon contínuo `token_daemon.py` sem poluir o host).
+4. **Container Guardião de Conexões e Tokens:** Sempre explicitado como `container_name: 9RTKSync` (usando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*, executando com virtual environment dedicado em `/opt/venv`). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o guardião oficial correspondente é o [OminiRTKSync](https://github.com/pathbit/OminiRTkSync) (*OminiRoute Universal Token & Connection Synchronizer*).
 5. **Volumes de Dados:** Persistidos como volumes nomeados (`9router_data`, `ollama_data`).
 6. **Rede do Host:** Utilizar a diretiva `extra_hosts: ["host.docker.internal:host-gateway"]` para assegurar paridade de roteamento local entre macOS, Linux e Windows WSL2.
 
@@ -88,27 +88,33 @@ Nos projetos da Pathbit, todo commit deve refletir exclusivamente a autoria huma
 
 ### 1. Desativação Nativa no Claude Code
 
-O Claude Code insere por padrão o trailer `Co-Authored-By` nos commits quando executado. Para desativar esse comportamento permanentemente, definimos `"includeCoAuthoredBy": false` em todos os níveis de configuração:
-- Global do usuário: `~/.claude/settings.json` e `~/.claude/settings.local.json`.
-- Sandboxes e exemplos: `examples/.claude/settings.json.example` e `examples/.claude/settings.local.json.example`.
+Para impedir que a CLI do Claude Code insira automaticamente metadados de coautoria nos commits gerados:
 
-```json
-{
-  "includeCoAuthoredBy": false
-}
+```bash
+# Desativa a coautoria automática do Claude Code
+claude config set -g includeCoAuthor false
 ```
 
-### 2. Desativação Nativa no Google Antigravity e VSCode
+Essa configuração grava `"includeCoAuthor": false` em `~/.claude.json`, garantindo que nenhum commit gerado por ferramentas locais receba trailers indesejados.
 
-Na IDE do Google Antigravity e na CLI `agy`, as seguintes diretivas garantem que ferramentas integradas de git e assistentes não incluam coautoria de IA nos commits:
-- `User/settings.json`: `"claudeCode.includeCoAuthoredBy": false`, `"git.includeCoAuthoredBy": false` e `"git.authorCommit": true`.
-- `antigravity-cli/settings.json`: `"includeCoAuthoredBy": false`.
-- `config/config.json`: `"includeCoAuthoredBy": false` em `userSettings`.
+### 2. Configuração de Autoria do Git
 
-### 3. Sanitização Global Ativa via Git Hook (commit-msg)
+Certifique-se de que seu ambiente Git esteja sempre configurado com seu nome e e-mail oficiais:
 
-Como camada de proteção definitiva e independente de qualquer editor ou CLI, instalamos um hook de commit global em `~/.git-hooks/commit-msg` e ativamos via `git config --global core.hooksPath ~/.git-hooks`.
-Esse hook intercepta todas as mensagens de commit antes de serem gravadas e remove automaticamente qualquer linha com padrões proibidos de coautoria sintética, preservando o assunto e o corpo legítimos do commit.
+```bash
+git config --global user.name "Eliel Sousa"
+git config --global user.email "eliel@pathbit.co"
+```
+
+### 3. Sanitização Preventiva
+
+Antes de qualquer `git push`, inspecione as mensagens dos últimos commits:
+
+```bash
+git log -n 5 --format="%h - %an <%ae> : %s"
+```
+
+Caso identifique qualquer menção ou linha de coautoria, reescreva a mensagem com `git commit --amend` antes de enviar ao repositório remoto.
 
 ---
 
@@ -116,7 +122,8 @@ Esse hook intercepta todas as mensagens de commit antes de serem gravadas e remo
 
 Todos os arquivos `.md` (artigos, readmes e documentações) devem respeitar as regras da Pathbit Academy:
 
-1. **Zero dois-pontos em títulos:**
+1. **Zero dois-pontos em títulos de cabeçalho Markdown:**
+   - Em títulos (`#`, `##`, `###`), nunca utilize dois-pontos (`:`).
    - ❌ `# 1. Introdução: O que é o Antigravity`
    - ✅ `# 1. Introdução ao Google Antigravity`
 2. **Zero travessões (em-dash):**
@@ -136,3 +143,14 @@ Todos os arquivos `.md` (artigos, readmes e documentações) devem respeitar as 
      - Ferramentas de infraestrutura quando aplicável (Docker e Docker Compose, Node.js / Claude Code CLI).
      - Passo a passo explícito para criar contas e obter tokens/chaves de API nas plataformas correspondentes (OpenRouter com limite de $0.00, Groq Cloud, Google AI Studio, Mistral, Ollama), garantindo total autonomia e clareza ao leitor.
 
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

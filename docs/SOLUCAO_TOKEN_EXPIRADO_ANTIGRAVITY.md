@@ -86,18 +86,18 @@ python3 0002_claude_gravity_utilizando_9router/src/keep_connected.py --daemon
 O script só age quando precisa: com o token novo, sai sem gastar chamada. Ele sai com código `1`
 quando a renovação era necessária e não teve efeito, o que permite usá-lo em automação.
 
-### Solução Definitiva com Container Sidecar (`claudegravity-token-sync`)
+### Solução Definitiva com Container 9RTKSync
 
-Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem um container sidecar oficial (`token-sync`).
+Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem o container oficial `9RTKSync` (baseado no projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o projeto equivalente é o [OminiRTKSync](https://github.com/pathbit/OminiRTkSync) (*OminiRoute Universal Token & Connection Synchronizer*).
 
-O sidecar utiliza a imagem oficial `python:3.14-alpine` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg)) e roda continuamente com baixíssimo consumo (~14 MB de RAM e 0% de CPU). Ele monta o banco SQLite compartilhado e a pasta `~/.gemini` em modo somente-leitura, executando o daemon `src/token_daemon.py`. A cada 5 minutos ele valida a integridade do token e renova preventivamente quando restam 15 minutos ou menos:
+O container utiliza a imagem oficial `ghcr.io/pathbit/9rtksync:latest` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) Alpine) com ambiente virtual isolado (`/opt/venv`) e roda continuamente com baixíssimo consumo (~18 MB de RAM e 0% de CPU). Ele monitora o banco SQLite compartilhado (`/app/data/db/data.sqlite`) do [9Router](https://github.com/decolua/9router) e as credenciais locais, validando a integridade das conexões e efetuando a renovação preventiva 15 minutos antes da expiração, além de oferecer um dashboard web em tempo real em `http://localhost:9190`:
 
 ```bash
 # Acompanhar a auto-renovacao em tempo real
-docker logs -f claudegravity-token-sync
+docker logs -f 9RTKSync
 ```
 
-Com o sidecar ativo, a sessão nunca mais expira e o bug do `expiresAt` em string ISO é corrigido no momento em que ocorrer, sem intervenção humana.
+Com o container `9RTKSync` ativo, a sessão nunca mais expira e o bug do `expiresAt` em string ISO é corrigido no momento em que ocorrer, sem intervenção humana.
 
 > **Não confunda com bloqueio de cota.** Se o erro citar um modelo específico e o log do gateway
 > trouxer `[AG_QUOTA] CACHE_BLOCK` ou `all 1 accounts locked for <modelo>`, a credencial está boa e o
@@ -139,3 +139,15 @@ O navegador utilizou a conta Google padrão (perfil sem plano Pro) durante o con
 4. Em outra aba do mesmo navegador, acesse `myaccount.google.com` e verifique se o perfil ativo é a sua conta Google com a licença do Gemini Pro / Antigravity.
 5. Retorne ao 9Router, clique em **+ Add Connection** e autorize com a conta licenciada.
 6. Revalide no terminal com `python3 0002_claude_gravity_utilizando_9router/src/test_gateway.py`.
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

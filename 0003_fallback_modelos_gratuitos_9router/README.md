@@ -23,11 +23,11 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 - **9 Provedores Gratuitos Mapeados:** Antigravity (Google AI Pro), Kiro AWS Builder, Google AI Studio, Groq Cloud, Cerebras, OpenRouter Free, Cloudflare Workers AI, Mistral e Ollama Local. Os combos de referência integram Antigravity, OpenRouter, Groq, Mistral e Ollama Local; os demais ficam documentados como extensões da mesma cascata.
 - **Laboratório de Simulação de Falhas:** Script automatizado (`src/simulate_fallback.py`) para validar cenários de erro 429, desautenticação de token (401) e auto-cura em tempo real.
 - **Continuidade Local com Ollama:** o nível final da cascata roda na sua máquina e garante que o gateway sempre devolva resposta, mesmo com todos os provedores em nuvem fora do ar. Testamos o harness do Claude Code com modelos de 0.5B a 7B: todos respondem à API, mas nenhum conduz uma sessão real de trabalho  -  trate o nível local como garantia de continuidade, não como substituto dos níveis em nuvem.
-- **Sidecar de Auto-Renovação Contínua:** Container `claudegravity-token-sync` (imagem oficial `python:3.14-alpine` com o daemon `token_daemon.py`), monitorando o SQLite e mantendo a credencial do Antigravity renovada sem quedas na cascata.
+- **Guardião de Auto-Renovação Contínua:** Container `9RTKSync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*), executando com virtual environment dedicado (`/opt/venv`), monitorando o SQLite e mantendo a credencial do Antigravity renovada sem quedas na cascata.
 - **Autonomia Total sem Fricção:** Configurado com `--dangerously-skip-permissions` e `bypassPermissions` no `.claude/settings.json`.
 - **Compatibilidade com 9Router e OmniRoute:** Explicação detalhada da resolução de URLs (`http://localhost:20128` vs `http://localhost:20128/v1`) e regras de nomenclatura de combos.
-- **Passo a Passo Visual Completo:** Prints reais de cada portal para obtenção dos tokens gratuitos e da configuração gráfica de provedores e combos no 9Router.
-- **Scripts em Python Puro:** Provisionamento e testes 100% em Python, compatíveis com qualquer sistema operacional.
+- **Passo a Passo Visual Completo:** Prints reais de cada portal para obtenção dos tokens gratuitos e da configuração gráfica de provedores e combos no [9Router](https://github.com/decolua/9router).
+- **Scripts em Python Puro:** Provisionamento e testes 100% em Python via virtual environment, compatíveis com qualquer sistema operacional.
 
 ---
 
@@ -37,7 +37,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 0003_fallback_modelos_gratuitos_9router/
 ├── README.md                              # Este arquivo com resumo executivo e instruções
 ├── requirements.txt                       # Dependências Python mínimas (requests)
-├── docker-compose.yml                     # Orquestração do gateway 9Router em container
+├── docker-compose.yml                     # Orquestração do gateway 9Router e 9RTKSync em container
 ├── .env.example                           # Modelo de variáveis de ambiente e chaves gratuitas
 ├── article/
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
@@ -78,7 +78,6 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
     ├── manage_env.py                      # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
     ├── setup_combos.py                    # Provisionamento idempotente de combos no SQLite do 9Router
     ├── simulate_fallback.py               # Laboratório de simulação de falhas, rate limits e auto-cura
-    ├── token_daemon.py                    # Daemon continuo do container sidecar para auto-renovacao eterna de tokens
     └── test_arsenal.py                    # Script de teste de inferência e validação de latência
 ```
 
@@ -187,14 +186,17 @@ python3 src/manage_env.py destroy
 #### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar 9Router, Ollama e o container sidecar de renovacao continua em segundo plano
+# Iniciar 9Router, Ollama e o container 9RTKSync em segundo plano
 docker compose up -d
 
 # Verificar se os containers estao saudaveis e ativos
 docker ps --filter "name=claudegravity"
 
-# Inspecionar os logs da renovacao automatica de tokens
-docker logs -f claudegravity-token-sync
+# Inspecionar os logs do guardiao de tokens e conexoes
+docker logs -f 9RTKSync
+
+# Acessar o dashboard web do 9RTKSync
+# http://localhost:9190
 
 # Pausar os serviços
 docker compose stop
@@ -265,7 +267,24 @@ claude --dangerously-skip-permissions --model arsenal-supremo
 
 ---
 
-### Artigos Relacionados
+### Artigos e Links Relacionados
 
 - [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md)
 - [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)
+- Repositório oficial do 9Router: [decolua/9router](https://github.com/decolua/9router)
+- Guardião oficial 9RTKSync: [pathbit/9RTKSync](https://github.com/pathbit/9RTKSync)
+- Guardião oficial OminiRTKSync: [pathbit/OminiRTkSync](https://github.com/pathbit/OminiRTkSync)
+- Repositório oficial do OmniRoute: [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute)
+- Repositório do Curso: [pathbit-ai-for-devs](https://github.com/pathbit/pathbit-ai-for-devs)
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

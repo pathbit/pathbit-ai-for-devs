@@ -2,15 +2,12 @@ name: claudegravity
 
 services:
   9router:
-    # Acompanha a ultima versao publicada. Este projeto depende do endpoint interno
-# /api/auth/status e do schema SQLite do gateway: rode src/verify_setup.py apos um pull.
-    # do endpoint interno /api/auth/status e do schema SQLite do gateway.
+    # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
     container_name: claudegravity-router
     restart: unless-stopped
     ports:
-      # Apenas localhost: o gateway carrega credenciais reais (OAuth do Antigravity
-      # e chaves dos provedores) e nao deve ficar acessivel na rede local.
+      # Apenas localhost: o gateway carrega credenciais reais e nao deve ficar acessivel na rede local.
       - "127.0.0.1:20128:20128"
     volumes:
       - 9router_data:/app/data
@@ -22,7 +19,7 @@ services:
       - HOSTNAME=0.0.0.0
       - NEXT_PUBLIC_BASE_URL=http://localhost:20128
       - NODE_ENV=production
-      # Credenciais lidas do arquivo .env local (nunca versionado)
+      # Credenciais lidas do arquivo .env local
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no arquivo .env}
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
       - REQUIRE_API_KEY=false
@@ -30,30 +27,39 @@ services:
     command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]
-      interval: 30s
+      interval: 15s
       timeout: 5s
       retries: 3
       start_period: 20s
 
-  token-sync:
-    image: python:3.14-alpine
-    container_name: claudegravity-token-sync
+  9rtksync:
+    # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
+    image: ghcr.io/pathbit/9rtksync:latest
+    container_name: 9RTKSync
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9190:9190"
     volumes:
       - 9router_data:/app/data
       - ${HOME}/.gemini:/root/.gemini:ro
-      - ./src:/app/src:ro
-      - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1
       - DB_PATH=/app/data/db/data.sqlite
+      - ROUTER_URL=http://9router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0002
-    command: ["python3", "/app/src/token_daemon.py"]
+      - ENABLE_WEB_DASHBOARD=1
+      - WEB_PORT=9190
     depends_on:
       9router:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/opt/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9190/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   9router_data:
