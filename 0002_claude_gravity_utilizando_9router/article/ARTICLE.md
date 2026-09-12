@@ -85,22 +85,25 @@ services:
       retries: 3
       start_period: 20s
 
-  token-sync:
-    image: python:3.14-alpine
-    container_name: claudegravity-token-sync
+  9rtksync:
+    # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
+    image: ghcr.io/pathbit/9rtksync:latest
+    container_name: 9RTKSync
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9190:9190"
     volumes:
       - 9router_data:/app/data
       - ${HOME}/.gemini:/root/.gemini:ro
-      - ./src:/app/src:ro
-      - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1
       - DB_PATH=/app/data/db/data.sqlite
+      - ROUTER_URL=http://9router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0002
-    command: ["python3", "/app/src/token_daemon.py"]
+      - ENABLE_WEB_DASHBOARD=1
+      - WEB_PORT=9190
     depends_on:
       9router:
         condition: service_healthy
@@ -115,7 +118,7 @@ Cinco decisões de engenharia neste manifesto:
 * **Senha e segredo JWT vêm do `.env`**, nunca literais no arquivo versionado. A sintaxe `${VAR:?mensagem}` interrompe a subida com um erro claro caso a variável não exista, em vez de silenciosamente aplicar um padrão fraco.
 * **`healthcheck` ativo:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda HTTP a cada 30 segundos marca o container como `unhealthy` e torna o problema visível no `docker ps`.
 * **Porta publicada apenas em `127.0.0.1`:** o gateway guarda o token OAuth da sua conta Google e as chaves dos provedores. Publicar como `"20128:20128"` o exporia em todas as interfaces de rede, permitindo que qualquer máquina da mesma rede consumisse sua cota. O prefixo de loopback restringe o acesso à própria máquina.
-* **Container sidecar de renovação contínua (`token-sync`):** baseado na imagem oficial `python:3.14-alpine`, roda em segundo plano consumindo apenas ~14 MB de RAM para validar o token OAuth e renová-lo preventivamente 15 minutos antes de expirar, eliminando erros 401 e 503 e curando automaticamente o bug de expiração do 9Router.
+* **Guardião de sincronização contínua (`9RTKSync`):** baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*), roda em ambiente virtual isolado (`/opt/venv`), consome apenas ~18 MB de RAM e valida a saúde das conexões do [9Router](https://github.com/decolua/9router) continuamente com auto-cura e dashboard web embutido na porta 9190.
 
 > **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: ele confere o endpoint e a tabela `combos`, e se qualquer um mudar, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
 
@@ -753,23 +756,23 @@ E, diante do campo corrompido, reconhece a causa pelo nome:
 [+] Credencial renovada. Válida por mais 59 min.
 ```
 
-Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize a solução definitiva: o container sidecar `claudegravity-token-sync`.
+Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize a solução definitiva: o container dedicado `9RTKSync`.
 
-### Auto-Renovação Definitiva com o Container Sidecar claudegravity-token-sync
+### Auto-Renovação Definitiva com o Container 9RTKSync
 
-Para que a renovação não dependa de um terminal aberto ou de scripts executados manualmente pelo desenvolvedor, o `docker-compose.yml` deste módulo já provisiona o serviço `token-sync` com o container `claudegravity-token-sync`:
+Para que a sincronização e renovação de credenciais não dependa de terminais abertos ou de intervenções manuais, o `docker-compose.yml` deste projeto provisiona o serviço oficial `9rtksync` com o container `9RTKSync` (baseado no repositório [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
 
-1. **Imagem e Consumo Mínimo:** Baseado na imagem oficial `python:3.14-alpine`, consome menos de 14 MB de memória RAM e 0% de CPU.
-2. **Isolamento de Credenciais:** O container monta o diretório `${HOME}/.gemini` como somente-leitura (`:ro`), impedindo qualquer modificação acidental nas chaves do host, e extrai as credenciais de cliente OAuth do Google diretamente de `/app/data/shared.js` gerado pelo 9Router em tempo de execução, garantindo zero segredos versionados no Git.
-3. **Monitoramento do SQLite em Tempo Real:** A cada 5 minutos, o script `src/token_daemon.py` inspeciona a tabela `providerConnections` do banco `/app/data/db/data.sqlite`. Se o token for expirar em menos de 15 minutos ou se o 9Router tiver gravado o campo `expiresAt` como texto ISO, o sidecar solicita um novo token aos servidores OAuth do Google e regrava o timestamp como número inteiro.
+1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`), consumindo apenas ~18 MB de RAM e 0% de CPU.
+2. **Isolamento de Credenciais e Auto-Cura:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório `${HOME}/.gemini` como somente-leitura (`:ro`), inspecionando periodicamente o SQLite, curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
+3. **Dashboard Web em Tempo Real:** Servidor HTTP embutido expondo a interface web e endpoints de monitoramento em `http://localhost:9190` e `http://localhost:9190/healthz`.
 
-Para acompanhar a operação contínua do sidecar no terminal:
+Para acompanhar a operação contínua do guardião no terminal:
 
 ```bash
-docker logs -f claudegravity-token-sync
+docker logs -f 9RTKSync
 ```
 
-Com essa arquitetura, você pode desenvolver ininterruptamente sem se preocupar com sessões derrubadas ou tokens expirados.
+Com essa arquitetura, você pode desenvolver ininterruptamente no [9Router](https://github.com/decolua/9router) sem se preocupar com sessões derrubadas ou tokens expirados.
 
 ---
 
@@ -1445,7 +1448,7 @@ Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as se
 
 1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
    - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
-   - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`), daemon (`src/token_daemon.py`) e diagnóstico (`src/verify_setup.py`).
+   - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
    - Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
 
 2. **Ambiente Virtual Dedicado:** Crie e ative o ambiente virtual para isolamento das dependências:
@@ -1510,5 +1513,20 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 - [Claude Code Settings & Permissions Guide](https://code.claude.com/docs/en/settings)
 - [Claude Code Model Configuration Reference](https://code.claude.com/docs/en/model-config)
 - [9Router GitHub Repository & Architecture](https://github.com/decolua/9router)
+- [9RTKSync: 9Router Universal Token & Connection Synchronizer](https://github.com/pathbit/9RTKSync)
+- [OminiRTKSync: OminiRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OminiRTkSync)
+- [OmniRoute Gateway Repository](https://github.com/diegosouzapw/OmniRoute)
 - [Google Antigravity Overview](https://antigravity.google)
 - [DeepClaude Architecture Reference](https://github.com/aattaran/deepclaude)
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

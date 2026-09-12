@@ -520,30 +520,34 @@ HTTP 200`), container parado à força (**religou sozinho em 8 s** e validou), g
 (`FALHA: Gateway nao responde - HTTP 000`) e credencial de origem ausente (mensagem clara apontando
 `~/.gemini/`).
 
-### Container Sidecar de Auto-Renovação Contínua (Python 3.14.7 Alpine)
+### Container Guardião de Conexões 9RTKSync (Python 3.14.7 Alpine)
 
-Para transformar a auto-cura em um componente nativo da infraestrutura Docker (independente de cronjobs ou LaunchAgents no sistema operacional do host), foi introduzido o container sidecar `claudegravity-token-sync`:
+Para transformar a auto-cura em um componente nativo da infraestrutura Docker (independente de cronjobs ou intervenções manuais no sistema operacional do host), foi introduzido o container oficial `9RTKSync` (projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
 
-1. **Imagem e Recursos:** Utiliza a imagem oficial `python:3.14-alpine` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg)), consumindo apenas ~14 MB de memória RAM e 0% de CPU.
-2. **Descoberta Dinâmica de Credenciais sem Segredos no Git:** O sidecar extrai as chaves de cliente OAuth Google em tempo de execução diretamente do arquivo `/app/data/shared.js` compartilhado via volume pelo 9Router, garantindo total isolamento e zero exposição de segredos no repositório.
-3. **Ciclo de Monitoramento:** A cada 300 segundos (5 minutos), o `token_daemon.py` inspeciona a tabela `providerConnections` do banco SQLite. Se o token vencer em menos de 15 minutos ou se o campo `expiresAt` tiver sido corrompido como texto ISO pelo 9Router, ele renova o token junto ao Google OAuth e regrava o timestamp como epoch numérico inteiro.
-4. **Validação Efetiva:** Testado em execução contínua com logs comprovando inspeção e renovação periódica sem qualquer intervenção humana:
-   ```text
-   [*] Iniciando Claudegravity Token Daemon v1.0.0
-   [*] Verificando conexao Antigravity no SQLite...
-   [+] Token valido por mais 3594s. Proxima checagem em 300s.
-   ```
+1. **Imagem e Recursos:** Utiliza a imagem oficial `ghcr.io/pathbit/9rtksync:latest` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) Alpine), isolada em virtual environment dedicado (`/opt/venv`), consumindo apenas ~18 MB de memória RAM e 0% de CPU.
+2. **Descoberta Dinâmica de Credenciais sem Segredos no Git:** O sincronizador monitora o banco SQLite compartilhado (`/app/data/db/data.sqlite`) do [9Router](https://github.com/decolua/9router), garantindo total isolamento e zero exposição de segredos no repositório.
+3. **Ciclo de Monitoramento:** A cada 300 segundos (5 minutos), o `9RTKSync` inspeciona a tabela `providerConnections` do banco SQLite. Se o token vencer em menos de 15 minutos ou se o campo `expiresAt` tiver sido corrompido como texto ISO pelo 9Router, ele renova o token junto ao Google OAuth e regrava o timestamp como epoch numérico inteiro.
+4. **Dashboard Web:** Expõe dashboard em tempo real na porta `9190` e sonda de prontidão em `/healthz`.
 
 ---
 
 ## Observações para quem for reproduzir
 
 1. **Pré-requisito entre artigos:** o 0003 usa `sync_antigravity_token.py`, que pertence ao 0002.
-2. **Arquivo `.env` obrigatório:** os compose leem `INITIAL_PASSWORD` e `JWT_SECRET` do ambiente e
-   falham de propósito se faltarem. Copie `.env.example` para `.env` antes de subir.
-3. **Chave do gateway:** é gerada na primeira execução do sincronizador e gravada no `.env`, que
-   não é versionado. Nenhuma chave publicada funciona como padrão.
-4. **Portas em loopback:** o gateway carrega credenciais reais e por isso publica apenas em
-   `127.0.0.1`.
-5. **Catálogos gratuitos mudam.** Revalide com `python3 src/test_arsenal.py`, que acusa qualquer
-   nível quebrado.
+2. **Arquivo `.env` obrigatório:** os compose leem `INITIAL_PASSWORD` e `JWT_SECRET` do ambiente e falham de propósito se faltarem. Copie `.env.example` para `.env` antes de subir.
+3. **Chave do gateway:** é gerada na primeira execução do sincronizador e gravada no `.env`, que não é versionado. Nenhuma chave publicada funciona como padrão.
+4. **Portas em loopback:** o gateway carrega credenciais reais e por isso publica apenas em `127.0.0.1`.
+5. **Catálogos gratuitos mudam.** Revalide com `python3 src/test_arsenal.py`, que acusa qualquer nível quebrado.
+6. **Virtual Environment obrigatório:** Todo comando Python deve ser executado no ambiente virtual (`source .venv/bin/activate`).
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

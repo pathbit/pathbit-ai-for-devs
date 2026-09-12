@@ -2,12 +2,12 @@ name: claudegravity
 
 services:
   9router:
+    # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
     container_name: claudegravity-router
     restart: unless-stopped
     ports:
-      # Apenas localhost: o gateway carrega credenciais reais (OAuth do Antigravity
-      # e chaves dos provedores) e nao deve ficar acessivel na rede local.
+      # Apenas localhost: o gateway carrega credenciais reais e nao deve ficar acessivel na rede local.
       - "127.0.0.1:20128:20128"
     environment:
       - DATA_DIR=/app/data
@@ -39,7 +39,6 @@ services:
     container_name: claudegravity-ollama
     restart: unless-stopped
     ports:
-      # Apenas localhost, pelo mesmo motivo do gateway.
       - "127.0.0.1:11434:11434"
     volumes:
       - ollama_data:/root/.ollama
@@ -48,25 +47,35 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-  token-sync:
-    image: python:3.14-alpine
-    container_name: claudegravity-token-sync
+
+  9rtksync:
+    # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
+    image: ghcr.io/pathbit/9rtksync:latest
+    container_name: 9RTKSync
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9190:9190"
     volumes:
       - 9router_data:/app/data
       - ${HOME}/.gemini:/root/.gemini:ro
-      - ./src:/app/src:ro
-      - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1
       - DB_PATH=/app/data/db/data.sqlite
+      - ROUTER_URL=http://9router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0003
-    command: ["python3", "/app/src/token_daemon.py"]
+      - ENABLE_WEB_DASHBOARD=1
+      - WEB_PORT=9190
     depends_on:
       9router:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/opt/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9190/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   9router_data:

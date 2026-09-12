@@ -505,22 +505,25 @@ services:
       retries: 5
       start_period: 10s
 
-  token-sync:
-    image: python:3.14-alpine
-    container_name: claudegravity-token-sync
+  9rtksync:
+    # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
+    image: ghcr.io/pathbit/9rtksync:latest
+    container_name: 9RTKSync
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9190:9190"
     volumes:
       - 9router_data:/app/data
       - ${HOME}/.gemini:/root/.gemini:ro
-      - ./src:/app/src:ro
-      - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1
       - DB_PATH=/app/data/db/data.sqlite
+      - ROUTER_URL=http://9router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0003
-    command: ["python3", "/app/src/token_daemon.py"]
+      - ENABLE_WEB_DASHBOARD=1
+      - WEB_PORT=9190
     depends_on:
       9router:
         condition: service_healthy
@@ -534,7 +537,7 @@ Quatro detalhes de arquitetura essenciais foram incorporados neste manifesto:
 1. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
 2. **Streaming Nativo SSE com Ollama Local:** O 9Router consome a API compatível da OpenAI exposta pelo Ollama em `http://host.docker.internal:11434/v1` via nós `openai-compatible-*`. Ao contrário da rota proprietária `/api/chat` (que emite `application/x-ndjson`), a rota `/v1/chat/completions` entrega Server-Sent Events (`text/event-stream`), garantindo streaming nativo na inferência local. Em nossos testes com o `qwen2.5-coder:0.5b` já carregado em memória, o modelo respondeu ao gateway em **0,03s a 0,13s**; a primeira chamada após subir o container é bem mais lenta (medimos **5,09s**), porque inclui o carregamento do modelo na memória.
 3. **Segredos fora do manifesto e ordem de subida:** `INITIAL_PASSWORD` e `JWT_SECRET` são lidos do `.env` (a sintaxe `${VAR:?mensagem}` aborta o `up` com um erro claro se a variável faltar), e os `healthcheck` combinados ao `depends_on: service_healthy` garantem que o 9Router só suba depois que o Ollama estiver respondendo  -  eliminando a corrida que obrigava a inserir esperas manuais nos scripts.
-4. **Renovação Contínua sem Quedas (`token-sync`):** O container sidecar em Alpine Linux roda com consumo mínimo (~14 MB de RAM) e garante a longevidade dos tokens Google Antigravity e combos multi-provedor. A cada 5 minutos ele valida a credencial no SQLite compartilhado e efetua a renovação preventiva via Google OAuth antes que ocorram erros 503 ou expiração de 1 hora.
+4. **Guardião de Conexões sem Quedas (`9RTKSync`):** O container oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) roda isolado em virtual environment dedicado (`/opt/venv`) com consumo mínimo (~18 MB de RAM) e garante a longevidade dos tokens Google Antigravity e combos multi-provedor. A cada 5 minutos ele valida a credencial no SQLite compartilhado, auto-cura divergências de datas e efetua a renovação preventiva via Google OAuth antes que ocorram erros 503 ou expiração de 1 hora.
 
 Para subir a infraestrutura completa em segundo plano:
 
@@ -651,7 +654,7 @@ Simula a situação em que a conta Google é desconectada ou o token OAuth expir
 
 ### 4. Cenário de Auto-Cura e Restauração
 
-> Para sessões longas e contínuas, o container sidecar oficial `claudegravity-token-sync` (já embutido no `docker-compose.yml` e rodando com a imagem oficial `python:3.14-alpine`) executa o daemon `token_daemon.py` a cada 5 minutos, inspecionando o SQLite e auto-renovando a credencial 15 minutos antes da expiração. Alternativamente, você pode rodar a verificação avulsa no host com `python3 src/token_daemon.py` ou `python3 ../0002_claude_gravity_utilizando_9router/src/keep_connected.py`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e do bug de data em formato ISO.
+> Para sessões longas e contínuas, o container oficial `9RTKSync` (já embutido no `docker-compose.yml` e rodando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` em virtual environment dedicado) gerencia de ponta a ponta as conexões e combos do [9Router](https://github.com/decolua/9router) a cada 5 minutos, inspecionando o SQLite e auto-renovando as credenciais 15 minutos antes da expiração. O projeto oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) elimina travamentos e mantém um dashboard web em tempo real em `http://localhost:9190`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e da normalização de formatos.
 
 Aciona o utilitário `sync_antigravity_token.py`, que renova o access token via Google OAuth e restabelece a conexão primária. O script limpa quaisquer travas residuais de rate limit e dispara uma nova requisição, confirmando que o canal com o Gemini 3.8 Flash High volta a responder instantaneamente.
 
@@ -1097,9 +1100,24 @@ Para aprofundar na configuração específica do Google Antigravity e na engenha
 ## Referências Técnicas
 
 - [9Router GitHub Repository](https://github.com/decolua/9router)
+- [9RTKSync: 9Router Universal Token & Connection Synchronizer](https://github.com/pathbit/9RTKSync)
+- [OminiRTKSync: OminiRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OminiRTkSync)
+- [OmniRoute Gateway Repository](https://github.com/diegosouzapw/OmniRoute)
 - [Claude Code Settings & Permissions Official Guide](https://code.claude.com/docs/en/settings)
 - [Anthropic Messages API Reference](https://docs.anthropic.com/en/api/messages)
 - [Groq Cloud Documentation](https://console.groq.com/docs)
 - [Google AI Studio Gemini API Documentation](https://ai.google.dev/gemini-api/docs)
 - [OpenRouter Models Catalog](https://openrouter.ai/models)
 - [Ollama Open Source LLM Runner](https://ollama.com)
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)

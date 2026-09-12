@@ -34,7 +34,6 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 ├── src/
 │   ├── manage_env.py              # Gerenciador de ciclo de vida (start, status, stop, destroy)
 │   ├── verify_*.py                # Script de auditoria e validação de saúde do ambiente
-│   ├── token_daemon.py            # Daemon continuo do container sidecar para auto-renovacao de tokens
 │   └── *.py                       # Scripts utilitários e testes de inferência em Python puro
 ├── examples/
 │   ├── .claude/                   # Sandbox isolado para testes com Claude Code
@@ -42,7 +41,7 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 │   │   └── settings.local.json.example
 │   ├── README.md                  # Instruções de execução isolada do exemplo
 │   └── sample_*.py                # Tarefa prática de demonstração
-├── docker-compose.yml             # Manifesto de infraestrutura (quando aplicável)
+├── docker-compose.yml             # Manifesto de infraestrutura (gateway + 9RTKSync quando aplicável)
 ├── .env.example                   # Modelo limpo de variáveis de ambiente
 └── README.md                      # Guia rápido de execução do módulo
 ```
@@ -63,12 +62,24 @@ Ao criar um novo módulo (por exemplo, `0004_novo_artigo/`), siga este checklist
    - Garanta que `.claude/` esteja somente dentro de `examples/`.
    - Adicione arquivos `.example` para todas as configurações que utilizem caminhos ou chaves locais.
 5. **Automação em Python:**
-   - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros.
+   - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros e executado em virtual environment.
    - Forneça scripts de verificação e testes com saída limpa no terminal.
 6. **Integração Cruzada:**
-- Acrescente a seção do artigo no `README.md` raiz seguindo o padrão dos existentes: título H3 com link para a pasta, linha `**Ano:** … | **Categoria:** …`, parágrafo de resumo e a linha de três links.
+   - Acrescente a seção do artigo no `README.md` raiz seguindo o padrão dos existentes: título H3 com link para a pasta, linha `**Ano:** … | **Categoria:** …`, parágrafo de resumo e a linha de três links.
    - Adicione referências cruzadas entre artigos anteriores e futuros na seção de conclusão.
 7. **Auditoria de Regras Editoriais:**
    - Verifique que não existam dois-pontos em títulos.
    - Verifique que não existam caracteres de travessão longo.
    - Utilize vocabulário direto e simples.
+
+---
+
+## 📄 Licença
+
+Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).
+
+Na prática: use, copie, altere e redistribua à vontade, inclusive comercialmente, desde que o aviso de copyright e a licença acompanhem as cópias. O software é fornecido como está, sem garantias.
+
+---
+
+Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co/)
