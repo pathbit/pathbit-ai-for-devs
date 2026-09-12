@@ -165,6 +165,36 @@ source .venv/bin/activate
 make test-local
 ```
 
+### Opção 3. Validação Cruzada com os Projetos RTK
+
+Os artigos mandam o leitor copiar um `docker-compose.yml` que sobe imagens dos
+projetos [9RTKSync](https://github.com/pathbit/9RTKSync),
+[OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e
+[LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync). Quando um desses
+projetos muda e o artigo não, o leitor segue instruções que não funcionam mais —
+e não tem como saber que o errado é o texto.
+
+```bash
+make valida-docs
+```
+
+Confere, para cada compose de artigo que usa uma imagem RTKSync: se a porta
+interna publicada é a que o serviço realmente escuta, e se toda variável de
+ambiente passada ao container é lida pelo projeto. Não precisa de nenhum
+container de pé — basta ter os projetos RTK clonados ao lado deste repositório.
+Sai com código diferente de zero quando encontra divergência.
+
+Para validar os painéis por HTTP com as stacks de pé (autenticação, CSRF,
+cabeçalhos de segurança, troca de senha e ausência de vazamento de credencial):
+
+```bash
+make valida-paineis
+```
+
+> O script de painéis **troca a senha** do painel como parte da verificação — é
+> justamente o caminho que já quebrou antes. Leia o cabeçalho de
+> [`tools/valida_paineis.sh`](./tools/valida_paineis.sh) antes de rodar.
+
 ---
 
 ## 📄 Licença
