@@ -88,7 +88,7 @@ services:
   9rtksync:
     # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
     image: ghcr.io/pathbit/9rtksync:latest
-    container_name: 9RTKSync
+    container_name: router-sync
     restart: unless-stopped
     ports:
       - "127.0.0.1:9190:9190"
@@ -759,9 +759,9 @@ E, diante do campo corrompido, reconhece a causa pelo nome:
 
 Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, ou utilize a solução definitiva: o container dedicado `9RTKSync`.
 
-### Auto-Renovação Definitiva com o Container 9RTKSync
+### Auto-Renovação Definitiva com o Container router-sync
 
-Para que a sincronização e renovação de credenciais não dependa de terminais abertos ou de intervenções manuais, o `docker-compose.yml` deste projeto provisiona o serviço oficial `9rtksync` com o container `9RTKSync` (baseado no repositório [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
+Para que a sincronização e renovação de credenciais não dependa de terminais abertos ou de intervenções manuais, o `docker-compose.yml` deste projeto provisiona o serviço oficial `9rtksync` com o container `router-sync` (baseado no repositório [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
 
 1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`), consumindo apenas ~18 MB de RAM e 0% de CPU.
 2. **Isolamento de Credenciais e Auto-Cura Universal:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório home do usuário host (`${HOME}:/root/host:ro`) em modo estritamente somente-leitura (`:ro`), descobrindo e sincronizando credenciais de múltiplos provedores locais (Google Antigravity, Claude, GitHub Copilot, Codex, Kiro, Codeium), curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
@@ -770,7 +770,7 @@ Para que a sincronização e renovação de credenciais não dependa de terminai
 Para acompanhar a operação contínua do guardião no terminal:
 
 ```bash
-docker logs -f 9RTKSync
+docker logs -f router-sync
 ```
 
 Com essa arquitetura, você pode desenvolver ininterruptamente no [9Router](https://github.com/decolua/9router) sem se preocupar com sessões derrubadas ou tokens expirados.
