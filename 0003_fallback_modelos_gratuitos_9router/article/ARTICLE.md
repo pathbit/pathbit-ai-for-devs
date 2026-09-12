@@ -525,6 +525,10 @@ services:
       - MODULE=0003
       - ENABLE_WEB_DASHBOARD=1
       - WEB_PORT=9090
+      # O painel exige autenticacao. Sem estas duas variaveis a stack sobe, mas
+      # o navegador responde 401 e nao ha senha documentada para informar.
+      - DASHBOARD_USER=${DASHBOARD_USER:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:?defina DASHBOARD_PASSWORD no .env}
     depends_on:
       9router:
         condition: service_healthy

@@ -197,6 +197,8 @@ docker logs -f 9RTKSync
 
 # Acessar o dashboard web do 9RTKSync
 # http://localhost:9091
+# O painel pede autenticacao: use DASHBOARD_USER e DASHBOARD_PASSWORD, as mesmas
+# que voce definiu no .env (o compose recusa subir sem a senha).
 
 # Pausar os serviços
 docker compose stop
