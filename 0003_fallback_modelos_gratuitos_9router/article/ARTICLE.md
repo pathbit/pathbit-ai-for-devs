@@ -511,7 +511,7 @@ services:
     container_name: router-sync
     restart: unless-stopped
     ports:
-      - "127.0.0.1:9190:9190"
+      - "127.0.0.1:9091:9090"
     volumes:
       - 9router_data:/app/data
       - ${HOME}:/root/host:ro
@@ -524,7 +524,7 @@ services:
       - REFRESH_MARGIN=900
       - MODULE=0003
       - ENABLE_WEB_DASHBOARD=1
-      - WEB_PORT=9190
+      - WEB_PORT=9090
     depends_on:
       9router:
         condition: service_healthy
@@ -655,7 +655,7 @@ Simula a situação em que a conta Google é desconectada ou o token OAuth expir
 
 ### 4. Cenário de Auto-Cura e Restauração
 
-> Para sessões longas e contínuas, o container oficial `router-sync` (já embutido no `docker-compose.yml` e rodando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` em virtual environment dedicado) gerencia de ponta a ponta as conexões e combos do [9Router](https://github.com/decolua/9router) a cada 5 minutos, inspecionando o SQLite e auto-renovando as credenciais 15 minutos antes da expiração. O projeto oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) elimina travamentos e mantém um dashboard web em tempo real em `http://localhost:9190`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e da normalização de formatos.
+> Para sessões longas e contínuas, o container oficial `router-sync` (já embutido no `docker-compose.yml` e rodando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` em virtual environment dedicado) gerencia de ponta a ponta as conexões e combos do [9Router](https://github.com/decolua/9router) a cada 5 minutos, inspecionando o SQLite e auto-renovando as credenciais 15 minutos antes da expiração. O projeto oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) elimina travamentos e mantém um dashboard web em tempo real em `http://localhost:9091`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e da normalização de formatos.
 
 Aciona o utilitário `sync_antigravity_token.py`, que renova o access token via Google OAuth e restabelece a conexão primária. O script limpa quaisquer travas residuais de rate limit e dispara uma nova requisição, confirmando que o canal com o Gemini 3.8 Flash High volta a responder instantaneamente.
 
