@@ -196,7 +196,7 @@ docker ps --filter "name=claudegravity"
 docker logs -f 9RTKSync
 
 # Acessar o dashboard web do 9RTKSync
-# http://localhost:9190
+# http://localhost:9091
 
 # Pausar os serviços
 docker compose stop
