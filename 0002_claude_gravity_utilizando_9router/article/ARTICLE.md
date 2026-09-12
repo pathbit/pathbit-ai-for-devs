@@ -1426,6 +1426,46 @@ Se o Gemini 3.8 Flash atingir o teto momentâneo de tokens por minuto durante um
 1. **Use uma conta Google dedicada a desenvolvimento**, nunca a conta pessoal onde vivem e-mails bancários e documentos essenciais. É o que limita o impacto caso a política do provedor mude.
 2. **Mantenha o gateway em rede privada:** `localhost` para uso individual, VPN ou rede overlay (como Tailscale) para o time. Nunca exponha a porta `20128` na internet aberta.
 3. **Respeite o padrão de uso humano:** programar com o Claude Code intercala inferência com leitura e revisão. Evite benchmarks sintéticos disparando requisições contínuas em loop infinito.
+4. **Separe a saída de rede por conta.** Várias sessões na mesma conta não são o problema — os provedores aceitam isso. O que chama atenção é o inverso: **várias contas saindo pelo mesmo endereço**, que é o padrão natural de um gateway com todas as contas cadastradas. A seção abaixo mostra como o 9Router resolve isso.
+
+---
+
+### 7. Multi-sessão: por que o endereço de saída importa mais que o número de sessões
+
+Existe uma confusão comum que vale desfazer, porque ela leva à decisão errada.
+
+**O que não é problema:** manter mais de uma sessão ativa na mesma conta. OpenAI, Anthropic e Google convivem com isso — é o caso de quem usa o app no celular e a CLI no desktop ao mesmo tempo.
+
+**O que é problema:** um gateway com cinco contas cadastradas faz as cinco saírem pelo mesmo IP. Para o provedor, cinco identidades distintas compartilhando um endereço é o formato de uma revenda de acesso — exatamente o comportamento que o `RISK_NOTICE` da seção 1 existe para desencorajar.
+
+#### Tailscale resolve? Só metade do problema
+
+A regra de ouro nº 2 recomenda Tailscale para manter o gateway fora da internet aberta, e essa recomendação continua válida. Mas é fácil concluir dela algo que não se sustenta: **um exit node do Tailscale dá endereço estável ao host, não a cada conta**. Com várias contas no mesmo gateway, todas continuam saindo pelo mesmo lugar — o problema volta intacto.
+
+Vários exit nodes separam de verdade, mas só se cada conta estiver **vinculada** a um deles. E o vínculo não vem da tecnologia que produziu o endereço: vale igual para VPS, proxy residencial ou um segundo link. **O que separa contas é o vínculo por conta, nunca a tecnologia que gerou o IP.**
+
+#### Como o 9Router modela isso
+
+O gateway já tem a peça pronta, e ela não depende de nada externo:
+
+| Onde | O que guarda |
+| :--- | :--- |
+| `proxyPools` | Os endereços de saída disponíveis |
+| `providerSpecificData.proxyPoolId` | A qual pool **aquela conexão** está vinculada |
+| `providerSpecificData.connectionProxyEnabled` | Se o roteamento está ativo para ela |
+
+A propriedade que interessa: o vínculo é **por conexão**, não global. Cadastrar um pool por conta e apontar cada conexão para o seu fixa a saída daquela conta — sem rotação, sem sorteio. Duas contas nunca dividem endereço se cada uma tiver o próprio `proxyPoolId`.
+
+> **Quem aplica o roteamento é o gateway, sempre.** O painel do [9RTKSync](https://github.com/pathbit/9RTKSync) exibe o vínculo de cada conta em modo **somente leitura**: *saída própria* quando ela tem o seu pool, *divide o endereço do gateway com N contas* quando não tem — e esse aviso só aparece a partir da segunda conta nessa situação, porque uma conta sozinha é a única dona daquele IP. É assim que você vê quais contas compartilham endereço antes que o provedor veja. A consulta que lista isso está em [`docs/Egress-And-Multi-Session.md`](https://github.com/pathbit/9RTKSync/blob/master/docs/Egress-And-Multi-Session.md), com a versão equivalente para o OmniRoute no [OminiRTkSync](https://github.com/pathbit/OminiRTkSync/blob/master/docs/Egress-And-Multi-Session.md).
+
+#### O mínimo que vale fazer
+
+Se cadastrar uma conta só, nada disso se aplica. A partir da segunda:
+
+1. Confira no painel do 9RTKSync quais contas aparecem como `compartilhada`.
+2. Cadastre um endereço de saída por conta em `proxyPools` — exit node, VPS ou proxy, tanto faz.
+3. Vincule cada conexão ao seu pool e ative `connectionProxyEnabled`.
+4. Revalide no painel: o estado de cada conta deve passar a `vinculada`.
 
 ---
 
