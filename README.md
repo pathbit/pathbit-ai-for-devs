@@ -136,6 +136,37 @@ zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ---
 
+## 🧪 Execução de Testes
+
+Você pode validar e executar todos os diagnósticos e testes de integração sem instalar absolutamente nada na sua máquina host (exceto o Docker), ou opcionalmente através de ambiente virtual local.
+
+### Opção 1. Via Container Docker (Zero Instalação na Máquina)
+
+O único pré-requisito é ter o Docker instalado. Nada mais precisa ser instalado na máquina:
+
+```bash
+# Executar todos os testes de integração em containers
+./run_tests.sh
+
+# Ou via Makefile
+make test-container
+
+# Ou testar serviços individuais
+make test-gateway
+make test-arsenal
+```
+
+### Opção 2. Via Virtual Environment Local (Pré-requisitos Opcionais)
+
+Se desejar executar diretamente no host com Python 3.14+:
+
+```bash
+source .venv/bin/activate
+make test-local
+```
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a **Licença MIT**. O texto completo está em [LICENSE](./LICENSE).
