@@ -94,9 +94,10 @@ services:
       - "127.0.0.1:9190:9190"
     volumes:
       - 9router_data:/app/data
-      - ${HOME}/.gemini:/root/.gemini:ro
+      - ${HOME}:/root/host:ro
     environment:
       - PYTHONUNBUFFERED=1
+      - HOST_HOME=/root/host
       - DB_PATH=/app/data/db/data.sqlite
       - ROUTER_URL=http://9router:20128
       - SYNC_INTERVAL=300
@@ -763,7 +764,7 @@ Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, o
 Para que a sincronização e renovação de credenciais não dependa de terminais abertos ou de intervenções manuais, o `docker-compose.yml` deste projeto provisiona o serviço oficial `9rtksync` com o container `9RTKSync` (baseado no repositório [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
 
 1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`), consumindo apenas ~18 MB de RAM e 0% de CPU.
-2. **Isolamento de Credenciais e Auto-Cura:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório `${HOME}/.gemini` como somente-leitura (`:ro`), inspecionando periodicamente o SQLite, curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
+2. **Isolamento de Credenciais e Auto-Cura Universal:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório home do usuário host (`${HOME}:/root/host:ro`) em modo estritamente somente-leitura (`:ro`), descobrindo e sincronizando credenciais de múltiplos provedores locais (Google Antigravity, Claude, GitHub Copilot, Codex, Kiro, Codeium), curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
 3. **Dashboard Web em Tempo Real:** Servidor HTTP embutido expondo a interface web e endpoints de monitoramento em `http://localhost:9190` e `http://localhost:9190/healthz`.
 
 Para acompanhar a operação contínua do guardião no terminal:
