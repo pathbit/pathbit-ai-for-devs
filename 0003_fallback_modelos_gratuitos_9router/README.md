@@ -204,6 +204,10 @@ docker logs -f 9RTKSync
 docker compose stop
 
 # DESTRUIR TUDO (remover containers e volumes)
+# ATENCAO: os artigos 0002 e 0003 compartilham o mesmo projeto Docker
+# ("claudegravity") e os mesmos nomes de container. Este comando remove o
+# volume usado pelos DOIS -- rode-o so quando quiser descartar as credenciais
+# e o banco do 9Router de vez. Para apenas parar, use `docker compose stop`.
 docker compose down -v --remove-orphans
 ```
 
