@@ -1094,6 +1094,16 @@ Para garantir estabilidade contínua ao longo de semanas de trabalho:
 
    O 9Router já modela isso: os endereços ficam em `proxyPools` e o vínculo vive **dentro de cada conexão**, em `providerSpecificData.proxyPoolId` + `connectionProxyEnabled`. Um pool por conta fixa a saída daquela conta, sem rotação. O painel do [9RTKSync](https://github.com/pathbit/9RTKSync) mostra o vínculo em modo somente leitura — *saída própria* ou *divide o endereço do gateway com N contas*, este último só a partir da segunda conta nessa situação —, para você enxergar quais contas dividem endereço antes que vire problema — a consulta está em [Egress and Multi-Session](https://github.com/pathbit/9RTKSync/wiki/Egress-And-Multi-Session). O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha o mecanismo e o passo a passo.
 6. **Beneficie-se da Compressão RTK:** O 9Router traz filtros dedicados para saídas de `git diff`, `git status`, `git log`, `grep`, `tree`, `ls`, `find` e builds, ativos por padrão. Eles cortam o ruído repetitivo que o agente reenvia a cada turno e prolongam a vida útil de qualquer limite de taxa. A economia depende do tipo de saída que suas tarefas produzem  -  não medimos um percentual próprio, então trate qualquer número divulgado como estimativa até validar no seu fluxo.
+7. **Dimensione pela trava, não pelo palpite:** a cascata multi-provedor é, em termos de dimensionamento, a alavanca mais barata que existe  -  ela multiplica a capacidade efetiva **sem comprar conta nova**, porque a cota é contabilizada por conta e, no Antigravity, por **família de modelo**. É a mesma propriedade que faz o nível 4 continuar respondendo quando os três primeiros caem. O que ela não faz é dizer se o número de contas acertou.
+
+   E aqui vale repetir o padrão da casa: os tetos dos tiers gratuitos deste artigo **não foram medidos**  -  a seção do [catálogo da Mistral](#o-catálogo-da-mistral-e-o-que-a-api-não-mostra) já registra que latência não é cota, e nenhum dos provedores gratuitos publica capacidade absoluta. Então a unidade honesta não é requisição por minuto: é a **trava** que o gateway grava quando o teto chega, em `rateLimitedUntil` (conta inteira) e `modelLock_*` (por família). Com a stack de pé, a leitura sai em um comando  -  o gateway é o mesmo para os dois módulos:
+
+   ```bash
+   # a partir da pasta do modulo 0002, que versiona o script
+   python3 src/quota_locks.py
+   ```
+
+   Conte as travas por conta por dia durante uma semana: nível que trava todo dia precisa de reforço acima dele na cascata, e conta que nunca trava é folga. A fórmula completa, com as variáveis, a medição do consumo real e o que fica em aberto por não ser publicado, está em [Quantas Contas para Quantos Desenvolvedores](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#5-quantas-contas-para-quantos-desenvolvedores), no Artigo 0002.
 
 ---
 
@@ -1104,6 +1114,10 @@ Ao desacoplar a camada de execução (Claude Code CLI) da camada de inferência 
 Para aprofundar na infraestrutura de permissões irrestritas do Google Antigravity, acesse o [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md).
 
 Para aprofundar na configuração específica do Google Antigravity e na engenharia de tradução de chamadas do Claude Code, acesse o [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md).
+
+**Onde a cascata deste artigo encontra o seu limite.** Tudo o que foi montado aqui responde à pergunta "de onde sai o próximo token quando esta conta acabar". Nenhuma linha responde a outra, que aparece assim que mais de uma pessoa usa a mesma montagem: *quem* consumiu o quê, e como impedir que uma pessoa sozinha esgote a cota do time antes do almoço. O 9Router escolhe a conta; ele não reparte a cota entre pessoas.
+
+Quem precisa disso põe um segundo proxy na frente — o LiteLLM trata o 9Router como se fosse um provedor comum, porque a API dele é compatível com OpenAI, e acrescenta por cima chave virtual por pessoa, orçamento por chave e teto de requisições por minuto. A cascata continua igual, embaixo; o que muda é que passa a existir um lugar onde se responde "quem paga a conta". O passo a passo está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/blob/master/docs/wiki/Chaining-Gateways.md).
 
 ---
 

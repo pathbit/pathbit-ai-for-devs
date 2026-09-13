@@ -85,7 +85,10 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
     ├── sync_antigravity_token.py  # Sincronizador de tokens OAuth Google Antigravity para o 9Router (Python)
     ├── keep_connected.py          # Renovacao preventiva da credencial, evita o 503 na virada da hora
     ├── test_gateway.py            # Script de validação dos endpoints e modelos do gateway (Python)
-    └── verify_setup.py            # Diagnóstico automatizado do ambiente (Python)
+    ├── verify_setup.py            # Diagnóstico automatizado do ambiente (Python)
+    ├── measure_agent_usage.py     # Mede o perfil de consumo real do agente no histórico local
+    ├── sizing.py                  # Resolve a fórmula de contas por desenvolvedor com os números medidos
+    └── quota_locks.py             # Lista as travas de cota por conta e por família gravadas pelo gateway
 ```
 
 ---
@@ -297,6 +300,20 @@ python3 src/verify_setup.py
 python3 src/test_gateway.py
 ```
 
+Para dimensionar quantas contas o seu time precisa  -  medição do consumo real, resolução da fórmula
+e leitura das travas de cota gravadas pelo gateway:
+
+```bash
+# Perfil de consumo do agente a partir do histórico local do Claude Code
+python3 src/measure_agent_usage.py
+
+# Resolve a fórmula com os números medidos (troque as constantes no topo do arquivo)
+python3 src/sizing.py
+
+# Travas de cota por conta e por família de modelo, com a stack de pé
+python3 src/quota_locks.py
+```
+
 ---
 
 ### O que você vai aprender
@@ -308,6 +325,7 @@ python3 src/test_gateway.py
 5. Como alternar dinamicamente entre Gemini 3.8 Flash, 3.7 Flash, 3.6 Flash e Gemini 3.1 Pro.
 6. Gestão de segurança, mitigação de riscos, desmistificação do `RISK_NOTICE` e boas práticas com contas dedicadas.
 7. Arquitetura para equipes: Connection Pooling Multi-Contas (Round-Robin) e isolamento estrito de sessões.
+8. Como dimensionar contas por desenvolvedor: medir o consumo real, resolver a fórmula e conferir o acerto pelas travas de cota  -  sem tabela inventada.
 
 ---
 
