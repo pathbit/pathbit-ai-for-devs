@@ -717,7 +717,9 @@ nem tenta o upstream  -  a resposta chegou em 1,97s. Este é o trade-off que a s
 > distintas, e a cota é contabilizada pelo Google por conta. Cadastrar a mesma conta duas vezes cria
 > duas entradas no gateway, mas o teto continua sendo um. Só aliviam de verdade: uma segunda conta
 > Google com assinatura própria, ou provedores fora do Antigravity, que é o caminho do
-> [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md).
+> [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md). Quantas contas, com
+> que fórmula, e como saber depois se o número acertou, está em
+> [Quantas Contas para Quantos Desenvolvedores](#5-quantas-contas-para-quantos-desenvolvedores).
 
 ### Falha 2 - a credencial foi gravada em formato que quebra a validação
 
@@ -1385,7 +1387,302 @@ A Google audita as cotas de consumo em duas camadas:
 
 ---
 
-### 5. Combos de Fallback Inteligentes para Resiliência sem Paradas
+### 5. Quantas Contas para Quantos Desenvolvedores
+
+A seção anterior diz que múltiplas contas multiplicam o throughput, e deixa em aberto a pergunta
+seguinte, que é a que o líder técnico realmente faz: *"somos 12 desenvolvedores  -  quantas contas
+eu preciso?"*
+
+Precisamos começar pela parte desconfortável: **essa pergunta não tem resposta fechada publicável**,
+e a razão é verificável. Nenhum fornecedor de assinatura publica a capacidade absoluta de uma
+licença. A Anthropic publica multiplicador relativo e janela, não o teto: *"Max 5x provides five
+times more usage per session than the Pro plan"* e *"Your session-based usage limit will reset every
+five hours"* `[FONTE: https://support.claude.com/en/articles/11049741-what-is-the-max-plan  -  lido
+em 2026-09-12]`. O Google, na página de limites da API Gemini, devolve a pergunta ao painel:
+*"Rate limits depend on a variety of factors (such as your usage tier) and can be viewed in Google AI
+Studio"* `[FONTE: https://ai.google.dev/gemini-api/docs/rate-limits  -  lido em 2026-09-12]`.
+
+Uma tabela dizendo "1 conta atende 4 desenvolvedores" exigiria justamente o número que ninguém
+publica. Seria invenção, e num artigo público invenção é pior do que ausência.
+
+O que dá para entregar com honestidade são três coisas, nesta ordem: **a fórmula**, **a demanda
+medida de verdade** e **o comando que mede, no seu ambiente, a única variável que falta**.
+
+#### Antes da capacidade, os termos  -  e eles já respondem metade
+
+Dimensionar capacidade não autoriza compartilhar assinatura, e para o provedor **Claude Code /
+Anthropic OAuth** do catálogo do 9Router (o mesmo card listado na seção 1) o texto do fornecedor é
+explícito `[FONTE: https://code.claude.com/docs/en/legal-and-compliance  -  lido em 2026-09-12]`:
+
+> *"Advertised usage limits for Pro and Max plans assume **ordinary, individual usage** of Claude Code
+> and the Agent SDK."*
+
+> *"**OAuth authentication** is intended exclusively for **purchasers** of Claude Free, Pro, Max,
+> Team, and Enterprise subscription plans…"*
+
+> *"Anthropic does not permit third-party developers to offer Claude.ai login into their own
+> applications, or to **route requests through Free, Pro, or Max plan credentials on behalf of their
+> users**."*
+
+> *"**Customers may not pay for, resell, or intermediate Claude usage on their end users' behalf.**
+> Each end user must authenticate with their own Anthropic API key, Claude subscription plan
+> credentials, or 3P inference provider credential."*
+
+Isso fecha metade da pergunta **sem medir nada**: para Claude Pro/Max, `L = N`. Doze desenvolvedores,
+doze assinaturas, cada uma comprada e autenticada pelo seu titular. O gateway não reduz esse
+número  -  ele serve para roteamento, fallback entre famílias, renovação de credencial e
+observabilidade sobre contas que **já são individuais**, e é aí que paga o próprio custo. A mesma página ressalva o
+caminho oposto como permitido: *"This does not restrict how customers provision and manage their own
+API keys … for use by the customer's own authorized users."*
+
+Para o **Google**, que é o provedor deste artigo, não temos leitura equivalente: `[A VERIFICAR: leia
+os termos da assinatura Google AI Pro / Antigravity e cite URL + data de leitura, como foi feito com
+a Anthropic acima]`. Vale aqui a mesma ressalva da
+[Análise de Risco Real](#3-análise-de-risco-real-e-o-que-acontece-sob-estresse): as políticas de
+enforcement do Google são privadas e podem mudar sem aviso. Não presuma simetria entre fornecedores.
+
+> **Um número do Google que é publicado  -  e o que ele ensina.** O Gemini Code Assist tem cota
+> declarada: *"Maximum requests per user per day: 1500"* na edição Standard, *"2000"* na Enterprise, e
+> *"Requests per second: 2"*, todas **por usuário**
+> `[FONTE: https://docs.cloud.google.com/gemini/docs/quotas  -  lido em 2026-09-12]`. Repare no
+> carimbo: não existe um pote de 1.500 requisições que 12 devs dividem; existem 12 potes de 1.500.
+> **Atenção ao escopo:** esses números são do Gemini Code Assist. Que eles valham para a assinatura
+> AI Pro / Antigravity  -  ainda que o 9Router fale com `cloudcode-pa.googleapis.com`, como mostra a
+> seção 2  -  é `[A VERIFICAR: confirme na documentação da assinatura AI Pro / Antigravity se a cota
+> dela é a mesma do Code Assist, e cite URL + data de leitura; até lá, o número vale só com o rótulo
+> "Gemini Code Assist"]`. Não copiamos esse número para o Antigravity, e você também não deve.
+
+#### As variáveis, sem nada implícito
+
+| Símbolo | Nome | Unidade | Origem |
+| :--- | :--- | :--- | :--- |
+| `N` | desenvolvedores no time | pessoas | headcount |
+| `c` | fator de concorrência | 0 a 1 | `[A MEDIR]`  -  fração de `N` requisitando ao mesmo tempo |
+| `U_sim` | sessões ativas simultâneas | sessões | `U_sim = N × c` |
+| `R_h` | requisições por hora de sessão ativa | req/h | medido abaixo |
+| `T_tot` | tokens de entrada **totais** por requisição, cache lido incluso | tokens | medido abaixo |
+| `T_in` | tokens de entrada **não-cacheada** por requisição | tokens | medido abaixo  -  só entra na verificação de rajada |
+| `T_out` | tokens de saída por requisição | tokens | medido abaixo |
+| `W_h` | janela de reset da cota | horas | 5 h publicadas na Anthropic; **2 h por família** no Antigravity é observação de log, não número publicado |
+| `F` | folga de operação | adimensional | decisão sua; 0,30 nos exemplos |
+| `C_janela` | capacidade de **uma** conta dentro de `W_h` | tokens | `[A MEDIR]`  -  ninguém publica |
+
+A assimetria de `W_h` importa, e este artigo já a mostrou: as 5 h da Anthropic vêm da página de
+suporte citada acima, enquanto o `reset after 2h` do Antigravity é **uma linha de log** da seção
+[Falha 1 - a cota da família estourou](#falha-1---a-cota-da-família-estourou). São evidências de
+pesos diferentes, e não devem ser apresentadas com o mesmo peso.
+
+As duas colunas de entrada também não são intercambiáveis, e o motivo é publicado  -  para a **API**,
+ao menos: *"For most Claude models, only uncached input tokens count toward your ITPM rate limits"*
+`[FONTE: https://platform.claude.com/docs/en/api/rate-limits  -  lido em 2026-09-12]`. É por isso que
+a verificação de rajada mais adiante usa `T_in`. Só que o medidor de uma **assinatura** não publica o
+que conta, e nada do que lemos afirma que ele também ignora o cache lido  -  então a conta de `D` usa
+`T_tot`, a coluna cheia. Trocar uma pela outra é o erro silencioso mais provável deste método, e ele
+custa mais de vinte vezes: é exatamente a razão medida logo abaixo.
+
+#### A demanda, medida  -  não estimada
+
+O lado esquerdo da divisão é o único que dá para resolver com números, e ele sai do próprio histórico
+do Claude Code. O script `src/measure_agent_usage.py` lê **apenas** os campos numéricos de `usage`, o
+`message.id` e o `timestamp` de `~/.claude/projects/**/*.jsonl`  -  nenhum conteúdo de conversa é
+lido, agregado ou impresso:
+
+```bash
+python3 src/measure_agent_usage.py
+```
+
+Na máquina em que este artigo foi escrito:
+
+```text
+sessoes analisadas                          : 114
+turnos unicos (dedup por message.id)        : 6731
+T_in  entrada que conta p/ ITPM  mediana    : 4066
+T_in  entrada que conta p/ ITPM  p90        : 8227
+T_out saida                      mediana    : 706
+T_out saida                      p90        : 1361
+T_cache leitura de cache         mediana    : 83503
+T_tot entrada total (conta+cache) mediana   : 88464
+T_tot entrada total (conta+cache) p90       : 303214
+R_h   requisicoes por hora ativa mediana    : 198
+R_h   requisicoes por hora ativa p90        : 343
+fracao de leitura de cache no total         : 98.3%
+razao entrada total / entrada que conta     : 21.8x
+pico de sessoes simultaneas                 : 13
+```
+
+`[FONTE: src/measure_agent_usage.py, executado em 2026-09-12 sobre o histórico local]`
+
+Esse bloco é um retrato datado, e não uma constante: o histórico cresce a cada sessão, então rodar de
+novo na mesma máquina já devolve números um pouco diferentes. São exatamente esses valores que estão
+gravados no topo do `src/sizing.py`  -  troque os dois blocos juntos quando remedir, ou as contas da
+próxima seção deixam de bater com a medição.
+
+Três ressalvas que **precisam viajar junto** com esses números, sob pena de o leitor errar por um
+fator dois:
+
+1. **A deduplicação por `message.id` não é opcional.** Uma resposta da API é gravada em várias linhas
+   `type: "assistant"`  -  o texto e cada bloco de ferramenta  -  repetindo o mesmo `message.id` e o
+   mesmo objeto `usage`. Contar linhas infla tudo: no mesmo histórico, **34.481 linhas para 16.007
+   ids distintos, razão 2,15** `[FONTE: src/measure_agent_usage.py, executado em 2026-09-12; é o
+   bloco "censo de deduplicação" que o próprio script imprime no fim]`. O censo varre o histórico
+   inteiro, antes do filtro de sessão  -  por isso a contagem de ids é bem maior que a de *turnos
+   únicos* do quadro acima, que só considera sessões longas o bastante para medir ritmo. Qualquer
+   número de consumo tirado do JSONL sem essa deduplicação está errado por mais de dois.
+2. **`21,8x` é a razão entre duas medianas**, não a mediana das razões. Serve para ordem de grandeza,
+   não para contabilidade. O que ela diz é que **98,3% dos tokens trafegados são leitura de cache**  -
+   e é por isso que a coluna que entra na conta da assinatura é `T_tot`, não `T_in`.
+3. **A máquina medida orquestra subagentes.** O pico de 13 sessões simultâneas é paralelismo de um
+   operador só, não concorrência de time. Trate `R_h ≈ 198 req/h` como **sessão de agente**  -  uma
+   requisição a cada ~18 segundos  -  e não como "um dev digitando". Quem usa a CLI de forma
+   interativa mede bem menos. Rode o script no seu ambiente antes de usar qualquer número daqui.
+
+#### A conta
+
+```text
+U_sim = N × c
+D     = U_sim × R_h × (T_tot + T_out) × W_h × (1 + F)
+L     = ceil( D / C_janela )
+```
+
+A unidade de `D` é **token total, com o cache lido incluso**. O motivo é honesto: o medidor da
+assinatura não publica o que conta, então não há como descontar o cache sem inventar a regra. O
+`src/sizing.py` resolve isso para os dois `W_h` deste artigo:
+
+```bash
+python3 src/sizing.py
+```
+
+Um recorte do perfil mediano  -  o script imprime também as mesmas linhas para o p90:
+
+```text
+-- janela de 5h, publicada (Claude)
+   perfil mediana |  3 devs | c=0,6 | U_sim= 1,8 | W=5h | D =        206.571.222 tok -> L = ceil(D / C_janela)
+   perfil mediana | 12 devs | c=0,6 | U_sim= 7,2 | W=5h | D =        826.284.888 tok -> L = ceil(D / C_janela)
+   perfil mediana | 40 devs | c=0,6 | U_sim=24,0 | W=5h | D =      2.754.282.960 tok -> L = ceil(D / C_janela)
+
+-- janela de 2h por familia, observada em log (Antigravity)
+   perfil mediana |  3 devs | c=0,6 | U_sim= 1,8 | W=2h | D =         82.628.489 tok -> L = ceil(D / C_janela)
+   perfil mediana | 12 devs | c=0,6 | U_sim= 7,2 | W=2h | D =        330.513.955 tok -> L = ceil(D / C_janela)
+   perfil mediana | 40 devs | c=0,6 | U_sim=24,0 | W=2h | D =      1.101.713.184 tok -> L = ceil(D / C_janela)
+```
+
+`[FONTE: src/sizing.py, executado em 2026-09-12 com as entradas medidas acima]`
+
+A divisão fica indicada de propósito. **É exatamente aqui que método e tabela inventada se separam:**
+o método diz o que falta, em que unidade, e como obter.
+
+O mesmo script imprime, em bloco separado, a **verificação de rajada**  -  porque cota por janela e
+limite por minuto são tetos diferentes, e vale saber qual dos dois aperta primeiro:
+
+```text
+perfil mediana: R_h=198 req/h, T_in=4066 tok/req, T_out=706 tok/req, folga=30%
+ devs     c  U_sim     RPM        ITPM      OTPM  tier de API
+    3   0,6    1,8       8      31.398     5.452  Start
+   12   0,6    7,2      31     125.591    21.807  Start
+   12   1,0   12,0      51     209.318    36.345  Start
+   40   0,6   24,0     103     418.635    72.690  Start
+```
+
+`[FONTE: src/sizing.py, executado em 2026-09-12; a coluna de tier vem da tabela publicada em
+https://platform.claude.com/docs/en/api/rate-limits  -  lida em 2026-09-12, e vale para chave de API,
+não para assinatura]`
+
+Duas leituras que essas saídas entregam de graça:
+
+- **`c` desloca o resultado tanto quanto `N`.** Quem entra na conta é `U_sim = N × c`: quarenta
+  pessoas com `c = 0,3` são as mesmas doze sessões que doze pessoas com `c = 1,0`, e pedem a mesma
+  coisa. Medir concorrência vale tanto quanto contar cadeiras  -  e `c` é justamente a variável que a
+  maioria dos textos arbitra sem medir.
+- **O teto por minuto quase nunca é o que dói.** Doze desenvolvedores no perfil mediano, com `c = 0,6`,
+  pedem 31 requisições por minuto. O que aperta é a janela de cota, não a rajada  -  e é por isso que
+  a conta que importa neste artigo é a de `D`, não a de RPM.
+
+#### `C_janela`: o que falta, e como medir sem chutar
+
+Para a **assinatura Claude**, o único lugar onde a capacidade aparece é *Settings → Usage*, que mostra
+as barras da janela de 5 h e da semanal
+`[FONTE: https://support.claude.com/en/articles/11049741-what-is-the-max-plan  -  lido em 2026-09-12]`.
+O procedimento é: espere o reset e anote a hora; trabalhe uma jornada típica; leia a fração `p`
+consumida na barra; rode o script restrito ao período para obter `D_medido`; e então
+`C_janela ≈ D_medido / p`, em token total. É medição com procedimento declarado, e vale para
+**aquele** plano, **aquele** modelo e **aquele** nível de esforço.
+
+Para o **Antigravity não existe barra equivalente**, e por isso o procedimento acima não se transporta.
+O que existe é o observável que este artigo já documentou: a trava. Quando a família estoura, o
+gateway registra o instante:
+
+```text
+[AG_QUOTA] CACHE_BLOCK gemini-3.8-flash-high - skip upstream until 23:47:37
+```
+
+`[A MEDIR: comece a janela com a família liberada, trabalhe até o gateway registrar a trava e rode
+python3 src/measure_agent_usage.py restrito a esse período  -  o total trafegado até a trava é o
+C_janela daquela família, naquela conta]`. É uma derivação nossa a partir do log, não um procedimento
+publicado pelo Google. Trate como tal.
+
+#### A alavanca que não custa conta nova
+
+Antes de comprar a segunda assinatura, vale lembrar do que a seção
+[Falha 1](#falha-1---a-cota-da-família-estourou) mediu: a cota do Antigravity é **por família de
+modelo**. Durante o bloqueio do Gemini, `ag/claude-opus-4-6-thinking`, `ag/claude-sonnet-4-6` e
+`ag/gpt-oss-120b-medium` continuaram respondendo na mesma conta.
+
+Isso tem consequência direta no dimensionamento: **`C_janela` não é um número, é um vetor por
+família**. Um combo que atravessa famílias  -  como o `claudegravity-thinking`, que começa fora da
+cota do Gemini  -  multiplica a capacidade efetiva da conta **sem comprar licença nenhuma**. É a
+alavanca mais barata do arranjo, e a primeira a tentar antes de somar contas.
+
+O que **não** funciona é o atalho que a caixa da Falha 1 já desmonta: cadastrar a mesma conta duas
+vezes cria duas entradas no gateway e um teto só.
+
+#### O laço de realimentação: conte as travas, não as projeções
+
+Projeção diz quantas contas você *deveria* ter. Só uma coisa diz se você acertou, e ela está gravada
+no banco do gateway: `rateLimitedUntil`, o prazo de trava da conta inteira, e `modelLock_*`, o prazo
+por família. O `src/quota_locks.py` lê os dois pelo próprio container  -  o SQLite mora no volume
+`9router_data`, não no disco do host:
+
+```bash
+python3 src/quota_locks.py
+```
+
+```text
+conta                      provedor                             trava geral ate      travas por familia
+--------------------------------------------------------------------------------------------------------
+Google Antigravity Pro     antigravity                          -                    0
+Google AI Studio PathBit   gemini                               -                    0
+Groq Cloud PathBit         groq                                 -                    0
+Mistral AI PathBit         mistral                              -                    0
+Ollama Cloud PathBit       ollama                               -                    0
+Ollama Local Host          openai-compatible-chat-ollama-local  -                    0
+OpenRouter PathBit         openrouter                           -                    0
+--------------------------------------------------------------------------------------------------------
+7 conexoes, 0 com alguma trava ativa neste instante.
+```
+
+`[FONTE: src/quota_locks.py, executado contra a stack deste artigo em 2026-09-12]`
+
+**Regra de decisão:** conte as travas por conta por dia durante uma semana. Conta que trava todo dia
+está subdimensionada; conta que nunca trava é folga que absorve mais gente. O resto é projeção.
+
+> **Não confunda os dois relógios.** Trava de cota (`rateLimitedUntil`, `modelLock_*`) se resolve
+> esperando a janela ou comprando conta, e **escala com o time**. Validade de credencial (`expiresAt`)
+> se resolve renovando, e **não escala com o time**  -  é a distinção entre a Falha 1 e a
+> [Falha 2](#falha-2---a-credencial-foi-gravada-em-formato-que-quebra-a-validação) deste artigo. Para
+> ver a validade, o comando é outro: `docker exec router-sync 9rtksync --status`.
+
+#### O resumo em quatro linhas
+
+| Pergunta | Resposta |
+| :--- | :--- |
+| Claude Pro/Max, quantas licenças? | `L = N`, por termos de uso, antes de qualquer capacidade |
+| Antigravity, quantas contas? | `ceil(D / C_janela)`, com `C_janela` medido por você  -  por **família**, não por conta |
+| Antes de comprar a próxima conta | Estenda o combo para outra família: capacidade a custo zero |
+| Como saber se acertou | Contagem de travas por conta por dia, uma semana |
+
+---
+
+### 6. Combos de Fallback Inteligentes para Resiliência sem Paradas
 
 No menu **Combos** do 9Router (`/dashboard/combos`), você pode criar um modelo virtual inteligente para eliminar qualquer possibilidade de interrupção por taxa de limite:
 
@@ -1421,7 +1718,7 @@ Se o Gemini 3.8 Flash atingir o teto momentâneo de tokens por minuto durante um
 
 ---
 
-### 6. As Três Regras de Ouro para Blindagem e Tranquilidade
+### 7. As Três Regras de Ouro para Blindagem e Tranquilidade
 
 1. **Use uma conta Google dedicada a desenvolvimento**, nunca a conta pessoal onde vivem e-mails bancários e documentos essenciais. É o que limita o impacto caso a política do provedor mude.
 2. **Mantenha o gateway em rede privada:** `localhost` para uso individual, VPN ou rede overlay (como Tailscale) para o time. Nunca exponha a porta `20128` na internet aberta.
@@ -1430,7 +1727,7 @@ Se o Gemini 3.8 Flash atingir o teto momentâneo de tokens por minuto durante um
 
 ---
 
-### 7. Multi-sessão: por que o endereço de saída importa mais que o número de sessões
+### 8. Multi-sessão: por que o endereço de saída importa mais que o número de sessões
 
 Existe uma confusão comum que vale desfazer, porque ela leva à decisão errada.
 
@@ -1477,7 +1774,8 @@ O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Py
 - diagnóstico automatizado em Python que valida portas, endpoints HTTP, tokens OAuth e CLI do Claude Code;
 - testes de inferência em tempo real para Gemini 3.8 Flash, Gemini 3.7 Flash, Gemini 3.6 Flash e Claude Sonnet;
 - ambiente prático e isolado (`examples/`) com configurações prontas do Claude Code (`.claude/`) e script de teste (`sample_task.py`);
-- launcher em Python com injeção automática de flags de permissão total e modo zero-interrupção.
+- launcher em Python com injeção automática de flags de permissão total e modo zero-interrupção;
+- trio de dimensionamento: medição do perfil de consumo real do agente, resolução da fórmula de contas por desenvolvedor e leitura das travas de cota gravadas pelo gateway.
 
 **Opção 1** Execute a infraestrutura e o diagnóstico automatizado localmente pelo terminal.
 
@@ -1538,6 +1836,11 @@ python3 src/test_gateway.py
 
 # Iniciar Claude Code conectado ao Antigravity
 python3 src/claudegravity.py
+
+# Dimensionamento: perfil de consumo real, fórmula e travas de cota
+python3 src/measure_agent_usage.py
+python3 src/sizing.py
+python3 src/quota_locks.py
 ```
 
 ---
@@ -1550,6 +1853,9 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
 4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
+5. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/blob/master/docs/wiki/Chaining-Gateways.md).
+
+   Dois avisos que economizam uma tarde. Primeiro: o `api_base` precisa terminar em `/v1`. O LiteLLM concatena `/chat/completions` ao que você der, e sem o `/v1` a requisição vai para um caminho que o gateway não conhece — o 404 volta embrulhado como "erro do provedor", e você vai procurar defeito na credencial. Segundo: se os dois rodam em contêiner, eles precisam compartilhar uma rede. Se cada stack está isolada na sua própria — o que é a configuração correta, para um painel não conversar com o gateway errado —, o LiteLLM não resolve nem o nome do 9Router, e o sintoma é um erro de conexão que parece indisponibilidade.
 
 ---
 
@@ -1557,6 +1863,10 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 
 - [Claude Code Settings & Permissions Guide](https://code.claude.com/docs/en/settings)
 - [Claude Code Model Configuration Reference](https://code.claude.com/docs/en/model-config)
+- [Claude Code Legal and Compliance  -  autenticação OAuth e credenciais de assinatura](https://code.claude.com/docs/en/legal-and-compliance)
+- [What is the Max plan?  -  janela de 5 h e multiplicadores por sessão](https://support.claude.com/en/articles/11049741-what-is-the-max-plan)
+- [Gemini API Rate Limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Gemini Code Assist Quotas  -  requisições por usuário por dia](https://docs.cloud.google.com/gemini/docs/quotas)
 - [9Router GitHub Repository & Architecture](https://github.com/decolua/9router)
 - [9RTKSync: 9Router Universal Token & Connection Synchronizer](https://github.com/pathbit/9RTKSync)
 - [OminiRTKSync: OminiRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OminiRTkSync)
