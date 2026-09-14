@@ -191,10 +191,10 @@ O token OAuth do Antigravity expira a cada 60 minutos. Além disso, o 9Router po
 
 ### Solução
 
-1. **Correção Automática via Sidecar:** Os manifestos `docker-compose.yml` dos artigos 0002 e 0003 já incluem o container `claudegravity-token-sync` (imagem oficial `python:3.14-alpine`). Ele roda continuamente e renova o token preventivamente 15 minutos antes da expiração. Inspecione os logs com:
+1. **Correção Automática via Sidecar:** Os manifestos `docker-compose.yml` dos artigos 0002 e 0003 já incluem o container `router-sync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest`). Ele roda continuamente e renova o token preventivamente 15 minutos antes da expiração. Inspecione os logs com:
 
    ```bash
-   docker logs -f claudegravity-token-sync
+   docker logs -f router-sync
    ```
 
 2. **Correção Manual Imediata:** Se precisar forçar a renovação imediata sem reiniciar containers:

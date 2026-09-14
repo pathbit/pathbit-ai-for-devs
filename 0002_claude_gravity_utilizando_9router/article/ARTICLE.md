@@ -54,13 +54,19 @@ No repositório do projeto, estruturamos o serviço da seguinte forma:
 name: claudegravity
 
 services:
-  9router:
+  # Servico, container e hostname com o MESMO nome. Nao e estetica: o nome do
+  # servico e o que outra stack usa para alcancar este container pela rede, e
+  # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
+  # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
+  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  claudegravity-router:
+    # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
     container_name: claudegravity-router
+    hostname: claudegravity-router
     restart: unless-stopped
     ports:
-      # Apenas localhost: o gateway carrega credenciais reais (OAuth do Antigravity
-      # e chaves dos provedores) e nao deve ficar acessivel na rede local.
+      # Apenas localhost: o gateway carrega credenciais reais e nao deve ficar acessivel na rede local.
       - "127.0.0.1:20128:20128"
     volumes:
       - 9router_data:/app/data
@@ -72,7 +78,7 @@ services:
       - HOSTNAME=0.0.0.0
       - NEXT_PUBLIC_BASE_URL=http://localhost:20128
       - NODE_ENV=production
-      # Credenciais lidas do arquivo .env local (nunca versionado)
+      # Credenciais lidas do arquivo .env local
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no arquivo .env}
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
       - REQUIRE_API_KEY=false
@@ -80,16 +86,24 @@ services:
     command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]
-      interval: 30s
+      interval: 15s
       timeout: 5s
       retries: 3
       start_period: 20s
 
-  9rtksync:
+  router-sync:
     # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
     image: ghcr.io/pathbit/9rtksync:latest
     container_name: router-sync
+    hostname: router-sync
     restart: unless-stopped
+    # NAO acrescente `user: "1000:1000"` aqui copiando do compose de exemplo do
+    # 9RTKSync. `${HOME}` entra em /root/host, e /root e 0700 root: com uid 1000
+    # o `ls /root/host` devolve "Permission denied" e a descoberta de credencial
+    # do host morre em silencio -- o /healthz continua 200, porque so testa o
+    # servidor web. A corrida de permissao no volume que motivou aquele `user:`
+    # nao existe aqui: o `condition: service_healthy` abaixo faz o gateway criar
+    # db/ e logs/ com o dono certo antes de este servico tocar no volume.
     ports:
       - "127.0.0.1:9190:9190"
     volumes:
@@ -99,31 +113,54 @@ services:
       - PYTHONUNBUFFERED=1
       - HOST_HOME=/root/host
       - DB_PATH=/app/data/db/data.sqlite
-      - ROUTER_URL=http://9router:20128
+      # Resolve pelo nome do servico, que aqui e igual ao do container.
+      - ROUTER_URL=http://claudegravity-router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0002
       - ENABLE_WEB_DASHBOARD=1
       - WEB_PORT=9190
       # O painel exige autenticacao. Sem estas duas variaveis a stack sobe, mas
-      # o navegador responde 401 e nao ha senha documentada para informar.
+      # o navegador responde 401 e nao ha senha documentada para informar --
+      # era exatamente o que acontecia com quem seguia o artigo ate o fim.
+      # Sem valor de fallback de proposito: uma senha publicada em arquivo de
+      # exemplo vira a senha real de toda implantacao que so copiou e colou.
       - DASHBOARD_USER=${DASHBOARD_USER:-admin}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:?defina DASHBOARD_PASSWORD no .env}
     depends_on:
-      9router:
+      claudegravity-router:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/opt/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9190/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   9router_data:
 ```
 
-Cinco decisões de engenharia neste manifesto:
+Sete decisões de engenharia neste manifesto:
 
+* **Serviço, `container_name` e `hostname` com o mesmo nome.** Esta é nova, e vale explicar por que importa. O nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps` e no `docker exec`. Quando os dois divergem, você lê `9router` no manifesto, `claudegravity-router` no terminal e um terceiro nome no erro de DNS - e perde tempo até perceber que são a mesma coisa. Os projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync) já adotaram esse padrão, e este artigo passou a segui-lo. É por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`, e não mais para um alias de serviço diferente do container.
 * **`extra_hosts: ["host.docker.internal:host-gateway"]`** garante compatibilidade entre plataformas (macOS, Linux e Windows WSL2), permitindo que o container resolva o endereço do host local de forma idêntica em qualquer distribuição.
 * **Senha e segredo JWT vêm do `.env`**, nunca literais no arquivo versionado. A sintaxe `${VAR:?mensagem}` interrompe a subida com um erro claro caso a variável não exista, em vez de silenciosamente aplicar um padrão fraco.
-* **`healthcheck` ativo:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda HTTP a cada 30 segundos marca o container como `unhealthy` e torna o problema visível no `docker ps`.
+* **`healthcheck` nos dois serviços:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda a cada 15 segundos marca o container como `unhealthy` e torna o problema visível. O sidecar tem a sua, contra `/healthz`, que é o único endpoint do painel que não exige autenticação.
 * **Porta publicada apenas em `127.0.0.1`:** o gateway guarda o token OAuth da sua conta Google e as chaves dos provedores. Publicar como `"20128:20128"` o exporia em todas as interfaces de rede, permitindo que qualquer máquina da mesma rede consumisse sua cota. O prefixo de loopback restringe o acesso à própria máquina.
-* **Guardião de sincronização contínua (`9RTKSync`):** baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*), roda em ambiente virtual isolado (`/opt/venv`), consome apenas ~18 MB de RAM e valida a saúde das conexões do [9Router](https://github.com/decolua/9router) continuamente com auto-cura e dashboard web embutido na porta 9190.
+* **O sidecar roda como root, e isso é deliberado.** O `${HOME}` da sua máquina entra no container em `/root/host`, e `/root` é `0700 root` na imagem: com `user: "1000:1000"` o `ls /root/host` devolve `Permission denied` e a descoberta de credencial do host morre **em silêncio**, porque o `/healthz` continua respondendo `200` (ele só testa o servidor web). O compose de exemplo do próprio 9RTKSync traz esse `user:` para resolver uma corrida de permissão no volume compartilhado - corrida que **aqui não existe**, porque o `condition: service_healthy` faz o gateway criar `db/` e `logs/` com o dono certo antes de o sidecar tocar no volume. Não copie aquela linha para cá sem antes mover o mount para fora de `/root`.
+* **Guardião de sincronização contínua (`9RTKSync`):** baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*), roda em ambiente virtual isolado (`/opt/venv`) e valida a saúde das conexões do [9Router](https://github.com/decolua/9router) continuamente com auto-cura e dashboard web embutido na porta 9190. O consumo medido nesta máquina, com a stack de pé:
+
+  ```text
+  $ docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}' \
+      router-sync claudegravity-router claudegravity-ollama
+  NAME                   CPU %     MEM USAGE / LIMIT
+  router-sync            4.69%     27.53MiB / 11.67GiB
+  claudegravity-router   5.62%     90.39MiB / 11.67GiB
+  claudegravity-ollama   0.01%     1.324GiB / 11.67GiB
+  ```
+
+  `[FONTE: docker stats, executado em 2026-09-13]`. O sidecar custa **27,53 MiB** - é barato, mas não é "quase nada": o Ollama ao lado ocupa 1,3 GiB. E o `CPU %` é uma amostra instantânea, colhida durante um ciclo de sincronização; entre ciclos ele fica ocioso. Meça no seu ambiente antes de citar qualquer número: a linha de comando acima é a medição inteira.
 
 > **Sobre a tag `:latest`:** o manifesto acompanha a última versão publicada do gateway. A contrapartida é conhecida: os scripts deste artigo dependem de um endpoint interno (`/api/auth/status`) e do schema SQLite do gateway (tabelas `providerConnections` e `combos`), e uma atualização pode mexer em qualquer um dos dois. Por isso o `verify_setup.py` existe  -  ele confere justamente esses pontos. Depois de um `docker compose pull`, rode `python3 src/verify_setup.py`: ele confere o endpoint e a tabela `combos`, e se qualquer um mudar, você descobre ali, e não no meio de uma refatoração. Se precisar congelar o ambiente para uma demonstração, troque `:latest` pela versão exata que estiver rodando, que o `docker inspect claudegravity-router` mostra.
 
@@ -141,19 +178,56 @@ Em seguida suba o serviço:
 docker compose up -d
 ```
 
+> **Se você já tinha uma stack anterior de pé, derrube antes.** Os serviços deste manifesto foram
+> renomeados para bater com o nome do container (`9router` → `claudegravity-router`, `9rtksync` →
+> `router-sync`). Para o Compose, um serviço renomeado é um serviço **novo**: ele não atualiza o
+> container existente, tenta criar outro com o mesmo nome. O `--dry-run` mostra o que aconteceria:
+>
+> ```text
+> $ docker compose up -d --dry-run
+> level=warning msg="Found orphan containers (router-sync, claudegravity-router, claudegravity-ollama)
+> for this project. If you removed or renamed this service in your compose file, you can run this
+> command with the --remove-orphans flag to clean it up."
+>  Container claudegravity-router Creating
+> ```
+>
+> Repare em `Creating`, e não `Recreating`: os containers antigos viram órfãos e o nome colide. A
+> saída é um `docker compose down` antes do `up`. **Nada se perde:** `9router_data` é um volume
+> nomeado, então o SQLite com suas conexões e combos sobrevive ao ciclo.
+
 Verifique a saúde dos containers:
 
 ```bash
-# Conferir status dos containers do ambiente
-docker ps --filter "name=claudegravity"
+# Conferir status de TODOS os containers da stack
+docker compose ps
 
 # Inspecionar os logs do sidecar de renovacao de tokens
-docker logs -f claudegravity-token-sync
+docker logs -f router-sync
 ```
+
+> **Use `docker compose ps`, não `docker ps --filter "name=claudegravity"`.** O filtro por nome
+> parece prático e esconde exatamente o container que você quer vigiar: o sidecar chama-se
+> `router-sync`, sem o prefixo, e some da listagem. Medido nesta máquina, com a stack de pé:
+>
+> ```text
+> $ docker ps --filter "name=claudegravity" --format 'table {{.Names}}\t{{.Status}}'
+> NAMES                  STATUS
+> claudegravity-router   Up 32 hours (healthy)
+> claudegravity-ollama   Up 32 hours (healthy)
+>
+> $ docker compose ps --format 'table {{.Name}}\t{{.Status}}'
+> NAME                   STATUS
+> claudegravity-ollama   Up 32 hours (healthy)
+> claudegravity-router   Up 32 hours (healthy)
+> router-sync            Up 27 hours (healthy)
+> ```
+>
+> Dois containers contra três. O `docker compose ps` lista pelo projeto, então não depende de
+> convenção de nome.
 
 ![Container Docker Rodando](../assets/02_docker_container_running.png)
 
-> **Figura 2:** Evidência dos containers `claudegravity-router` e `claudegravity-token-sync` em execução saudável na porta local `20128`.
+> **Figura 2:** Evidência dos containers `claudegravity-router` e `router-sync` em execução saudável na porta local `20128`.
 
 ---
 
@@ -293,17 +367,19 @@ Modelos em destaque:
    • ag/gemini-3.7-flash-medium
 
 🔍 [3/4] Testando ClaudeGravity Principal (ag/gemini-3.8-flash-high direto via Antigravity Pro) (ag/gemini-3.8-flash-high)...
-✅ Status HTTP 200 recebido em 1.06s!
+✅ Status HTTP 200 recebido em 1.41s!
 💬 Resposta do modelo: PONG - ClaudeGravity Operacional
 
 🔍 [4/4] Testando ClaudeGravity Resiliente com Fallback Free (claudegravity-fallback) (claudegravity-fallback)...
-✅ Status HTTP 200 recebido em 1.28s!
+✅ Status HTTP 200 recebido em 1.25s!
 💬 Resposta do modelo: PONG - ClaudeGravity Operacional
 
 ======================================================================
 🎉 TODOS OS TESTES PASSARAM COM SUCESSO!
 O ClaudeGravity está 100% operacional no modelo Principal e no Fallback.
 ```
+
+`[FONTE: src/test_gateway.py, executado em 2026-09-13 contra a stack deste artigo]`
 
 Se o teste retornar `HTTP 200` e a resposta `PONG - ClaudeGravity Operacional` for impressa, sua conta Google licenciada está rigorosamente comprovada e pronta para assumir cargas pesadas de trabalho com o Claude Code.
 
@@ -769,7 +845,7 @@ Deixe o modo `--daemon` rodando num terminal à parte durante sessões longas, o
 
 Para que a sincronização e renovação de credenciais não dependa de terminais abertos ou de intervenções manuais, o `docker-compose.yml` deste projeto provisiona o serviço oficial `9rtksync` com o container `router-sync` (baseado no repositório [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*):
 
-1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`), consumindo apenas ~18 MB de RAM e 0% de CPU.
+1. **Imagem OCI e Isolamento em Virtual Environment:** Baseado na imagem oficial `ghcr.io/pathbit/9rtksync:latest`, executa em Python 3.14 Alpine com ambiente virtual dedicado (`/opt/venv`). O consumo medido nesta máquina foi de **27,53 MiB de RAM** (`docker stats --no-stream router-sync`, em 2026-09-13); a CPU fica ociosa entre ciclos e sobe durante a sincronização, então não há um número único honesto a publicar  -  rode o comando no seu ambiente.
 2. **Isolamento de Credenciais e Auto-Cura Universal:** O container monta o banco SQLite compartilhado (`9router_data:/app/data`) e o diretório home do usuário host (`${HOME}:/root/host:ro`) em modo estritamente somente-leitura (`:ro`), descobrindo e sincronizando credenciais de múltiplos provedores locais (Google Antigravity, Claude, GitHub Copilot, Codex, Kiro, Codeium), curando divergências de datas e renovando tokens preventivamente 15 minutos antes da expiração.
 3. **Dashboard Web em Tempo Real:** Servidor HTTP embutido expondo a interface web e endpoints de monitoramento em `http://localhost:9190` e `http://localhost:9190/healthz`. A interface exige autenticação: informe as variáveis `DASHBOARD_USER` e `DASHBOARD_PASSWORD` no `.env` — o `docker compose` recusa subir sem a senha, justamente para que nenhuma credencial de fábrica circule em arquivo de exemplo. O endpoint `/healthz` continua aberto, para o healthcheck do container.
 
@@ -780,6 +856,70 @@ docker logs -f router-sync
 ```
 
 Com essa arquitetura, você pode desenvolver ininterruptamente no [9Router](https://github.com/decolua/9router) sem se preocupar com sessões derrubadas ou tokens expirados.
+
+Conferindo que o painel realmente exige credencial, e que a sonda continua aberta:
+
+```text
+$ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:9190/
+401
+$ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:9190/healthz
+200
+```
+
+`[FONTE: curl contra a stack deste artigo, em 2026-09-13]`
+
+#### Entrada federada no painel, para quem já tem provedor de identidade
+
+O login por `DASHBOARD_USER` / `DASHBOARD_PASSWORD` continua sendo o caminho padrão e não vai a lugar
+nenhum. O que mudou no 9RTKSync é que ele ganhou uma **terceira porta de criação de sessão**: entrada
+federada por OIDC, desligada por padrão. Sem configuração, as rotas `/sso/` respondem `404` como
+qualquer rota inexistente, e a tela de login é exatamente a mesma de hoje.
+
+Duas variáveis de ambiente governam isso, e o `docker-compose.yml` deste artigo **não as declara de
+propósito** - quem não usa provedor de identidade não deve nem saber que elas existem:
+
+| Variável | Efeito |
+| :--- | :--- |
+| `OIDC_CLIENT_SECRET` | Vazia: o segredo do cliente é administrado pela própria tela e gravado com modo `0600`. Preenchida: o ambiente vence e o campo trava na interface |
+| `SSO_DISABLED` | `1` desliga o SSO sem tocar no banco |
+
+Vale saber de duas limitações declaradas pelo projeto antes de contar com isso: o **OIDC está
+implementado** (discovery, PKCE, troca de código, userinfo e allowlist, sem dependência externa), mas
+a aba **SAML2 aparece desabilitada**, com o motivo escrito na tela, e o **logout federado está fora de
+escopo**. O detalhamento está em
+[Single Sign-On](https://github.com/pathbit/9RTKSync/wiki/Single-Sign-On).
+
+#### A rede de inferência, quando outro proxy precisa alcançar o gateway
+
+Este manifesto sobe numa rede só, a `claudegravity_default` que o Compose cria sozinho, e isso basta
+enquanto o único cliente do gateway é o Claude Code rodando no host, por `127.0.0.1:20128`.
+
+Assim que você empilha um segundo proxy em contêiner na frente deste - o caso do LiteLLM, descrito em
+[Próximos Passos](#próximos-passos-e-otimizações) - aparece um problema novo: **duas stacks isoladas
+não se enxergam**, e o segundo proxy não resolve nem o nome do gateway. A resposta dos projetos
+RTKSync foi uma rede compartilhada e explícita, criada fora do ciclo de vida de qualquer stack:
+
+```bash
+# Uma vez, na maquina
+docker network create rtk-inference-net
+
+# Conecta a stack deste artigo a ela, sem recriar nada
+docker network connect rtk-inference-net claudegravity-router
+```
+
+A partir daí o outro proxy alcança este gateway por `http://claudegravity-router:20128/v1` - e é aqui
+que o nome único de serviço/container/hostname da primeira decisão de engenharia paga o próprio custo:
+o endereço que você escreve no outro proxy é o mesmo que aparece no `docker ps`.
+
+Duas escolhas de projeto valem ser copiadas junto:
+
+- **Só gateways entram na rede de inferência.** Os sincronizadores ficam de fora - eles não têm o que
+  fazer no caminho de inferência, e mantê-los na rede de gestão preserva o isolamento que impede um
+  painel de conversar com o gateway do vizinho.
+- **A rede não entra no `docker-compose.yml` deste artigo.** Declará-la como `external: true` faria
+  `docker compose up -d` falhar para todo leitor que não tivesse rodado o `docker network create`
+  antes - um pré-requisito novo em troca de um recurso que a maioria não vai usar. O `docker network
+  connect` acima resolve sob demanda, sem recriar a stack.
 
 ---
 
@@ -1297,10 +1437,10 @@ Para posicionar claramente o valor de engenharia do ClaudeGravity em relação �
 | Recurso | Claude Code Nativo | DeepClaude | ClaudeGravity (Este Artigo) |
 | :--- | :--- | :--- | :--- |
 | **Harness CLI** | Claude Code | Claude Code | **Claude Code** |
-| **Modelo Principal** | Claude 3.7 / 3.5 Sonnet | DeepSeek R1 / V3 | **Gemini 3.8 Flash (High Reasoning)** |
-| **Modelos Auxiliares** | Claude Haiku | Nenhum | **Gemini 3.7, 3.6, 3.1 Pro, GPT-OSS 120B** |
-| **Janela de Contexto** | 200k tokens | 64k a 128k tokens | **1.000.000 tokens (1M)** |
-| **Custo de Inferência** | Faturado por token ($3 a $15 / 1M) | API DeepSeek ou Router ($0.14 a $2.19 / 1M) | **$0 extra** (incluído na conta Google AI Pro) |
+| **Modelo Principal** | A geração corrente da Anthropic  -  na CLI 2.1.270 desta máquina, o seletor oferece Fable 5.1, Opus 5, Sonnet 5 e Haiku 4.5 (veja a Figura 13a) | DeepSeek R1 / V3 | **Gemini 3.8 Flash (High Reasoning)** |
+| **Modelos Auxiliares** | Os demais papéis da mesma família | Nenhum | **Gemini 3.7, 3.6, 3.1 Pro, GPT-OSS 120B** |
+| **Janela de Contexto** | [A VERIFICAR: leia a janela vigente na página de modelos da Anthropic e cite URL + data de leitura. Ela muda a cada geração, e o sufixo de janela no identificador (visto em `claude-opus-5[1m]`) indica variante estendida] | 64k a 128k tokens | **1.000.000 tokens (1M)** |
+| **Custo de Inferência** | Faturado por token, ou incluído numa assinatura Pro/Max [A VERIFICAR: preço por 1M na página de preços da Anthropic, com data de leitura] | API DeepSeek ou Router [A VERIFICAR: preço vigente] | **$0 extra** (incluído na conta Google AI Pro) |
 | **Dependência de API Paga** | Sim (Anthropic Console) | Sim (DeepSeek API Key) | **Não** (Gateway via OAuth Antigravity) |
 | **Token Saver de Ferramentas**| Não | Depende do proxy | **Sim (RTK Token Saver nativo, ativo por padrão)** |
 | **Multi-Conta & Fallback** | Manual | Manual | **Automático (Round-Robin no 9Router)** |
@@ -1696,7 +1836,7 @@ No menu **Combos** do 9Router (`/dashboard/combos`), você pode criar um modelo 
    * **5º:** `ag/gpt-oss-120b-medium` (Modelo open-weights como última camada)
 
    > Essa é exatamente a cascata que o script `src/sync_antigravity_token.py` provisiona automaticamente ao registrar a conta. Se você criar o combo pela interface, replique os cinco níveis para obter o mesmo comportamento.
-3. Crie um segundo combo, `claudegravity-thinking`, que é o **modelo padrão entregue nos arquivos `.example`**:
+3. Crie um segundo combo, `claudegravity-thinking`. Ele **não** é o padrão dos arquivos `.example`  -  o padrão ali é o modelo individual `ag/gemini-3.8-flash-high`, pela razão que a seção [Modelo Individual ou Combo](#modelo-individual-ou-combo-e-a-escolha-do-padrão) explica. Este combo fica disponível no menu `/model`, a um comando de distância:
    * **1º:** `ag/claude-opus-4-6-thinking` (raciocínio denso, e fora da cota do Gemini)
    * **2º:** `ag/claude-sonnet-4-6`
    * **3º:** `ag/gemini-3.8-flash-high`
@@ -1853,7 +1993,7 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
 4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
-5. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/blob/master/docs/wiki/Chaining-Gateways.md).
+5. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
 
    Dois avisos que economizam uma tarde. Primeiro: o `api_base` precisa terminar em `/v1`. O LiteLLM concatena `/chat/completions` ao que você der, e sem o `/v1` a requisição vai para um caminho que o gateway não conhece — o 404 volta embrulhado como "erro do provedor", e você vai procurar defeito na credencial. Segundo: se os dois rodam em contêiner, eles precisam compartilhar uma rede. Se cada stack está isolada na sua própria — o que é a configuração correta, para um painel não conversar com o gateway errado —, o LiteLLM não resolve nem o nome do 9Router, e o sintoma é um erro de conexão que parece indisponibilidade.
 
