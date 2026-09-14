@@ -1,10 +1,16 @@
 name: claudegravity
 
 services:
-  9router:
+  # Servico, container e hostname com o MESMO nome. Nao e estetica: o nome do
+  # servico e o que outra stack usa para alcancar este container pela rede, e
+  # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
+  # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
+  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  claudegravity-router:
     # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
     container_name: claudegravity-router
+    hostname: claudegravity-router
     restart: unless-stopped
     ports:
       # Apenas localhost: o gateway carrega credenciais reais e nao deve ficar acessivel na rede local.
@@ -25,7 +31,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      ollama:
+      claudegravity-ollama:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:20128/dashboard',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))\""]
@@ -34,9 +40,10 @@ services:
       retries: 5
       start_period: 20s
 
-  ollama:
+  claudegravity-ollama:
     image: ollama/ollama:latest
     container_name: claudegravity-ollama
+    hostname: claudegravity-ollama
     restart: unless-stopped
     ports:
       - "127.0.0.1:11434:11434"
@@ -48,11 +55,19 @@ services:
       timeout: 5s
       retries: 5
 
-  9rtksync:
+  router-sync:
     # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
     image: ghcr.io/pathbit/9rtksync:latest
     container_name: router-sync
+    hostname: router-sync
     restart: unless-stopped
+    # NAO acrescente `user: "1000:1000"` aqui copiando do compose de exemplo do
+    # 9RTKSync. `${HOME}` entra em /root/host, e /root e 0700 root: com uid 1000
+    # o `ls /root/host` devolve "Permission denied" e a descoberta de credencial
+    # do host morre em silencio -- o /healthz continua 200, porque so testa o
+    # servidor web. A corrida de permissao no volume que motivou aquele `user:`
+    # nao existe aqui: o `condition: service_healthy` abaixo faz o gateway criar
+    # db/ e logs/ com o dono certo antes de este servico tocar no volume.
     ports:
       # 9090 dentro do container; 9190 no host. A faixa 909x fica para as
       # stacks dos repositorios (9091/9092/9093) -- assim a stack do artigo
@@ -65,7 +80,8 @@ services:
       - PYTHONUNBUFFERED=1
       - HOST_HOME=/root/host
       - DB_PATH=/app/data/db/data.sqlite
-      - ROUTER_URL=http://9router:20128
+      # Resolve pelo nome do servico, que aqui e igual ao do container.
+      - ROUTER_URL=http://claudegravity-router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0003
@@ -78,7 +94,7 @@ services:
       - DASHBOARD_USER=${DASHBOARD_USER:-admin}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:?defina DASHBOARD_PASSWORD no .env}
     depends_on:
-      9router:
+      claudegravity-router:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "/opt/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9090/healthz', timeout=3)"]

@@ -186,17 +186,24 @@ python3 src/manage_env.py destroy
 #### Opção B (Via Docker Compose Nativo)
 
 ```bash
-# Iniciar 9Router, Ollama e o container 9RTKSync em segundo plano
+# Iniciar 9Router, Ollama e o container router-sync (9RTKSync) em segundo plano
+# ATENCAO ao atualizar uma stack que ja estava de pe: os servicos foram
+# renomeados para bater com o nome do container (9router -> claudegravity-router,
+# 9rtksync -> router-sync, ollama -> claudegravity-ollama). Subir por cima acusa
+# conflito de nome. Rode `docker compose down` antes deste `up` -- os volumes
+# 9router_data e ollama_data sao nomeados, entao o SQLite do gateway e o modelo
+# do Ollama sobrevivem ao ciclo.
 docker compose up -d
 
-# Verificar se os containers estao saudaveis e ativos
-docker ps --filter "name=claudegravity"
+# Verificar se os containers estao saudaveis e ativos (os TRES, nao dois:
+# o sidecar chama-se router-sync e o filtro por nome o esconderia)
+docker compose ps --format 'table {{.Name}}\t{{.Status}}'
 
 # Inspecionar os logs do guardiao de tokens e conexoes
-docker logs -f 9RTKSync
+docker logs -f router-sync
 
 # Acessar o dashboard web do 9RTKSync
-# http://localhost:9091
+# http://localhost:9190
 # O painel pede autenticacao: use DASHBOARD_USER e DASHBOARD_PASSWORD, as mesmas
 # que voce definiu no .env (o compose recusa subir sem a senha).
 

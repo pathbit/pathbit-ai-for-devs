@@ -93,7 +93,7 @@ Montar um arsenal que nunca para de programar exige diversificar as origens de t
 
 ### 6. OpenRouter Free Tier
 * **Modelo validado neste artigo:** `openrouter/nvidia/nemotron-3.5-lightning:free` (contexto de 1M de tokens).
-* **Vantagem:** Catálogo agregador que expõe versões gratuitas com sufixo `:free`. Na consulta que fizemos ao montar este artigo, 21 dos 430 modelos do catálogo tinham custo zero de prompt e de resposta.
+* **Vantagem:** Catálogo agregador que expõe versões gratuitas com sufixo `:free`. Na consulta que fizemos ao montar este artigo, 21 dos 430 modelos do catálogo tinham custo zero de prompt e de resposta; ao revalidar em 2026-09-13, eram **22 de 445**. O catálogo cresce e o subconjunto gratuito se mexe  -  reconte com o comando da seção [Modelos Gratuitos, Volatilidade e Catálogo Verificado](#modelos-gratuitos-volatilidade-e-catálogo-verificado).
 * **Atenção à rotatividade:** o conjunto gratuito muda com frequência, e alguns identificadores citados em tutoriais antigos simplesmente deixam de existir. Tratamos esse ponto em detalhe, com a lista do que está respondendo, na seção [Modelos Gratuitos: Volatilidade e Catálogo Verificado](#modelos-gratuitos-volatilidade-e-catálogo-verificado).
 
 ### 7. Cloudflare Workers AI
@@ -142,6 +142,11 @@ Até a data de escrita deste artigo, os modelos gratuitos abaixo estavam respond
 | `inclusionai/ling-3.0-flash-fin:free` | 262k | Ajustado para domínio financeiro |
 | `inclusionai/ling-3.0-flash-sante:free` | 262k | Ajustado para domínio de saúde |
 | `nvidia/nemotron-3-ultra-550b-a55b:free` | 1M | 550B, mais lento para uso interativo |
+
+Revalidamos essa tabela em 2026-09-13 com o comando abaixo: **os dez identificadores continuavam no
+catálogo gratuito**, dentro de um conjunto que passou de 21 para 22 modelos de custo zero, num
+catálogo que cresceu de 430 para 445. É a rotatividade descrita acima acontecendo em escala pequena  -
+e é a razão de a revalidação ser um comando, e não uma promessa.
 
 Atenção a dois gratuitos que respondem, mas **não servem para programação**: `google/lyria-3-clip-preview` gera música (devolve marcações de tempo como `[4.0:8.0]` para um prompt de texto) e `nvidia/nemotron-3.5-content-safety:free` faz classificação de moderação.
 
@@ -213,7 +218,7 @@ Para que qualquer desenvolvedor possa reproduzir esta infraestrutura completa no
 
 ### 1. Obtendo a Chave Gratuita no OpenRouter
 
-O OpenRouter reúne centenas de modelos e mantém um subconjunto gratuito identificado pelo sufixo `:free`  -  na consulta que fizemos, 21 dos 430 modelos do catálogo tinham custo zero, entre eles o `nvidia/nemotron-3.5-lightning:free` que usamos na cascata.
+O OpenRouter reúne centenas de modelos e mantém um subconjunto gratuito identificado pelo sufixo `:free`  -  na consulta que fizemos, 21 dos 430 modelos do catálogo tinham custo zero (22 de 445 na revalidação de 2026-09-13), entre eles o `nvidia/nemotron-3.5-lightning:free` que usamos na cascata.
 
 1. Acesse o portal em [OpenRouter Keys](https://openrouter.ai/settings/keys).
 2. Autentique-se com sua conta Google ou GitHub.
@@ -283,7 +288,7 @@ O Ollama é o componente local do arsenal. Ele roda no hardware da sua máquina 
 >
 > Todos respondem normalmente pela API (`/v1/messages`): o combo `arsenal-offline` devolve `PONG` em 0,04s. Mas o Claude Code envia um *system prompt* extenso com definições de ferramentas e exige obediência estrita a instruções mais *tool calling*, e nenhum desses modelos deu conta disso. Eles respondem qualquer coisa, não o que foi pedido.
 >
-> **Na prática:** o `arsenal-offline` serve para continuidade e para testar disponibilidade, não para conduzir uma sessão real de trabalho. Programar de fato sem internet exige modelo e hardware consideravelmente maiores, o que foge do escopo de uma contingência de 397 MB.
+> **Na prática:** o `arsenal-offline` serve para continuidade e para testar disponibilidade, não para conduzir uma sessão real de trabalho. Programar de fato sem internet exige modelo e hardware consideravelmente maiores, o que foge do escopo de uma contingência de 397 MB  -  que é exatamente o tamanho do `qwen2.5-coder:0.5b` que os comandos acima baixam (`docker exec claudegravity-ollama ollama list`, medido em 2026-09-13). Se você apontar a tag `latest` para o `1.5b`, são 986 MB pelo mesmo comando; e a primeira chamada depois de subir o container paga o carregamento na memória, como a seção do Compose mostra com número.
 
 1. O Ollama já está declarado no `docker-compose.yml` deste módulo (seção "Execução Rápida do Gateway com Docker Compose"), então `docker compose up -d` sobe gateway e Ollama juntos. Use o comando avulso abaixo **apenas** se optar por não usar o Compose. Os dois caminhos são excludentes: disputam o mesmo nome de container e gravam em volumes distintos, porque o Compose prefixa o volume com o nome do projeto (`claudegravity_ollama_data`) enquanto o `docker run` cria um `ollama_data` sem prefixo.
    ```bash
@@ -415,13 +420,22 @@ A cadeia principal para trabalho pesado diário, com os sete níveis listados ac
 
 | Nível | Modelo | Papel | Latência medida |
 | :---: | :--- | :--- | ---: |
-| 1 | `ag/gemini-3.8-flash-high` | Máxima capacidade analítica | 1,44s |
-| 2 | `ag/gemini-3.7-flash-high` | Raciocínio balanceado | 1,05s |
-| 3 | `ag/gemini-3.6-flash-high` | Baixa latência | 0,77s |
-| 4 | `openrouter/cohere/north-mini-code:free` | Fallback gratuito especialista em código | 0,91s |
-| 5 | `groq/openai/gpt-oss-120b` | Velocidade bruta em LPU | 0,47s |
-| 6 | `mistral/codestral-latest` | Especialista em código | 0,55s |
-| 7 | `openai-compatible-chat-ollama-local/qwen2.5-coder:latest` | Continuidade local | 0,08s |
+| 1 | `ag/gemini-3.8-flash-high` | Máxima capacidade analítica | 1,30s |
+| 2 | `ag/gemini-3.7-flash-high` | Raciocínio balanceado | 1,15s |
+| 3 | `ag/gemini-3.6-flash-high` | Baixa latência | 0,70s |
+| 4 | `openrouter/cohere/north-mini-code:free` | Fallback gratuito especialista em código | 0,93s |
+| 5 | `groq/openai/gpt-oss-120b` | Velocidade bruta em LPU | 0,34s |
+| 6 | `mistral/codestral-latest` | Especialista em código | 1,29s |
+| 7 | `openai-compatible-chat-ollama-local/qwen2.5-coder:latest` | Continuidade local | 8,77s a frio · 0,05s a quente |
+
+> **Fonte:** `src/test_arsenal.py`, executado em 2026-09-13. A saída completa está na seção
+> [Validação de Inferência dos Combos](#validação-de-inferência-dos-combos).
+
+> **Estes números são um retrato, não uma constante.** São latências de uma resposta curta, colhidas
+> numa execução, contra provedores em nuvem cuja carga varia ao longo do dia  -  o `codestral-latest`,
+> por exemplo, mediu 0,54s na cascata do `arsenal-rapido` e 1,29s na do `arsenal-supremo`, na mesma
+> execução. Sirva-se deles para ordem de grandeza; para decidir ordem de cascata, meça no seu ambiente
+> com o mesmo comando.
 
 Repare que os níveis não estão em ordem de velocidade, e isso é proposital: a cascata é ordenada por **capacidade**, não por latência. O Cohere North Mini Code no nível 4 entrega especialização de sintaxe e código sem custo; os mais rápidos em nuvem ficam abaixo porque servem melhor como rede de contenção rápida do que como motor principal.
 
@@ -432,7 +446,7 @@ Projetado para ciclos curtos de teste e revisão de sintaxe, priorizando baixa l
 3. `ag/gemini-3.7-flash-high`
 4. `ag/gemini-3.6-flash-high`
 
-> **Por que não colocar o modelo mais rápido no topo?** O `mistral/ministral-3b-latest` foi o mais veloz que medimos (0,35s contra 0,44s do GPT-OSS 120B), mas 0,09s são imperceptíveis em um ciclo agêntico  -  o tempo real é dominado pela geração da resposta, não pelo primeiro byte. Um modelo de 3B no topo de um combo que alimenta o Claude Code troca uma diferença invisível por uma perda enorme de capacidade de raciocínio e de chamada de ferramentas. Velocidade só vale quando o resultado presta.
+> **Por que não colocar o modelo mais rápido no topo?** O `mistral/ministral-3b-latest` foi o mais veloz da rodada em que medimos o catálogo da Mistral (0,35s, contra 0,44s do GPT-OSS 120B naquela mesma rodada). A diferença é de centésimos, e some no ruído: na revalidação de 2026-09-13 o próprio GPT-OSS 120B mediu **0,34s**, abaixo daquele 0,35s. Centésimos são imperceptíveis em um ciclo agêntico  -  o tempo real é dominado pela geração da resposta, não pelo primeiro byte. Um modelo de 3B no topo de um combo que alimenta o Claude Code troca uma diferença invisível por uma perda enorme de capacidade de raciocínio e de chamada de ferramentas. Velocidade só vale quando o resultado presta.
 
 ### Combo 3 - `arsenal-offline` (Continuidade Local)
 Para manter o gateway respondendo em conexões instáveis ou ambientes sem tráfego externo:
@@ -458,12 +472,19 @@ O módulo inclui um manifesto unificado pronto para provisionamento do gateway e
 name: claudegravity
 
 services:
-  9router:
+  # Servico, container e hostname com o MESMO nome. Nao e estetica: o nome do
+  # servico e o que outra stack usa para alcancar este container pela rede, e
+  # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
+  # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
+  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  claudegravity-router:
+    # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
     container_name: claudegravity-router
+    hostname: claudegravity-router
     restart: unless-stopped
     ports:
-      # Apenas localhost: o gateway carrega credenciais reais dos provedores.
+      # Apenas localhost: o gateway carrega credenciais reais e nao deve ficar acessivel na rede local.
       - "127.0.0.1:20128:20128"
     environment:
       - DATA_DIR=/app/data
@@ -475,12 +496,13 @@ services:
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no .env}
       - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
       - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
+    command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     volumes:
       - 9router_data:/app/data
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      ollama:
+      claudegravity-ollama:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:20128/dashboard',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))\""]
@@ -489,12 +511,12 @@ services:
       retries: 5
       start_period: 20s
 
-  ollama:
+  claudegravity-ollama:
     image: ollama/ollama:latest
     container_name: claudegravity-ollama
+    hostname: claudegravity-ollama
     restart: unless-stopped
     ports:
-      # Apenas localhost, pelo mesmo motivo do gateway.
       - "127.0.0.1:11434:11434"
     volumes:
       - ollama_data:/root/.ollama
@@ -503,15 +525,25 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 10s
 
-  9rtksync:
+  router-sync:
     # 9RTKSync: 9Router Universal Token & Connection Synchronizer (https://github.com/pathbit/9RTKSync)
     image: ghcr.io/pathbit/9rtksync:latest
     container_name: router-sync
+    hostname: router-sync
     restart: unless-stopped
+    # NAO acrescente `user: "1000:1000"` aqui copiando do compose de exemplo do
+    # 9RTKSync. `${HOME}` entra em /root/host, e /root e 0700 root: com uid 1000
+    # o `ls /root/host` devolve "Permission denied" e a descoberta de credencial
+    # do host morre em silencio -- o /healthz continua 200, porque so testa o
+    # servidor web. A corrida de permissao no volume que motivou aquele `user:`
+    # nao existe aqui: o `condition: service_healthy` abaixo faz o gateway criar
+    # db/ e logs/ com o dono certo antes de este servico tocar no volume.
     ports:
-      - "127.0.0.1:9091:9090"
+      # 9090 dentro do container; 9190 no host. A faixa 909x fica para as
+      # stacks dos repositorios (9091/9092/9093) -- assim a stack do artigo
+      # e as dos tres sincronizadores sobem juntas sem disputar porta.
+      - "127.0.0.1:9190:9090"
     volumes:
       - 9router_data:/app/data
       - ${HOME}:/root/host:ro
@@ -519,7 +551,8 @@ services:
       - PYTHONUNBUFFERED=1
       - HOST_HOME=/root/host
       - DB_PATH=/app/data/db/data.sqlite
-      - ROUTER_URL=http://9router:20128
+      # Resolve pelo nome do servico, que aqui e igual ao do container.
+      - ROUTER_URL=http://claudegravity-router:20128
       - SYNC_INTERVAL=300
       - REFRESH_MARGIN=900
       - MODULE=0003
@@ -527,34 +560,65 @@ services:
       - WEB_PORT=9090
       # O painel exige autenticacao. Sem estas duas variaveis a stack sobe, mas
       # o navegador responde 401 e nao ha senha documentada para informar.
+      # Sem valor de fallback de proposito: uma senha publicada em arquivo de
+      # exemplo vira a senha real de toda implantacao que so copiou e colou.
       - DASHBOARD_USER=${DASHBOARD_USER:-admin}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:?defina DASHBOARD_PASSWORD no .env}
     depends_on:
-      9router:
+      claudegravity-router:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/opt/venv/bin/python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9090/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   9router_data:
   ollama_data:
 ```
 
-Quatro detalhes de arquitetura essenciais foram incorporados neste manifesto:
-1. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
-2. **Streaming Nativo SSE com Ollama Local:** O 9Router consome a API compatível da OpenAI exposta pelo Ollama em `http://host.docker.internal:11434/v1` via nós `openai-compatible-*`. Ao contrário da rota proprietária `/api/chat` (que emite `application/x-ndjson`), a rota `/v1/chat/completions` entrega Server-Sent Events (`text/event-stream`), garantindo streaming nativo na inferência local. Em nossos testes com o `qwen2.5-coder:0.5b` já carregado em memória, o modelo respondeu ao gateway em **0,03s a 0,13s**; a primeira chamada após subir o container é bem mais lenta (medimos **5,09s**), porque inclui o carregamento do modelo na memória.
-3. **Segredos fora do manifesto e ordem de subida:** `INITIAL_PASSWORD` e `JWT_SECRET` são lidos do `.env` (a sintaxe `${VAR:?mensagem}` aborta o `up` com um erro claro se a variável faltar), e os `healthcheck` combinados ao `depends_on: service_healthy` garantem que o 9Router só suba depois que o Ollama estiver respondendo  -  eliminando a corrida que obrigava a inserir esperas manuais nos scripts.
-4. **Guardião de Conexões sem Quedas (`router-sync`):** O container oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) roda isolado em virtual environment dedicado (`/opt/venv`) com consumo mínimo (~18 MB de RAM) e garante a longevidade dos tokens Google Antigravity e combos multi-provedor. A cada 5 minutos ele valida a credencial no SQLite compartilhado, auto-cura divergências de datas e efetua a renovação preventiva via Google OAuth antes que ocorram erros 503 ou expiração de 1 hora.
+Seis detalhes de arquitetura essenciais foram incorporados neste manifesto:
+1. **Serviço, `container_name` e `hostname` com o mesmo nome:** o nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps`. Quando divergem, você lê um nome no manifesto e outro no terminal, e perde tempo até perceber que são a mesma coisa. É o padrão dos projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync), e é por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a mesma decisão.
+2. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
+3. **Streaming Nativo SSE com Ollama Local:** O 9Router consome a API compatível da OpenAI exposta pelo Ollama em `http://host.docker.internal:11434/v1` via nós `openai-compatible-*`. Ao contrário da rota proprietária `/api/chat` (que emite `application/x-ndjson`), a rota `/v1/chat/completions` entrega Server-Sent Events (`text/event-stream`), garantindo streaming nativo na inferência local. A diferença entre chamada fria e quente é grande, e aparece na mesma execução do validador: o nível local respondeu em **8,77s** na primeira chamada  -  que carrega o modelo na memória  -  e em **0,05s** na chamada seguinte, alguns segundos depois `[FONTE: src/test_arsenal.py, executado em 2026-09-13; as duas linhas estão no bloco de saída mais adiante]`. Se você medir uma latência alta no nível 7, meça de novo antes de concluir que algo está errado.
+4. **Segredos fora do manifesto e ordem de subida:** `INITIAL_PASSWORD` e `JWT_SECRET` são lidos do `.env` (a sintaxe `${VAR:?mensagem}` aborta o `up` com um erro claro se a variável faltar), e os `healthcheck` combinados ao `depends_on: service_healthy` garantem que o 9Router só suba depois que o Ollama estiver respondendo  -  eliminando a corrida que obrigava a inserir esperas manuais nos scripts.
+5. **O sidecar roda como root, e isso é deliberado:** o `${HOME}` da sua máquina entra no container em `/root/host`, e `/root` é `0700 root` na imagem. Com `user: "1000:1000"` o `ls /root/host` devolve `Permission denied` e a descoberta de credencial do host morre **em silêncio**, porque o `/healthz` continua respondendo `200` (ele só testa o servidor web). O compose de exemplo do próprio 9RTKSync traz esse `user:` para resolver uma corrida de permissão no volume compartilhado  -  corrida que aqui não existe, porque o `condition: service_healthy` faz o gateway criar `db/` e `logs/` com o dono certo antes de o sidecar tocar no volume. Não copie aquela linha para cá sem antes mover o mount para fora de `/root`.
+6. **Guardião de Conexões sem Quedas (`router-sync`):** O container oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) roda isolado em virtual environment dedicado (`/opt/venv`) e garante a longevidade dos tokens Google Antigravity e combos multi-provedor. A cada 5 minutos ele valida a credencial no SQLite compartilhado, auto-cura divergências de datas e efetua a renovação preventiva via Google OAuth antes que ocorram erros 503 ou expiração de 1 hora. O consumo medido nesta máquina foi de **27,53 MiB de RAM** (`docker stats --no-stream router-sync`, em 2026-09-13)  -  barato, mas não desprezível: o Ollama ao lado ocupa 1,3 GiB.
 
 Para subir a infraestrutura completa em segundo plano:
+
+> **Se você já tinha uma stack anterior de pé, derrube antes.** Os serviços foram renomeados para
+> bater com o nome do container (`9router` → `claudegravity-router`, `9rtksync` → `router-sync`,
+> `ollama` → `claudegravity-ollama`). Para o Compose, serviço renomeado é serviço **novo**: ele não
+> atualiza o container existente, tenta criar outro com o mesmo nome, e o `--dry-run` mostra
+> `Creating` mais um aviso de `orphan containers`. Rode `docker compose down` antes deste `up`. Nada
+> se perde: `9router_data` e `ollama_data` são volumes nomeados, então o SQLite do gateway e o modelo
+> baixado no Ollama sobrevivem ao ciclo.
 
 ```bash
 docker compose up -d
 
 # Conferir status dos 3 containers (gateway, ollama e sidecar de tokens)
-docker ps --filter "name=claudegravity"
+docker compose ps --format 'table {{.Name}}\t{{.Status}}'
 
 # Acompanhar logs da auto-renovacao preventiva de tokens
-docker logs -f claudegravity-token-sync
+docker logs -f router-sync
 ```
+
+Saída real desta máquina, com a stack de pé:
+
+```text
+NAME                   STATUS
+claudegravity-ollama   Up 32 hours (healthy)
+claudegravity-router   Up 32 hours (healthy)
+router-sync            Up 27 hours (healthy)
+```
+
+> **Não use `docker ps --filter "name=claudegravity"` aqui.** O sidecar chama-se `router-sync`, sem o
+> prefixo, e o filtro por nome devolve **dois** containers em vez de três  -  escondendo justamente o
+> que você quer vigiar. O `docker compose ps` lista pelo projeto e não depende de convenção de nome.
 
 Para efetuar o download do modelo leve de contingência no Ollama:
 
@@ -563,11 +627,28 @@ docker exec -it claudegravity-ollama ollama pull qwen2.5-coder:0.5b
 docker exec claudegravity-ollama ollama cp qwen2.5-coder:0.5b qwen2.5-coder:latest
 ```
 
+> **Quando outro proxy precisa alcançar este gateway.** Esta stack sobe numa rede só, a
+> `claudegravity_default` que o Compose cria sozinho, e isso basta enquanto o cliente do gateway é o
+> Claude Code rodando no host. Ao empilhar um segundo proxy em contêiner na frente dele  -  o caso do
+> LiteLLM, na [Conclusão](#conclusão-e-artigos-relacionados)  -  as duas stacks isoladas não se
+> enxergam. A resposta dos projetos RTKSync é uma rede de inferência compartilhada, criada fora do
+> ciclo de vida de qualquer stack:
+>
+> ```bash
+> docker network create rtk-inference-net
+> docker network connect rtk-inference-net claudegravity-router
+> ```
+>
+> Só gateways entram nela; os sincronizadores ficam de fora, na rede de gestão. A rede **não** é
+> declarada neste `docker-compose.yml` de propósito: como `external: true` ela viraria pré-requisito
+> obrigatório e faria `docker compose up -d` falhar para quem nunca vai encadear proxy. O
+> [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha o raciocínio.
+
 > **Os dois comandos são necessários.** A cascata referencia a tag `qwen2.5-coder:latest`, e o `pull` grava apenas `qwen2.5-coder:0.5b`. Sem o `cp`, o `setup_combos.py` acusa `Modelos ausentes no Ollama local` e o último nível do `arsenal-supremo` fica sem servir. Como o modelo mora no volume do container, o passo se repete toda vez que você destrói o ambiente.
 
 ![Container Docker do 9Router em Execução](../assets/20_docker_container.png)
 
-> **Figura 20:** Containers Docker `claudegravity-router`, `claudegravity-ollama` e o sidecar `claudegravity-token-sync` ativos e testes de provisionamento dos combos executados com sucesso.
+> **Figura 20:** Containers Docker `claudegravity-router`, `claudegravity-ollama` e o sidecar `router-sync` ativos e testes de provisionamento dos combos executados com sucesso.
 
 ---
 
@@ -605,40 +686,58 @@ importa: um combo pode responder pelo primeiro nível e esconder que os seis seg
 
 ```text
 === Validador do Arsenal de Fallback do 9Router ===
-    Gateway: http://localhost:20128
+    Gateway: http://claudegravity-router:20128
 
 [*] Cascata de 'arsenal-supremo' - 7 nível(is):
-  [OK   ] 1º ag/gemini-3.8-flash-high - 1.44s · 'PONG'
-  [OK   ] 2º ag/gemini-3.7-flash-high - 1.05s · 'PONG'
-  [OK   ] 3º ag/gemini-3.6-flash-high - 0.77s · 'PONG'
-  [OK   ] 4º openrouter/cohere/north-mini-code:free - 0.91s · 'PONG'
-  [OK   ] 5º groq/openai/gpt-oss-120b - 0.47s · 'PONG'
-  [OK   ] 6º mistral/codestral-latest - 0.55s · 'PONG'
-  [OK   ] 7º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.08s · 'PONG'
-  [OK   ] combo 'arsenal-supremo' - 1.24s · 'PONG'
+  [OK   ] 1º ag/gemini-3.8-flash-high - 1.30s · 'PONG'
+  [OK   ] 2º ag/gemini-3.7-flash-high - 1.15s · 'PONG'
+  [OK   ] 3º ag/gemini-3.6-flash-high - 0.70s · 'PONG'
+  [OK   ] 4º openrouter/cohere/north-mini-code:free - 0.93s · 'PONG'
+  [OK   ] 5º groq/openai/gpt-oss-120b - 0.34s · 'PONG'
+  [OK   ] 6º mistral/codestral-latest - 1.29s · 'PONG'
+  [OK   ] 7º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 8.77s · 'PONG'
+  [OK   ] combo 'arsenal-supremo' - 3.54s · 'PONG'
 
 [*] Cascata de 'arsenal-rapido' - 4 nível(is):
-  [OK   ] 1º groq/openai/gpt-oss-120b - 0.34s · 'PONG'
-  [OK   ] 2º mistral/codestral-latest - 0.56s · 'PONG'
-  [OK   ] 3º ag/gemini-3.7-flash-high - 1.30s · 'PONG'
-  [OK   ] 4º ag/gemini-3.6-flash-high - 2.54s · 'PONG'
+  [OK   ] 1º groq/openai/gpt-oss-120b - 0.40s · 'PONG'
+  [OK   ] 2º mistral/codestral-latest - 0.54s · 'PONG'
+  [OK   ] 3º ag/gemini-3.7-flash-high - 1.25s · 'PONG'
+  [OK   ] 4º ag/gemini-3.6-flash-high - 0.68s · 'PONG'
   [OK   ] combo 'arsenal-rapido' - 0.39s · 'PONG'
 
 [*] Cascata de 'arsenal-offline' - 1 nível(is):
-  [OK   ] 1º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.04s · 'PONG'
-  [OK   ] combo 'arsenal-offline' - 0.04s · 'PONG'
+  [OK   ] 1º openai-compatible-chat-ollama-local/qwen2.5-coder:latest - 0.05s · 'PONG'
+  [OK   ] combo 'arsenal-offline' - 0.05s · 'PONG'
 
 ======================================================================
 RESUMO
 ======================================================================
   Níveis testados: 12 · quebrados: 0
   Combos testados: 3 · com falha: 0
+
+[*] Todos os níveis e todos os combos responderam corretamente.
 ```
 
-Repare no nível 4: **19,59 s**, contra 4,45 s e 0,47 s dos vizinhos. O nível responde, então não está
-quebrado, mas a diferença de duas ordens de grandeza é o tipo de sinal que só aparece testando um a
-um. O nível 7, local, devolveu `OK` em vez de `PONG`  -  o modelo de 0.5B nem sempre obedece à
-instrução literal, e é por isso que ele serve como rede de segurança e não como papel fixo.
+> **Fonte:** `src/test_arsenal.py`, executado em 2026-09-13 contra a stack deste artigo, pelo
+> container de testes  -  daí a linha `Gateway:` mostrar o nome do serviço em vez de `localhost`.
+> Rodando no host com `python3 src/test_arsenal.py`, ela exibe `http://localhost:20128`.
+
+**Repare no nível 7: 8,77 s, e no mesmo modelo 0,05 s poucos segundos depois.** Não é instabilidade, e
+não é defeito: a primeira chamada carrega o modelo na memória, as seguintes não. É a única latência da
+tabela que muda por duas ordens de grandeza entre duas execuções seguidas, e é exatamente o tipo de
+coisa que o teste nível a nível revela e o teste do combo esconde  -  o combo responde pelo primeiro
+nível e nunca chega no sétimo.
+
+O restante da cascata ficou entre 0,34 s e 1,30 s, sem nenhum nível quebrado. Vale contrastar com o
+que este mesmo teste pega quando algo sai do catálogo: o nível não fica lento, ele **falha**, e o
+script marca a linha. Um combo que responde não prova nada sobre os níveis abaixo do primeiro; por
+isso o passo 2 da validação é o que dá segurança de verdade.
+
+> **Uma observação sobre a obediência do modelo local.** Nesta execução os três combos devolveram
+> `'PONG'` limpo, mas em execuções anteriores o mesmo nível local devolveu `'PONG.'` e `'**PONG**'`  -
+> o modelo pequeno responde por perto, não exatamente. Com o validador isso é ruído; dentro do harness
+> do Claude Code, que exige obediência estrita mais chamada de ferramenta, é o que reprova o
+> `arsenal-offline` para qualquer papel fixo.
 
 ---
 
@@ -652,14 +751,14 @@ O simulador avalia cinco cenários operacionais e encerra com um resumo explíci
 Valida a comunicação direta e via combo no modelo primário `ag/gemini-3.8-flash-high`. O 9Router registra a tentativa inicial e o retorno imediato com status HTTP 200 e latência próxima a 1 segundo.
 
 ### 2. Cenário de Rate Limit e Salto Automático (Hop)
-Cria um combo de teste temporário no qual o primeiro modelo é apontado para um identificador saturado que responde com erro 429 ou 404. O motor de roteamento do 9Router intercepta o erro através da função `checkFallbackError`, aplica a regra de contingência e comuta para o modelo subsequente da cadeia, entregando a resposta com sucesso HTTP 200 sem interromper a sessão do usuário. A comutação não é instantânea: o gateway ainda aplica sua política de retentativa com espera progressiva antes de desistir de um nível. No nosso teste, a requisição que precisou saltar de nível respondeu em **3,25s** de ponta a ponta  -  o que o leitor percebe é uma resposta um pouco mais lenta, nunca uma sessão interrompida.
+Cria um combo de teste temporário no qual o primeiro modelo é apontado para um identificador saturado que responde com erro 429 ou 404. O motor de roteamento do 9Router intercepta o erro através da função `checkFallbackError`, aplica a regra de contingência e comuta para o modelo subsequente da cadeia, entregando a resposta com sucesso HTTP 200 sem interromper a sessão do usuário. A comutação não é instantânea: o gateway ainda aplica sua política de retentativa com espera progressiva antes de desistir de um nível. A requisição que precisou saltar de nível respondeu em **2,01s** de ponta a ponta na execução de 2026-09-13 (3,25s numa execução anterior)  -  o que o leitor percebe é uma resposta um pouco mais lenta, nunca uma sessão interrompida.
 
 ### 3. Cenário de Logout e Token Inválido no Antigravity
 Simula a situação em que a conta Google é desconectada ou o token OAuth expira. O script altera temporariamente o token no banco SQLite para uma credencial inválida. Ao tentar acessar diretamente o modelo deslogado, o gateway barra a chamada com o status esperado HTTP 503 / 401 (`[AUTH] HTTP 401`). Em combos com rotas alternativas, o 9Router salta para o próximo provedor disponível da lista.
 
 ### 4. Cenário de Auto-Cura e Restauração
 
-> Para sessões longas e contínuas, o container oficial `router-sync` (já embutido no `docker-compose.yml` e rodando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` em virtual environment dedicado) gerencia de ponta a ponta as conexões e combos do [9Router](https://github.com/decolua/9router) a cada 5 minutos, inspecionando o SQLite e auto-renovando as credenciais 15 minutos antes da expiração. O projeto oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) elimina travamentos e mantém um dashboard web em tempo real em `http://localhost:9091`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e da normalização de formatos.
+> Para sessões longas e contínuas, o container oficial `router-sync` (já embutido no `docker-compose.yml` e rodando a imagem oficial `ghcr.io/pathbit/9rtksync:latest` em virtual environment dedicado) gerencia de ponta a ponta as conexões e combos do [9Router](https://github.com/decolua/9router) a cada 5 minutos, inspecionando o SQLite e auto-renovando as credenciais 15 minutos antes da expiração. O projeto oficial [9RTKSync](https://github.com/pathbit/9RTKSync) (*9Router Universal Token & Connection Synchronizer*) elimina travamentos e mantém um dashboard web em tempo real em `http://localhost:9190`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a causa raiz da expiração e da normalização de formatos.
 
 Aciona o utilitário `sync_antigravity_token.py`, que renova o access token via Google OAuth e restabelece a conexão primária. O script limpa quaisquer travas residuais de rate limit e dispara uma nova requisição, confirmando que o canal com o Gemini 3.8 Flash High volta a responder instantaneamente.
 
@@ -672,6 +771,51 @@ Para executar a suíte de simulação:
 
 ```bash
 python3 src/simulate_fallback.py
+```
+
+> **O cenário 3 mexe no banco.** Ele grava um token inválido na tabela `providerConnections` para
+> provar que o gateway barra a chamada, e restaura no fim  -  o próprio script confere a restauração e
+> avisa se o estado divergir do backup. Não rode com uma sessão longa em andamento na mesma stack: a
+> janela é de segundos, mas existe. Se algo interromper o script no meio, `python3
+> ../0002_claude_gravity_utilizando_9router/src/sync_antigravity_token.py` restabelece a credencial.
+
+O resumo final de uma execução completa nesta máquina:
+
+```text
+======================================================================
+🔬 RESULTADO FINAL DA SUÍTE DE RESILIÊNCIA
+======================================================================
+  ✅ PASSOU  · Cenário 1 · Estado nominal - HTTP 200 em 1.42s
+  ✅ PASSOU  · Cenário 2 · Salto de fallback - HTTP 200 em 2.01s
+  ✅ PASSOU  · Cenário 3 · Bloqueio sob token inválido - HTTP 503
+  ✅ PASSOU  · Cenário 4 · Auto-cura - HTTP 200 em 1.24s
+  ✅ PASSOU  · Cenário 5 · Claude Code CLI - 5.70s
+
+  Total: 5 aprovado(s), 0 falha(s), 0 pulado(s).
+
+[*] Todos os cenários executados foram aprovados.
+```
+
+`[FONTE: src/simulate_fallback.py, executado em 2026-09-13 contra a stack deste artigo]`
+
+O cenário 3 merece ver a evidência, porque é o único em que o sucesso **é** um erro. O gateway
+devolveu o bloqueio com a causa nomeada, e o log do 9Router registrou a recusa do upstream:
+
+```text
+  ✅ Comportamento esperado confirmado: gateway barrou a chamada com HTTP 503!
+     Motivo retornado: {"error":{"message":"[antigravity/gemini-3.8-flash-high] [401]: HTTP 401 (reset after 2m)"}}
+
+  📋 Evidência do log do 9Router registrando a desautenticação:
+     [01:31:48] 🔴 ✗ ERROR 401 · antigravity/gemini-3.8-flash-high · 3427ms
+```
+
+E o cenário 4 mostra a auto-cura fechando o ciclo, com o caminho da credencial que ela leu:
+
+```text
+[*] Credencial detectada em: /Users/elielsousa/.gemini/jetski-standalone-oauth-token
+[+] Access token renovado com sucesso (validade: 3599s)
+[+] Credenciais Antigravity injetadas no container claudegravity-router com sucesso!
+  ✅ Canal primário restabelecido com sucesso (HTTP 200) em 1.24s
 ```
 
 ![Laboratório de Simulação de Fallback e Resiliência Multi-Cenários](../assets/21_simulacao_fallback_laboratorio.png)
@@ -709,7 +853,7 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 
 Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e informa o motivo  -  a cascata continua funcionando com os níveis restantes, apenas mais curta.
 
-> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual modelo usar em cada classe de tarefa. Nos arquivos deste artigo elas apontam para modelos individuais do Antigravity, e os combos ficam disponíveis no menu `/model`  -  a comparação entre os dois arranjos está no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-a-escolha-do-padrão). **Não coloque `arsenal-offline` em nenhuma delas, nem como padrão:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
+> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual modelo usar em cada classe de tarefa. Nos arquivos deste artigo elas apontam para modelos individuais do Antigravity, e os combos ficam disponíveis no menu `/model`  -  a comparação entre os dois arranjos está no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-e-a-escolha-do-padrão). **Não coloque `arsenal-offline` em nenhuma delas, nem como padrão:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
 
 ### Os dois arquivos de configuração do Claude Code
 
@@ -838,7 +982,7 @@ most tasks, Haiku for quick questions*. Cada papel tem sua variável:
 | Sonnet | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `ag/gemini-3.7-flash-high` | A maior parte das tarefas |
 | Haiku | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `ag/gemini-3.6-flash-high` | Alta frequência: **toda sessão**, para nomear a conversa |
 
-São modelos individuais, e não os combos  -  a mesma escolha do [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-a-escolha-do-padrão),
+São modelos individuais, e não os combos  -  a mesma escolha do [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-e-a-escolha-do-padrão),
 pelo mesmo motivo: consumo previsível. Os combos `arsenal-*` continuam a um `/model` de distância,
 e nada impede apontar um papel para eles se você preferir resiliência a previsibilidade.
 
@@ -1117,7 +1261,7 @@ Para aprofundar na configuração específica do Google Antigravity e na engenha
 
 **Onde a cascata deste artigo encontra o seu limite.** Tudo o que foi montado aqui responde à pergunta "de onde sai o próximo token quando esta conta acabar". Nenhuma linha responde a outra, que aparece assim que mais de uma pessoa usa a mesma montagem: *quem* consumiu o quê, e como impedir que uma pessoa sozinha esgote a cota do time antes do almoço. O 9Router escolhe a conta; ele não reparte a cota entre pessoas.
 
-Quem precisa disso põe um segundo proxy na frente — o LiteLLM trata o 9Router como se fosse um provedor comum, porque a API dele é compatível com OpenAI, e acrescenta por cima chave virtual por pessoa, orçamento por chave e teto de requisições por minuto. A cascata continua igual, embaixo; o que muda é que passa a existir um lugar onde se responde "quem paga a conta". O passo a passo está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/blob/master/docs/wiki/Chaining-Gateways.md).
+Quem precisa disso põe um segundo proxy na frente — o LiteLLM trata o 9Router como se fosse um provedor comum, porque a API dele é compatível com OpenAI, e acrescenta por cima chave virtual por pessoa, orçamento por chave e teto de requisições por minuto. A cascata continua igual, embaixo; o que muda é que passa a existir um lugar onde se responde "quem paga a conta". O passo a passo está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
 
 ---
 

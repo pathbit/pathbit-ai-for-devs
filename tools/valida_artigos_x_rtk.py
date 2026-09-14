@@ -91,8 +91,14 @@ def verificar(raiz_artigos: str, raiz_github: str) -> List[str]:
                 lidas = cache[repo]
 
                 # 1. Porta interna publicada x porta que o código escuta
+                #
+                # Casa o par de portas apenas no YAML efetivo: um comentario que
+                # cite `user: "1000:1000"` para explicar por que NAO se deve usar
+                # aquela linha nao e um mapeamento de porta, e antes desta poda o
+                # validador acusava 'publica 0:1000' em cima de um comentario.
                 padrao = porta_padrao(raiz_rtk, pacote)
-                for host, interna in re.findall(r'"[\d.]*:?(\d+):(\d+)"', bloco):
+                efetivo = re.sub(r"(?m)^\s*#.*$", "", bloco)
+                for host, interna in re.findall(r'"[\d.]*:?(\d+):(\d+)"', efetivo):
                     declarada = re.search(r"WEB_PORT=(\d+)", bloco)
                     esperada = declarada.group(1) if declarada else padrao
                     if interna != esperada:

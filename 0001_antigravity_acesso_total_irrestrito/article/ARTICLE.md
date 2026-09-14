@@ -80,7 +80,7 @@ A tabela abaixo resume as localizações exatas para cada arquivo de controle:
 | **IDE Settings (V1)** | `~/Library/Application Support/Antigravity/User/settings.json` | `~/.config/Antigravity/User/settings.json` | `%APPDATA%\Antigravity\User\settings.json` |
 | **IDE Settings (V2)** | `~/Library/Application Support/Antigravity IDE/User/settings.json` | `~/.config/Antigravity IDE/User/settings.json` | `%APPDATA%\Antigravity IDE\User\settings.json` |
 
-> **Atenção:** Diretórios de estado de execução interno como `~/.gemini/antigravity/`, `~/.gemini/history/` e `~/.gemini/oauth_creds.json` não devem ser **editados** manualmente. Lê-los é seguro (é exatamente o que o artigo 0002 faz para reaproveitar a sessão OAuth já autenticada, sem nunca reescrever o arquivo).
+> **Atenção:** Diretórios de estado de execução interno como `~/.gemini/antigravity/` e `~/.gemini/history/`, e os arquivos de credencial `~/.gemini/jetski-standalone-oauth-token` e `~/.gemini/oauth_creds.json`, não devem ser **editados** manualmente. Lê-los é seguro (é exatamente o que o artigo 0002 faz para reaproveitar a sessão OAuth já autenticada, sem nunca reescrever o arquivo). O `sync_antigravity_token.py` do 0002 tenta os dois nomes nessa ordem, porque a versão do IDE decide qual dos dois existe na sua máquina.
 
 ---
 
@@ -123,7 +123,6 @@ Este é o arquivo central consumido por todos os processos do Antigravity. Ele d
 | `browserJsExecutionPolicy` | `BROWSER_JS_EXECUTION_POLICY_TURBO` | Executa scripts e automações web no navegador integrado sem bloquear a sessão. |
 | `enableTerminalSandbox` | `false` | Remove restrições de sandbox em containers temporários que impedem comandos nativos do sistema. |
 | `nonWorkspaceFileAccessPolicy` | `AGENT_SETTING_POLICY_ALLOW` | Permite ao agente inspecionar dependências, logs e arquivos localizados fora do workspace. |
-| `claudeCode.includeCoAuthoredBy` | `false` | Bloqueia a coautoria também no caminho do Claude Code |
 | `includeCoAuthoredBy` | `false` | Impede que o motor anexe trailers de coautoria sintética em commits git. |
 | `globalPermissionGrants.allow` | `6 wildcards universais` | Concede acesso global irrestrito para leitura, escrita, terminal, web e servidores MCP. |
 | `globalPermissionGrants.deny` | `[]` | Lista de bloqueios vazia para evitar sobreposição involuntária de regras. |
@@ -240,6 +239,7 @@ Para a CLI oficial do Antigravity (`agy`), gravamos o arquivo de preferências q
 | `allowNonWorkspaceAccess` | `true` | Permite leitura e escrita fora do diretório de chamada da CLI. |
 | `disableWorkspaceTrustCheck` | `true` | Desativa verificação de pasta confiável no terminal. |
 | `includeCoAuthoredBy` | `false` | Bloqueia assinatura automática nos commits criados pela CLI. |
+| `claudeCode.includeCoAuthoredBy` | `false` | Estende o mesmo bloqueio ao caminho do Claude Code invocado a partir da CLI. **É aqui que esta chave mora** - o `setup_permissions.py` a grava no `antigravity-cli/settings.json`, e não no `config/config.json` do motor global. |
 
 Para garantir execução permanente sem necessidade de digitar flags manuais a cada comando, configuramos um alias no arquivo de perfil do shell:
 
@@ -476,6 +476,50 @@ python3 src/restore_permissions.py --latest    # restaura o mais recente
 python3 src/test_permissions.py
 ```
 
+O diagnóstico do passo 3 termina assim quando o ambiente está íntegro:
+
+```text
+[1/5] Verificando Motor Unificado Agent 2.0 (config/config.json)...
+  ✅ autoExecutionPolicy: EAGER (Execução automática desimpedida)
+  ✅ artifactReviewMode: TURBO (Revisão de artefatos desativada)
+  ✅ enableTerminalSandbox: False (Comandos rodam fora de sandbox)
+  ✅ browserJsExecutionPolicy: TURBO (JavaScript liberado no navegador do agente)
+  ✅ nonWorkspaceFileAccessPolicy: ALLOW (Leitura fora da pasta do projeto liberada)
+  ✅ Todos os 6 wildcards de permissão estão presentes em allow.
+  ✅ deny: [] (Lista de bloqueios vazia - Precedência limpa)
+
+[2/5] Verificando Configurações de Projetos Locais...
+  ✅ Projeto 'default-cli-project.json': 6/6 wildcards ativos
+  (uma linha por arquivo em ~/.gemini/config/projects/)
+
+[3/5] Verificando Antigravity CLI (agy)...
+  ✅ agentMode: accept-edits (Edições sem confirmação)
+  ✅ toolPermission: always-proceed (Ferramentas auto-aprovadas)
+
+[4/5] Verificando Confiança de Pastas (trustedFolders.json)...
+  ✅ Raiz do sistema (/) com status TRUST_PARENT
+  ✅ Home do usuário (/Users/elielsousa) com status TRUST_PARENT
+
+[5/5] Verificando Configurações da IDE (VSCode Core)...
+  ✅ IDE (Antigravity): autoExecutionPolicy='always', YOLO=True, Trust=False
+  ✅ IDE (Antigravity IDE): autoExecutionPolicy='always', YOLO=True, Trust=False
+
+======================================================================
+🎉 ESTADO PERFEITO: TODAS AS CONFIGURAÇÕES ESTÃO 100% APLICADAS!
+```
+
+`[FONTE: src/verify_permissions.py, executado em 2026-09-13 no ambiente descrito]`
+
+E a suíte do passo 5, que não toca na sua configuração real:
+
+```text
+Ran 35 tests in 0.230s
+
+OK
+```
+
+`[FONTE: src/test_permissions.py, executado em 2026-09-13]`
+
 > A flag `--skip-backup` existe para reaplicar a configuração sem gerar um novo diretório de backup (útil em execuções repetidas, mas evite-a na primeira aplicação). A restauração também cria um backup do estado atual antes de sobrescrever, então nenhum caminho é sem volta.
 
 > **Sobre a suíte de testes:** ela roda em um diretório temporário, sem ler ou escrever nada na sua configuração real, e simula os três sistemas operacionais  -  então a resolução de caminhos de macOS, Linux e Windows (incluindo `XDG_CONFIG_HOME` e a derivação da letra do drive no Windows) é verificada mesmo que você execute em apenas um deles.
@@ -486,7 +530,7 @@ python3 src/test_permissions.py
 
 Com o motor do Google Antigravity configurado para autonomia desimpedida, o ecossistema está pronto para avançar para as próximas etapas da engenharia agêntica:
 
-1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a autenticação eternamente ativa através do container sidecar de auto-renovação (`claudegravity-token-sync`).
+1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a autenticação eternamente ativa através do container sidecar de auto-renovação (`router-sync`).
 2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático e suporte do sidecar contínuo, eliminando paradas por limite de cota.
 
 ---
