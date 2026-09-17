@@ -926,7 +926,41 @@ O digest permaneceu **idêntico** (`68d8fa2a...a449`) antes e depois de uma sess
 
 Dois provedores, dois comportamentos para a mesma string. É o argumento definitivo para usar apenas identificadores canônicos.
 
-### 5. O verificador do módulo
+### 5. A Prova no Fio: os Modelos da Anthropic Realmente Somem?
+
+Ocultar os modelos da Anthropic no menu `/model` é uma promessa sobre **comportamento**, e comportamento não se comprova lendo arquivo de configuração. O `replaceBuiltInOptions` declarado no settings mostra a intenção; o que interessa é o que sai na requisição HTTP.
+
+Para verificar isso sem depender de nenhum provedor, o repositório traz uma sonda que finge ser a API da Anthropic, registra o corpo de cada requisição e devolve uma resposta válida:
+
+```bash
+make prova-no-fio
+```
+
+A sonda sobe em `127.0.0.1`, o Claude Code roda **de verdade** apontado para ela com o settings de cada artigo, e são disparadas três sessões por cenário — a terceira e a segunda pedindo **de propósito** um modelo da Anthropic:
+
+```bash
+claude --settings <arquivo> -p "oi"                                # sessão normal
+claude --settings <arquivo> --model claude-opus-5 -p "oi"          # pedindo Opus 5
+claude --settings <arquivo> --model 'claude-sonnet-5[1m]' -p "oi"  # Sonnet 5 com [1m]
+```
+
+Resultado da execução de 17/09/2026, com a CLI v2.1.274:
+
+| Cenário | Modelos que saíram no fio | Modelo Anthropic | Sufixo `[1m]` | Advisor |
+| :--- | :--- | :---: | :---: | :---: |
+| **0002** · ClaudeGravity | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | nenhum | nenhum | nenhum |
+| **0003** · Arsenal Fallback | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | nenhum | nenhum | nenhum |
+| **0004** · DeepSeek Platform | `deepseek-v4-pro`, `deepseek-flash` | nenhum | nenhum | nenhum |
+| **0004** · OrcaRouter | `deepseek/deepseek-v4-flash-free` | nenhum | nenhum | nenhum |
+
+**24 requisições reais capturadas, nenhuma com um identificador `claude-*`.** Mesmo quando o modelo da Anthropic é pedido explicitamente na linha de comando, o `modelOverrides` intercepta antes de a requisição ser montada e o que viaja é o modelo do provedor configurado. O sufixo `[1m]` some no caminho, confirmando a normalização que a CLI faz.
+
+A sonda também registra os cabeçalhos: em todas as 24 requisições a credencial chegou como `Authorization: Bearer`, e **nenhuma** carregou `x-api-key` — é a diferença prática entre `ANTHROPIC_AUTH_TOKEN` e `ANTHROPIC_API_KEY` descrita neste artigo.
+
+> **Por que isto é mais forte do que um print do menu `/model`.** Uma captura de tela mostra o que a interface desenhou; a sonda mostra o que o processo enviou. São coisas diferentes, e só a segunda responde "meus dados foram para a Anthropic?".
+
+
+### 6. O verificador do módulo
 
 ```bash
 python3 src/verify_deepclaude.py --online

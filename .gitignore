@@ -1371,3 +1371,6 @@ temp/
 
 # Estado interno de hooks (mimosa) - nao pertence ao repositorio
 .mimosa/
+
+# Artefatos temporarios da prova no fio (settings com a URL da sonda)
+tools/.prova_no_fio/

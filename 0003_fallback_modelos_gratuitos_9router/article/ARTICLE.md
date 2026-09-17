@@ -585,6 +585,26 @@ volumes:
   ollama_data:
 ```
 
+> [!WARNING]
+> ### O Pacote `9rtksync` Está Privado no GHCR
+> Verificado em 17/09/2026 com uma requisição anônima: o endpoint de token do GHCR responde `401` e o manifest `403` para `ghcr.io/pathbit/9rtksync:latest`. As outras imagens da stack (`decolua/9router` e `ollama/ollama`) são públicas e baixam normalmente.
+>
+> Na prática, `docker compose up` falha assim:
+>
+> ```text
+> Error response from daemon: error from registry: unauthorized
+> ```
+>
+> Autentique-se antes de subir a stack, com um *Personal Access Token* que tenha o escopo `read:packages`:
+>
+> ```bash
+> echo "$GITHUB_PAT" | docker login ghcr.io -u SEU_USUARIO --password-stdin
+> ```
+>
+> O `router-sync` é o sidecar que renova o token do Antigravity. Sem ele a stack sobe e o gateway funciona, mas a credencial expira em cerca de uma hora — o cenário descrito em [SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](../../docs/SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md). Para um teste curto, dá para comentar o serviço no compose e renovar manualmente com `python3 src/sync_antigravity_token.py`.
+
+
+
 Seis detalhes de arquitetura essenciais foram incorporados neste manifesto:
 1. **Serviço, `container_name` e `hostname` com o mesmo nome:** o nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps`. Quando divergem, você lê um nome no manifesto e outro no terminal, e perde tempo até perceber que são a mesma coisa. É o padrão dos projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync), e é por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a mesma decisão.
 2. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
@@ -891,6 +911,41 @@ Ele fica em `examples/.claude/settings.local.json`, isolado do restante do repos
 **Por que `settings.local.json` e não `settings.json`.** O Claude Code lê os dois arquivos em um checkout: o `.claude/settings.json` existe para configuração **compartilhada do time**, comitada no repositório, e o `.claude/settings.local.json` para o que é **específico da sua máquina** e não pode ir para o Git — uma chave pessoal, um caminho local. Nossa configuração cai inteiramente na segunda categoria: ela carrega a credencial do gateway. Um `settings.json` commitado redirecionaria o harness de qualquer pessoa que clonasse o repositório para um gateway que ela não tem. Por isso versionamos apenas o template `.example` e deixamos a cópia ativa protegida pelo `.gitignore`.
 
 Uma ressalva que vale para os dois nomes: nenhum deles faz o menu `/model` customizado funcionar. O bloco `modelPicker` não é lido de um checkout de projeto — só de *managed settings*, do arquivo global do usuário ou de um arquivo passado com `--settings`. Por isso a sessão é sempre iniciada com `claude --settings .claude/settings.local.json`.
+
+
+### A Prova no Fio: os Modelos da Anthropic Realmente Somem?
+
+Ocultar os modelos da Anthropic no menu `/model` é uma promessa sobre **comportamento**, e comportamento não se comprova lendo arquivo de configuração. O `replaceBuiltInOptions` declarado no settings mostra a intenção; o que interessa é o que sai na requisição HTTP.
+
+Para verificar isso sem depender de nenhum provedor, o repositório traz uma sonda que finge ser a API da Anthropic, registra o corpo de cada requisição e devolve uma resposta válida:
+
+```bash
+make prova-no-fio
+```
+
+A sonda sobe em `127.0.0.1`, o Claude Code roda **de verdade** apontado para ela com o settings de cada artigo, e são disparadas três sessões por cenário — a terceira e a segunda pedindo **de propósito** um modelo da Anthropic:
+
+```bash
+claude --settings <arquivo> -p "oi"                                # sessão normal
+claude --settings <arquivo> --model claude-opus-5 -p "oi"          # pedindo Opus 5
+claude --settings <arquivo> --model 'claude-sonnet-5[1m]' -p "oi"  # Sonnet 5 com [1m]
+```
+
+Resultado da execução de 17/09/2026, com a CLI v2.1.274:
+
+| Cenário | Modelos que saíram no fio | Modelo Anthropic | Sufixo `[1m]` | Advisor |
+| :--- | :--- | :---: | :---: | :---: |
+| **0002** · ClaudeGravity | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | nenhum | nenhum | nenhum |
+| **0003** · Arsenal Fallback | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | nenhum | nenhum | nenhum |
+| **0004** · DeepSeek Platform | `deepseek-v4-pro`, `deepseek-flash` | nenhum | nenhum | nenhum |
+| **0004** · OrcaRouter | `deepseek/deepseek-v4-flash-free` | nenhum | nenhum | nenhum |
+
+**24 requisições reais capturadas, nenhuma com um identificador `claude-*`.** Mesmo quando o modelo da Anthropic é pedido explicitamente na linha de comando, o `modelOverrides` intercepta antes de a requisição ser montada e o que viaja é o modelo do provedor configurado. O sufixo `[1m]` some no caminho, confirmando a normalização que a CLI faz.
+
+A sonda também registra os cabeçalhos: em todas as 24 requisições a credencial chegou como `Authorization: Bearer`, e **nenhuma** carregou `x-api-key` — é a diferença prática entre `ANTHROPIC_AUTH_TOKEN` e `ANTHROPIC_API_KEY` descrita neste artigo.
+
+> **Por que isto é mais forte do que um print do menu `/model`.** Uma captura de tela mostra o que a interface desenhou; a sonda mostra o que o processo enviou. São coisas diferentes, e só a segunda responde "meus dados foram para a Anthropic?".
+
 
 > [!IMPORTANT]
 > ### Passo Obrigatório: Cópia do Arquivo antes dos Testes

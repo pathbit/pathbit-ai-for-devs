@@ -206,7 +206,23 @@ make valida-deepclaude              # offline
 make valida-deepclaude ONLINE=1     # com chamada real à API
 ```
 
-### Opção 4. Validação Cruzada com os Projetos RTK
+### Opção 4. Prova no Fio (o que a CLI realmente envia)
+
+Os artigos prometem que nenhum modelo da Anthropic é usado, que o sufixo `[1m]` não viaja, que o
+advisor não é anexado e que a credencial vai por `Authorization: Bearer`. Nada disso se comprova
+lendo o arquivo de configuração — só olhando a requisição HTTP.
+
+```bash
+make prova-no-fio              # todos os artigos
+make prova-no-fio ARTIGO=0004  # só um
+```
+
+Sobe uma sonda local que finge ser a API da Anthropic, roda o Claude Code de verdade com o settings
+de cada artigo e dispara três sessões por cenário, duas delas pedindo um modelo da Anthropic de
+propósito (`--model claude-opus-5`) para verificar que o `modelOverrides` intercepta. Não precisa de
+gateway de pé, credencial real nem rede externa.
+
+### Opção 5. Validação Cruzada com os Projetos RTK
 
 Os artigos mandam o leitor copiar um `docker-compose.yml` que sobe imagens dos
 projetos [9RTKSync](https://github.com/pathbit/9RTKSync),

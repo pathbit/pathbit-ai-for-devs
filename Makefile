@@ -1,4 +1,4 @@
-.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude valida-paineis up down logs clean
+.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
@@ -38,6 +38,14 @@ valida-consistencia:
 # templates e contaminacao do settings global. Com ONLINE=1 faz inferencia real.
 valida-deepclaude:
 	$(PYTHON) 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py $(if $(ONLINE),--online,)
+
+# Prova, na requisicao HTTP, o que os artigos prometem: sobe uma sonda local que
+# finge ser a API da Anthropic, roda o Claude Code de verdade com o settings de
+# cada artigo e mostra o que saiu no fio. Pede um modelo da Anthropic de
+# proposito (--model claude-opus-5) para verificar que modelOverrides intercepta.
+# Nao precisa de gateway de pe nem de credencial real.
+prova-no-fio:
+	$(PYTHON) tools/prova_no_fio.py $(ARTIGO)
 
 # Validacao HTTP dos paineis das stacks. Exige as stacks de pe e as credenciais
 # no ambiente -- veja o cabecalho do script; ele TROCA a senha do painel.

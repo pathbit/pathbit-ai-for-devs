@@ -655,6 +655,26 @@ com o resultado exato — e o que não deu está declarado como não verificado,
 | Sintaxe dos launchers alterados | `python3 -m py_compile` | **OK** nos três |
 | Comportamento do `settings_flag()` | execução direta nos três cenários | **OK** — devolve a flag quando a cópia ativa existe, lista vazia quando não existe (sessão sobe pelas variáveis de ambiente, sem `Settings file not found`) |
 
+### Prova no fio: nenhum modelo da Anthropic sai da CLI
+
+Esta é a verificação que faltava nos ciclos anteriores, e ela não depende de credencial nenhuma.
+Uma sonda HTTP local finge ser a API da Anthropic e registra o corpo de cada requisição; o Claude
+Code roda de verdade apontado para ela com o settings de cada artigo (`make prova-no-fio`).
+
+São três sessões por cenário — a segunda e a terceira pedindo um modelo da Anthropic de propósito,
+para verificar que `modelOverrides` intercepta em vez de deixar passar:
+
+| Cenário | Modelos capturados no fio | `claude-*` | `[1m]` | advisor | `x-api-key` |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| 0002 · ClaudeGravity | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | 0 | 0 | 0 | 0 |
+| 0003 · Arsenal Fallback | `ag/gemini-3.8-flash-high`, `ag/gemini-3.7-flash-high` | 0 | 0 | 0 | 0 |
+| 0004 · DeepSeek Platform | `deepseek-v4-pro`, `deepseek-flash` | 0 | 0 | 0 | 0 |
+| 0004 · OrcaRouter | `deepseek/deepseek-v4-flash-free` | 0 | 0 | 0 | 0 |
+
+**24 requisições reais, nenhuma com identificador `claude-*`.** Todas com `Authorization: Bearer` e
+nenhuma com `x-api-key`. O hash SHA-256 de `~/.claude/settings.json` foi medido antes e depois das
+12 sessões e permaneceu idêntico (`68d8fa2a...ebeb60`).
+
 ### Não verificado nesta passagem
 
 Inferência real através do 9Router, comutação de cascata dos combos `arsenal-*` e renovação de token
