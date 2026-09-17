@@ -408,3 +408,41 @@ Nenhuma ação é necessária para o funcionamento. Para reduzir o ruído, decla
 ```
 
 As tarefas auxiliares (título de sessão, resumos curtos) usam o papel Haiku. Com ele mapeado para um modelo real do gateway, o aviso desaparece sem afetar o roteamento do trabalho principal.
+
+---
+
+## ❌ Problema 15 - `unauthorized` ao Baixar a Imagem `ghcr.io/pathbit/9rtksync`
+
+### Sintoma
+
+Ao subir a stack dos artigos 0002 ou 0003:
+
+```text
+Error response from daemon: error from registry: unauthorized
+```
+
+### Causa
+
+O pacote `ghcr.io/pathbit/9rtksync` está publicado como **privado** no GitHub Container Registry. Verificado em 17/09/2026 com uma requisição anônima:
+
+```bash
+$ docker manifest inspect ghcr.io/pathbit/9rtksync:latest
+Get "https://ghcr.io/v2/pathbit/9rtksync/manifests/latest": unauthorized
+```
+
+O endpoint de token do GHCR responde `401` e o manifest `403` sem credencial. As outras imagens da stack (`decolua/9router` e `ollama/ollama`) são públicas e baixam normalmente.
+
+### Solução
+
+Autentique-se no GHCR com um *Personal Access Token* que tenha o escopo `read:packages`:
+
+```bash
+echo "$GITHUB_PAT" | docker login ghcr.io -u SEU_USUARIO --password-stdin
+docker compose -f 0002_claude_gravity_utilizando_9router/docker-compose.yml up -d
+```
+
+Se você é mantenedor da organização e quer que o compose funcione sem login, torne o pacote público em **Packages → 9rtksync → Package settings → Change visibility**.
+
+### Alternativa
+
+O `router-sync` é o sidecar que renova os tokens do Antigravity. Sem ele a stack sobe e o gateway funciona, mas a credencial expira em cerca de uma hora e a sessão passa a falhar com `HTTP 401` — o cenário descrito em [SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](./SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md). Para um teste curto, é possível comentar o serviço `router-sync` no compose e renovar o token manualmente com `python3 src/sync_antigravity_token.py`.

@@ -264,15 +264,29 @@ Ou diretamente pelo comando shell:
 
 > A chave é gerada localmente na primeira execução de `sync_antigravity_token.py` (artigo 0002) e gravada no `.env` do módulo (não versionado). Substitua o placeholder abaixo pelo valor que o script imprimir.
 
+**Caminho recomendado — com o arquivo de settings:**
+
+```bash
+cd examples
+cp .claude/settings.local.json.example .claude/settings.local.json
+# troque sk-sua-chave-do-9router pela chave real no arquivo gerado
+
+claude --settings .claude/settings.local.json --model arsenal-supremo
+```
+
+**Alternativa — só variáveis de ambiente** (perde o `modelPicker`, os rótulos dos papéis e o kill switch do advisor):
+
 ```bash
 # macOS e Linux (bash / zsh)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
 export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
+export CLAUDE_CODE_DISABLE_ADVISOR_TOOL="1"
 claude --dangerously-skip-permissions --model arsenal-supremo
 
 # Windows (PowerShell)
 $env:ANTHROPIC_BASE_URL="http://localhost:20128"
 $env:ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
+$env:CLAUDE_CODE_DISABLE_ADVISOR_TOOL="1"
 claude --dangerously-skip-permissions --model arsenal-supremo
 ```
 

@@ -214,14 +214,32 @@ def clear_model_locks():
     run_node_script(script, check=False)
 
 
+
+def settings_flag(examples_dir):
+    """Devolve ['--settings', <arquivo>] quando a cópia ativa existe.
+
+    O bloco `modelPicker` não é lido de um checkout de projeto: a CLI só o honra
+    a partir de managed settings, do arquivo global do usuário ou de um arquivo
+    passado nesta flag. Sem ela, o menu /model volta a listar os modelos da
+    Anthropic mesmo com `replaceBuiltInOptions` declarado no arquivo.
+
+    A flag é condicional de propósito: quem ainda não copiou o `.example` recebe
+    uma sessão funcional (as variáveis de ambiente já vão no `env`) em vez de um
+    "Settings file not found" no meio do fluxo.
+    """
+    if not examples_dir:
+        return []
+    caminho = os.path.join(examples_dir, ".claude", "settings.local.json")
+    return ["--settings", caminho] if os.path.exists(caminho) else []
+
 def run_claude_cli_test(model_name, prompt):
     """Dispara uma consulta real via Claude Code CLI.
 
     Devolve available=False quando o binário `claude` não está instalado, para que
     o cenário seja registrado como pulado em vez de derrubar a suíte inteira.
     """
-    cmd = [
-        "claude",
+    examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
+    cmd = ["claude"] + settings_flag(examples_dir if os.path.exists(examples_dir) else None) + [
         "-p",
         prompt,
         "--model",
@@ -235,7 +253,6 @@ def run_claude_cli_test(model_name, prompt):
     env["ANTHROPIC_AUTH_TOKEN"] = API_KEY
     env.pop("ANTHROPIC_API_KEY", None)
 
-    examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
     t0 = time.time()
     try:
         res = subprocess.run(

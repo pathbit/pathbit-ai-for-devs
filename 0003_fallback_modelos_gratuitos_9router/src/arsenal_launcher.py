@@ -80,20 +80,37 @@ def run_claude(model, base_url, api_key, extra_args):
     # Flags avancadas
     env["CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT"] = "1"
 
-    cmd = [
-        "claude",
+    examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
+
+    cmd = ["claude"] + settings_flag(examples_dir if os.path.exists(examples_dir) else None) + [
         "--dangerously-skip-permissions",
         "--model",
         model,
     ] + extra_args
-
-    examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
     print(f"[*] Iniciando Claude Code conectado ao combo {model} via {base_url}...")
     try:
         subprocess.run(cmd, env=env, cwd=examples_dir if os.path.exists(examples_dir) else None)
     except KeyboardInterrupt:
         print("\n[*] Sessão finalizada pelo desenvolvedor.")
 
+
+
+def settings_flag(examples_dir):
+    """Devolve ['--settings', <arquivo>] quando a cópia ativa existe.
+
+    O bloco `modelPicker` não é lido de um checkout de projeto: a CLI só o honra
+    a partir de managed settings, do arquivo global do usuário ou de um arquivo
+    passado nesta flag. Sem ela, o menu /model volta a listar os modelos da
+    Anthropic mesmo com `replaceBuiltInOptions` declarado no arquivo.
+
+    A flag é condicional de propósito: quem ainda não copiou o `.example` recebe
+    uma sessão funcional (as variáveis de ambiente já vão no `env`) em vez de um
+    "Settings file not found" no meio do fluxo.
+    """
+    if not examples_dir:
+        return []
+    caminho = os.path.join(examples_dir, ".claude", "settings.local.json")
+    return ["--settings", caminho] if os.path.exists(caminho) else []
 
 def main():
     parser = argparse.ArgumentParser(

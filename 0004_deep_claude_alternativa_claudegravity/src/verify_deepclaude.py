@@ -89,8 +89,11 @@ def modelos_declarados(cfg):
     if isinstance(cfg.get("model"), str):
         encontrados.append(("model", cfg["model"]))
     env = cfg.get("env", {})
+    # "MODEL" no nome não basta: CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT
+    # é um booleano, não um identificador de modelo.
+    nao_sao_modelo = ("_NAME", "_DESCRIPTION", "_ENFORCEMENT", "_WINDOW")
     for chave, valor in env.items():
-        if "MODEL" in chave and not chave.endswith(("_NAME", "_DESCRIPTION")) and isinstance(valor, str):
+        if "MODEL" in chave and not chave.endswith(nao_sao_modelo) and isinstance(valor, str):
             encontrados.append((f"env.{chave}", valor))
     for i, opcao in enumerate(cfg.get("modelPicker", {}).get("options", [])):
         if isinstance(opcao.get("model"), str):

@@ -176,14 +176,20 @@ A requisição foi respondida em **0,72s**, e o usuário do terminal não perceb
 Os modelos gratuitos não são apenas rede de segurança: eles sustentam uma sessão inteira. Executamos a CLI oficial do Claude Code apontada diretamente para dois deles, sem nenhum modelo pago na rota:
 
 ```bash
-claude -p "Responda apenas com o texto: ARSENAL_LIVRE_OK" \
-  --model openrouter/cohere/north-mini-code:free --dangerously-skip-permissions
+cd examples
+
+claude --settings .claude/settings.local.json \
+  -p "Responda apenas com o texto: ARSENAL_LIVRE_OK" \
+  --model openrouter/cohere/north-mini-code:free
 # ARSENAL_LIVRE_OK   (exit 0)
 
-claude -p "Responda apenas com o texto: ARSENAL_LIVRE_OK" \
-  --model openrouter/nvidia/nemotron-3.5-lightning:free --dangerously-skip-permissions
+claude --settings .claude/settings.local.json \
+  -p "Responda apenas com o texto: ARSENAL_LIVRE_OK" \
+  --model openrouter/nvidia/nemotron-3.5-lightning:free
 # ARSENAL_LIVRE_OK   (exit 0)
 ```
+
+> As permissões já vêm liberadas no próprio arquivo de settings (`"defaultMode": "bypassPermissions"`), então `--dangerously-skip-permissions` é desnecessário quando a sessão sobe com `--settings`.
 
 Se você não tem assinatura do Google AI Pro, monte sua cascata só com os identificadores da tabela acima mais o Ollama local  -  o custo de inferência é zero de ponta a ponta.
 
@@ -856,6 +862,28 @@ Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e 
 
 ### O arquivo de configuração do Claude Code
 
+> [!IMPORTANT]
+> ### Passo Obrigatório: Copie o `.example` ANTES de Começar os Testes
+> Este repositório versiona **apenas** o template terminado em `.example`. O arquivo ativo — o que carrega a sua credencial do gateway — é gerado por você e fica fora do Git pelo `.gitignore`. Em um clone novo ele simplesmente não existe.
+>
+> Faça a cópia **antes** de qualquer outro passo:
+>
+> ```bash
+> cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
+> cp .env.example .env
+> ```
+>
+> Depois preencha o `ANTHROPIC_AUTH_TOKEN` no arquivo gerado com a chave do 9Router que o `sync_antigravity_token.py` (artigo 0002) grava no `.env`, e valide o JSON:
+>
+> ```bash
+> python3 -c "import json; json.load(open('examples/.claude/settings.local.json'))"
+> ```
+>
+> Pular esse passo produz dois sintomas que parecem outra coisa: `Settings file not found` ao usar `--settings`, ou a tela de login da Anthropic (a CLI descarta um JSON inválido em silêncio e, sem `ANTHROPIC_BASE_URL`, cai no fluxo oficial).
+>
+> **Na sessão, no menu `/model`, use `s` — nunca Enter.** O Enter salva a escolha como padrão no seu `~/.claude/settings.json` global.
+
+
 Ele fica em `examples/.claude/settings.local.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
 
 É a configuração do projeto, compartilhável com o time: modelo padrão, papéis de modelo, `modelPicker`, `modelOverrides`, permissões e variáveis de ambiente.
@@ -1123,7 +1151,8 @@ python3 src/setup_combos.py
 python3 src/test_arsenal.py
 
 # 3. Exercita o harness real do Claude Code contra o combo padrão
-claude -p "Responda apenas: OK" --model arsenal-supremo --dangerously-skip-permissions
+cd examples && claude --settings .claude/settings.local.json \
+  -p "Responda apenas: OK" --model arsenal-supremo
 ```
 
 O passo 2 é o que dá segurança de verdade: ele não se contenta em ver o combo responder, porque um combo responde pelo primeiro nível mesmo com todos os outros quebrados. Ao testar nível a nível, ele acusa exatamente qual identificador saiu do catálogo.
@@ -1198,16 +1227,32 @@ python3 src/arsenal_launcher.py
 
 Ou diretamente pelo terminal:
 
+**Caminho recomendado — com o arquivo de settings.** Copie o template, preencha a chave e suba a sessão com a flag:
+
+```bash
+cd examples
+cp .claude/settings.local.json.example .claude/settings.local.json
+# troque sk-sua-chave-do-9router pela chave real no arquivo gerado
+
+claude --settings .claude/settings.local.json --model arsenal-supremo
+```
+
+Esse caminho traz junto os quatro papéis mapeados, as permissões liberadas, o advisor desligado e o menu `/model` sem os modelos da Anthropic.
+
+**Alternativa — só variáveis de ambiente.** Serve para um teste rápido em outra máquina, sem copiar arquivo nenhum. Você perde o `modelPicker`, os rótulos dos papéis e o kill switch do advisor:
+
 ```bash
 # macOS e Linux (bash / zsh)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
 export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
+export CLAUDE_CODE_DISABLE_ADVISOR_TOOL="1"
 
 claude --dangerously-skip-permissions --model arsenal-supremo
 
 # Windows (PowerShell)
 $env:ANTHROPIC_BASE_URL="http://localhost:20128"
 $env:ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
+$env:CLAUDE_CODE_DISABLE_ADVISOR_TOOL="1"
 
 claude --dangerously-skip-permissions --model arsenal-supremo
 ```

@@ -471,9 +471,31 @@ Não há chave de provedor externo neste artigo: a autenticação com o Google a
 
 #### O arquivo de configuração do Claude Code
 
+> [!IMPORTANT]
+> ### Passo Obrigatório: Copie o `.example` ANTES de Começar os Testes
+> Este repositório versiona **apenas** o template terminado em `.example`. O arquivo ativo — o que carrega a sua credencial do gateway — é gerado por você e fica fora do Git pelo `.gitignore`. Em um clone novo ele simplesmente não existe.
+>
+> Faça a cópia **antes** de qualquer outro passo:
+>
+> ```bash
+> cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
+> cp .env.example .env
+> ```
+>
+> Depois preencha o `ANTHROPIC_AUTH_TOKEN` no arquivo gerado com a chave que o `sync_antigravity_token.py` imprime, e valide o JSON:
+>
+> ```bash
+> python3 -c "import json; json.load(open('examples/.claude/settings.local.json'))"
+> ```
+>
+> Pular esse passo produz dois sintomas que parecem outra coisa: `Settings file not found` ao usar `--settings`, ou a tela de login da Anthropic (a CLI descarta um JSON inválido em silêncio e, sem `ANTHROPIC_BASE_URL`, cai no fluxo oficial).
+>
+> **Na sessão, no menu `/model`, use `s` — nunca Enter.** O Enter salva a escolha como padrão no seu `~/.claude/settings.json` global.
+
+
 Ele fica em `examples/.claude/settings.local.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
 
-É a configuração do projeto, compartilhável com o time: modelo padrão, os quatro papéis, `modelPicker`, `modelOverrides`, permissões e `env`.
+O template reúne tudo o que a sessão precisa: modelo padrão, os quatro papéis, `modelPicker`, `modelOverrides`, permissões e `env`. O que é compartilhado com o time é o **template**; a cópia ativa é pessoal, porque carrega a sua credencial.
 
 **Por que `settings.local.json` e não `settings.json`.** O Claude Code lê os dois arquivos em um checkout: o `.claude/settings.json` existe para configuração **compartilhada do time**, comitada no repositório, e o `.claude/settings.local.json` para o que é **específico da sua máquina** e não pode ir para o Git — uma chave pessoal, um caminho local. Nossa configuração cai inteiramente na segunda categoria: ela carrega a credencial do gateway. Um `settings.json` commitado redirecionaria o harness de qualquer pessoa que clonasse o repositório para um gateway que ela não tem. Por isso versionamos apenas o template `.example` e deixamos a cópia ativa protegida pelo `.gitignore`.
 

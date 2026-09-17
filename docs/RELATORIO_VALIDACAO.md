@@ -633,6 +633,36 @@ inferência do item 5 foi executada com `--insecure` após a mesma chamada ter s
 
 ---
 
+## Revalidação Parcial de 17/09/2026 (Artigos 0002 e 0003)
+
+Esta passagem **não** foi um ciclo completo: os artigos 0002 e 0003 dependem de credenciais que
+pertencem ao autor (OAuth do Google Antigravity, chaves de OpenRouter, Groq e Google AI Studio) e
+que não estavam provisionadas na máquina no momento. O que deu para verificar sem elas está abaixo,
+com o resultado exato — e o que não deu está declarado como não verificado, e não como aprovado.
+
+### Verificado
+
+| Item | Método | Resultado |
+| :--- | :--- | :--- |
+| Sintaxe dos dois `docker-compose.yml` | `docker compose config` com `.env` de teste | **OK** — 0002 declara `claudegravity-router` e `router-sync`; 0003 acrescenta `claudegravity-ollama` |
+| Recusa de subir sem variáveis obrigatórias | `docker compose config` sem `.env` | **OK** — aborta com mensagem nomeando `INITIAL_PASSWORD`, `JWT_SECRET` e `DASHBOARD_PASSWORD`, que é o comportamento descrito no Problema 6 |
+| Disponibilidade pública de `decolua/9router:latest` | `docker manifest inspect` anônimo | **Publicada** |
+| Disponibilidade pública de `ollama/ollama:latest` | `docker manifest inspect` anônimo | **Publicada** |
+| Disponibilidade pública de `ghcr.io/pathbit/9rtksync:latest` | `docker manifest inspect` anônimo | **Falha — pacote privado** (token `401`, manifest `403`). Documentado no Problema 15 |
+| JSON transcrito nos artigos x `.example` | `make valida-consistencia` | **OK** nos quatro módulos |
+| Regras dos settings em todos os módulos | `make valida-consistencia` | **OK** — `ANTHROPIC_AUTH_TOKEN`, advisor desligado, URL sem `/v1`, sem credencial em template |
+| Ausência do sufixo `[1m]` | `make valida-consistencia` | **OK** — nenhuma ocorrência em nenhum `.example` |
+| Sintaxe dos launchers alterados | `python3 -m py_compile` | **OK** nos três |
+| Comportamento do `settings_flag()` | execução direta nos três cenários | **OK** — devolve a flag quando a cópia ativa existe, lista vazia quando não existe (sessão sobe pelas variáveis de ambiente, sem `Settings file not found`) |
+
+### Não verificado nesta passagem
+
+Inferência real através do 9Router, comutação de cascata dos combos `arsenal-*` e renovação de token
+pelo `router-sync`. Esses cenários exigem as credenciais do autor e estão registrados nos Ciclos 2 e
+3 deste documento, executados quando o ambiente estava provisionado.
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a Licença MIT. O texto completo está em [LICENSE](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/LICENSE).

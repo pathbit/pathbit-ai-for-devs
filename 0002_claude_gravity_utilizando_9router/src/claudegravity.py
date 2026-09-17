@@ -135,6 +135,24 @@ def print_banner(router_url: str, model: str):
     print("")
 
 
+
+def settings_flag(examples_dir):
+    """Devolve ['--settings', <arquivo>] quando a cópia ativa existe.
+
+    O bloco `modelPicker` não é lido de um checkout de projeto: a CLI só o honra
+    a partir de managed settings, do arquivo global do usuário ou de um arquivo
+    passado nesta flag. Sem ela, o menu /model volta a listar os modelos da
+    Anthropic mesmo com `replaceBuiltInOptions` declarado no arquivo.
+
+    A flag é condicional de propósito: quem ainda não copiou o `.example` recebe
+    uma sessão funcional (as variáveis de ambiente já vão no `env`) em vez de um
+    "Settings file not found" no meio do fluxo.
+    """
+    if not examples_dir:
+        return []
+    caminho = os.path.join(examples_dir, ".claude", "settings.local.json")
+    return ["--settings", caminho] if os.path.exists(caminho) else []
+
 def main():
     load_dotenv()
 
@@ -195,7 +213,7 @@ def main():
     env["ANTHROPIC_AUTH_TOKEN"] = args.api_key
     env.pop("ANTHROPIC_API_KEY", None)
     env["ANTHROPIC_MODEL"] = args.model
-    # Os quatro papéis espelham o bloco env de examples/.claude/settings.json.example,
+    # Os quatro papéis espelham o bloco env de examples/.claude/settings.local.json.example,
     # que é a fonte da verdade. Cada papel usa um modelo ag/* individual, o que torna
     # o consumo previsível: você sabe exatamente qual modelo atende cada situação.
     # Os combos ficam disponíveis no modelPicker e via --model, para quando a cota de
@@ -211,7 +229,11 @@ def main():
     print_banner(args.base_url, args.model)
 
     # Montar comando do Claude Code
-    cmd = [claude_path, "--dangerously-skip-permissions", "--model", args.model] + extra_args
+    examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
+    if not os.path.isdir(examples_dir):
+        examples_dir = None
+    cmd = ([claude_path] + settings_flag(examples_dir)
+           + ["--dangerously-skip-permissions", "--model", args.model] + extra_args)
 
     examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
     if os.path.exists(examples_dir):
