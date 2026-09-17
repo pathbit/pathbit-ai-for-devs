@@ -19,6 +19,10 @@ O que se confere aqui:
   a convenção do repositório é `settings.local.json`.
 - **Sufixo `[1m]`**: não pode aparecer em nenhum identificador de modelo de
   terceiros, nem nos exemplos nem no corpo dos artigos.
+- **Regras dos settings**, aplicadas a todos os módulos: credencial em
+  `ANTHROPIC_AUTH_TOKEN` (nunca `ANTHROPIC_API_KEY`, que dispara diálogo
+  interativo), advisor desligado pelo kill switch, `ANTHROPIC_BASE_URL` sem o
+  sufixo `/v1`, e nenhum token real dentro de um template versionado.
 - **Links internos**: todo link relativo entre documentos aponta para um arquivo
   que existe.
 """
@@ -135,6 +139,58 @@ def valida_sufixo_1m():
         ok("nenhum arquivo de exemplo usa o sufixo [1m]")
 
 
+def valida_settings_de_todos_os_modulos():
+    """Aplica a todos os artigos as regras que nasceram de falhas reais.
+
+    Cada verificação aqui corresponde a um sintoma que já custou tempo de
+    diagnóstico: credencial que dispara diálogo interativo, advisor derrubando a
+    sessão contra um provedor de terceiros, URL base que vira /v1/v1/messages e
+    token real esquecido dentro de um template versionado.
+    """
+    print("\n== Regras dos settings em todos os módulos")
+    encontrados = 0
+    for exemplo in sorted(RAIZ.glob("0*/examples/.claude/*.example")):
+        rel = exemplo.relative_to(RAIZ)
+        try:
+            cfg = json.loads(exemplo.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            falha(f"{rel}: JSON inválido ({exc.msg} na linha {exc.lineno})")
+            encontrados += 1
+            continue
+        env = cfg.get("env", {})
+
+        if "ANTHROPIC_API_KEY" in env:
+            falha(f"{rel}: usa ANTHROPIC_API_KEY (dispara aprovação interativa; use ANTHROPIC_AUTH_TOKEN)")
+            encontrados += 1
+        if not env.get("ANTHROPIC_AUTH_TOKEN"):
+            falha(f"{rel}: falta ANTHROPIC_AUTH_TOKEN no bloco env")
+            encontrados += 1
+        if env.get("CLAUDE_CODE_DISABLE_ADVISOR_TOOL") != "1":
+            falha(f"{rel}: falta CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1 (o advisor derruba a sessão em provedor de terceiros)")
+            encontrados += 1
+        if "advisorModel" in cfg or "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL" in env:
+            falha(f"{rel}: chave obsoleta do advisor (use apenas o kill switch)")
+            encontrados += 1
+
+        base = env.get("ANTHROPIC_BASE_URL", "")
+        if base.rstrip("/").endswith("/v1"):
+            falha(f"{rel}: ANTHROPIC_BASE_URL termina em /v1 — a CLI anexa /v1/messages e a rota vira /v1/v1/messages")
+            encontrados += 1
+
+        # Um token real dentro de um arquivo versionado é o pior erro possível
+        # aqui. Placeholders seguem o padrão "sk-sua-chave-do-<provedor>", então
+        # o que caracteriza suspeita é um valor com cara de segredo: comprimento
+        # de credencial e sem nenhuma das palavras de template.
+        token = env.get("ANTHROPIC_AUTH_TOKEN", "")
+        e_placeholder = any(p in token.lower() for p in ("sua-chave", "sua_chave", "your-key", "coloque", "aqui", "example", "xxx"))
+        if token.startswith("sk-") and len(token) >= 24 and not e_placeholder:
+            falha(f"{rel}: template versionado contém o que parece ser uma credencial real ({token[:12]}...)")
+            encontrados += 1
+
+    if not encontrados:
+        ok("todos os templates seguem as regras (AUTH_TOKEN, advisor desligado, URL sem /v1, sem credencial real)")
+
+
 def valida_links_internos():
     print("\n== Links relativos entre documentos")
     quebrados = 0
@@ -159,6 +215,7 @@ def main():
     valida_imagens()
     valida_convencao_de_nomes()
     valida_sufixo_1m()
+    valida_settings_de_todos_os_modulos()
     valida_links_internos()
     print("\n" + "=" * 72)
     if falhas:

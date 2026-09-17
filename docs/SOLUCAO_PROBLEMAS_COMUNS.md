@@ -372,3 +372,39 @@ Ou, para uma execução pontual de diagnóstico:
 ```bash
 python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --online --insecure
 ```
+
+---
+
+## ❌ Problema 14 - `[claude-code:unrecognized_model]` na Abertura da Sessão
+
+### Sintoma
+
+Logo ao abrir o Claude Code apontado para um gateway, aparece:
+
+```text
+[claude-code:unrecognized_model] {"model":"arsenal-supremo","query_source":"generate_session_title"}
+```
+
+E, em muitos casos, junto com:
+
+```text
+⚠ claude.ai connectors are disabled because ANTHROPIC_API_KEY or another auth source is set
+```
+
+### Causa
+
+Nenhum dos dois é falha.
+
+O `unrecognized_model` vem da CLI tentando executar uma tarefa auxiliar — reparar em `query_source: generate_session_title` — com um identificador que não pertence ao catálogo nativo dela. Combos virtuais do 9Router (`arsenal-supremo`, `claudegravity-fallback`) e modelos de terceiros só existem do lado do gateway; a CLI registra que não conhece o nome e prossegue. A inferência do trabalho principal acontece normalmente.
+
+O aviso dos conectores é o comportamento esperado ao usar credencial de gateway: a sessão não está autenticada na sua conta claude.ai, então os conectores dela não são carregados.
+
+### Solução
+
+Nenhuma ação é necessária para o funcionamento. Para reduzir o ruído, declare o papel auxiliar apontando para um identificador que o gateway sirva:
+
+```json
+"ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.8-flash"
+```
+
+As tarefas auxiliares (título de sessão, resumos curtos) usam o papel Haiku. Com ele mapeado para um modelo real do gateway, o aviso desaparece sem afetar o roteamento do trabalho principal.

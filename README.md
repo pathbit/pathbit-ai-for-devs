@@ -112,8 +112,10 @@ pathbit-ai-for-devs/
 │   └── src/
 └── 0004_deep_claude_alternativa_claudegravity/  # Artigo 0004
     ├── README.md
+    ├── requirements.txt
     ├── article/
     ├── assets/
+    │   └── diagrams/
     ├── examples/
     └── src/
 ```

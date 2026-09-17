@@ -33,6 +33,9 @@ Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_cla
 ├── assets/                                    # Imagens, telas e capas oficiais
 │   ├── cover_linkedin.png                     # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_deepclaude.png                # Capa oficial do artigo
+│   ├── 00a_diagrama_arquitetura_deepclaude.png    # Diagrama: arquitetura sem gateway
+│   ├── 25a_diagrama_precedencia_settings.png      # Diagrama: precedência e gravação do /model
+│   ├── diagrams/                              # Fonte HTML dos diagramas, para reedição
 │   └── ...                                    # 41 prints de evidência visual (01 a 42, sem o 08)
 ├── src/
 │   └── verify_deepclaude.py                   # Verificador de consistência e inferência real
@@ -44,6 +47,8 @@ Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_cla
 ```
 
 Só os templates `.example` são versionados. A cópia ativa `examples/.claude/settings.local.json` — a que carrega o seu token real — fica fora do Git pelo `.gitignore`.
+
+**Por que a pasta se chama `.claude/`?** O nome é fixo: é o diretório que a CLI do Claude Code procura ao subir, em qualquer projeto. Não é uma convenção nossa e não pode ser renomeado — a CLI simplesmente não encontraria a configuração.
 
 **Por que `settings.local.json` e não `settings.json`?** Porque o arquivo carrega uma credencial pessoal. O `.claude/settings.json` existe para configuração *compartilhada do time*, comitada no repositório; usá-lo aqui significaria impor o redirecionamento de provedor a qualquer pessoa que clonasse o projeto. O artigo detalha os cinco escopos de configuração da CLI e a precedência entre eles.
 

@@ -34,6 +34,10 @@ Para entender onde o DeepClaude se posiciona no arsenal de um desenvolvedor, com
 
 A grande vantagem do DeepClaude é a **simplicidade arquitetural**: como a API da DeepSeek e o OrcaRouter já expõem endpoints compatíveis com a especificação da Anthropic (`/anthropic` ou `/v1/messages`), **você não precisa subir nenhum container Docker nem rodar proxy local** se quiser operar exclusivamente com eles. Basta configurar o arquivo `.claude/settings.local.json` no diretório do projeto e abrir o terminal.
 
+![Arquitetura DeepClaude comparada ao ClaudeGravity](../assets/00a_diagrama_arquitetura_deepclaude.png)
+
+> **Figura 1:** As duas arquiteturas lado a lado. No ClaudeGravity (Artigo 0002) o 9Router em container é obrigatório, porque é ele que traduz o protocolo da Anthropic para o do Google Antigravity. No DeepClaude não há o que traduzir: a DeepSeek e o OrcaRouter já falam Anthropic Messages, então o Claude Code aponta direto para a URL base e a camada de gateway desaparece.
+
 ---
 
 ## Caminho 1: Configuração na Plataforma Oficial DeepSeek (Paga por Uso)
@@ -48,13 +52,13 @@ Acesse a página inicial da plataforma de desenvolvedores em [platform.deepseek.
 
 ![Login na Plataforma DeepSeek](../assets/01_deepseek_platform_signin.png)
 
-> **Figura 1:** Tela de autenticação oficial da plataforma de desenvolvedores da DeepSeek.
+> **Figura 2:** Tela de autenticação oficial da plataforma de desenvolvedores da DeepSeek.
 
 Após a validação, você será direcionado ao painel principal, onde são exibidos os gráficos de consumo, latência e estatísticas das chamadas de API:
 
 ![Dashboard Principal da DeepSeek](../assets/02_deepseek_platform_dashboard.png)
 
-> **Figura 2:** Dashboard da plataforma DeepSeek com métricas de requisições e visão geral da conta.
+> **Figura 3:** Dashboard da plataforma DeepSeek com métricas de requisições e visão geral da conta.
 
 ### 2. Recarga Inicial de Créditos
 
@@ -62,13 +66,13 @@ A API da DeepSeek opera no modelo pré-pago (*pay-as-you-go*), o que garante con
 
 ![Adicionando Créditos na DeepSeek](../assets/03_deepseek_platform_credits_payment.png)
 
-> **Figura 3:** Interface de recarga de créditos com suporte a valores a partir de $2 dólares.
+> **Figura 4:** Interface de recarga de créditos com suporte a valores a partir de $2 dólares.
 
 Após a confirmação do pagamento, o saldo é creditado instantaneamente na sua conta:
 
 ![Créditos Confirmados](../assets/04_deepseek_platform_credits_added.png)
 
-> **Figura 4:** Saldo ativo disponível para consumo imediato pelas ferramentas agênticas.
+> **Figura 5:** Saldo ativo disponível para consumo imediato pelas ferramentas agênticas.
 
 ### 3. Geração da API Key Dedicada
 
@@ -76,19 +80,19 @@ No menu lateral esquerdo, navegue até **API Keys** e clique em **Create new API
 
 ![Nomeando a Chave de API](../assets/05_deepseek_platform_apikey_name.png)
 
-> **Figura 5:** Criação de uma chave de API nomeada para o ambiente do Claude Code.
+> **Figura 6:** Criação de uma chave de API nomeada para o ambiente do Claude Code.
 
 Ao confirmar, a plataforma exibirá o token secreto iniciado por `sk-`. Copie o valor imediatamente, pois por razões de segurança ele não será exibido novamente:
 
 ![Chave de API Gerada](../assets/06_deepseek_platform_apikey_created.png)
 
-> **Figura 6:** Token de autenticação gerado com sucesso na DeepSeek.
+> **Figura 7:** Token de autenticação gerado com sucesso na DeepSeek.
 
 Na lista de chaves, você pode monitorar a data de criação, status e revogar chaves antigas se necessário:
 
 ![Listagem de Chaves de API](../assets/07_deepseek_platform_apikey_list.png)
 
-> **Figura 7:** Gerenciamento das credenciais ativas na plataforma.
+> **Figura 8:** Gerenciamento das credenciais ativas na plataforma.
 
 ### 4. Endpoints Oficiais e Compatibilidade Anthropic
 
@@ -96,7 +100,7 @@ Na documentação da DeepSeek, localize os endpoints de inferência:
 
 ![Documentação de Endpoints DeepSeek](../assets/09_deepseek_platform_apikey_endpoints.png)
 
-> **Figura 8:** Endpoints oficiais da DeepSeek, destacando a rota compatível com a Anthropic Messages API.
+> **Figura 9:** Endpoints oficiais da DeepSeek, destacando a rota compatível com a Anthropic Messages API.
 
 > [!IMPORTANT]
 > ### A Rota de Compatibilidade da Anthropic na DeepSeek
@@ -149,19 +153,19 @@ Acesse [orcarouter.ai/login](https://www.orcarouter.ai/login) e efetue login com
 
 ![Autenticação no OrcaRouter](../assets/10_orcarouter_signin.png)
 
-> **Figura 9:** Tela de login no portal do OrcaRouter.
+> **Figura 10:** Tela de login no portal do OrcaRouter.
 
 Ao entrar, a página de visão geral apresenta o ecossistema de APIs unificadas e os benefícios do roteamento inteligente:
 
 ![Overview do OrcaRouter](../assets/11_orcarouter_overview.png)
 
-> **Figura 10:** Apresentação da arquitetura multi-provedor do OrcaRouter.
+> **Figura 11:** Apresentação da arquitetura multi-provedor do OrcaRouter.
 
 Navegue até o **Dashboard** principal para visualizar o painel operacional:
 
 ![Dashboard do OrcaRouter](../assets/12_orcarouter_dashboard.png)
 
-> **Figura 11:** Dashboard de monitoramento do OrcaRouter.
+> **Figura 12:** Dashboard de monitoramento do OrcaRouter.
 
 ### 2. Navegação no Catálogo de Modelos e Provedores
 
@@ -169,19 +173,19 @@ Na aba **Providers**, você encontra a lista de empresas integradas à rede:
 
 ![Provedores do OrcaRouter](../assets/13_orcarouter_providers.png)
 
-> **Figura 12:** Provedores de modelos disponíveis na plataforma.
+> **Figura 13:** Provedores de modelos disponíveis na plataforma.
 
 Acessando a seção **Models**, consulte o catálogo global de inteligência artificial:
 
 ![Catálogo de Modelos OrcaRouter](../assets/14_orcarouter_models.png)
 
-> **Figura 13:** Lista de modelos indexados no gateway.
+> **Figura 14:** Lista de modelos indexados no gateway.
 
 Filtre os modelos disponíveis para localizar as variantes gratuitas com o rótulo **FREE**:
 
 ![Modelos Disponíveis e Filtros](../assets/15_orcarouter_models_available.png)
 
-> **Figura 14:** Filtro de modelos, destacando o `deepseek/deepseek-v4-flash-free` com janela massiva de contexto.
+> **Figura 15:** Filtro de modelos, destacando o `deepseek/deepseek-v4-flash-free` com janela massiva de contexto.
 
 ### 3. Vinculação do GitHub: o Requisito de Elegibilidade dos Modelos Gratuitos
 
@@ -193,13 +197,13 @@ Ou seja: a vinculação **não serve para criar chaves** — você consegue gera
 
 ![Card de vinculação do GitHub na visão geral do OrcaRouter](../assets/16_orcarouter_github_access.png)
 
-> **Figura 15:** Visão geral do console do OrcaRouter. À direita, o card **Vincular GitHub** (destacado) e o checklist de ativação em "2 de 4 concluídos". À esquerda, o bloco **Configuração manual** já entrega os dois dados que vamos usar: a URL base compatível com OpenAI (`https://api.orcarouter.ai/v1`) e a **URL base do protocolo Anthropic** (`https://api.orcarouter.ai`, sem `/v1`).
+> **Figura 16:** Visão geral do console do OrcaRouter. À direita, o card **Vincular GitHub** (destacado) e o checklist de ativação em "2 de 4 concluídos". À esquerda, o bloco **Configuração manual** já entrega os dois dados que vamos usar: a URL base compatível com OpenAI (`https://api.orcarouter.ai/v1`) e a **URL base do protocolo Anthropic** (`https://api.orcarouter.ai`, sem `/v1`).
 
 Após autorizar, o card passa a exibir o selo **Vinculada**. Nessa mesma tela, a aba *Conectar uma ferramenta* mostra o **Claude Code** com o rótulo **Verificado** e entrega o bloco de variáveis pronto:
 
 ![Conta GitHub vinculada e Claude Code verificado](../assets/17_orcarouter_github_linked.png)
 
-> **Figura 16:** GitHub com o selo "Vinculada" e o Claude Code listado entre os 39 clientes suportados, marcado como "Verificado" com instalação estimada em ~2 min. O painel exibe o mesmo trio de variáveis que usamos no `settings.local.json` (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_MODEL`).
+> **Figura 17:** GitHub com o selo "Vinculada" e o Claude Code listado entre os 39 clientes suportados, marcado como "Verificado" com instalação estimada em ~2 min. O painel exibe o mesmo trio de variáveis que usamos no `settings.local.json` (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_MODEL`).
 
 > [!WARNING]
 > ### O Aviso do `/v1` Duplicado Está na Própria Tela
@@ -215,31 +219,31 @@ No menu lateral, selecione **API Keys** e clique em **Create Key**:
 
 ![Painel de Chaves API vazio](../assets/18_orcarouter_apikey_token.png)
 
-> **Figura 17:** Painel **Chaves API** ainda zerado (`0 / 10 chaves de API`), com o botão **+ Criar chave** no canto superior direito.
+> **Figura 18:** Painel **Chaves API** ainda zerado (`0 / 10 chaves de API`), com o botão **+ Criar chave** no canto superior direito.
 
 Dê um nome à chave (usamos `DEEPCLAUDE`) e, no campo **Acesso a modelos**, restrinja-a explicitamente ao modelo gratuito. Essa restrição é uma trava de custo: uma chave irrestrita pode, por engano de configuração, cair em um modelo pago do catálogo.
 
 ![Seleção de Modelo para a API Key](../assets/19_orcarouter_apikey_select_model.png)
 
-> **Figura 18:** Campo **Acesso a modelos** com `deepseek/deepseek-v4-flash-free` selecionado. O dropdown revela que o OrcaRouter carrega a família DeepSeek inteira — `deepseek-v4-pro`, `deepseek-reasoner`, `deepseek-v4-flash`, `deepseek-v4.1-flash`, `deepseek-v4-pro-0813`, `deepseek-v4-flash-0731` — mas **apenas a variante com sufixo `-free` é gratuita**.
+> **Figura 19:** Campo **Acesso a modelos** com `deepseek/deepseek-v4-flash-free` selecionado. O dropdown revela que o OrcaRouter carrega a família DeepSeek inteira — `deepseek-v4-pro`, `deepseek-reasoner`, `deepseek-v4-flash`, `deepseek-v4.1-flash`, `deepseek-v4-pro-0813`, `deepseek-v4-flash-0731` — mas **apenas a variante com sufixo `-free` é gratuita**.
 
 O restante do formulário define os limites de governança da chave: limite de crédito, gasto recorrente, expiração, *guardrail*, política de firewall e acesso ao gateway MCP.
 
 ![Criação da Chave OrcaRouter](../assets/20_orcarouter_apikey_creation.png)
 
-> **Figura 19:** Formulário completo de criação. Para o laboratório deste artigo, os padrões servem: crédito ilimitado, sem expiração e sem guardrail.
+> **Figura 20:** Formulário completo de criação. Para o laboratório deste artigo, os padrões servem: crédito ilimitado, sem expiração e sem guardrail.
 
 Ao confirmar, o OrcaRouter exibe a chave **uma única vez**, junto de um trecho pronto de primeira chamada em cURL, Python ou Node.js:
 
 ![Token OrcaRouter Gerado](../assets/21_orcarouter_apikey_created.png)
 
-> **Figura 20:** Diálogo **Chave de API criada**, com o alerta *"Esta é a única vez que você verá a chave completa"*. Observe também o aviso de que a requisição de teste do painel exige saldo — ele se aplica ao botão de teste, não ao modelo `-free`, que responde sem crédito.
+> **Figura 21:** Diálogo **Chave de API criada**, com o alerta *"Esta é a única vez que você verá a chave completa"*. Observe também o aviso de que a requisição de teste do painel exige saldo — ele se aplica ao botão de teste, não ao modelo `-free`, que responde sem crédito.
 
 Fechado o diálogo, a chave aparece na listagem com o estado **Ativo**:
 
 ![Listagem de Chaves OrcaRouter](../assets/22_orcarouter_apikey_list.png)
 
-> **Figura 21:** Chave `DEEPCLAUDE` ativa, com cota **Ilimitado**, sem expiração e ainda sem uso registrado. O contador do topo agora marca `1 / 10 chaves de API`.
+> **Figura 22:** Chave `DEEPCLAUDE` ativa, com cota **Ilimitado**, sem expiração e ainda sem uso registrado. O contador do topo agora marca `1 / 10 chaves de API`.
 
 ### 5. Endpoints e Modelos Gratuitos no Catálogo
 
@@ -247,13 +251,13 @@ A documentação oficial do OrcaRouter tem uma página dedicada à compatibilida
 
 ![Documentação de compatibilidade com o SDK da Anthropic](../assets/23_orcarouter_apikey_enpoints.png)
 
-> **Figura 22:** Página *Compatibilidade → SDK da Anthropic* em `docs.orcarouter.ai`. O texto é explícito: *"O SDK da Anthropic anexa `/v1/messages` ao seu `base_url`, então o host puro (sem `/v1`) é a forma correta"*. Streaming, uso de ferramentas, *prompt caching* (`cache_control`) e visão funcionam de ponta a ponta.
+> **Figura 23:** Página *Compatibilidade → SDK da Anthropic* em `docs.orcarouter.ai`. O texto é explícito: *"O SDK da Anthropic anexa `/v1/messages` ao seu `base_url`, então o host puro (sem `/v1`) é a forma correta"*. Streaming, uso de ferramentas, *prompt caching* (`cache_control`) e visão funcionam de ponta a ponta.
 
 Filtrando o catálogo por preço **Grátis**, vemos o conjunto completo do tier gratuito na data de publicação:
 
 ![Outros Modelos Gratuitos no OrcaRouter](../assets/24_orcarouter_other_free_models.png)
 
-> **Figura 23:** Seis modelos gratuitos disponíveis, ordenados por janela de contexto: `deepseek/deepseek-v4-flash-free` e `z-ai/glm-5.3-flash-free` (ambos com **1M**), `stealth/union-alpha-free` e `tencent/hy3-free` (262K), além de `orcarouter/free` e `orca/orcaverify-text1.0-free`. Todos marcados como **GRÁTIS COM LIMITE DE REQUISIÇÕES** — a gratuidade vem acompanhada de limite de taxa, não de um teto de tokens.
+> **Figura 24:** Seis modelos gratuitos disponíveis, ordenados por janela de contexto: `deepseek/deepseek-v4-flash-free` e `z-ai/glm-5.3-flash-free` (ambos com **1M**), `stealth/union-alpha-free` e `tencent/hy3-free` (262K), além de `orcarouter/free` e `orca/orcaverify-text1.0-free`. Todos marcados como **GRÁTIS COM LIMITE DE REQUISIÇÕES** — a gratuidade vem acompanhada de limite de taxa, não de um teto de tokens.
 
 ### 6. Testando o Modelo no Playground Oficial antes de Configurar a CLI
 
@@ -263,13 +267,13 @@ Uma das grandes vantagens do ecossistema OrcaRouter é a existência de um Playg
 
 ![Playground do OrcaRouter com Modelo Gratuito](../assets/25_orcarouter_playground_free_model.png)
 
-> **Figura 24:** Playground do OrcaRouter carregando o modelo `deepseek/deepseek-v4-flash-free` pronto para inferência interativa.
+> **Figura 25:** Playground do OrcaRouter carregando o modelo `deepseek/deepseek-v4-flash-free` pronto para inferência interativa.
 
 Envie um prompt de teste para verificar a latência e a precisão da resposta gerada:
 
 ![Teste de Prompt no Playground](../assets/26_orcarouter_playground_free_model_question.png)
 
-> **Figura 25:** Resposta gerada no Playground com a chave `DEEPCLAUDE` selecionada. O rodapé da resposta fecha a prova: `entrada 85 · saída 33 · custo $0.00`. Note também o bloco de raciocínio exibido antes da resposta — o DeepSeek V4 Flash emite *thinking* nativo, que é o que o Claude Code aproveita nas tarefas agênticas.
+> **Figura 26:** Resposta gerada no Playground com a chave `DEEPCLAUDE` selecionada. O rodapé da resposta fecha a prova: `entrada 85 · saída 33 · custo $0.00`. Note também o bloco de raciocínio exibido antes da resposta — o DeepSeek V4 Flash emite *thinking* nativo, que é o que o Claude Code aproveita nas tarefas agênticas.
 
 > [!WARNING]
 > ### Regra de Volatilidade de Provedores Gratuitos
@@ -298,6 +302,10 @@ O Claude Code resolve configurações por camadas. A ordem de precedência (do m
 ```
 
 Essa nomenclatura não é invenção nossa: ela está no próprio binário da CLI, que identifica internamente as cinco fontes como `policySettings`, `flagSettings`, `localSettings`, `projectSettings` e `userSettings`.
+
+![Precedência dos settings e o caminho de gravação do /model](../assets/25a_diagrama_precedencia_settings.png)
+
+> **Figura 27:** As cinco camadas em ordem de precedência de **leitura**, com duas informações que costumam ser confundidas. À direita, em cima: o `modelPicker` só é honrado nas camadas 1, 2 e 5 — nunca a partir de um checkout de projeto. À direita, embaixo: o caminho de **escrita** do menu `/model`, que ignora a camada pela qual a sessão foi aberta e vai sempre parar na camada 5, o arquivo global do usuário.
 
 ### Por Que Este Repositório Usa `settings.local.json` (e Não `settings.json`)
 
@@ -338,7 +346,7 @@ Como reforço (e para o caso de alguém abrir a sessão sem a flag), os template
 > ### O `--settings` Não "Isola" da Configuração Global — Ele se Sobrepõe a Ela
 > É comum ler que a flag `--settings` blinda a sessão contra o arquivo global. **Não é o que acontece.** A flag adiciona uma camada de precedência mais alta; o `~/.claude/settings.json` continua sendo lido e tudo que ele define e o seu arquivo não sobrescreve permanece valendo.
 >
-> Você pode conferir isso na própria CLI: rode `/status` e observe a linha `Setting sources`. Com a sessão iniciada via flag, ela mostra as três fontes ativas simultaneamente — como aparece na Figura 33 deste artigo:
+> Você pode conferir isso na própria CLI: rode `/status` e observe a linha `Setting sources`. Com a sessão iniciada via flag, ela mostra as três fontes ativas simultaneamente — como aparece na Figura 35 deste artigo:
 >
 > ```text
 > Setting sources:  User settings, Shared project settings, Command line arguments
@@ -707,7 +715,7 @@ No diretório de trabalho, inicialize o Claude Code apontando explicitamente par
 
 ![Disparo do comando de inicialização com --settings](../assets/27_claude_code_cli_command_start.png)
 
-> **Figura 26:** Execução de `claude --settings`, a forma recomendada de abrir a sessão. A flag coloca o arquivo do laboratório acima do global na ordem de precedência e é a única maneira de o `modelPicker` ser honrado a partir de uma pasta de projeto.
+> **Figura 28:** Execução de `claude --settings`, a forma recomendada de abrir a sessão. A flag coloca o arquivo do laboratório acima do global na ordem de precedência e é a única maneira de o `modelPicker` ser honrado a partir de uma pasta de projeto.
 >
 > *(Nota: a captura foi feita quando o arquivo ativo ainda se chamava `settings.json`. A convenção deste repositório passou a ser `settings.local.json` — por ser um arquivo pessoal, que carrega o seu token e nunca é comitado. O comando é idêntico, mudando apenas o nome do arquivo: `claude --settings .claude/settings.local.json`.)*
 
@@ -715,19 +723,19 @@ A CLI inicia o processo de boot e reconhece as permissões pré-aprovadas:
 
 ![Mensagem inicial da CLI](../assets/28_claude_code_cli_command_message.png)
 
-> **Figura 27:** Mensagem de inicialização da CLI Claude Code sem requisição de login na nuvem da Anthropic.
+> **Figura 29:** Mensagem de inicialização da CLI Claude Code sem requisição de login na nuvem da Anthropic.
 
 As notas de boas-vindas e o contexto da versão são apresentados de forma limpa:
 
 ![Notas de versão e boas-vindas](../assets/29_claude_code_cli_command_notes.png)
 
-> **Figura 28:** Confirmação de inicialização do ambiente e parâmetros de sessão.
+> **Figura 30:** Confirmação de inicialização do ambiente e parâmetros de sessão.
 
 O setup de ferramentas e modos autônomos é carregado com bypass de confirmações de risco:
 
 ![Confirmação de setup da CLI](../assets/30_claude_code_cli_command_setup.png)
 
-> **Figura 29:** Configurações de permissões ativas, contornando diálogos interativos repetitivos.
+> **Figura 31:** Configurações de permissões ativas, contornando diálogos interativos repetitivos.
 
 #### 2. Sessão Interativa Ativa Conectada à DeepSeek
 
@@ -735,7 +743,7 @@ O terminal abre diretamente no prompt de comando, operacional e conectado ao end
 
 ![Sessão Interativa Ativa com DeepSeek](../assets/31_claude_code_cli_view.png)
 
-> **Figura 30:** Claude Code em execução ativa conectado ao endpoint oficial da DeepSeek com permissões automáticas.
+> **Figura 32:** Claude Code em execução ativa conectado ao endpoint oficial da DeepSeek com permissões automáticas.
 
 #### 3. Menu `/model` sem Nenhum Modelo Anthropic
 
@@ -743,7 +751,7 @@ Ao abrir o seletor com `/model`, o Claude Code honra o bloco `modelPicker` com `
 
 ![Seletor /model com os modelos DeepSeek](../assets/32_claude_code_cli_model_list.png)
 
-> **Figura 31:** Menu `/model` exibindo apenas `Default (recommended)`, `DeepSeek Flash (Sonnet)` (ativo, marcado com ✔) e `DeepSeek V4 PRO (Opus)`, com as descrições que escrevemos no `modelPicker`. A linha superior confirma `Kept model as DeepSeek Flash (Sonnet)`.
+> **Figura 33:** Menu `/model` exibindo apenas `Default (recommended)`, `DeepSeek Flash (Sonnet)` (ativo, marcado com ✔) e `DeepSeek V4 PRO (Opus)`, com as descrições que escrevemos no `modelPicker`. A linha superior confirma `Kept model as DeepSeek Flash (Sonnet)`.
 
 > [!NOTE]
 > ### Por Que Aparecem 3 Linhas e Não 4 Papéis
@@ -757,13 +765,13 @@ Para inspecionar o status detalhado da conexão e do modelo atualmente em uso:
 
 ![Invocação do Comando de Status](../assets/33_claude_code_cli_model_status_command.png)
 
-> **Figura 32:** Invocação do comando de status do modelo na sessão do Claude Code.
+> **Figura 34:** Invocação do comando de status do modelo na sessão do Claude Code.
 
 O painel de status é a melhor evidência de que a configuração foi aplicada como planejado:
 
 ![Painel de Status do Modelo DeepSeek](../assets/34_claude_code_cli_model_status_view.png)
 
-> **Figura 33:** Aba **Status** da sessão. Quatro linhas provam o desenho do artigo: `Auth token: ANTHROPIC_AUTH_TOKEN` (e não `ANTHROPIC_API_KEY`), `Anthropic base URL: https://api.deepseek.com/anthropic`, `Model: deepseek-flash` e `Setting sources: User settings, Shared project settings, Command line arguments`. As duas últimas linhas registram que *managed settings* e política da organização não são buscadas quando existe uma `ANTHROPIC_BASE_URL` customizada.
+> **Figura 35:** Aba **Status** da sessão. Quatro linhas provam o desenho do artigo: `Auth token: ANTHROPIC_AUTH_TOKEN` (e não `ANTHROPIC_API_KEY`), `Anthropic base URL: https://api.deepseek.com/anthropic`, `Model: deepseek-flash` e `Setting sources: User settings, Shared project settings, Command line arguments`. As duas últimas linhas registram que *managed settings* e política da organização não são buscadas quando existe uma `ANTHROPIC_BASE_URL` customizada.
 
 > [!IMPORTANT]
 > Repare na linha `Setting sources`. Ela lista **três** fontes ativas ao mesmo tempo — inclusive `User settings`. É a confirmação prática do que explicamos antes: a flag `--settings` (exibida aqui como *Command line arguments*) **se sobrepõe** ao arquivo global, mas não o desliga.
@@ -774,13 +782,13 @@ Submetemos uma pergunta técnica no prompt para testar a inferência do modelo D
 
 ![Envio de Pergunta Técnica ao DeepSeek](../assets/35_claude_code_cli_model_question_basic.png)
 
-> **Figura 34:** Pergunta submetida no terminal para validação de inferência e raciocínio técnico.
+> **Figura 36:** Pergunta submetida no terminal para validação de inferência e raciocínio técnico.
 
 A resposta confirma os três dados que queríamos verificar:
 
 ![Resposta e Raciocínio Verificados](../assets/36_claude_code_cli_model_question_verification.png)
 
-> **Figura 35:** O modelo reporta `Modelo ID: deepseek-flash`, `Provider ID: deepseek` e `API Base URL: https://api.deepseek.com/anthropic`, com blocos de raciocínio visíveis (`Thought for 37s`, `Thought for 15s`). O próprio modelo faz a ressalva correta: esses valores vêm da configuração da sessão, não de introspecção — um LLM não consegue inspecionar os próprios pesos. É por isso que o `/status` da Figura 33 e a resposta do provedor valem mais como prova do que a auto-identificação do modelo.
+> **Figura 37:** O modelo reporta `Modelo ID: deepseek-flash`, `Provider ID: deepseek` e `API Base URL: https://api.deepseek.com/anthropic`, com blocos de raciocínio visíveis (`Thought for 37s`, `Thought for 15s`). O próprio modelo faz a ressalva correta: esses valores vêm da configuração da sessão, não de introspecção — um LLM não consegue inspecionar os próprios pesos. É por isso que o `/status` da Figura 35 e a resposta do provedor valem mais como prova do que a auto-identificação do modelo.
 
 ---
 
@@ -800,7 +808,7 @@ A CLI inicializa apontando para a base `https://api.orcarouter.ai` com autentica
 
 ![Sessão Ativa Conectada ao OrcaRouter](../assets/37_claude_code_cli_view_in_orcarouter.png)
 
-> **Figura 36:** Claude Code operacional e autenticado no gateway OrcaRouter sem qualquer custo de assinatura.
+> **Figura 38:** Claude Code operacional e autenticado no gateway OrcaRouter sem qualquer custo de assinatura.
 
 #### 2. Menu `/model` do OrcaRouter
 
@@ -808,7 +816,7 @@ Ao abrir o seletor com `/model`, a lista fica ainda mais enxuta:
 
 ![Menu /model do OrcaRouter](../assets/38_claude_code_cli_model_list_in_orcarouter.png)
 
-> **Figura 37:** Como no OrcaRouter os quatro papéis apontam para o mesmo `deepseek/deepseek-v4-flash-free`, o seletor consolida tudo em uma única entrada real — `DeepSeek V4 Flash FREE (Sonnet)` — além da linha `Default`. Novamente: nenhum modelo Anthropic na lista, e novamente vale a regra de usar `s` em vez de Enter.
+> **Figura 39:** Como no OrcaRouter os quatro papéis apontam para o mesmo `deepseek/deepseek-v4-flash-free`, o seletor consolida tudo em uma única entrada real — `DeepSeek V4 Flash FREE (Sonnet)` — além da linha `Default`. Novamente: nenhum modelo Anthropic na lista, e novamente vale a regra de usar `s` em vez de Enter.
 
 #### 3. Painel de Status do OrcaRouter
 
@@ -816,13 +824,13 @@ Disparando o comando de verificação de status:
 
 ![Comando de Status com OrcaRouter](../assets/39_claude_code_cli_model_status_command_in_orcarouter.png)
 
-> **Figura 38:** Comando de status disparado na sessão do OrcaRouter.
+> **Figura 40:** Comando de status disparado na sessão do OrcaRouter.
 
 O painel de status confirma a troca completa de provedor sem nenhuma alteração no harness:
 
 ![Painel de Status do OrcaRouter](../assets/40_claude_code_cli_model_status_view_in_orcarouter.png)
 
-> **Figura 39:** Mesma sessão, outro provedor. `Anthropic base URL` agora aponta para `https://api.orcarouter.ai` e `Model` para `deepseek/deepseek-v4-flash-free`, mantendo `ANTHROPIC_AUTH_TOKEN` como método de autenticação. Trocar de provedor custou exatamente um `cp` de template.
+> **Figura 41:** Mesma sessão, outro provedor. `Anthropic base URL` agora aponta para `https://api.orcarouter.ai` e `Model` para `deepseek/deepseek-v4-flash-free`, mantendo `ANTHROPIC_AUTH_TOKEN` como método de autenticação. Trocar de provedor custou exatamente um `cp` de template.
 
 #### 4. Submissão de Prompt e Validação de Resposta Gratuita
 
@@ -830,13 +838,13 @@ Enviamos um prompt no terminal do Claude Code:
 
 ![Pergunta Submetida ao OrcaRouter](../assets/41_claude_code_cli_model_question_basic_in_orcarouter.png)
 
-> **Figura 40:** Envio de pergunta no terminal para testar a cota gratuita do OrcaRouter.
+> **Figura 42:** Envio de pergunta no terminal para testar a cota gratuita do OrcaRouter.
 
 A inferência é completada com sucesso, gerando a resposta esperada através da infraestrutura gratuita do OrcaRouter:
 
 ![Resposta Validada via OrcaRouter Free](../assets/42_claude_code_cli_model_question_verification_in_orcarouter.png)
 
-> **Figura 41:** Resposta conclusiva gerada com sucesso via OrcaRouter sem qualquer custo de API.
+> **Figura 43:** Resposta conclusiva gerada com sucesso via OrcaRouter sem qualquer custo de API.
 
 ---
 
@@ -963,7 +971,7 @@ python3 src/verify_deepclaude.py --online
 | **Requisições caem em `/v1/v1/messages`** | A `ANTHROPIC_BASE_URL` foi copiada do SDK da OpenAI, que termina em `/v1`. | Use o host puro: `https://api.orcarouter.ai`. A CLI anexa `/v1/messages` sozinha. |
 | **A sessão trava em `Do you want to use this API key?`** | A chave foi declarada como `ANTHROPIC_API_KEY` em vez de `ANTHROPIC_AUTH_TOKEN`. | Troque o nome da variável no bloco `env`. |
 | **Abri o Claude Code na pasta e ele usou DeepSeek sem eu pedir** | Existe um `settings.local.json` ativo em `examples/.claude/`, e ele é carregado por qualquer sessão aberta ali. | Comportamento esperado no laboratório. Para usar sua conta Anthropic, abra o Claude Code fora de `examples/` ou remova o arquivo ativo. |
-| **O modelo gratuito responde erro de cota** | A conta não está elegível ao tier gratuito. | Vincule sua conta GitHub no console do OrcaRouter (Figura 15). |
+| **O modelo gratuito responde erro de cota** | A conta não está elegível ao tier gratuito. | Vincule sua conta GitHub no console do OrcaRouter (Figura 16). |
 | **`CERTIFICATE_VERIFY_FAILED` ao rodar o verificador** | Rede com proxy TLS corporativo: o Python valida contra o próprio bundle de CAs, não contra o keychain do sistema. | `export SSL_CERT_FILE=/caminho/ca.pem` ou rode com `--insecure`. Não é erro da configuração do artigo. |
 
 ---

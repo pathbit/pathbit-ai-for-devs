@@ -1214,7 +1214,22 @@ claude --dangerously-skip-permissions --model arsenal-supremo
 
 ![Claude Code Operando com Combo Arsenal Supremo](../assets/22_claude_arsenal_terminal.png)
 
-> **Figura 22:** Sessão autônoma do Claude Code operando sob o combo `arsenal-supremo`, roteando via 9Router com latência reduzida e zero custo de inferência.
+> **Figura 22:** Sessão do Claude Code operando sob o combo `arsenal-supremo`, roteando via 9Router com zero custo de inferência. A resposta do modelo (*"Claude Code conectado via Arsenal Supremo!"*) confirma que a cascata respondeu.
+
+> [!NOTE]
+> ### As Duas Linhas Antes da Resposta São Esperadas
+> A captura mostra dois avisos que assustam quem vê pela primeira vez, e nenhum dos dois é falha:
+>
+> ```text
+> ⚠ claude.ai connectors are disabled because ANTHROPIC_API_KEY or another auth source is set...
+> [claude-code:unrecognized_model] {"model":"arsenal-supremo","query_source":"generate_session_title"}
+> ```
+>
+> **O primeiro** é consequência direta de apontar o harness para outro provedor: com uma credencial de gateway no ambiente, a CLI não carrega os conectores da sua conta claude.ai. É o comportamento correto — você não está usando a conta Anthropic nesta sessão.
+>
+> **O segundo** é a CLI tentando gerar o título da sessão (`query_source: generate_session_title`) com um identificador que não está no catálogo nativo dela. `arsenal-supremo` é um **combo virtual do 9Router**, que só existe do lado do gateway. A CLI registra que não reconhece o nome e segue adiante: a inferência acontece normalmente, como a própria resposta na linha seguinte demonstra.
+>
+> Se o ruído incomodar, declare `ANTHROPIC_DEFAULT_HAIKU_MODEL` apontando para um identificador que o gateway sirva — as tarefas auxiliares, como o título da sessão, usam o papel Haiku. O aviso some sem alterar o roteamento do trabalho principal.
 
 ---
 

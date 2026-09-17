@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precedência dos Settings do Claude Code e o Caminho de Gravação do /model</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; height: auto; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="precedencia-title precedencia-desc">
+      <title id="precedencia-title">Precedência dos settings do Claude Code e o caminho de gravação do menu /model</title>
+      <desc id="precedencia-desc">Diagrama com as cinco camadas de configuração do Claude Code em ordem de precedência, indicando quais são somente leitura, onde o bloco modelPicker é honrado, e mostrando que a tecla Enter no menu barra model grava sempre no arquivo global do usuário.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Cabeçalho editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">CONFIGURAÇÃO DO CLAUDE CODE · PRECEDÊNCIA E GRAVAÇÃO</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Quem vence na leitura não é quem recebe a escrita</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- Eixo de precedência -->
+      <text x="40" y="126" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEITURA · DA MAIOR PRECEDÊNCIA PARA A MENOR</text>
+      <line x1="52" y1="146" x2="52" y2="516" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <polygon points="48 516, 56 516, 52 526" fill="#4f5d75"/>
+
+      <!-- Camada 1 -->
+      <rect x="78" y="146" width="470" height="62" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="98" y="170" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500">1 · Políticas corporativas</text>
+      <text x="98" y="190" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">policySettings · managed settings</text>
+      <rect x="452" y="160" width="82" height="20" rx="10" fill="rgba(45,49,66,0.06)"/>
+      <text x="493" y="174" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">read-only</text>
+
+      <!-- Camada 2 -->
+      <rect x="78" y="220" width="470" height="62" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+      <text x="98" y="244" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="600">2 · Flag de linha de comando</text>
+      <text x="98" y="264" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">flagSettings · claude --settings &lt;arquivo&gt;</text>
+      <rect x="452" y="234" width="82" height="20" rx="10" fill="rgba(45,49,66,0.06)"/>
+      <text x="493" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">read-only</text>
+
+      <!-- Camada 3 -->
+      <rect x="78" y="294" width="470" height="62" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.3"/>
+      <text x="98" y="318" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500">3 · Local da máquina</text>
+      <text x="98" y="338" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">localSettings · .claude/settings.local.json</text>
+      <rect x="452" y="308" width="82" height="20" rx="10" fill="rgba(235,108,54,0.12)"/>
+      <text x="493" y="322" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gravável</text>
+
+      <!-- Camada 4 -->
+      <rect x="78" y="368" width="470" height="62" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="98" y="392" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500">4 · Compartilhado do projeto</text>
+      <text x="98" y="412" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">projectSettings · .claude/settings.json</text>
+      <rect x="452" y="382" width="82" height="20" rx="10" fill="rgba(235,108,54,0.12)"/>
+      <text x="493" y="396" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gravável</text>
+
+      <!-- Camada 5 -->
+      <rect x="78" y="442" width="470" height="62" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="2"/>
+      <text x="98" y="466" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="600">5 · Global do usuário</text>
+      <text x="98" y="486" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">userSettings · ~/.claude/settings.json</text>
+      <rect x="452" y="456" width="82" height="20" rx="10" fill="rgba(235,108,54,0.12)"/>
+      <text x="493" y="470" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gravável</text>
+
+      <!-- Coluna direita: modelPicker -->
+      <text x="600" y="126" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ONDE O modelPicker É HONRADO</text>
+      <rect x="600" y="146" width="560" height="136" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.14)" stroke-width="1"/>
+      <text x="622" y="174" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Apenas nas camadas <tspan font-weight="600">1</tspan>, <tspan font-weight="600">2</tspan> e <tspan font-weight="600">5</tspan>.</text>
+      <text x="622" y="198" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">Em um checkout de projeto — camadas 3 e 4 — o bloco é</text>
+      <text x="622" y="216" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">ignorado, tanto faz o nome do arquivo.</text>
+      <text x="622" y="244" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">É por isso que a sessão é sempre aberta com</text>
+      <text x="622" y="264" fill="#eb6c36" font-size="11" font-family="'Geist Mono', monospace">claude --settings .claude/settings.local.json</text>
+
+      <!-- Coluna direita: a armadilha -->
+      <text x="600" y="322" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">A ARMADILHA · ESCRITA DO MENU /model</text>
+      <rect x="600" y="342" width="560" height="162" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.3"/>
+      <text x="622" y="370" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">Enter to set as default · s to use this session only</text>
+      <text x="622" y="398" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">O <tspan font-weight="600">Enter</tspan> grava a escolha em <tspan font-family="'Geist Mono', monospace" font-size="11">userSettings</tspan> — a camada 5 —</text>
+      <text x="622" y="418" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">mesmo com a sessão aberta pela camada 2.</text>
+      <text x="622" y="446" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">Um arquivo vindo de <tspan font-family="'Geist Mono', monospace" font-size="10">--settings</tspan> é somente leitura, então a CLI</text>
+      <text x="622" y="464" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">persiste no escopo gravável de sempre.</text>
+      <text x="622" y="490" fill="#eb6c36" font-size="11" font-family="'Geist', sans-serif" font-weight="500">A tecla `s` não escreve nada. Use `s` ou Esc.</text>
+
+      <!-- Seta do vazamento: da camada 2 para a camada 5 -->
+      <path d="M 560,250 H 578 Q 586,250 586,258 V 464 Q 586,472 578,472 H 556" fill="none" stroke="#eb6c36" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrow-accent)"/>
+      <text x="592" y="530" fill="#eb6c36" font-size="10" font-family="'Geist Mono', monospace">a escrita desce para o global</text>
+
+      <!-- Rodapé -->
+      <line x1="40" y1="566" x2="1160" y2="566" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="594" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" font-weight="500">O que isso significa na prática</text>
+      <text x="40" y="616" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">A flag <tspan font-family="'Geist Mono', monospace" font-size="10">--settings</tspan> não isola a sessão do arquivo global: ela apenas se sobrepõe a ele. O comando <tspan font-family="'Geist Mono', monospace" font-size="10">/status</tspan> confirma, listando</text>
+      <text x="40" y="636" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif"><tspan font-family="'Geist Mono', monospace" font-size="10">Setting sources: User settings, Shared project settings, Command line arguments</tspan> — as três camadas ativas ao mesmo tempo.</text>
+      <text x="40" y="662" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">Medido na CLI v2.1.274: uma sessão completa com <tspan font-family="'Geist Mono', monospace" font-size="10">--settings</tspan> não altera um byte do arquivo global. Só o Enter no /model altera.</text>
+      <text x="40" y="688" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">PATHBIT AI FOR DEVS · ARTIGO 0004</text>
+    </svg>
+  </div>
+</body>
+</html>
