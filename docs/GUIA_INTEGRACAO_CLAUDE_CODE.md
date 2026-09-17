@@ -62,7 +62,7 @@ claude --dangerously-skip-permissions --model claudegravity-fallback
 
 ---
 
-## ⚙️ Antes da Primeira Sessão: Settings, Advisor e Estado Global
+## ⚙️ O que Acertar Antes da Primeira Sessão
 
 Quatro regras evitam a maior parte dos problemas ao conectar a CLI a um gateway (9Router, DeepSeek, OrcaRouter ou outro compatível com a API Anthropic Messages):
 

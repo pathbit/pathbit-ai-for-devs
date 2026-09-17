@@ -14,7 +14,7 @@ Este documento consolida as regras para os arquivos `examples/.claude/settings.j
 
 ---
 
-## 2. Credencial: `ANTHROPIC_AUTH_TOKEN`, não `ANTHROPIC_API_KEY`
+## 2. Credencial em `ANTHROPIC_AUTH_TOKEN`, não em `ANTHROPIC_API_KEY`
 
 | Regra | Por quê |
 | :--- | :--- |
@@ -24,7 +24,7 @@ Este documento consolida as regras para os arquivos `examples/.claude/settings.j
 
 ---
 
-## 3. Advisor: desligado com o kill switch
+## 3. Advisor desligado com o kill switch
 
 | Regra | Por quê |
 | :--- | :--- |
@@ -67,7 +67,7 @@ Fatos verificados com `CLAUDE_CONFIG_DIR` apontando para um diretório vazio:
 
 ---
 
-## 6. Diagnóstico rápido: "o Claude Code pede login na pasta do exemplo"
+## 6. Diagnóstico rápido quando o Claude Code pede login na pasta do exemplo
 
 Nesta ordem:
 
@@ -115,4 +115,4 @@ PY
 | :--- | :--- | :--- | :--- |
 | Arquivo único, sem `.local` | "O arquivo de configuração do Claude Code" | "O arquivo de configuração do Claude Code" | (padrão desde a criação) |
 | Estado global e `--settings` | "O que fica no estado global do Claude Code" | idem | idem |
-| Advisor | aviso `[!IMPORTANT]` junto ao settings e seção "O Advisor e Ferramentas Experimentais" | aviso `[!IMPORTANT]` e `[!CAUTION]` em "Três blocos que merecem explicação" | aviso `[!IMPORTANT]` e `[!CAUTION]` em "Advisor e Provedores Alternativos" |
+| Advisor | aviso `[!IMPORTANT]` junto ao settings e seção "O Advisor e Ferramentas Experimentais" | aviso `[!IMPORTANT]` e `[!CAUTION]` em "Três blocos que merecem explicação" | aviso `[!IMPORTANT]` junto aos settings e `[!CAUTION]` no item "Advisor e Provedores Alternativos" |

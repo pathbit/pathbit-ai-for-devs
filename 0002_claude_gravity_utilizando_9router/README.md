@@ -159,6 +159,11 @@ cp .env.example .env
 cp examples/.claude/settings.json.example examples/.claude/settings.json
 ```
 
+> O `settings.json` já vem com a credencial em `ANTHROPIC_AUTH_TOKEN` e o advisor desligado
+> (`CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`). Na **primeira execução**, ou depois de um `/logout`, entre em
+> `examples/` e inicie com `claude --settings .claude/settings.json`: a flag aplica o arquivo antes do
+> assistente de primeiro uso, que de outro modo pede login na Anthropic. Nas sessões seguintes basta `claude`.
+
 #### 3. Gerenciamento do Ciclo de Vida do Ambiente (Criar e Destruir)
 
 ##### Opção A (Via Utilitário Python de Ciclo de Vida)

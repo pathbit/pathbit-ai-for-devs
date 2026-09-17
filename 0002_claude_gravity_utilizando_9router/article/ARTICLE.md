@@ -887,7 +887,7 @@ em **toda sessão** para gerar o título da conversa. Se a família dele estoura
 qualquer outra coisa.
 
 > **Regra prática:** modelo individual dá previsibilidade de consumo e é o padrão deste artigo. Combo
-> dá resiliência e é o que você aciona  -  pelo `/model`, por `--model`, ou apontando os papéis para
+> dá resiliência e é o que você aciona  -  por `/model claudegravity-fallback`, por `--model`, ou apontando os papéis para
 > ele  -  no dia em que a cota de uma família estourar. Os dois arranjos estão provisionados e
 > testados; a escolha é sua, e pode mudar no meio do caminho.
 
@@ -1286,7 +1286,6 @@ seletor da janela continua exibindo os nomes da Anthropic, e o que responde do o
 você mapeou nos papéis  -  o rótulo na tela deixa de corresponder ao modelo real, e vale ter isso em
 mente antes de estranhar.
 
-
 ### Três cuidados específicos do app
 
 1. **O gateway precisa estar de pé antes de abrir a janela.** O terminal falha com uma mensagem clara;
@@ -1351,8 +1350,8 @@ ele tem porte. O harness continua sem saber, e sem precisar saber.
 
 O Claude Code expõe uma ferramenta experimental de **advisor**, descrita internamente como *"an advisor tool
 backed by a stronger reviewer model"*  -  um revisor acionado sob demanda para conferir decisões do
-laço principal. A configuração é a chave `advisorModel` no `settings.json` (ou o comando `/advisor`), e a
-variável de ambiente `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` desliga o recurso por completo.
+laço principal. A chave `advisorModel` (ou o comando `/advisor`) existe para escolher o modelo revisor, e **não deve ser
+usada com gateway de terceiros**; a variável `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` desliga o recurso por completo.
 
 > [!CAUTION]
 > ### O Advisor (`/advisor`) não funciona com modelos de terceiros
@@ -1537,7 +1536,6 @@ A resposta é **sim**, mas com considerações técnicas cruciais sobre como o G
 ![Arquitetura para Equipes e Connection Pooling Multi-Contas](../assets/13_diagrama_arquitetura_equipes.png)
 
 > **Figura 13:** Arquitetura centralizada de conexão multi-contas do 9Router, distribuindo requisições via Round-Robin entre credenciais distintas e isolando o contexto de cada desenvolvedor.
-
 
 #### Como a Google Contabiliza os Limites?
 A Google audita as cotas de consumo em duas camadas:
@@ -1864,7 +1862,7 @@ No menu **Combos** do 9Router (`/dashboard/combos`), você pode criar um modelo 
    * **5º:** `ag/gpt-oss-120b-medium` (Modelo open-weights como última camada)
 
    > Essa é exatamente a cascata que o script `src/sync_antigravity_token.py` provisiona automaticamente ao registrar a conta. Se você criar o combo pela interface, replique os cinco níveis para obter o mesmo comportamento.
-3. Crie um segundo combo, `claudegravity-thinking`. Ele **não** é o padrão dos arquivos `.example`  -  o padrão ali é o modelo individual `ag/gemini-3.8-flash-high`, pela razão que a seção [Modelo Individual ou Combo](#modelo-individual-ou-combo-e-a-escolha-do-padrão) explica. Este combo fica disponível no menu `/model`, a um comando de distância:
+3. Crie um segundo combo, `claudegravity-thinking`. Ele **não** é o padrão do arquivo `.example`  -  o padrão ali é o modelo individual `ag/gemini-3.8-flash-high`, pela razão que a seção [Modelo Individual ou Combo](#modelo-individual-ou-combo-e-a-escolha-do-padrão) explica. Este combo fica a um `/model claudegravity-thinking` de distância (o menu customizado exige `--settings` ou o arquivo de usuário):
    * **1º:** `ag/claude-opus-4-6-thinking` (raciocínio denso, e fora da cota do Gemini)
    * **2º:** `ag/claude-sonnet-4-6`
    * **3º:** `ag/gemini-3.8-flash-high`
@@ -1938,7 +1936,7 @@ Se cadastrar uma conta só, nada disso se aplica. A partir da segunda:
 
 O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Python que entrega:
 
-- orquestração via Docker Compose do gateway 9Router, com healthcheck e acesso aos 20 modelos Antigravity;
+- orquestração via Docker Compose do gateway 9Router, com healthcheck e acesso aos 20 identificadores Antigravity catalogados, 17 deles respondendo;
 - diagnóstico automatizado em Python que valida portas, endpoints HTTP, tokens OAuth e CLI do Claude Code;
 - testes de inferência em tempo real para Gemini 3.8 Flash, Gemini 3.7 Flash, Gemini 3.6 Flash e Claude Sonnet;
 - ambiente prático e isolado (`examples/`) com configurações prontas do Claude Code (`.claude/`) e script de teste (`sample_task.py`);

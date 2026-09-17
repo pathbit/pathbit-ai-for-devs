@@ -6,6 +6,14 @@
 Este documento registra as evidências de que cada artigo funciona conforme publicado, executando
 todas as ferramentas que ele apresenta ao leitor.
 
+> **Atualização de 17 de setembro de 2026.** Este relatório é o registro dos ciclos executados em
+> setembro de 2026 e preserva as contagens daquele momento (12 arquivos de settings, 6 blocos JSON,
+> `settings.local.json`). Desde então os artigos passaram a versionar um único `settings.json.example`
+> por cenário, com `ANTHROPIC_AUTH_TOKEN` e `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`, e o advisor foi
+> comprovado como *server tool* da Anthropic que não funciona em gateway. As regras vigentes estão em
+> [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md); o artigo 0004 ainda não
+> passou por um ciclo de validação.
+
 ---
 
 ## Ciclo 1/3 - Artigo 0001 · Google Antigravity com Acesso Total Irrestrito e sem Interrupções
@@ -282,6 +290,11 @@ Essa checagem, porém, **só é verificável dentro do catálogo da Anthropic**:
 `ag/*` a CLI aceita a chave sem conferir nada, inclusive numa combinação invertida. A escolha de um
 revisor à altura é responsabilidade de quem configura.
 
+> **Superado em 17 de setembro de 2026.** Medição posterior mostrou que o advisor é uma *server tool*
+> (`advisor_20260301`) executada pela API da Anthropic: com `ANTHROPIC_BASE_URL` em um gateway, a
+> requisição inteira é rejeitada. Os `.example` não têm mais `advisorModel`; todos trazem
+> `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`.
+
 ### Processos órfãos que consomem cota
 
 Um `claude -p` interrompido por timeout **não necessariamente morre**. Durante as medições,
@@ -301,7 +314,8 @@ Primeiro o que **é** verdade e costuma ser suposto ao contrário: o aplicativo 
 harness. Ele empacota a mesma CLI, em `~/Library/Application Support/Claude/claude-code-vm/<versão>/claude`
  -  na máquina de teste, a mesma versão `2.1.266` do terminal  -  e o binário embutido reconhece
 `modelPicker`, `replaceBuiltInOptions`, `behavesAs`, `advisorModel`, `modelOverrides` e os dois
-caminhos de projeto. Não há regra de configuração diferente para o app; o que muda é o diretório em
+caminhos de projeto (reconhecer não é honrar: o `modelPicker` só vale no arquivo de usuário, em settings
+gerenciadas ou via `--settings`, e é ignorado em checkout de projeto). Não há regra de configuração diferente para o app; o que muda é o diretório em
 que cada sessão roda.
 
 O teste do seletor: declaramos em `~/.claude/settings.json` um `modelPicker` com
@@ -460,7 +474,7 @@ O histórico completo do gateway desmente a hipótese de sessão caindo:
 | `ERROR 404` em modelo servido | **1**, e apenas no descontinuado `gemini-3.5-flash-high` |
 | `all 1 accounts locked` | **36**, todas por cota de família |
 
-Os bloqueios por cota concentraram-se num único episódio (10/09, 22:06–22:08) sobre `gemini-3.8`,
+Os bloqueios por cota concentraram-se num único episódio (10/09, 22:06 a 22:08) sobre `gemini-3.8`,
 `3.7` e `3.6`, mais `openai`. **É a Falha 1 do artigo**, e a resposta correta é a cascata, não
 reautenticar.
 
