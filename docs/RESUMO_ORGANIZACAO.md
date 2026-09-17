@@ -61,7 +61,7 @@ Ao criar um novo módulo (por exemplo, `0005_novo_artigo/`), siga este checklist
 4. **Isolamento de Configurações:**
    - Garanta que `.claude/` esteja somente dentro de `examples/`.
    - Adicione arquivos `.example` para todas as configurações que utilizem caminhos ou chaves locais.
-   - Um único `settings.local.json.example` por cenário, sem `settings.local.json`; credencial em `ANTHROPIC_AUTH_TOKEN`; `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`; JSON validado e idêntico ao bloco publicado no artigo. Rode o verificador de [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md) antes do commit.
+   - Um `settings.local.json*.example` por cenário (a cópia ativa `settings.local.json` fica no `.gitignore`); credencial em `ANTHROPIC_AUTH_TOKEN`; `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`; `ANTHROPIC_BASE_URL` sem `/v1`; nenhum identificador com `[1m]`; JSON validado e idêntico ao bloco publicado no artigo. Rode `make valida-consistencia` antes do commit; as regras estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
 5. **Automação em Python:**
    - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros e executado em virtual environment.
    - Forneça scripts de verificação e testes com saída limpa no terminal.

@@ -40,7 +40,7 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos
 
-Opera o **Claude Code CLI** diretamente com modelos **DeepSeek** sem depender de gateways locais ou assinaturas do Google Antigravity: pela plataforma oficial (**DeepSeek Platform**, com preços mínimos por milhão de tokens) ou pelo **OrcaRouter** (com o modelo `deepseek/deepseek-v4-flash-free` gratuito e janela de 1M de contexto). Desmistifica a hierarquia de configurações (`settings.json` vs `settings.local.json`), explica por que não usar o sufixo `[1m]`, blinda a CLI contra o estado global via `ANTHROPIC_AUTH_TOKEN` e documenta por que o Advisor experimental deve permanecer 100% desativado. Inclui 42 capturas de tela passo a passo cobrindo desde o cadastro, autorização OAuth via GitHub e validação no Playground até a operação interativa no terminal com ambos os provedores.
+Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway local e sem assinatura do Google Antigravity: pela plataforma oficial (**DeepSeek Platform**, com preços mínimos por milhão de tokens) ou pelo **OrcaRouter** (com o `deepseek/deepseek-v4-flash-free` gratuito e 1M de contexto). Detalha os cinco escopos de configuração da CLI e por que a credencial mora em `settings.local.json`, mostra o que o sufixo `[1m]` realmente faz (a CLI o remove; o gateway recusa), e expõe a armadilha do menu `/model` — o Enter grava o modelo no `~/.claude/settings.json` global e faz o DeepSeek virar o padrão até da sua conta Anthropic. Traz 41 capturas de tela cobrindo cadastro, vinculação do GitHub para elegibilidade do tier gratuito, validação no Playground e operação no terminal com ambos os provedores, além de um verificador que prova a integração com inferência real.
 
 [📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/README.md)
 
@@ -61,7 +61,7 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek** sem depender de
 - **[Padrões de Engenharia de IA](./docs/PADROES_ENGENHARIA_IA.md)** - Diretrizes de scripts em Python puro, isolamento de segredos e regras editoriais
 - **[Resumo da Organização](./docs/RESUMO_ORGANIZACAO.md)** - Topologia de diretórios, anatomia dos módulos e checklist de publicação
 - **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.local.json` dos exemplos, estado global da CLI e verificador de consistência
-- **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0003 a partir de um ambiente zerado
+- **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0004 a partir de um ambiente zerado
 
 ### 🔧 Soluções para Problemas Comuns
 
@@ -114,7 +114,8 @@ pathbit-ai-for-devs/
     ├── README.md
     ├── article/
     ├── assets/
-    └── examples/
+    ├── examples/
+    └── src/
 ```
 
 ---
@@ -142,7 +143,7 @@ XXXX_titulo_do_artigo/
 │   ├── README.md                        # Instruções de execução do Claude Code
 │   ├── sample_task.py                   # Código de exemplo para o agente
 │   └── .claude/
-│       └── settings.local.json.example        # Políticas de permissão compartilhadas
+│       └── settings.local.json.example  # Template do settings pessoal (a cópia ativa é ignorada pelo Git)
 └── src/                                 # Scripts executáveis em Python
 ```
 
@@ -181,7 +182,29 @@ source .venv/bin/activate
 make test-local
 ```
 
-### Opção 3. Validação Cruzada com os Projetos RTK
+### Opção 3. Consistência entre os Artigos e o Repositório
+
+Um artigo é publicado uma vez e lido por muito tempo. Quando um arquivo é renomeado ou um print
+substituído, o texto continua afirmando o que era verdade antes — e o leitor segue instruções que já
+não funcionam, sem ter como saber que o errado é o texto.
+
+```bash
+make valida-consistencia
+```
+
+Confere que todo bloco `json` de configuração citado num artigo é idêntico ao `.example` versionado,
+que toda imagem referenciada existe (e que todo asset é citado), que os links relativos apontam para
+arquivos reais, que nenhum comando instrui o uso do nome antigo `.claude/settings.json` e que nenhum
+exemplo carrega o sufixo `[1m]`. Não precisa de rede nem de container.
+
+Para validar a configuração do artigo 0004, incluindo uma inferência real contra o provedor ativo:
+
+```bash
+make valida-deepclaude              # offline
+make valida-deepclaude ONLINE=1     # com chamada real à API
+```
+
+### Opção 4. Validação Cruzada com os Projetos RTK
 
 Os artigos mandam o leitor copiar um `docker-compose.yml` que sobe imagens dos
 projetos [9RTKSync](https://github.com/pathbit/9RTKSync),

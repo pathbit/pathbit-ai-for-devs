@@ -11,12 +11,16 @@ todas as ferramentas que ele apresenta ao leitor.
 > `settings.local.json`). Desde então os artigos passaram a versionar um único `settings.local.json.example`
 > por cenário, com `ANTHROPIC_AUTH_TOKEN` e `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`, e o advisor foi
 > comprovado como *server tool* da Anthropic que não funciona em gateway. As regras vigentes estão em
-> [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md); o artigo 0004 ainda não
-> passou por um ciclo de validação.
+> [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
+>
+> **O artigo 0004 foi validado em 17 de setembro de 2026** — o registro está no
+> [Ciclo 4](#ciclo-44---artigo-0004--deepclaude-com-deepseek-e-orcarouter). Na mesma data, a convenção
+> dos arquivos ativos passou de `settings.json` para `settings.local.json`, por ser o escopo pessoal da
+> máquina e não o de configuração compartilhada do time.
 
 ---
 
-## Ciclo 1/3 - Artigo 0001 · Google Antigravity com Acesso Total Irrestrito e sem Interrupções
+## Ciclo 1/4 - Artigo 0001 · Google Antigravity com Acesso Total Irrestrito e sem Interrupções
 
 Ambiente zerado antes do ciclo: `containers: 0 · volumes: 0`. O artigo configura permissões locais
 do Antigravity e não depende de Docker; a zeragem garante isolamento entre os ciclos.
@@ -42,7 +46,7 @@ O diagnóstico foi validado por injeção deliberada de erro, não basta ele diz
 
 ---
 
-## Ciclo 2/3 - Artigo 0002 · ClaudeGravity e o Roteamento de Modelos Gemini
+## Ciclo 2/4 - Artigo 0002 · ClaudeGravity e o Roteamento de Modelos Gemini
 
 Ambiente zerado antes do ciclo: `containers: 0 · volumes: 0`.
 
@@ -65,7 +69,7 @@ segundos antes.
 
 ---
 
-## Ciclo 3/3 - Artigo 0003 · Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router
+## Ciclo 3/4 - Artigo 0003 · Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router
 
 Ambiente zerado antes do ciclo: `containers: 0 · volumes: 0`.
 
@@ -553,6 +557,79 @@ Para transformar a auto-cura em um componente nativo da infraestrutura Docker (i
 4. **Portas em loopback:** o gateway carrega credenciais reais e por isso publica apenas em `127.0.0.1`.
 5. **Catálogos gratuitos mudam.** Revalide com `python3 src/test_arsenal.py`, que acusa qualquer nível quebrado.
 6. **Virtual Environment obrigatório:** Todo comando Python deve ser executado no ambiente virtual (`source .venv/bin/activate`).
+
+---
+
+## Ciclo 4/4 - Artigo 0004 · DeepClaude com DeepSeek e OrcaRouter
+
+**Data:** 17 de setembro de 2026 · **Claude Code:** v2.1.274 · **Máquina:** macOS (Darwin 27.0.0)
+
+Diferente dos ciclos anteriores, este artigo **não usa container**: os dois provedores expõem endpoints
+compatíveis com a Anthropic Messages API, então a validação é feita contra as APIs remotas reais.
+
+### 1. Inferência real nos dois caminhos
+
+| Caminho | Endpoint | Modelo pedido | Resultado | Modelo que serviu |
+| :--- | :--- | :--- | :--- | :--- |
+| OrcaRouter (gratuito) | `POST /v1/messages` | `deepseek/deepseek-v4-flash-free` | `HTTP 200` · `"OK"` | `deepseek-v4-flash-ga-260731` |
+| DeepSeek Platform | `POST /anthropic/v1/messages` | `deepseek-v4-pro` | `HTTP 200` · `"OK"` | `deepseek-v4-pro`, com bloco `thinking` |
+
+### 2. Catálogo real da DeepSeek Platform
+
+`GET https://api.deepseek.com/models` retornou **exatamente dois modelos**: `deepseek-flash` e
+`deepseek-v4-pro`. É o que fundamenta o mapeamento dos quatro papéis do Claude Code em dois destinos
+(`Opus`/`Fable` → `deepseek-v4-pro`; `Sonnet`/`Haiku` → `deepseek-flash`) e explica por que o menu
+`/model` exibe três linhas em vez de quatro.
+
+### 3. Comportamento do sufixo `[1m]`, medido
+
+| Requisição | Resposta |
+| :--- | :--- |
+| `"model": "deepseek-v4-pro[1m]"` → DeepSeek Platform | `HTTP 200`, normalizado para `deepseek-v4-pro` |
+| `"model": "deepseek/deepseek-v4-flash-free[1m]"` → OrcaRouter | `HTTP 404 model_not_found` |
+
+Dentro do Claude Code o sufixo não quebra, porque a CLI o remove antes de montar a requisição
+(`e.replace(/\[1m\]$/i, "")`) e o traduz em cabeçalho beta. Fora dela — script, `curl`, combo do
+9Router — o nome viaja cru e o gateway recusa. Daí a regra de usar só identificadores canônicos.
+
+### 4. A flag `--settings` não escreve no arquivo global
+
+SHA-256 de `~/.claude/settings.json` medido antes e depois de uma sessão completa iniciada com
+`claude --settings .claude/settings.local.json -p "Responda somente OK" --max-turns 1`:
+
+```text
+antes:  68d8fa2a5523779735d58af25b055a9066ebeb6095f7f5c6bafca69df2c9a449
+depois: 68d8fa2a5523779735d58af25b055a9066ebeb6095f7f5c6bafca69df2c9a449
+```
+
+Idêntico. A contaminação relatada pelo autor ("fiz login com a conta Anthropic e o padrão estava
+DeepSeek") tem outra origem, identificada neste ciclo: o **Enter no menu `/model`**, cuja função de
+persistência no binário grava em `en("userSettings", { model: ... })` — isto é, sempre no
+`~/.claude/settings.json`, inclusive em sessões abertas por `--settings`. A prevenção é usar a tecla
+`s` (*use this session only*); a limpeza está no `verify_deepclaude.py --fix-global`.
+
+### 5. Verificadores
+
+```text
+$ python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --online
+RESULTADO: tudo consistente (0 aviso(s))
+
+$ make valida-consistencia
+0002: settings.local.json.example idêntico ao transcrito no artigo
+0003: settings.local.json.example idêntico ao transcrito no artigo
+0004: settings.local.json.deepseek.example idêntico ao transcrito no artigo
+0004: settings.local.json.orcarouter.example idêntico ao transcrito no artigo
+0001: 3 imagens · 0002: 15 imagens · 0003: 23 imagens · 0004: 42 imagens
+       todas citadas e presentes
+RESULTADO: consistente (0 aviso(s))
+```
+
+### 6. Limitação conhecida deste ciclo
+
+A rede usada na validação tem proxy TLS corporativo. O `curl` valida contra o keychain do sistema e
+passa; o Python valida contra o próprio bundle de CAs e falha com `CERTIFICATE_VERIFY_FAILED`. A
+inferência do item 5 foi executada com `--insecure` após a mesma chamada ter sido confirmada por
+`curl` com verificação completa. Em rede sem interceptação, a flag é desnecessária.
 
 ---
 

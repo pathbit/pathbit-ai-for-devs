@@ -30,7 +30,7 @@ Esta pasta centraliza toda a documentação técnica, padrões de engenharia, gu
 | Documento | Descrição | Quando Usar |
 | :--- | :--- | :--- |
 | **[PADROES_ENGENHARIA_IA.md](./PADROES_ENGENHARIA_IA.md)** | Diretrizes de desenvolvimento de scripts Python, isolamento de segredos e regras editoriais | Antes de criar novos scripts, artigos ou automações |
-| **[CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md)** | Regras verificadas para os `settings.local.json` dos exemplos: arquivo único, `ANTHROPIC_AUTH_TOKEN`, advisor desligado, estado global da CLI e verificador de consistência | Antes de editar qualquer `examples/.claude/settings*` ou quando o Claude Code pedir login numa pasta de exemplo |
+| **[CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md)** | Regras verificadas para os `settings.local.json` dos exemplos: por que `settings.local.json` e não `settings.json`, `ANTHROPIC_AUTH_TOKEN`, advisor desligado, estado global da CLI, o vazamento do `/model` e os verificadores | Antes de editar qualquer `examples/.claude/settings*` ou quando o Claude Code pedir login numa pasta de exemplo |
 | **[RESUMO_ORGANIZACAO.md](./RESUMO_ORGANIZACAO.md)** | Topologia de diretórios, anatomia dos módulos de artigos e checklist de publicação | Para entender a estrutura do projeto ou criar novos artigos |
 | **[RELATORIO_VALIDACAO.md](./RELATORIO_VALIDACAO.md)** | Evidências de execução end-to-end dos artigos 0001 a 0003 a partir de um Docker completamente zerado | Para conferir que os artigos publicados foram reproduzidos e comprovados |
 

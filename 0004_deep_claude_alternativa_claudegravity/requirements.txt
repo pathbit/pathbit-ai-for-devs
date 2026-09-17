@@ -1,0 +1,2 @@
+# Este modulo utiliza exclusivamente a biblioteca padrao do Python 3.10+
+# (json, pathlib, ssl, urllib). Nenhuma dependencia externa e necessaria.

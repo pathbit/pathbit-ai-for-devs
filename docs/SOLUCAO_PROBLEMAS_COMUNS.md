@@ -273,3 +273,102 @@ A CLI só honra `modelPicker` em `~/.claude/settings.json`, em settings gerencia
 
 Inicie com `claude --settings .claude/settings.local.json`, ou copie o bloco `modelPicker` para `~/.claude/settings.json`. Os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`) continuam valendo no projeto e são o que roteia de fato.
 
+
+---
+
+## ❌ Problema 11 - O Modelo do Gateway Virou o Padrão da Conta Anthropic
+
+### Sintoma
+
+Você fez login com a sua conta Anthropic, abriu o Claude Code em uma pasta qualquer — sem nenhum arquivo de configuração de projeto — e o modelo padrão da sessão é o do gateway (`deepseek/...`, `ag/...`). O sintoma persiste entre reinícios e acompanha você em todos os diretórios.
+
+### Causa
+
+O Enter no menu `/model`. O rodapé do seletor oferece duas saídas:
+
+```text
+Enter to set as default  ·  s to use this session only  ·  Esc to cancel
+```
+
+O Enter significa *"salvar como padrão para novas sessões"*, e o destino dessa gravação é fixo: a chave `"model"` do **`~/.claude/settings.json` global**. A função de persistência no binário da CLI v2.1.274 chama `en("userSettings", { model: ... })`, sem alternativa de escopo.
+
+Isso acontece **mesmo com a sessão iniciada por `--settings`**: um arquivo passado por flag é uma fonte somente leitura para a CLI, então ela grava no escopo gravável de sempre. Não é causado pelo arquivo do projeto, e renomear `settings.json` para `settings.local.json` não altera esse comportamento.
+
+### Solução
+
+Remova a chave `model` do arquivo global:
+
+```bash
+python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+```
+
+Ou manualmente:
+
+```bash
+python3 - <<'PY'
+import json, pathlib
+p = pathlib.Path.home() / ".claude" / "settings.json"
+d = json.loads(p.read_text())
+print("Removido:", d.pop("model", None) or "(nada a limpar)")
+p.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n")
+PY
+```
+
+### Prevenção
+
+No menu `/model`, use **`s`** (apenas esta sessão) ou `Esc`. Nunca Enter. Nos artigos deste repositório o seletor serve para inspeção visual: o roteamento de fato vem dos quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`) declarados no `settings.local.json`.
+
+---
+
+## ❌ Problema 12 - `Settings file not found` ao Iniciar com `--settings`
+
+### Sintoma
+
+```text
+Error: Settings file not found: .claude/settings.local.json
+```
+
+### Causa
+
+Só os templates `.example` são versionados. O arquivo ativo é gerado por você e fica fora do Git pelo `.gitignore` — em um clone novo, ele simplesmente não existe ainda.
+
+### Solução
+
+Faça a cópia **antes** de iniciar qualquer teste, no diretório `examples/` do artigo:
+
+```bash
+cp .claude/settings.local.json.example .claude/settings.local.json          # artigos 0002 e 0003
+cp .claude/settings.local.json.orcarouter.example .claude/settings.local.json  # artigo 0004
+```
+
+Depois troque o `ANTHROPIC_AUTH_TOKEN` pela sua chave real e valide o JSON:
+
+```bash
+python3 -c "import json; json.load(open('.claude/settings.local.json'))"
+```
+
+---
+
+## ❌ Problema 13 - `CERTIFICATE_VERIFY_FAILED` nos Scripts Python (mas o `curl` funciona)
+
+### Sintoma
+
+Os scripts de verificação falham com `[SSL: CERTIFICATE_VERIFY_FAILED] self-signed certificate in certificate chain`, enquanto o mesmo endpoint responde normalmente via `curl`.
+
+### Causa
+
+Não é erro de configuração do artigo. É uma rede com proxy TLS (inspeção de tráfego corporativa): o `curl` valida contra o keychain do sistema, que confia na CA do proxy; o Python valida contra o próprio bundle de CAs, que não a conhece.
+
+### Solução
+
+Aponte o Python para a CA da sua rede:
+
+```bash
+export SSL_CERT_FILE=/caminho/para/ca-corporativa.pem
+```
+
+Ou, para uma execução pontual de diagnóstico:
+
+```bash
+python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --online --insecure
+```

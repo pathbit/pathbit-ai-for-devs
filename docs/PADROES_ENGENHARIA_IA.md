@@ -67,7 +67,11 @@ A localização permitida para `.claude/` é exclusivamente dentro da subpasta d
 
 ### 3. Regras para os `settings.local.json` do Claude Code nos Exemplos
 
-Cada artigo versiona um único `examples/.claude/settings.local.json.example` (sem `settings.local.json`), com `ANTHROPIC_AUTH_TOKEN` como credencial, `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` no `env` e JSON validado antes do commit. O bloco JSON dentro do `ARTICLE.md` deve ser idêntico ao arquivo. As regras completas, o porquê de cada uma e um verificador estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
+Cada artigo versiona apenas templates `examples/.claude/settings.local.json*.example` (o 0004 tem um por provedor). A cópia ativa `settings.local.json` — a que carrega a credencial real — fica no `.gitignore`.
+
+O nome é `settings.local.json`, e não `settings.json`, por escopo: o `.claude/settings.json` é a configuração **compartilhada do time**, feita para ser comitada; a nossa carrega credencial e redireciona o harness para outro provedor, então pertence ao escopo **pessoal da máquina**.
+
+Regras obrigatórias: `ANTHROPIC_AUTH_TOKEN` como credencial (nunca `ANTHROPIC_API_KEY`), `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` no `env`, `ANTHROPIC_BASE_URL` sem sufixo `/v1`, nenhum identificador com `[1m]` e JSON validado antes do commit. O bloco JSON dentro do `ARTICLE.md` deve ser **idêntico** ao arquivo `.example` — `make valida-consistencia` verifica isso. As regras completas e o porquê de cada uma estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
 
 ---
 

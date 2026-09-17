@@ -29,13 +29,13 @@ Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_cla
 0004_deep_claude_alternativa_claudegravity/
 ├── README.md                                  # Este documento
 ├── article/
-│   └── ARTICLE.md                             # Artigo completo com 42 prints e análise técnica
+│   └── ARTICLE.md                             # Artigo completo: capa + 41 prints e análise técnica
 ├── assets/                                    # Imagens, telas e capas oficiais
 │   ├── cover_linkedin.png                     # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_deepclaude.png                # Capa oficial do artigo
-│   └── ...                                    # 41 arquivos de evidência visual sequenciada (01 a 42)
+│   └── ...                                    # 41 prints de evidência visual (01 a 42, sem o 08)
 ├── src/
-│   └── verify_deepclaude.py                         # Verificador de consistência e inferência real
+│   └── verify_deepclaude.py                   # Verificador de consistência e inferência real
 └── examples/
     ├── README.md                              # Instruções de execução prática
     └── .claude/
