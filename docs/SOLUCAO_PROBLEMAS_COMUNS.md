@@ -211,24 +211,24 @@ O token OAuth do Antigravity expira a cada 60 minutos. Além disso, o 9Router po
 
 ### Sintoma
 
-Ao rodar `claude` dentro de `examples/`, aparece o assistente de primeiro uso ("Choose the text style") seguido de "Select login method", mesmo com o `.claude/settings.json` apontando para o gateway.
+Ao rodar `claude` dentro de `examples/`, aparece o assistente de primeiro uso ("Choose the text style") seguido de "Select login method", mesmo com o `.claude/settings.local.json` apontando para o gateway.
 
 ### Causa
 
 Três causas, em ordem de frequência:
 
-1. **JSON inválido** no `settings.json` (uma vírgula sobrando depois da última chave). A CLI descarta o arquivo em silêncio e, sem `ANTHROPIC_BASE_URL`, cai no login da Anthropic.
-2. **O assistente de primeiro uso foi reiniciado** (um `/logout` faz isso). Enquanto ele roda, o `settings.json` do projeto ainda não foi carregado, então ele não enxerga a credencial do gateway.
+1. **JSON inválido** no `settings.local.json` (uma vírgula sobrando depois da última chave). A CLI descarta o arquivo em silêncio e, sem `ANTHROPIC_BASE_URL`, cai no login da Anthropic.
+2. **O assistente de primeiro uso foi reiniciado** (um `/logout` faz isso). Enquanto ele roda, o `settings.local.json` do projeto ainda não foi carregado, então ele não enxerga a credencial do gateway.
 3. **A pasta foi renomeada ou movida.** A confiança é guardada por caminho absoluto em `~/.claude.json`.
 
 ### Solução
 
 ```bash
 # 1. Validar o JSON
-python3 -c "import json; json.load(open('.claude/settings.json'))"
+python3 -c "import json; json.load(open('.claude/settings.local.json'))"
 
 # 2. Passar pelo assistente com o arquivo do projeto aplicado antes dele
-claude --settings .claude/settings.json
+claude --settings .claude/settings.local.json
 
 # 3. Aceitar a confiança da pasta quando perguntado; depois disso `claude` puro funciona
 ```
@@ -249,7 +249,7 @@ O advisor é uma *server tool* executada pela API da Anthropic; gateways e prove
 
 ### Solução
 
-No `env` do `settings.json`:
+No `env` do `settings.local.json`:
 
 ```json
 "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
@@ -263,7 +263,7 @@ Não use `CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL: "0"` (a CLI lê como boo
 
 ### Sintoma
 
-O bloco `modelPicker` está no `.claude/settings.json` do projeto, mas o menu `/model` mostra a lista nativa da Anthropic.
+O bloco `modelPicker` está no `.claude/settings.local.json` do projeto, mas o menu `/model` mostra a lista nativa da Anthropic.
 
 ### Causa
 
@@ -271,5 +271,5 @@ A CLI só honra `modelPicker` em `~/.claude/settings.json`, em settings gerencia
 
 ### Solução
 
-Inicie com `claude --settings .claude/settings.json`, ou copie o bloco `modelPicker` para `~/.claude/settings.json`. Os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`) continuam valendo no projeto e são o que roteia de fato.
+Inicie com `claude --settings .claude/settings.local.json`, ou copie o bloco `modelPicker` para `~/.claude/settings.json`. Os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`) continuam valendo no projeto e são o que roteia de fato.
 

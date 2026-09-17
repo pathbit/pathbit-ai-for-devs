@@ -1,4 +1,4 @@
-.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-paineis up down logs clean
+.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
@@ -27,6 +27,17 @@ test-arsenal:
 # Nao precisa de container de pe.
 valida-docs:
 	$(PYTHON) tools/valida_artigos_x_rtk.py
+
+# Confere que os artigos publicados descrevem o repositorio como ele esta hoje:
+# JSON transcrito x arquivo .example, imagens citadas x assets em disco, links
+# relativos e convencao de nomes dos settings. Nao precisa de rede nem container.
+valida-consistencia:
+	$(PYTHON) tools/valida_consistencia_artigos.py
+
+# Verificador do artigo 0004: sintaxe dos settings, sufixo [1m], credencial nos
+# templates e contaminacao do settings global. Com ONLINE=1 faz inferencia real.
+valida-deepclaude:
+	$(PYTHON) 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py $(if $(ONLINE),--online,)
 
 # Validacao HTTP dos paineis das stacks. Exige as stacks de pe e as credenciais
 # no ambiente -- veja o cabecalho do script; ele TROCA a senha do painel.

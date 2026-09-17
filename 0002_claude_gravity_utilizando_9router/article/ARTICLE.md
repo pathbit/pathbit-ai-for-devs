@@ -452,7 +452,7 @@ Ao selecionar **Claude Code**, o gateway apresenta as instruções com as variá
 Para que toda sessão do Claude Code inicie com as permissões completas e os modelos Gemini já mapeados, disponibilizamos o modelo `.example` da configuração do Claude Code em `examples/.claude/`, além do `.env.example` na raiz do módulo. Para inicializar sua configuração local:
 
 ```bash
-cp examples/.claude/settings.json.example examples/.claude/settings.json
+cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 cp .env.example .env
 ```
 
@@ -464,22 +464,24 @@ A maior parte das variáveis já vem com valor funcional. Apenas estas exigem su
 | :--- | :--- | :--- |
 | `INITIAL_PASSWORD` | **Sim** | Senha do painel do 9Router. O `docker compose` recusa subir sem ela. |
 | `JWT_SECRET` | **Sim** | Valor longo e aleatório para assinar as sessões do painel. Gere com `openssl rand -hex 32`. |
-| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `src/sync_antigravity_token.py` na primeira execução e gravada aqui automaticamente. No `.env` ela alimenta os scripts Python; no `settings.json` o mesmo valor entra como `ANTHROPIC_AUTH_TOKEN`. |
+| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `src/sync_antigravity_token.py` na primeira execução e gravada aqui automaticamente. No `.env` ela alimenta os scripts Python; no `settings.local.json` o mesmo valor entra como `ANTHROPIC_AUTH_TOKEN`. |
 | `ANTHROPIC_BASE_URL` | Já preenchida | `http://localhost:20128`, sem o sufixo `/v1` (a CLI o acrescenta sozinha). |
 
 Não há chave de provedor externo neste artigo: a autenticação com o Google acontece via OAuth, reaproveitando a sessão do Antigravity que já está na sua máquina.
 
 #### O arquivo de configuração do Claude Code
 
-Ele fica em `examples/.claude/settings.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
+Ele fica em `examples/.claude/settings.local.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
 
 É a configuração do projeto, compartilhável com o time: modelo padrão, os quatro papéis, `modelPicker`, `modelOverrides`, permissões e `env`.
 
-**Por que não há um `settings.local.json` aqui.** O Claude Code lê também `.claude/settings.local.json`, com precedência sobre o `settings.json`, mas a função dele é guardar o que é específico da sua máquina e não pode ir para o git (uma chave pessoal, um caminho local). Neste artigo não existe nada nessa categoria: tudo o que a configuração precisa está no arquivo único `settings.json`, e a cópia ativa já fica protegida no `.gitignore`. Uma cópia idêntica no arquivo local só criaria dois lugares para manter a mesma coisa. E para ter o menu `/model` customizado honrado pela CLI com substituição total dos modelos da Anthropic, a prática recomendada é iniciar a sessão com `--settings .claude/settings.json`.
+**Por que `settings.local.json` e não `settings.json`.** O Claude Code lê os dois arquivos em um checkout: o `.claude/settings.json` existe para configuração **compartilhada do time**, comitada no repositório, e o `.claude/settings.local.json` para o que é **específico da sua máquina** e não pode ir para o Git — uma chave pessoal, um caminho local. Nossa configuração cai inteiramente na segunda categoria: ela carrega a credencial do gateway. Um `settings.json` commitado redirecionaria o harness de qualquer pessoa que clonasse o repositório para um gateway que ela não tem. Por isso versionamos apenas o template `.example` e deixamos a cópia ativa protegida pelo `.gitignore`.
+
+Uma ressalva que vale para os dois nomes: nenhum deles faz o menu `/model` customizado funcionar. O bloco `modelPicker` não é lido de um checkout de projeto — só de *managed settings*, do arquivo global do usuário ou de um arquivo passado com `--settings`. Por isso a sessão é sempre iniciada com `claude --settings .claude/settings.local.json`.
 
 #### O que fica no estado global do Claude Code (e como não depender dele)
 
-Tudo o que este artigo configura mora em `examples/.claude/settings.json`. Mas o Claude Code guarda **fora do projeto**, em `~/.claude.json`, um estado que nenhuma chave de `settings.json` altera, por desenho:
+Tudo o que este artigo configura mora em `examples/.claude/settings.local.json`. Mas o Claude Code guarda **fora do projeto**, em `~/.claude.json`, um estado que nenhuma chave de `settings.local.json` altera, por desenho:
 
 | O que | Onde fica | O que zera |
 | :--- | :--- | :--- |
@@ -488,7 +490,36 @@ Tudo o que este artigo configura mora em `examples/.claude/settings.json`. Mas o
 | Aprovação de uma `ANTHROPIC_API_KEY` vinda do `env` (pergunta *"Do you want to use this API key?"*) | `~/.claude.json` | `/logout` |
 | Confiança na pasta (*"Do you trust the files in this folder?"*) | `~/.claude.json`, por caminho absoluto | Renomear ou mover a pasta |
 
-Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout` marca o assistente como não concluído e apaga a lista de chaves aprovadas. Foi exatamente isso que produziu o sintoma "entro na pasta e ele fica pedindo login": o assistente reaparece, e **enquanto ele roda, o `settings.json` do projeto ainda não foi carregado**. Medimos com uma configuração global zerada: mesmo com a pasta já confiável e o arquivo completo, o assistente mostrou a tela *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout` marca o assistente como não concluído e apaga a lista de chaves aprovadas. Foi exatamente isso que produziu o sintoma "entro na pasta e ele fica pedindo login": o assistente reaparece, e **enquanto ele roda, o `settings.local.json` do projeto ainda não foi carregado**. Medimos com uma configuração global zerada: mesmo com a pasta já confiável e o arquivo completo, o assistente mostrou a tela *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+
+> [!CAUTION]
+> ### A Terceira Fonte de Estado Global: o Enter no Menu `/model`
+>
+> A tabela acima lista o que o Claude Code guarda em `~/.claude.json`. Falta um item que mora no **outro** arquivo global, o `~/.claude/settings.json`, e que é o mais fácil de acionar sem perceber.
+>
+> Ao abrir o seletor com `/model`, o rodapé oferece duas saídas:
+>
+> ```text
+> Enter to set as default  ·  s to use this session only  ·  Esc to cancel
+> ```
+>
+> O **Enter** — a tecla mais natural — significa *"salvar como padrão para novas sessões"*. Inspecionando o binário da CLI v2.1.274, a função que persiste essa escolha grava no escopo `userSettings` de forma literal, sem alternativa:
+>
+> ```js
+> let i = await pt(en("userSettings", { model: e ?? undefined }, undefined, t), n);
+> ```
+>
+> Ou seja: a escolha vai para a chave `"model"` do seu `~/.claude/settings.json`, **mesmo que a sessão tenha sido aberta com `--settings`**. Um arquivo passado por flag é somente leitura para a CLI, então ela persiste no escopo gravável de sempre. O resultado é que toda nova sessão do Claude Code — em qualquer pasta, inclusive com a sua conta Anthropic — passa a abrir com o modelo do gateway.
+>
+> **A regra:** no menu `/model`, use `s` ou `Esc`. Nunca Enter.
+>
+> Para verificar e limpar, o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) traz um script pronto:
+>
+> ```bash
+> python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+> ```
+>
+> Vale registrar o contraponto: medimos o hash SHA-256 de `~/.claude/settings.json` antes e depois de uma sessão completa aberta com `--settings`, incluindo inferência real, e o valor não mudou. A flag, sozinha, não escreve nada. O vazamento vem exclusivamente do seletor de modelos.
 
 Duas decisões deixam este projeto imune a esse estado:
 
@@ -496,21 +527,21 @@ Duas decisões deixam este projeto imune a esse estado:
 2. **Recomendação Definitiva de Execução: Inicie SEMPRE com `--settings`:**
 
    ```bash
-   claude --settings .claude/settings.json
+   claude --settings .claude/settings.local.json
    ```
 
    A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** de qualquer outro escopo de configuração. 
    
-   Por que recomendamos subir **sempre** com `--settings .claude/settings.json` em todas as sessões:
+   Por que recomendamos subir **sempre** com `--settings .claude/settings.local.json` em todas as sessões:
    * **Isolamento Absoluto:** Impede que o Claude Code herde variáveis, ferramentas antigas ou configurações residuais do arquivo global (`~/.claude/settings.json`).
-   * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos Gemini e ocultando os modelos Anthropic.
+   * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.local.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos Gemini e ocultando os modelos Anthropic.
    * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, garantindo que o Claude Code nunca caia no assistente de login da nuvem da Anthropic.
 
 O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
 
-> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) certifique-se de que copiou o arquivo a partir do `.example` (`cp examples/.claude/settings.json.example examples/.claude/settings.json`) e preencheu o `ANTHROPIC_AUTH_TOKEN`; (3) inicie a sessão com `claude --settings .claude/settings.json`.
+> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.local.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) certifique-se de que copiou o arquivo a partir do `.example` (`cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json`) e preencheu o `ANTHROPIC_AUTH_TOKEN`; (3) inicie a sessão com `claude --settings .claude/settings.local.json`.
 
-#### Estrutura do `settings.json.example`
+#### Estrutura do `settings.local.json.example`
 
 ```json
 {
@@ -637,7 +668,7 @@ Para obter o máximo desempenho e estabilidade ao operar o Claude Code conectado
 | `ANTHROPIC_BASE_URL` | Redireciona as chamadas de API do endpoint oficial da Anthropic para o gateway local (`http://localhost:20128`). | O Claude Code anexa internamente `/v1/messages`. Declarar a URL **sem** o sufixo `/v1` produz a rota limpa `/v1/messages`. O 9Router tolera a forma duplicada `/v1/v1/messages` graças a um interceptador de compatibilidade, mas proxies estritos não - por isso a recomendação vale como boa prática portável. |
 | `ANTHROPIC_AUTH_TOKEN` | Credencial enviada como `Authorization: Bearer`. | Utiliza a chave gerada no 9Router (`sk-...`) sem a aprovação interativa que `ANTHROPIC_API_KEY` exige; ver [estado global](#o-que-fica-no-estado-global-do-claude-code-e-como-não-depender-dele). |
 | `--dangerously-skip-permissions` | Desabilita completamente as confirmações interativas de terminal (`[y/N]`) para ferramentas de arquivo e bash. | Torna o agente 100% autônomo. Sem essa flag, o desenvolvedor precisa apertar `y` a cada linha de teste executada ou arquivo modificado. |
-| `bypassPermissions` | Modo padrão declarado dentro de `.claude/settings.json` na seção `permissions`. | Garante que subagentes, ferramentas e comandos herdados iniciem sem restrições. |
+| `bypassPermissions` | Modo padrão declarado dentro de `.claude/settings.local.json` na seção `permissions`. | Garante que subagentes, ferramentas e comandos herdados iniciem sem restrições. |
 | `skipDangerousModePermissionPrompt` | Suprime o diálogo de aviso inicial do Claude Code sobre estar rodando em modo desprotegido. | Elimina o prompt de confirmação inicial toda vez que uma nova sessão é disparada. |
 | `includeCoAuthoredBy: false` | Impede que o Claude Code anexe trailers de coautoria (`Co-Authored-By`) nos commits. | Assegura autoria estritamente humana nos commits e preserva a integridade do histórico do repositório. |
 | `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` | Desativa a restrição rígida de contagem de janela de contexto baseada exclusivamente nos modelos proprietários da Anthropic. | Permite que o Claude Code utilize os identificadores `ag/gemini-*` sem reclamar de tamanho de janela desconhecido. |
@@ -914,7 +945,7 @@ São duas chaves do `modelPicker`:
   **ID de um modelo que a CLI conhece**, e serve de referência de capacidade.
 
 Um recorte das nove linhas declaradas nos arquivos deste artigo  -  o bloco completo está na seção
-[Estrutura do `settings.json.example`](#estrutura-do-settingsjsonexample):
+[Estrutura do `settings.local.json.example`](#estrutura-do-settingsjsonexample):
 
 ```json
 {
@@ -974,7 +1005,7 @@ editando o arquivo errado.
 | Camada | Arquivo | Alcance | Observação |
 | :--- | :--- | :--- | :--- |
 | **Usuário** | `~/.claude/settings.json` | Toda sessão da sua máquina | O ponto de entrada mais amplo. É onde o aplicativo de janela encontra a configuração |
-| **Projeto** | `<repo>/.claude/settings.json` | Só dentro daquele repositório | Versionável, compartilhável com o time |
+| **Projeto** | `<repo>/.claude/settings.local.json` | Só dentro daquele repositório | Versionável, compartilhável com o time |
 | **Local** | `<repo>/.claude/settings.local.json` | Só na sua máquina, naquele repositório | **Tem precedência**, e fica fora do git |
 
 A camada mais forte vence. Colocar o gateway em `~/.claude/settings.json` faz ele valer em tudo;
@@ -1001,7 +1032,7 @@ Vão dentro do bloco `"env"` de qualquer camada de settings, ou exportadas no sh
 | `ANTHROPIC_AUTH_TOKEN` | Credencial que o gateway exige, enviada como `Authorization: Bearer`. Gerada localmente, nunca a da Anthropic. É a que usamos: não depende de aprovação guardada fora do projeto |
 | `ANTHROPIC_API_KEY` | Alternativa, enviada como `x-api-key`. Exige aprovação interativa única, guardada em `~/.claude.json` e apagada pelo `/logout` |
 | `ANTHROPIC_MODEL` | Modelo do laço principal da sessão |
-| `ANTHROPIC_DEFAULT_MODEL` | Modelo aplicado quando nada mais foi escolhido. Equivale ao `"model"` do `settings.json` |
+| `ANTHROPIC_DEFAULT_MODEL` | Modelo aplicado quando nada mais foi escolhido. Equivale ao `"model"` do `settings.local.json` |
 | `ANTHROPIC_DEFAULT_FABLE_MODEL` | Papel Fable: o mais capaz, para o que a CLI considerar mais difícil |
 | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Papel Opus: trabalho complexo e **todo subagente despachado** |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Papel Sonnet: a maior parte das tarefas |
@@ -1038,7 +1069,7 @@ contêiner de CI, por exemplo  -  em vez de por arquivo.
 > `CLAUDE_CODE_ENABLE_LOOPS`, `_ADVISOR` e `_GOAL` como se existissem. Nenhuma existe. Eram
 > configuração decorativa, e o leitor não teria como perceber.
 
-### Todas as chaves de `settings.json`
+### Todas as chaves de `settings.local.json`
 
 | Chave | Efeito |
 | :--- | :--- |
@@ -1057,7 +1088,7 @@ contêiner de CI, por exemplo  -  em vez de por arquivo.
 Valide qualquer combinação com `claude doctor`, que aponta chave inválida sem abrir sessão.
 
 > [!IMPORTANT]
-> **Precedência do `modelPicker` na CLI:** O Claude Code só honra a chave `modelPicker` quando ela está definida nas configurações de usuário (`~/.claude/settings.json`), via flag `--settings`, ou em políticas corporativas (*managed settings*). Em um checkout de projeto (`.claude/settings.json`), a CLI **ignora** o `modelPicker` e monta o `/model` usando os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`). Para que os nomes fiquem amigáveis no terminal local sem depender do arquivo global, declare sempre `ANTHROPIC_DEFAULT_*_MODEL_NAME` e `ANTHROPIC_DEFAULT_*_MODEL_DESCRIPTION` no bloco `env`. Caso queira a lista completa com todos os 9 modelos no `/model`, inclua o bloco `modelPicker` no seu `~/.claude/settings.json`.
+> **Precedência do `modelPicker` na CLI:** O Claude Code só honra a chave `modelPicker` quando ela está definida nas configurações de usuário (`~/.claude/settings.json`), via flag `--settings`, ou em políticas corporativas (*managed settings*). Em um checkout de projeto (`.claude/settings.local.json`), a CLI **ignora** o `modelPicker` e monta o `/model` usando os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`). Para que os nomes fiquem amigáveis no terminal local sem depender do arquivo global, declare sempre `ANTHROPIC_DEFAULT_*_MODEL_NAME` e `ANTHROPIC_DEFAULT_*_MODEL_DESCRIPTION` no bloco `env`. Caso queira a lista completa com todos os 9 modelos no `/model`, inclua o bloco `modelPicker` no seu `~/.claude/settings.json`.
 
 ---
 
@@ -1078,7 +1109,7 @@ harness: ele **empacota a mesma CLI**, numa pasta própria.
 Na máquina em que este artigo foi escrito, a versão ali dentro e a do terminal eram idênticas
 (`2.1.266`, medição de 11 de setembro de 2026), e o binário embutido reconhece exatamente as mesmas chaves  -  `modelPicker`,
 `replaceBuiltInOptions`, `behavesAs`, `advisorModel`, `modelOverrides`  -  além dos dois caminhos de
-projeto, `.claude/settings.json` e `.claude/settings.local.json`.
+projeto, `.claude/settings.local.json` e `.claude/settings.local.json`.
 
 A consequência é que **não existe um conjunto de regras diferente para o app**. O que muda é o
 diretório em que cada sessão roda:
@@ -1879,7 +1910,7 @@ No menu **Combos** do 9Router (`/dashboard/combos`), você pode criar um modelo 
    * **4º:** `ag/gpt-oss-120b-medium`
 
    > Ele existe justamente para o caso da seção anterior: quando a cota da família Gemini estoura, este combo continua respondendo pelo primeiro nível, sem gastar saltos. Rodar `python3 src/claudegravity.py` uma única vez provisiona os dois combos automaticamente, e é o caminho mais rápido.
-4. Para ativar a resiliência por padrão, no `.claude/settings.json`, configure:
+4. Para ativar a resiliência por padrão, no `.claude/settings.local.json`, configure:
    ```json
    "model": "claudegravity-fallback"
    ```
@@ -2028,7 +2059,7 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 1. **Configure Combos de Fallback no 9Router:** Crie um combo no dashboard que tente primeiro o `ag/gemini-3.8-flash-high` e, caso o rate limit por minuto da Google seja atingido em tarefas brutas, comute automaticamente para `ag/gemini-3.7-flash-high` e `ag/gemini-3.6-flash-high`.
 2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
-4. **Troque o motor sem gateway:** no [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o mesmo `settings.json` aponta o harness direto para a API da DeepSeek ou para o OrcaRouter, sem Antigravity e sem container.
+4. **Troque o motor sem gateway:** no [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o mesmo `settings.local.json` aponta o harness direto para a API da DeepSeek ou para o OrcaRouter, sem Antigravity e sem container.
 5. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
 6. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
 

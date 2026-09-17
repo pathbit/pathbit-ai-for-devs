@@ -8,7 +8,7 @@ todas as ferramentas que ele apresenta ao leitor.
 
 > **Atualização de 17 de setembro de 2026.** Este relatório é o registro dos ciclos executados em
 > setembro de 2026 e preserva as contagens daquele momento (12 arquivos de settings, 6 blocos JSON,
-> `settings.local.json`). Desde então os artigos passaram a versionar um único `settings.json.example`
+> `settings.local.json`). Desde então os artigos passaram a versionar um único `settings.local.json.example`
 > por cenário, com `ANTHROPIC_AUTH_TOKEN` e `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`, e o advisor foi
 > comprovado como *server tool* da Anthropic que não funciona em gateway. As regras vigentes estão em
 > [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md); o artigo 0004 ainda não

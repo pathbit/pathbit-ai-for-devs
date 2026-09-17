@@ -38,7 +38,7 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 │   └── *.py                       # Scripts utilitários e testes de inferência em Python puro
 ├── examples/
 │   ├── .claude/                   # Sandbox isolado para testes com Claude Code
-│   │   └── settings.json.example  # Configuração padrão versionada (um .example por provedor quando há mais de um, como no 0004)
+│   │   └── settings.local.json.example  # Configuração padrão versionada (um .example por provedor quando há mais de um, como no 0004)
 │   ├── README.md                  # Instruções de execução isolada do exemplo
 │   └── sample_*.py                # Tarefa prática de demonstração
 ├── docker-compose.yml             # Manifesto de infraestrutura (gateway + 9RTKSync quando aplicável)
@@ -61,7 +61,7 @@ Ao criar um novo módulo (por exemplo, `0005_novo_artigo/`), siga este checklist
 4. **Isolamento de Configurações:**
    - Garanta que `.claude/` esteja somente dentro de `examples/`.
    - Adicione arquivos `.example` para todas as configurações que utilizem caminhos ou chaves locais.
-   - Um único `settings.json.example` por cenário, sem `settings.local.json`; credencial em `ANTHROPIC_AUTH_TOKEN`; `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`; JSON validado e idêntico ao bloco publicado no artigo. Rode o verificador de [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md) antes do commit.
+   - Um único `settings.local.json.example` por cenário, sem `settings.local.json`; credencial em `ANTHROPIC_AUTH_TOKEN`; `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`; JSON validado e idêntico ao bloco publicado no artigo. Rode o verificador de [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md) antes do commit.
 5. **Automação em Python:**
    - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros e executado em virtual environment.
    - Forneça scripts de verificação e testes com saída limpa no terminal.

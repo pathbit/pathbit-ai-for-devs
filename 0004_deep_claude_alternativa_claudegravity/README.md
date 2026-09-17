@@ -2,6 +2,8 @@
 
 ## 0004_deep_claude_alternativa_claudegravity
 
+![Capa - DeepClaude](assets/00_cover_deepclaude.png)
+
 **Ano:** 2026  
 **ID do Artigo:** 0004  
 **Título:** DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code  
@@ -28,50 +30,81 @@ Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_cla
 ├── README.md                                  # Este documento
 ├── article/
 │   └── ARTICLE.md                             # Artigo completo com 42 prints e análise técnica
-├── assets/                                    # 41 arquivos de evidência visual sequenciada (01 a 42)
+├── assets/                                    # Imagens, telas e capas oficiais
+│   ├── cover_linkedin.png                     # Capa para compartilhamento no LinkedIn
+│   ├── 00_cover_deepclaude.png                # Capa oficial do artigo
+│   └── ...                                    # 41 arquivos de evidência visual sequenciada (01 a 42)
+├── src/
+│   └── verify_deepclaude.py                         # Verificador de consistência e inferência real
 └── examples/
     ├── README.md                              # Instruções de execução prática
     └── .claude/
-        ├── settings.json.deepseek.example     # DeepSeek Platform Oficial (pago por uso)
-        └── settings.json.orcarouter.example   # OrcaRouter (DeepSeek V4 Flash gratuito)
+        ├── settings.local.json.deepseek.example     # DeepSeek Platform Oficial (pago por uso)
+        └── settings.local.json.orcarouter.example   # OrcaRouter (DeepSeek V4 Flash gratuito)
 ```
 
-A cópia ativa `examples/.claude/settings.json` fica fora do controle de versão (`.gitignore`).
+Só os templates `.example` são versionados. A cópia ativa `examples/.claude/settings.local.json` — a que carrega o seu token real — fica fora do Git pelo `.gitignore`.
+
+**Por que `settings.local.json` e não `settings.json`?** Porque o arquivo carrega uma credencial pessoal. O `.claude/settings.json` existe para configuração *compartilhada do time*, comitada no repositório; usá-lo aqui significaria impor o redirecionamento de provedor a qualquer pessoa que clonasse o projeto. O artigo detalha os cinco escopos de configuração da CLI e a precedência entre eles.
 
 ---
 
 ### Roteiro Prático de Reprodução
 
 1. Crie a conta e gere a chave em uma das plataformas: [DeepSeek Platform](https://platform.deepseek.com/sign_in) ou [OrcaRouter](https://www.orcarouter.ai/login). Opcionalmente valide o modelo gratuito no [OrcaRouter Playground](https://www.orcarouter.ai/pt/playground?model=deepseek%2Fdeepseek-v4-flash-free).
-2. Escolha o template desejado e gere o arquivo ativo `.claude/settings.json` ANTES de iniciar os testes:
+2. Escolha o template desejado e gere o arquivo ativo `.claude/settings.local.json` ANTES de iniciar os testes:
 
    ```bash
    cd 0004_deep_claude_alternativa_claudegravity/examples
 
    # Opção A: DeepSeek Platform oficial
-   cp .claude/settings.json.deepseek.example .claude/settings.json
+   cp .claude/settings.local.json.deepseek.example .claude/settings.local.json
 
    # Opção B: OrcaRouter gratuito
-   # cp .claude/settings.json.orcarouter.example .claude/settings.json
+   # cp .claude/settings.local.json.orcarouter.example .claude/settings.local.json
    ```
 
    No arquivo gerado, preencha o valor de `ANTHROPIC_AUTH_TOKEN` com o seu token real `sk-...`.
 3. Valide a integridade do JSON:
 
    ```bash
-   python3 -c "import json; json.load(open('.claude/settings.json'))"
+   python3 -c "import json; json.load(open('.claude/settings.local.json'))"
    ```
 4. Inicie a sessão aplicando o arquivo com a flag `--settings`:
 
    ```bash
-   claude --settings .claude/settings.json
+   claude --settings .claude/settings.local.json
    ```
 
-   *Recomendação de Ouro:* Inicie **sempre** com `--settings .claude/settings.json`. Isso blinda a execução contra configurações residuais do arquivo de usuário global (`~/.claude/settings.json`), garante que o `modelPicker` substitua os modelos Anthropic no menu `/model` e evita assistentes de login.
+   *Regra de Ouro:* Inicie **sempre** com `--settings .claude/settings.local.json`. É a única forma de o `modelPicker` ser honrado a partir de uma pasta de projeto (a CLI ignora esse bloco em checkouts locais) e de evitar a tela de login no primeiro uso.
+
+   *Regra de Ouro nº 2:* No menu `/model`, use a tecla **`s`** (apenas esta sessão) ou `Esc`. **Nunca Enter** — Enter significa "salvar como padrão" e grava o modelo no seu `~/.claude/settings.json` global, fazendo o DeepSeek virar o padrão de toda nova sessão, inclusive nas que usam a sua conta Anthropic.
 5. Teste rápido de inferência no terminal:
 
    ```bash
-   claude -p "Responda somente OK" --max-turns 1
+   claude --settings .claude/settings.local.json -p "Responda somente OK" --max-turns 1
    ```
+
+---
+
+### Verificação Automatizada
+
+O módulo traz um verificador que confere a configuração e, opcionalmente, dispara uma inferência real contra o provedor ativo:
+
+```bash
+cd 0004_deep_claude_alternativa_claudegravity
+
+python3 src/verify_deepclaude.py              # validação offline, sem rede
+python3 src/verify_deepclaude.py --online     # inclui uma chamada real à API
+python3 src/verify_deepclaude.py --fix-global # limpa um modelo vazado para o settings global
+```
+
+Ele valida a sintaxe dos JSON, exige `ANTHROPIC_AUTH_TOKEN` (e recusa `ANTHROPIC_API_KEY`), recusa o sufixo `[1m]` em qualquer identificador, detecta `ANTHROPIC_BASE_URL` terminada em `/v1`, garante que os templates versionados não carreguem credencial real e avisa se o seu `~/.claude/settings.json` global foi contaminado com um modelo de terceiros.
+
+Para conferir a consistência entre os artigos e o repositório (JSON transcrito, imagens citadas, links e convenção de nomes), rode a partir da raiz:
+
+```bash
+make valida-consistencia
+```
 
 Para entender as regras arquiteturais detalhadas (`ANTHROPIC_AUTH_TOKEN`, desativação do Advisor, por que não usar `[1m]`, e a gestão de estado global da CLI), consulte o [Artigo Completo](./article/ARTICLE.md) e a documentação em [docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md](../docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md).

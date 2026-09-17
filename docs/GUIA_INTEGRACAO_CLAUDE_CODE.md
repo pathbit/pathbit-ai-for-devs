@@ -69,7 +69,7 @@ Quatro regras evitam a maior parte dos problemas ao conectar a CLI a um gateway 
 1. **Credencial em `ANTHROPIC_AUTH_TOKEN`**, não em `ANTHROPIC_API_KEY`. A primeira vai direto para `Authorization: Bearer`; a segunda exige uma aprovação interativa guardada fora do projeto e apagada pelo `/logout`.
 2. **Advisor desligado** com `"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"` no `env`. O advisor é uma *server tool* da API da Anthropic; com gateway, a requisição inteira é rejeitada.
 3. **`modelPicker` só vale em `~/.claude/settings.json`, em settings gerenciadas ou via `claude --settings <arquivo>`.** No `.claude/` do projeto ele é ignorado; os papéis `ANTHROPIC_DEFAULT_*_MODEL` são o que roteia.
-4. **Na primeira execução, ou depois de um `/logout`, inicie com `claude --settings .claude/settings.json`.** O assistente de primeiro uso roda antes de carregar o `settings.json` do projeto e, sem a flag, pede login na Anthropic.
+4. **Na primeira execução, ou depois de um `/logout`, inicie com `claude --settings .claude/settings.local.json`.** O assistente de primeiro uso roda antes de carregar o `settings.json` do projeto e, sem a flag, pede login na Anthropic.
 
 As regras completas, com as evidências e um verificador, estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md). O uso com DeepSeek e OrcaRouter está no artigo [0004](../0004_deep_claude_alternativa_claudegravity/README.md).
 

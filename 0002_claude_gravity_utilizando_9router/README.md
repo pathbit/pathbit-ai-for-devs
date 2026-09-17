@@ -77,7 +77,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 │   ├── README.md                  # Instruções de execução do Claude Code
 │   ├── sample_task.py             # Código de exemplo para testes práticos
 │   └── .claude/
-│       └── settings.json.example  # Modelo de configurações compartilhadas do Claude Code
+│       └── settings.local.json.example  # Modelo de configurações compartilhadas do Claude Code
 └── src/
     ├── claudegravity.py           # Launcher CLI do Claude Code pré-configurado (Python)
     ├── manage_env.py              # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
@@ -156,12 +156,12 @@ Na pasta deste módulo, inicialize as configurações a partir dos modelos `.exa
 ```bash
 cd 0002_claude_gravity_utilizando_9router
 cp .env.example .env
-cp examples/.claude/settings.json.example examples/.claude/settings.json
+cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 ```
 
-> O `settings.json` já vem com a credencial em `ANTHROPIC_AUTH_TOKEN` e o advisor desligado
+> O `settings.local.json` já vem com a credencial em `ANTHROPIC_AUTH_TOKEN` e o advisor desligado
 > (`CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`). Na **primeira execução**, ou depois de um `/logout`, entre em
-> `examples/` e inicie com `claude --settings .claude/settings.json`: a flag aplica o arquivo antes do
+> `examples/` e inicie com `claude --settings .claude/settings.local.json`: a flag aplica o arquivo antes do
 > assistente de primeiro uso, que de outro modo pede login na Anthropic. Nas sessões seguintes basta `claude`.
 
 #### 3. Gerenciamento do Ciclo de Vida do Ambiente (Criar e Destruir)

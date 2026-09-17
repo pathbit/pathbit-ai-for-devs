@@ -35,6 +35,7 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 [📖 Ler Artigo](./0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0003_fallback_modelos_gratuitos_9router/README.md) | [🧪 Exemplos Práticos](./0003_fallback_modelos_gratuitos_9router/examples/README.md)
 
 ---
+
 ### [0004 - DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](./0004_deep_claude_alternativa_claudegravity/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos
@@ -44,7 +45,6 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek** sem depender de
 [📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/README.md)
 
 ---
-
 
 ## 📖 Documentação
 
@@ -60,7 +60,7 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek** sem depender de
 
 - **[Padrões de Engenharia de IA](./docs/PADROES_ENGENHARIA_IA.md)** - Diretrizes de scripts em Python puro, isolamento de segredos e regras editoriais
 - **[Resumo da Organização](./docs/RESUMO_ORGANIZACAO.md)** - Topologia de diretórios, anatomia dos módulos e checklist de publicação
-- **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.json` dos exemplos, estado global da CLI e verificador de consistência
+- **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.local.json` dos exemplos, estado global da CLI e verificador de consistência
 - **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0003 a partir de um ambiente zerado
 
 ### 🔧 Soluções para Problemas Comuns
@@ -142,7 +142,7 @@ XXXX_titulo_do_artigo/
 │   ├── README.md                        # Instruções de execução do Claude Code
 │   ├── sample_task.py                   # Código de exemplo para o agente
 │   └── .claude/
-│       └── settings.json.example        # Políticas de permissão compartilhadas
+│       └── settings.local.json.example        # Políticas de permissão compartilhadas
 └── src/                                 # Scripts executáveis em Python
 ```
 

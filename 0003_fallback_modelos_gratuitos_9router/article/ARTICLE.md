@@ -829,7 +829,7 @@ E o cenário 4 mostra a auto-cura fechando o ciclo, com o caminho da credencial 
 Para que o Claude Code use os modelos do Antigravity como padrão e deixe os combos `arsenal-*` a um `/model` de distância, estruturamos modelos de configuração exclusivamente dentro da pasta de testes do artigo (`examples/.claude/`). Para inicializar suas configurações locais:
 
 ```bash
-cp examples/.claude/settings.json.example examples/.claude/settings.json
+cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 cp .env.example .env
 ```
 
@@ -843,7 +843,7 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 | :--- | :--- | :--- |
 | `INITIAL_PASSWORD` | **Sim** | Senha do painel do 9Router. O `docker compose` recusa subir sem ela. |
 | `JWT_SECRET` | **Sim** | Valor longo e aleatório para assinar as sessões do painel. Gere com `openssl rand -hex 32`. |
-| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `sync_antigravity_token.py` na primeira execução e gravada aqui. No `.env` ela alimenta os scripts Python; no `settings.json` o mesmo valor entra como `ANTHROPIC_AUTH_TOKEN`. |
+| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `sync_antigravity_token.py` na primeira execução e gravada aqui. No `.env` ela alimenta os scripts Python; no `settings.local.json` o mesmo valor entra como `ANTHROPIC_AUTH_TOKEN`. |
 | `MISTRAL_API_KEY` | Sim, para a cascata completa | Console da Mistral. Alimenta o nível 6 do `arsenal-supremo` e o nível 2 do `arsenal-rapido`. |
 | `GROQ_API_KEY` | Sim, para a cascata completa | `console.groq.com/keys`. Alimenta o nível 5 do `arsenal-supremo`. |
 | `OPENROUTER_API_KEY` | Sim, para a cascata completa | `openrouter.ai/settings/keys`, com limite `$0.00`. Alimenta o nível 4. |
@@ -856,25 +856,27 @@ Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e 
 
 ### O arquivo de configuração do Claude Code
 
-Ele fica em `examples/.claude/settings.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
+Ele fica em `examples/.claude/settings.local.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
 
 É a configuração do projeto, compartilhável com o time: modelo padrão, papéis de modelo, `modelPicker`, `modelOverrides`, permissões e variáveis de ambiente.
 
-**Por que não há um `settings.local.json` aqui.** O Claude Code lê também `.claude/settings.local.json`, com precedência sobre o `settings.json`, mas a função dele é guardar o que é específico da sua máquina e não pode ir para o git (uma chave pessoal, um caminho local). Neste artigo não existe nada nessa categoria: tudo o que a configuração precisa está no arquivo único `settings.json`, e a cópia ativa já fica protegida no `.gitignore`. Uma cópia idêntica no arquivo local só criaria dois lugares para manter a mesma coisa. E para ter o menu `/model` customizado honrado pela CLI com substituição total dos modelos da Anthropic, a prática recomendada é iniciar a sessão com `--settings .claude/settings.json`.
+**Por que `settings.local.json` e não `settings.json`.** O Claude Code lê os dois arquivos em um checkout: o `.claude/settings.json` existe para configuração **compartilhada do time**, comitada no repositório, e o `.claude/settings.local.json` para o que é **específico da sua máquina** e não pode ir para o Git — uma chave pessoal, um caminho local. Nossa configuração cai inteiramente na segunda categoria: ela carrega a credencial do gateway. Um `settings.json` commitado redirecionaria o harness de qualquer pessoa que clonasse o repositório para um gateway que ela não tem. Por isso versionamos apenas o template `.example` e deixamos a cópia ativa protegida pelo `.gitignore`.
+
+Uma ressalva que vale para os dois nomes: nenhum deles faz o menu `/model` customizado funcionar. O bloco `modelPicker` não é lido de um checkout de projeto — só de *managed settings*, do arquivo global do usuário ou de um arquivo passado com `--settings`. Por isso a sessão é sempre iniciada com `claude --settings .claude/settings.local.json`.
 
 > [!IMPORTANT]
 > ### Passo Obrigatório: Cópia do Arquivo antes dos Testes
 > Antes de abrir o Claude Code ou rodar qualquer teste:
 > 1. Copie o template para o arquivo ativo:
 >    ```bash
->    cp examples/.claude/settings.json.example examples/.claude/settings.json
+>    cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 >    ```
 > 2. Substitua `sk-sua-chave-do-9router` pelo token real gerado pelo 9Router (o mesmo gravado em `ANTHROPIC_API_KEY` no seu `.env`).
 > 3. Certifique-se de que o container do 9Router está rodando em `http://localhost:20128`.
 
 ### O que fica no estado global do Claude Code (e como não depender dele)
 
-Tudo o que este artigo configura mora em `examples/.claude/settings.json`. Mas o Claude Code guarda **fora do projeto**, em `~/.claude.json`, um estado que nenhuma chave de `settings.json` altera, por desenho:
+Tudo o que este artigo configura mora em `examples/.claude/settings.local.json`. Mas o Claude Code guarda **fora do projeto**, em `~/.claude.json`, um estado que nenhuma chave de `settings.local.json` altera, por desenho:
 
 | O que | Onde fica | O que zera |
 | :--- | :--- | :--- |
@@ -883,7 +885,36 @@ Tudo o que este artigo configura mora em `examples/.claude/settings.json`. Mas o
 | Aprovação de uma `ANTHROPIC_API_KEY` vinda do `env` (pergunta *"Do you want to use this API key?"*) | `~/.claude.json` | `/logout` |
 | Confiança na pasta (*"Do you trust the files in this folder?"*) | `~/.claude.json`, por caminho absoluto | Renomear ou mover a pasta |
 
-Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout` marca o assistente como não concluído e apaga a lista de chaves aprovadas. Foi exatamente isso que produziu o sintoma "entro na pasta e ele fica pedindo login": o assistente reaparece, e **enquanto ele roda, o `settings.json` do projeto ainda não foi carregado**. Medimos com uma configuração global zerada: mesmo com a pasta já confiável e o arquivo completo, o assistente mostrou a tela *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout` marca o assistente como não concluído e apaga a lista de chaves aprovadas. Foi exatamente isso que produziu o sintoma "entro na pasta e ele fica pedindo login": o assistente reaparece, e **enquanto ele roda, o `settings.local.json` do projeto ainda não foi carregado**. Medimos com uma configuração global zerada: mesmo com a pasta já confiável e o arquivo completo, o assistente mostrou a tela *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+
+> [!CAUTION]
+> ### A Terceira Fonte de Estado Global: o Enter no Menu `/model`
+>
+> A tabela acima lista o que o Claude Code guarda em `~/.claude.json`. Falta um item que mora no **outro** arquivo global, o `~/.claude/settings.json`, e que é o mais fácil de acionar sem perceber.
+>
+> Ao abrir o seletor com `/model`, o rodapé oferece duas saídas:
+>
+> ```text
+> Enter to set as default  ·  s to use this session only  ·  Esc to cancel
+> ```
+>
+> O **Enter** — a tecla mais natural — significa *"salvar como padrão para novas sessões"*. Inspecionando o binário da CLI v2.1.274, a função que persiste essa escolha grava no escopo `userSettings` de forma literal, sem alternativa:
+>
+> ```js
+> let i = await pt(en("userSettings", { model: e ?? undefined }, undefined, t), n);
+> ```
+>
+> Ou seja: a escolha vai para a chave `"model"` do seu `~/.claude/settings.json`, **mesmo que a sessão tenha sido aberta com `--settings`**. Um arquivo passado por flag é somente leitura para a CLI, então ela persiste no escopo gravável de sempre. O resultado é que toda nova sessão do Claude Code — em qualquer pasta, inclusive com a sua conta Anthropic — passa a abrir com o modelo do gateway.
+>
+> **A regra:** no menu `/model`, use `s` ou `Esc`. Nunca Enter.
+>
+> Para verificar e limpar, o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) traz um script pronto:
+>
+> ```bash
+> python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+> ```
+>
+> Vale registrar o contraponto: medimos o hash SHA-256 de `~/.claude/settings.json` antes e depois de uma sessão completa aberta com `--settings`, incluindo inferência real, e o valor não mudou. A flag, sozinha, não escreve nada. O vazamento vem exclusivamente do seletor de modelos.
 
 Duas decisões deixam este projeto imune a esse estado:
 
@@ -891,21 +922,21 @@ Duas decisões deixam este projeto imune a esse estado:
 2. **Recomendação Definitiva de Execução: Inicie SEMPRE com `--settings`:**
 
    ```bash
-   claude --settings .claude/settings.json
+   claude --settings .claude/settings.local.json
    ```
 
    A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** de qualquer outro escopo de configuração. 
    
-   Por que recomendamos subir **sempre** com `--settings .claude/settings.json` em todas as sessões:
+   Por que recomendamos subir **sempre** com `--settings .claude/settings.local.json` em todas as sessões:
    * **Isolamento Absoluto:** Impede que o Claude Code herde variáveis, ferramentas antigas ou configurações residuais do arquivo global (`~/.claude/settings.json`).
-   * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos e combos virtuais do 9Router e ocultando os modelos Anthropic.
+   * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.local.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos e combos virtuais do 9Router e ocultando os modelos Anthropic.
    * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, garantindo que o Claude Code nunca caia no assistente de login da nuvem da Anthropic.
 
 O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
 
-> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) certifique-se de que copiou o arquivo a partir do `.example` (`cp examples/.claude/settings.json.example examples/.claude/settings.json`) e preencheu o `ANTHROPIC_AUTH_TOKEN` com a chave do 9Router; (3) inicie a sessão com `claude --settings .claude/settings.json`.
+> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.local.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) certifique-se de que copiou o arquivo a partir do `.example` (`cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json`) e preencheu o `ANTHROPIC_AUTH_TOKEN` com a chave do 9Router; (3) inicie a sessão com `claude --settings .claude/settings.local.json`.
 
-### Estrutura do `settings.json.example`
+### Estrutura do `settings.local.json.example`
 
 ```json
 {
@@ -1052,7 +1083,7 @@ sua rotina despacha subagentes, é o Opus que domina o seu consumo, não o model
 
 ### Três blocos que merecem explicação: `modelPicker`, `behavesAs` e o advisor
 
-Os três estão no `settings.json` acima. Nenhum deles exige um `settings.local.json`; a razão está na seção
+Os três estão no `settings.local.json` acima. Nenhum deles exige um `settings.local.json`; a razão está na seção
 [O arquivo de configuração do Claude Code](#o-arquivo-de-configuração-do-claude-code).
 
 - **`modelPicker`** popula o menu `/model`. Com **`replaceBuiltInOptions` em `true`**, suas entradas

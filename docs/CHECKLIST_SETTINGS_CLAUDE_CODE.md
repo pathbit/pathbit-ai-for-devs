@@ -1,6 +1,6 @@
-# ⚙️ Checklist dos `settings.json` do Claude Code nos Artigos
+# ⚙️ Checklist dos `settings.local.json` do Claude Code nos Artigos
 
-Este documento consolida as regras para os arquivos `examples/.claude/settings.json*` de todos os artigos e o que foi **verificado** para chegar a elas. Cada regra nasceu de um problema real; a coluna "por quê" aponta a evidência. Versão da CLI usada na verificação: **Claude Code 2.1.268** (2026-09-17).
+Este documento consolida as regras para os arquivos `examples/.claude/settings.local.json*` de todos os artigos e o que foi **verificado** para chegar a elas. Cada regra nasceu de um problema real; a coluna "por quê" aponta a evidência. Versão da CLI usada na verificação: **Claude Code 2.1.268** (2026-09-17).
 
 ---
 
@@ -8,9 +8,9 @@ Este documento consolida as regras para os arquivos `examples/.claude/settings.j
 
 | Regra | Por quê |
 | :--- | :--- |
-| Cada artigo versiona apenas `examples/.claude/settings.json.example` (o 0004 tem um `.example` por provedor). A cópia ativa `settings.json` fica no `.gitignore`. | O `settings.local.json` existia como cópia idêntica do `settings.json`; eram dois lugares para manter a mesma coisa. |
+| Cada artigo versiona apenas `examples/.claude/settings.local.json.example` (o 0004 tem um `.example` por provedor). A cópia ativa `settings.local.json` fica no `.gitignore`. | O `settings.local.json` existia como cópia idêntica do `settings.local.json`; eram dois lugares para manter a mesma coisa. |
 | Não crie `settings.local.json.example`. | A função do arquivo local é guardar o que é específico da máquina e não pode ir para o git. Nos artigos não há nada nessa categoria. |
-| O bloco `modelPicker` pode ficar no arquivo, mas **só é honrado** em `~/.claude/settings.json`, em settings gerenciadas ou via `claude --settings <arquivo>`. Em checkout de projeto (`.claude/settings.json` ou `.claude/settings.local.json`) é ignorado. | Descrição do próprio esquema de settings dentro do binário; confirmado nos testes. |
+| O bloco `modelPicker` pode ficar no arquivo, mas **só é honrado** em `~/.claude/settings.json`, em settings gerenciadas ou via `claude --settings <arquivo>`. Em checkout de projeto (`.claude/settings.local.json` ou `.claude/settings.local.json`) é ignorado. | Descrição do próprio esquema de settings dentro do binário; confirmado nos testes. |
 
 ---
 
@@ -38,7 +38,7 @@ Este documento consolida as regras para os arquivos `examples/.claude/settings.j
 
 ## 4. O que é global e não se controla pelo projeto
 
-Fica em `~/.claude.json` e **nenhuma chave de `settings.json` altera**, por desenho:
+Fica em `~/.claude.json` e **nenhuma chave de `settings.local.json` altera**, por desenho:
 
 | Estado | O que zera |
 | :--- | :--- |
@@ -49,9 +49,9 @@ Fica em `~/.claude.json` e **nenhuma chave de `settings.json` altera**, por dese
 
 Fatos verificados com `CLAUDE_CONFIG_DIR` apontando para um diretório vazio:
 
-1. **Durante o assistente, o `settings.json` do projeto ainda não foi carregado.** Mesmo com a pasta já confiável e o arquivo completo, o assistente mostra *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
-2. **`claude --settings .claude/settings.json` aplica o arquivo antes do assistente.** Sequência observada: tema, notas de segurança, confiança na pasta, prompt. Nenhuma tela de login. A flag também faz a CLI honrar o `modelPicker`.
-3. **Depois da primeira execução, `claude` puro na pasta confiável carrega o `settings.json` do projeto** e não pede login (com `ANTHROPIC_AUTH_TOKEN`).
+1. **Durante o assistente, o `settings.local.json` do projeto ainda não foi carregado.** Mesmo com a pasta já confiável e o arquivo completo, o assistente mostra *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+2. **`claude --settings .claude/settings.local.json` aplica o arquivo antes do assistente.** Sequência observada: tema, notas de segurança, confiança na pasta, prompt. Nenhuma tela de login. A flag também faz a CLI honrar o `modelPicker`.
+3. **Depois da primeira execução, `claude` puro na pasta confiável carrega o `settings.local.json` do projeto** e não pede login (com `ANTHROPIC_AUTH_TOKEN`).
 4. Com `ANTHROPIC_API_KEY` não aprovada, pasta confiável e assistente concluído, a pergunta *"Do you want to use this API key?"* reaparece.
 
 ---
@@ -60,7 +60,7 @@ Fatos verificados com `CLAUDE_CONFIG_DIR` apontando para um diretório vazio:
 
 | Regra | Por quê |
 | :--- | :--- |
-| Valide o JSON antes de usar: `python3 -c "import json; json.load(open('.claude/settings.json'))"`. | Uma vírgula sobrando depois da última chave faz a CLI **descartar o arquivo inteiro em silêncio**. Sem ele, some o `ANTHROPIC_BASE_URL` e a CLI cai no fluxo de login da Anthropic. Aconteceu duas vezes durante a revisão. |
+| Valide o JSON antes de usar: `python3 -c "import json; json.load(open('.claude/settings.local.json'))"`. | Uma vírgula sobrando depois da última chave faz a CLI **descartar o arquivo inteiro em silêncio**. Sem ele, some o `ANTHROPIC_BASE_URL` e a CLI cai no fluxo de login da Anthropic. Aconteceu duas vezes durante a revisão. |
 | Não copie o bloco `env` de um artigo para outro sem revisar os modelos. | Um `CLAUDE_CODE_SUBAGENT_MODEL: "deepseek-flash"` colado no exemplo do 9Router aponta para um modelo que aquele gateway não serve. |
 | O bloco JSON dentro do `ARTICLE.md` deve ser **idêntico** ao arquivo `.example`. | O leitor copia de um dos dois; divergência vira bug de reprodução. Há um verificador simples na seção 7. |
 | `modelOverrides` com uma entrada por família (`claude-fable-5-1`, `claude-opus-5`, `claude-sonnet-5`), sem duplicar com o sufixo `[1m]`. | A CLI normaliza o identificador antes de consultar o mapa. |
@@ -72,7 +72,7 @@ Fatos verificados com `CLAUDE_CONFIG_DIR` apontando para um diretório vazio:
 Nesta ordem:
 
 1. **O JSON é válido?** Rode o comando da seção 5. Se falhar, é o arquivo.
-2. **O assistente de primeiro uso está aparecendo** (tela "Choose the text style")? Saia dele com `claude --settings .claude/settings.json`. Depois disso o `claude` puro volta a funcionar.
+2. **O assistente de primeiro uso está aparecendo** (tela "Choose the text style")? Saia dele com `claude --settings .claude/settings.local.json`. Depois disso o `claude` puro volta a funcionar.
 3. **A pasta foi renomeada ou movida?** A confiança é por caminho absoluto; aceite de novo.
 4. **Só então** é credencial: confira `ANTHROPIC_BASE_URL` e `ANTHROPIC_AUTH_TOKEN` no `env`.
 

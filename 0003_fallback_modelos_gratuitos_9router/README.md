@@ -24,7 +24,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 - **Laboratório de Simulação de Falhas:** Script automatizado (`src/simulate_fallback.py`) para validar cenários de erro 429, desautenticação de token (401) e auto-cura em tempo real.
 - **Continuidade Local com Ollama:** o nível final da cascata roda na sua máquina e garante que o gateway sempre devolva resposta, mesmo com todos os provedores em nuvem fora do ar. Testamos o harness do Claude Code com modelos de 0.5B a 7B: todos respondem à API, mas nenhum conduz uma sessão real de trabalho  -  trate o nível local como garantia de continuidade, não como substituto dos níveis em nuvem.
 - **Guardião de Auto-Renovação Contínua:** Container `9RTKSync` (imagem oficial `ghcr.io/pathbit/9rtksync:latest` do projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*), executando com virtual environment dedicado (`/opt/venv`), monitorando o SQLite e mantendo a credencial do Antigravity renovada sem quedas na cascata.
-- **Autonomia Total sem Fricção:** Configurado com `--dangerously-skip-permissions` e `bypassPermissions` no `.claude/settings.json`.
+- **Autonomia Total sem Fricção:** Configurado com `--dangerously-skip-permissions` e `bypassPermissions` no `.claude/settings.local.json`.
 - **Compatibilidade com 9Router e OmniRoute:** Explicação detalhada da resolução de URLs (`http://localhost:20128` vs `http://localhost:20128/v1`) e regras de nomenclatura de combos.
 - **Passo a Passo Visual Completo:** Prints reais de cada portal para obtenção dos tokens gratuitos e da configuração gráfica de provedores e combos no [9Router](https://github.com/decolua/9router).
 - **Scripts em Python Puro:** Provisionamento e testes 100% em Python via virtual environment, compatíveis com qualquer sistema operacional.
@@ -71,7 +71,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 │   ├── README.md                          # Instruções de execução do Claude Code
 │   ├── sample_task.py                     # Código de exemplo para testes práticos
 │   └── .claude/
-│       └── settings.json.example          # Configurações compartilhadas apontando para o combo
+│       └── settings.local.json.example          # Configurações compartilhadas apontando para o combo
 └── src/
     ├── arsenal_launcher.py                # Launcher CLI para iniciar o Claude Code conectado ao combo
     ├── manage_env.py                      # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
@@ -158,7 +158,7 @@ Na pasta deste módulo, inicialize as configurações e chaves a partir dos arqu
 ```bash
 cd 0003_fallback_modelos_gratuitos_9router
 cp .env.example .env
-cp examples/.claude/settings.json.example examples/.claude/settings.json
+cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 ```
 
 Edite o arquivo `.env` para inserir suas chaves caso deseje personalizá-las.
