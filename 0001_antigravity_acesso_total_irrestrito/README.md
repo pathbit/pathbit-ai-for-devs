@@ -52,9 +52,7 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 │   └── 02_diagrama_mapa_caminhos_sistemas.png # Mapa de caminhos por sistema operacional
 ├── examples/                              # Espaço isolado de testes e tarefas práticas
 │   ├── README.md                          # Instruções de uso do ambiente isolado
-│   ├── sample_task.py                     # Script de exemplo para testes agênticos
-│   └── .claude/
-│       └── settings.json.example          # Modelo de configuração bypass
+│   └── sample_task.py                     # Script de exemplo para testes agênticos
 └── src/                                   # Ferramentas de engenharia 100% em Python
     ├── setup_permissions.py               # Aplicador multiplataforma de permissões com backup
     ├── verify_permissions.py              # Diagnóstico automatizado de integridade

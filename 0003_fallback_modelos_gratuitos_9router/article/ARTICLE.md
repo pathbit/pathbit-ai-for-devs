@@ -1207,6 +1207,8 @@ Para aprofundar na infraestrutura de permissões irrestritas do Google Antigravi
 
 Para aprofundar na configuração específica do Google Antigravity e na engenharia de tradução de chamadas do Claude Code, acesse o [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md).
 
+Para operar o mesmo harness sem Antigravity e sem gateway, apontando o Claude Code direto para a API da DeepSeek ou para o OrcaRouter, acesse o [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md). Os combos deste artigo continuam valendo lá: o 9Router também serve o DeepSeek como mais um provedor da cascata.
+
 **Onde a cascata deste artigo encontra o seu limite.** Tudo o que foi montado aqui responde à pergunta "de onde sai o próximo token quando esta conta acabar". Nenhuma linha responde a outra, que aparece assim que mais de uma pessoa usa a mesma montagem: *quem* consumiu o quê, e como impedir que uma pessoa sozinha esgote a cota do time antes do almoço. O 9Router escolhe a conta; ele não reparte a cota entre pessoas.
 
 Quem precisa disso põe um segundo proxy na frente — o LiteLLM trata o 9Router como se fosse um provedor comum, porque a API dele é compatível com OpenAI, e acrescenta por cima chave virtual por pessoa, orçamento por chave e teto de requisições por minuto. A cascata continua igual, embaixo; o que muda é que passa a existir um lugar onde se responde "quem paga a conta". O passo a passo está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).

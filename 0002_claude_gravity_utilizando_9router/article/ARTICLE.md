@@ -1344,6 +1344,11 @@ O mesmo raciocínio vale para o futuro. Quando surgir um motor novo, o caminho �
 no gateway, um identificador na configuração, e o `behavesAs` dizendo à CLI de qual modelo conhecido
 ele tem porte. O harness continua sem saber, e sem precisar saber.
 
+E o gateway nem é obrigatório. Quando o provedor já fala a Messages API, como a DeepSeek em
+`api.deepseek.com/anthropic` ou o OrcaRouter, basta apontar `ANTHROPIC_BASE_URL` para ele. O
+[Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) faz exatamente isso,
+sem nenhum container no meio.
+
 ---
 
 ## O Advisor e Ferramentas Experimentais
@@ -1464,11 +1469,11 @@ Para posicionar claramente o valor de engenharia do ClaudeGravity em relação �
 | Recurso | Claude Code Nativo | DeepClaude | ClaudeGravity (Este Artigo) |
 | :--- | :--- | :--- | :--- |
 | **Harness CLI** | Claude Code | Claude Code | **Claude Code** |
-| **Modelo Principal** | A geração corrente da Anthropic  -  na CLI 2.1.270 desta máquina (medição de 13 de setembro de 2026), o seletor oferece Fable 5.1, Opus 5, Sonnet 5 e Haiku 4.5 (veja a Figura 10a) | DeepSeek R1 / V3 | **Gemini 3.8 Flash (High Reasoning)** |
+| **Modelo Principal** | A geração corrente da Anthropic  -  na CLI 2.1.270 desta máquina (medição de 13 de setembro de 2026), o seletor oferece Fable 5.1, Opus 5, Sonnet 5 e Haiku 4.5 (veja a Figura 10a) | DeepSeek V4 Pro e V4.1 Flash (o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) monta essa variante) | **Gemini 3.8 Flash (High Reasoning)** |
 | **Modelos Auxiliares** | Os demais papéis da mesma família | Nenhum | **Gemini 3.7, 3.6, 3.1 Pro, GPT-OSS 120B** |
-| **Janela de Contexto** | [A VERIFICAR: leia a janela vigente na página de modelos da Anthropic e cite URL + data de leitura. Ela muda a cada geração, e o sufixo de janela no identificador (visto em `claude-opus-5[1m]`) indica variante estendida] | 64k a 128k tokens | **1.000.000 tokens (1M)** |
-| **Custo de Inferência** | Faturado por token, ou incluído numa assinatura Pro/Max [A VERIFICAR: preço por 1M na página de preços da Anthropic, com data de leitura] | API DeepSeek ou Router [A VERIFICAR: preço vigente] | **$0 extra** (incluído na conta Google AI Pro) |
-| **Dependência de API Paga** | Sim (Anthropic Console) | Sim (DeepSeek API Key) | **Não** (Gateway via OAuth Antigravity) |
+| **Janela de Contexto** | [A VERIFICAR: leia a janela vigente na página de modelos da Anthropic e cite URL + data de leitura. Ela muda a cada geração, e o sufixo de janela no identificador (visto em `claude-opus-5[1m]`) indica variante estendida] | 1.000.000 tokens (1M), saída até 384K (página de modelos da DeepSeek, lida em 17 de setembro de 2026) | **1.000.000 tokens (1M)** |
+| **Custo de Inferência** | Faturado por token, ou incluído numa assinatura Pro/Max [A VERIFICAR: preço por 1M na página de preços da Anthropic, com data de leitura] | Por token na API da DeepSeek: V4.1 Flash a $0,15 de entrada e $0,60 de saída por 1M, V4 Pro a $0,66 e $1,98 (tarifa fora de pico, lida em 17 de setembro de 2026); ou DeepSeek V4 Flash gratuito no OrcaRouter, com as condições do Artigo 0004 | **$0 extra** (incluído na conta Google AI Pro) |
+| **Dependência de API Paga** | Sim (Anthropic Console) | Sim na plataforma da DeepSeek; não no nível gratuito do OrcaRouter | **Não** (Gateway via OAuth Antigravity) |
 | **Token Saver de Ferramentas**| Não | Depende do proxy | **Sim (RTK Token Saver nativo, ativo por padrão)** |
 | **Multi-Conta & Fallback** | Manual | Manual | **Automático (Round-Robin no 9Router)** |
 | **Renovação de Credenciais** | Manual (API Key estática) | Manual | **Automática via OAuth em segundo plano** |
@@ -2018,8 +2023,9 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 1. **Configure Combos de Fallback no 9Router:** Crie um combo no dashboard que tente primeiro o `ag/gemini-3.8-flash-high` e, caso o rate limit por minuto da Google seja atingido em tarefas brutas, comute automaticamente para `ag/gemini-3.7-flash-high` e `ag/gemini-3.6-flash-high`.
 2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
-4. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
-5. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
+4. **Troque o motor sem gateway:** no [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o mesmo `settings.json` aponta o harness direto para a API da DeepSeek ou para o OrcaRouter, sem Antigravity e sem container.
+5. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
+6. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
 
    Dois avisos que economizam uma tarde. Primeiro: o `api_base` precisa terminar em `/v1`. O LiteLLM concatena `/chat/completions` ao que você der, e sem o `/v1` a requisição vai para um caminho que o gateway não conhece — o 404 volta embrulhado como "erro do provedor", e você vai procurar defeito na credencial. Segundo: se os dois rodam em contêiner, eles precisam compartilhar uma rede. Se cada stack está isolada na sua própria — o que é a configuração correta, para um painel não conversar com o gateway errado —, o LiteLLM não resolve nem o nome do 9Router, e o sintoma é um erro de conexão que parece indisponibilidade.
 

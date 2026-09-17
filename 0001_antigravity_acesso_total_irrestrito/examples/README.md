@@ -2,40 +2,31 @@
 
 Este diretório funciona como o espaço isolado de testes e validação prática do **Google Antigravity** e de agentes autônomos para o Artigo 0001.
 
-As configurações de permissão ficam isoladas dentro de `.claude/` neste diretório, mantendo a raiz do módulo e do repositório completamente limpas.
-
 ---
 
 ## Como Executar os Testes neste Diretório
 
-### 1. Inicializar as Configurações
+### 1. Executar a Tarefa de Exemplo com o Script de Teste
 
-Gere os arquivos ativos a partir dos modelos `.example`:
-
-> Nesse modo o agente recebe a mesma autoridade de terminal que você. Use somente dentro desta
-> pasta de testes ou em ambiente isolado, e leia a seção de Gestão de Risco do artigo.
-
-```bash
-cp .claude/settings.json.example .claude/settings.json
-```
-
-### 2. Executar a Tarefa de Exemplo com o Agente
-
-Inicie a sessão com o script de teste para verificar a autonomia de leitura e escrita:
+Execute o script de teste para verificar a autonomia de geração de relatórios e manipulação de arquivos:
 
 ```bash
 python3 sample_task.py
 ```
 
-Ou acione o agente CLI com permissão irrestrita:
+### 2. Executar o Agente Antigravity com Autonomia Total
+
+Acione o agente CLI do Antigravity com permissão irrestrita no ambiente de desenvolvimento:
 
 ```bash
 agy --dangerously-skip-permissions
 ```
 
+> Nesse modo o agente recebe autoridade de terminal para execução ágil de ferramentas. Use em diretórios de trabalho isolados e leia a seção de Gestão de Risco do artigo.
+
 ---
 
 ## Arquivos Disponíveis
 
-* **`.claude/`:** Contém o modelo de política de permissão total (`bypassPermissions`) para testes.
-* **`sample_task.py`:** Código Python demonstrando manipulação autônoma de arquivos e geração de relatórios sem interrupções manuais.
+* **`sample_task.py`:** Código Python demonstrando geração de artefatos de telemetria e operação autônoma sem interrupções manuais.
+* Se você deseja integrar essa autonomia de execução com o **Claude Code CLI**, consulte o [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), onde o harness da Anthropic é configurado com políticas de permissão e roteamento via 9Router.

@@ -35,13 +35,13 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 [📖 Ler Artigo](./0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0003_fallback_modelos_gratuitos_9router/README.md) | [🧪 Exemplos Práticos](./0003_fallback_modelos_gratuitos_9router/examples/README.md)
 
 ---
-### [0004 - DeepSeek como Alternativa ao ClaudeGravity: DeepSeek Platform e OrcaRouter no Claude Code](./0004_deep_claude_alternativa_claudegravity/)
+### [0004 - DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](./0004_deep_claude_alternativa_claudegravity/)
 
-**Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos | **Status:** em elaboração
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos
 
-Conecta o Claude Code aos modelos **DeepSeek** sem depender do Antigravity: pela plataforma oficial (`api.deepseek.com/anthropic`) ou pelo **OrcaRouter**, que serve o DeepSeek V4 Flash gratuitamente na data da escrita. Os arquivos de configuração já estão validados; o texto do artigo está em rascunho.
+Opera o **Claude Code CLI** diretamente com modelos **DeepSeek** sem depender de gateways locais ou assinaturas do Google Antigravity: pela plataforma oficial (**DeepSeek Platform**, com preços mínimos por milhão de tokens) ou pelo **OrcaRouter** (com o modelo `deepseek/deepseek-v4-flash-free` gratuito e janela de 1M de contexto). Desmistifica a hierarquia de configurações (`settings.json` vs `settings.local.json`), explica por que não usar o sufixo `[1m]`, blinda a CLI contra o estado global via `ANTHROPIC_AUTH_TOKEN` e documenta por que o Advisor experimental deve permanecer 100% desativado. Inclui 27 capturas de tela passo a passo cobrindo desde o cadastro até a operação interativa no terminal.
 
-[📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/)
+[📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/README.md)
 
 ---
 

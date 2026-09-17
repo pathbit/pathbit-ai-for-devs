@@ -17,7 +17,7 @@
         "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME": "DeepSeek V4 Flash FREE (Haiku)",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION": "OrcaRouter Free: respostas rapidas",
         "ANTHROPIC_MODEL": "deepseek/deepseek-v4-flash-free",
-        "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-flash",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek/deepseek-v4-flash-free",
         "CLAUDE_CODE_EFFORT_LEVEL": "max",
         "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432",
         "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
@@ -53,7 +53,7 @@
         ]
     },
     "modelOverrides": {
-        "claude-fable-5-1": "deepseek-v4-pro[1m]",        
+        "claude-fable-5-1": "deepseek/deepseek-v4-flash-free",
         "claude-opus-5": "deepseek/deepseek-v4-flash-free",
         "claude-sonnet-5": "deepseek/deepseek-v4-flash-free"
     }

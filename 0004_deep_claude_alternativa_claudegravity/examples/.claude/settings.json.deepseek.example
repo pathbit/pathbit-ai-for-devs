@@ -59,7 +59,7 @@
         ]
     },
     "modelOverrides": {
-        "claude-fable-5-1": "deepseek-v4-pro[1m]",        
+        "claude-fable-5-1": "deepseek-v4-pro",
         "claude-opus-5": "deepseek-v4-pro",
         "claude-sonnet-5": "deepseek-flash"
     }

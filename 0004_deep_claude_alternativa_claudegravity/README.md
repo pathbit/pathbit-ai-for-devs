@@ -2,18 +2,22 @@
 
 ## 0004_deep_claude_alternativa_claudegravity
 
-**Ano:** 2026
-**ID do Artigo:** 0004
-**Autor:** Eliel Sousa
-**Categoria:** Engenharia de IA / Claude Code / Provedores Alternativos
-
-> **Status:** artigo em elaboração. Os arquivos de configuração em `examples/.claude/` já estão validados e são a referência; o texto do `article/ARTICLE.md` ainda está em rascunho.
+**Ano:** 2026  
+**ID do Artigo:** 0004  
+**Título:** DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code  
+**Autor:** Eliel Sousa  
+**Categoria:** Engenharia de IA / Claude Code / Provedores Alternativos  
+**Status:** Publicado / Validado  
 
 ---
 
 ### Resumo
 
-Usa o **Claude Code** com modelos **DeepSeek** por dois caminhos que expõem a API no formato Anthropic Messages: a plataforma oficial da DeepSeek (`https://api.deepseek.com/anthropic`, paga por uso) e o **OrcaRouter** (`https://api.orcarouter.ai`, com o `deepseek/deepseek-v4-flash-free` gratuito na data da escrita). É a alternativa ao ClaudeGravity do [Artigo 0002](../0002_claude_gravity_utilizando_9router/) para quem não tem o Antigravity, e funciona também atrás do 9Router.
+Opera o **Claude Code CLI** diretamente com os modelos da família **DeepSeek** por dois caminhos complementares e compatíveis com a especificação Anthropic Messages API:
+1. **DeepSeek Platform Direto (`https://api.deepseek.com/anthropic`):** API oficial paga por uso, com preços imbatíveis por milhão de tokens e modelos de alto raciocínio (`deepseek-v4-pro` e `deepseek-flash`).
+2. **OrcaRouter (`https://api.orcarouter.ai`):** Gateway agregador que disponibiliza o modelo `deepseek/deepseek-v4-flash-free` com janela de 1 milhão de tokens a custo zero na data de publicação deste artigo.
+
+Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_claude_gravity_utilizando_9router/) para desenvolvedores que não possuem acesso ao Google Antigravity, funcionando também integrado à cascata de fallback do 9Router apresentada no [Artigo 0003](../0003_fallback_modelos_gratuitos_9router/).
 
 ---
 
@@ -21,18 +25,18 @@ Usa o **Claude Code** com modelos **DeepSeek** por dois caminhos que expõem a A
 
 ```text
 0004_deep_claude_alternativa_claudegravity/
-├── README.md
+├── README.md                                  # Este documento
 ├── article/
-│   └── ARTICLE.md
-├── assets/
+│   └── ARTICLE.md                             # Artigo completo com 27 prints e análise técnica
+├── assets/                                    # 27 prints sequenciais de provisionamento e CLI
 └── examples/
-    ├── README.md
+    ├── README.md                              # Instruções de execução prática
     └── .claude/
-        ├── settings.json.deepseek.example     # DeepSeek Platform (pago por uso)
-        └── settings.json.orcarouter.example   # OrcaRouter (DeepSeek Flash gratuito)
+        ├── settings.json.deepseek.example     # DeepSeek Platform Oficial (pago por uso)
+        └── settings.json.orcarouter.example   # OrcaRouter (DeepSeek V4 Flash gratuito)
 ```
 
-A cópia ativa `examples/.claude/settings.json` fica fora do controle de versão.
+A cópia ativa `examples/.claude/settings.json` fica fora do controle de versão (`.gitignore`).
 
 ---
 
@@ -46,18 +50,23 @@ A cópia ativa `examples/.claude/settings.json` fica fora do controle de versão
    cp .claude/settings.json.deepseek.example .claude/settings.json     # ou settings.json.orcarouter.example
    ```
 
-   No arquivo, troque o valor de `ANTHROPIC_AUTH_TOKEN` pela sua chave.
-3. Na primeira execução, ou depois de um `/logout`, inicie com o arquivo aplicado antes do assistente de primeiro uso:
+   No arquivo, substitua o valor de `ANTHROPIC_AUTH_TOKEN` pelo seu token `sk-...`.
+3. Valide a integridade do JSON:
+
+   ```bash
+   python3 -c "import json; json.load(open('.claude/settings.json'))"
+   ```
+4. Na primeira execução, ou depois de um `/logout`, inicie a sessão aplicando o arquivo antes do assistente:
 
    ```bash
    claude --settings .claude/settings.json
    ```
 
-   Depois disso, `claude` puro nesta pasta carrega o `settings.json` em toda sessão.
-4. Teste sem abrir a interface:
+   Após essa primeira execução com sucesso, sessões futuras nesta pasta podem ser iniciadas diretamente com `claude`.
+5. Teste rápido de inferência no terminal:
 
    ```bash
    claude -p "Responda somente OK" --max-turns 1
    ```
 
-As regras por trás desses arquivos (`ANTHROPIC_AUTH_TOKEN`, advisor desligado, estado global da CLI) estão em [docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md](../docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md).
+Para entender as regras arquiteturais detalhadas (`ANTHROPIC_AUTH_TOKEN`, desativação do Advisor, por que não usar `[1m]`, e a gestão de estado global da CLI), consulte o [Artigo Completo](./article/ARTICLE.md) e a documentação em [docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md](../docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md).

@@ -283,9 +283,9 @@ Para eliminar qualquer bloqueio de segurança em árvores de diretórios, declar
 
 ---
 
-### 6. Configuração de Sandbox para Projetos de Pareamento (`settings.json.example`)
+### 6. Política de Permissões para Pareamento Agêntico com Claude Code
 
-Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento agêntico, o projeto deve conter na pasta isolada `examples/.claude/` o arquivo `settings.json.example`. Esse arquivo define as permissões completas de execução para o harness da Anthropic sem exigir aprovações manuais:
+Se além do Antigravity você também opera o **Claude Code CLI** para tarefas de pareamento agêntico, a mesma política de permissões irrestritas pode ser declarada no arquivo de configuração do harness. Esse modelo concede execução direta sem interrupções manuais:
 
 ```json
 {
