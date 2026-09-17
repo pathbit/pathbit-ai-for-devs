@@ -55,6 +55,18 @@
                 "label": "DeepSeek V4 PRO (Opus)",
                 "description": "Primario: raciocinio alto, 1M de contexto",
                 "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek-v4-pro",
+                "label": "DeepSeek V4 PRO (Fable)",
+                "description": "Tarefas longas e raciocinio profundo",
+                "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek-flash",
+                "label": "DeepSeek Flash (Haiku)",
+                "description": "Latencia minima e respostas rapidas",
+                "behavesAs": "claude-haiku-4-5-20251001"
             }
         ]
     },

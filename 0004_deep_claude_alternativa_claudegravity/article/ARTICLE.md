@@ -314,6 +314,18 @@ Abaixo transcrevemos integralmente os dois modelos de configuração que você e
                 "label": "DeepSeek V4 PRO (Opus)",
                 "description": "Primario: raciocinio alto, 1M de contexto",
                 "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek-v4-pro",
+                "label": "DeepSeek V4 PRO (Fable)",
+                "description": "Tarefas longas e raciocinio profundo",
+                "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek-flash",
+                "label": "DeepSeek Flash (Haiku)",
+                "description": "Latencia minima e respostas rapidas",
+                "behavesAs": "claude-haiku-4-5-20251001"
             }
         ]
     },
@@ -377,8 +389,26 @@ Abaixo transcrevemos integralmente os dois modelos de configuração que você e
             {
                 "model": "deepseek/deepseek-v4-flash-free",
                 "label": "DeepSeek V4 Flash FREE (Sonnet)",
-                "description": "Gratuito no OrcaRouter: alta velocidade e 1M de contexto",
+                "description": "OrcaRouter Free: trabalho corrente e 1M de contexto",
                 "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek/deepseek-v4-flash-free",
+                "label": "DeepSeek V4 Flash FREE (Opus)",
+                "description": "OrcaRouter Free: raciocinio primario",
+                "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek/deepseek-v4-flash-free",
+                "label": "DeepSeek V4 Flash FREE (Fable)",
+                "description": "OrcaRouter Free: tarefas analiticas e longas",
+                "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek/deepseek-v4-flash-free",
+                "label": "DeepSeek V4 Flash FREE (Haiku)",
+                "description": "OrcaRouter Free: latencia minima e respostas rapidas",
+                "behavesAs": "claude-haiku-4-5-20251001"
             }
         ]
     },
