@@ -33,20 +33,15 @@ cd examples
 > Sem este passo o gateway não conhece nenhum identificador `ag/*`, e a primeira mensagem falha.
 > O `claudegravity.py` resolve credencial e combos de uma vez, por isso é o caminho recomendado.
 
-### 3. Iniciar o Claude Code
+### 3. Iniciar o Claude Code (Recomendado: Sempre com `--settings`)
 
-Com o container do 9Router em execução na porta `20128` e os combos provisionados, na primeira
-execução (ou depois de um `/logout`) aplique o arquivo antes do assistente de primeiro uso:
+Com o container do 9Router em execução na porta `20128` e os combos provisionados, inicie o Claude Code aplicando explicitamente o arquivo de configuração:
 
 ```bash
 claude --settings .claude/settings.json
 ```
 
-Nas sessões seguintes basta:
-
-```bash
-claude
-```
+> **Por que usar `--settings` sempre?** No binário da CLI do Claude Code (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `--settings .claude/settings.json`, a CLI honra o menu customizado com `replaceBuiltInOptions: true` (ocultando os modelos Anthropic) e evita que configurações residuais de `~/.claude/settings.json` interfiram na sessão.
 
 Ou execute uma instrução direta no terminal:
 

@@ -27,8 +27,8 @@ Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_cla
 0004_deep_claude_alternativa_claudegravity/
 ├── README.md                                  # Este documento
 ├── article/
-│   └── ARTICLE.md                             # Artigo completo com 27 prints e análise técnica
-├── assets/                                    # 27 prints sequenciais de provisionamento e CLI
+│   └── ARTICLE.md                             # Artigo completo com 42 prints e análise técnica
+├── assets/                                    # 41 arquivos de evidência visual sequenciada (01 a 42)
 └── examples/
     ├── README.md                              # Instruções de execução prática
     └── .claude/
@@ -42,27 +42,32 @@ A cópia ativa `examples/.claude/settings.json` fica fora do controle de versão
 
 ### Roteiro Prático de Reprodução
 
-1. Crie a conta e gere a chave em uma das plataformas: [DeepSeek Platform](https://platform.deepseek.com/sign_in) ou [OrcaRouter](https://www.orcarouter.ai/login).
-2. Escolha o exemplo correspondente e substitua o placeholder da chave:
+1. Crie a conta e gere a chave em uma das plataformas: [DeepSeek Platform](https://platform.deepseek.com/sign_in) ou [OrcaRouter](https://www.orcarouter.ai/login). Opcionalmente valide o modelo gratuito no [OrcaRouter Playground](https://www.orcarouter.ai/pt/playground?model=deepseek%2Fdeepseek-v4-flash-free).
+2. Escolha o template desejado e gere o arquivo ativo `.claude/settings.json` ANTES de iniciar os testes:
 
    ```bash
    cd 0004_deep_claude_alternativa_claudegravity/examples
-   cp .claude/settings.json.deepseek.example .claude/settings.json     # ou settings.json.orcarouter.example
+
+   # Opção A: DeepSeek Platform oficial
+   cp .claude/settings.json.deepseek.example .claude/settings.json
+
+   # Opção B: OrcaRouter gratuito
+   # cp .claude/settings.json.orcarouter.example .claude/settings.json
    ```
 
-   No arquivo, substitua o valor de `ANTHROPIC_AUTH_TOKEN` pelo seu token `sk-...`.
+   No arquivo gerado, preencha o valor de `ANTHROPIC_AUTH_TOKEN` com o seu token real `sk-...`.
 3. Valide a integridade do JSON:
 
    ```bash
    python3 -c "import json; json.load(open('.claude/settings.json'))"
    ```
-4. Na primeira execução, ou depois de um `/logout`, inicie a sessão aplicando o arquivo antes do assistente:
+4. Inicie a sessão aplicando o arquivo com a flag `--settings`:
 
    ```bash
    claude --settings .claude/settings.json
    ```
 
-   Após essa primeira execução com sucesso, sessões futuras nesta pasta podem ser iniciadas diretamente com `claude`.
+   *Recomendação de Ouro:* Inicie **sempre** com `--settings .claude/settings.json`. Isso blinda a execução contra configurações residuais do arquivo de usuário global (`~/.claude/settings.json`), garante que o `modelPicker` substitua os modelos Anthropic no menu `/model` e evita assistentes de login.
 5. Teste rápido de inferência no terminal:
 
    ```bash

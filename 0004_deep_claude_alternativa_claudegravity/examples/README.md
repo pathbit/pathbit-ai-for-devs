@@ -24,13 +24,13 @@ Troque o valor de `ANTHROPIC_AUTH_TOKEN` pela sua chave. Valide o JSON antes de 
 python3 -c "import json; json.load(open('.claude/settings.json'))"
 ```
 
-### 2. Primeira Execução
+### 2. Execução (Recomendado: Sempre com `--settings`)
 
 ```bash
 claude --settings .claude/settings.json
 ```
 
-A flag aplica o arquivo antes do assistente de primeiro uso, que de outro modo pediria login na Anthropic. Nas sessões seguintes basta `claude`.
+> **Por que usar `--settings` sempre?** No binário da CLI do Claude Code (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `--settings .claude/settings.json`, a CLI honra o menu customizado com `replaceBuiltInOptions: true` (ocultando os modelos Anthropic) e evita que configurações residuais de `~/.claude/settings.json` interfiram na sessão.
 
 ### 3. Teste Rápido
 

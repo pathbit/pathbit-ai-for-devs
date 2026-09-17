@@ -860,7 +860,17 @@ Ele fica em `examples/.claude/settings.json`, isolado do restante do repositóri
 
 É a configuração do projeto, compartilhável com o time: modelo padrão, papéis de modelo, `modelPicker`, `modelOverrides`, permissões e variáveis de ambiente.
 
-**Por que não há um `settings.local.json` aqui.** O Claude Code lê também `.claude/settings.local.json`, com precedência sobre o `settings.json`, mas a função dele é guardar o que é específico da sua máquina e não pode ir para o git (uma chave pessoal, um caminho local). Neste artigo não existe nada nessa categoria: tudo o que a configuração precisa está no arquivo único acima, e a cópia ativa já fica fora do controle de versão. Uma cópia idêntica no arquivo local só criaria dois lugares para manter a mesma coisa. E o bloco `modelPicker` não seria motivo para tê-lo: a CLI só honra esse bloco em `~/.claude/settings.json`, em settings gerenciadas ou via `--settings`; em um checkout de projeto ele é ignorado tanto no `settings.json` quanto no `settings.local.json`. Para ter o menu `/model` customizado, copie o bloco `modelPicker` para o arquivo de usuário.
+**Por que não há um `settings.local.json` aqui.** O Claude Code lê também `.claude/settings.local.json`, com precedência sobre o `settings.json`, mas a função dele é guardar o que é específico da sua máquina e não pode ir para o git (uma chave pessoal, um caminho local). Neste artigo não existe nada nessa categoria: tudo o que a configuração precisa está no arquivo único `settings.json`, e a cópia ativa já fica protegida no `.gitignore`. Uma cópia idêntica no arquivo local só criaria dois lugares para manter a mesma coisa. E para ter o menu `/model` customizado honrado pela CLI com substituição total dos modelos da Anthropic, a prática recomendada é iniciar a sessão com `--settings .claude/settings.json`.
+
+> [!IMPORTANT]
+> ### Passo Obrigatório: Cópia do Arquivo antes dos Testes
+> Antes de abrir o Claude Code ou rodar qualquer teste:
+> 1. Copie o template para o arquivo ativo:
+>    ```bash
+>    cp examples/.claude/settings.json.example examples/.claude/settings.json
+>    ```
+> 2. Substitua `sk-sua-chave-do-9router` pelo token real gerado pelo 9Router (o mesmo gravado em `ANTHROPIC_API_KEY` no seu `.env`).
+> 3. Certifique-se de que o container do 9Router está rodando em `http://localhost:20128`.
 
 ### O que fica no estado global do Claude Code (e como não depender dele)
 
@@ -878,17 +888,22 @@ Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout`
 Duas decisões deixam este projeto imune a esse estado:
 
 1. **`ANTHROPIC_AUTH_TOKEN` no lugar de `ANTHROPIC_API_KEY`.** As duas autenticam no 9Router (o middleware lê `Authorization: Bearer` antes de `x-api-key`); a diferença é o que a CLI faz com cada uma. `ANTHROPIC_API_KEY` exige uma aprovação interativa única, guardada em `~/.claude.json` e apagada pelo `/logout` (medimos: com a chave não aprovada, pasta confiável e assistente concluído, a pergunta reaparece). `ANTHROPIC_AUTH_TOKEN` vai direto para o cabeçalho `Authorization: Bearer`, sem aprovação nem estado global. É [documentada](https://code.claude.com/docs/en/env-vars) para exatamente isso. Confirmamos que o 9Router lê esse cabeçalho.
-2. **Na primeira execução, ou depois de um `/logout`, inicie com `--settings`:**
+2. **Recomendação Definitiva de Execução: Inicie SEMPRE com `--settings`:**
 
    ```bash
    claude --settings .claude/settings.json
    ```
 
-   A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** do assistente. Medimos com configuração global zerada: a sequência foi tema, notas de segurança, confiança na pasta e o prompt, sem nenhuma tela de login. Depois disso a pasta fica confiável, e o `claude` puro passa a carregar o `settings.json` do projeto em toda sessão. Um efeito colateral bem-vindo: com `--settings`, a CLI também honra o bloco `modelPicker`, que ela ignora quando vem do checkout do projeto.
+   A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** de qualquer outro escopo de configuração. 
+   
+   Por que recomendamos subir **sempre** com `--settings .claude/settings.json` em todas as sessões:
+   * **Isolamento Absoluto:** Impede que o Claude Code herde variáveis, ferramentas antigas ou configurações residuais do arquivo global (`~/.claude/settings.json`).
+   * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos e combos virtuais do 9Router e ocultando os modelos Anthropic.
+   * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, garantindo que o Claude Code nunca caia no assistente de login da nuvem da Anthropic.
 
 O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
 
-> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) o assistente de primeiro uso está aparecendo? Saia dele com `claude --settings .claude/settings.json`; (3) a pasta foi renomeada? Aceite a confiança de novo.
+> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) certifique-se de que copiou o arquivo a partir do `.example` (`cp examples/.claude/settings.json.example examples/.claude/settings.json`) e preencheu o `ANTHROPIC_AUTH_TOKEN` com a chave do 9Router; (3) inicie a sessão com `claude --settings .claude/settings.json`.
 
 ### Estrutura do `settings.json.example`
 

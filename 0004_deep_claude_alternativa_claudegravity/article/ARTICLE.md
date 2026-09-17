@@ -1,6 +1,6 @@
 # DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code
 
-![Capa do Artigo - DeepClaude com DeepSeek e OrcaRouter](../assets/24_claude_code_cli_view.png)
+![Capa do Artigo - DeepClaude com DeepSeek e OrcaRouter](../assets/31_claude_code_cli_view.png)
 
 Nos artigos anteriores desta série, exploramos duas frentes essenciais da engenharia de IA moderna para desenvolvedores: primeiro, destravamos a autonomia total do motor **Agent 2.0** no [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md); em seguida, construímos o **ClaudeGravity** no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) e a malha de resiliência multi-provedores com combos de fallback no [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md). Nesses cenários, conectamos o **Claude Code CLI** à infraestrutura de ponta do **Google Antigravity** via gateway **9Router**, aproveitando a assinatura Google AI Pro sem custos adicionais de tokens.
 
@@ -152,51 +152,81 @@ Filtre os modelos disponíveis para localizar as variantes gratuitas com o rótu
 
 > **Figura 14:** Filtro de modelos, destacando o `deepseek/deepseek-v4-flash-free` com janela massiva de contexto.
 
-### 3. Geração do Token de API no OrcaRouter
+### 3. Conexão e Autenticação com GitHub no OrcaRouter
+
+Para liberar as funcionalidades completas e a geração de chaves de API, o OrcaRouter solicita a vinculação segura com a sua conta do GitHub:
+
+![Autorização de Acesso via GitHub](../assets/16_orcarouter_github_access.png)
+
+> **Figura 15:** Tela de autorização OAuth para conectar a conta GitHub ao OrcaRouter.
+
+Após autorizar o aplicativo, sua conta fica imediatamente associada ao painel do OrcaRouter:
+
+![Conta GitHub Vinculada](../assets/17_orcarouter_github_linked.png)
+
+> **Figura 16:** Confirmação da integração do GitHub no painel do usuário.
+
+### 4. Geração do Token de API no OrcaRouter
 
 No menu lateral, selecione **API Keys** e clique em **Create Key**:
 
-![Seção de Tokens do OrcaRouter](../assets/16_orcarouter_apikey_token.png)
+![Seção de Tokens do OrcaRouter](../assets/18_orcarouter_apikey_token.png)
 
-> **Figura 15:** Painel de criação e gerenciamento de tokens de acesso.
+> **Figura 17:** Painel de criação e gerenciamento de tokens de acesso no OrcaRouter.
 
-O OrcaRouter permite vincular a chave a modelos específicos ou deixá-la irrestrita. Para garantir foco no modelo gratuito, você pode selecionar `deepseek/deepseek-v4-flash-free`:
+O OrcaRouter permite vincular a chave a modelos específicos ou deixá-la irrestrita. Para garantir foco no modelo gratuito e evitar qualquer desvio, você pode selecionar explicitamente o `deepseek/deepseek-v4-flash-free`:
 
-![Seleção de Modelo para a API Key](../assets/17_orcarouter_apikey_select_model.png)
+![Seleção de Modelo para a API Key](../assets/19_orcarouter_apikey_select_model.png)
 
-> **Figura 16:** Associação da chave de API ao modelo gratuito do DeepSeek.
+> **Figura 18:** Associação da chave de API ao modelo gratuito do DeepSeek no catálogo.
 
-Atribua um nome à chave e configure os limites de orçamento e expiração:
+Atribua um nome à chave e configure as diretrizes de orçamento e limites desejados:
 
-![Criação da Chave OrcaRouter](../assets/18_orcarouter_apikey_creation.png)
+![Criação da Chave OrcaRouter](../assets/20_orcarouter_apikey_creation.png)
 
-> **Figura 17:** Definição dos parâmetros da chave de API no OrcaRouter.
+> **Figura 19:** Definição dos parâmetros da chave de API no OrcaRouter.
 
-Copie a chave gerada:
+Copie a chave gerada com atenção (ela só será exibida uma única vez no popup):
 
-![Token OrcaRouter Gerado](../assets/19_orcarouter_apikey_created.png)
+![Token OrcaRouter Gerado](../assets/21_orcarouter_apikey_created.png)
 
-> **Figura 18:** Chave de API pronta para ser utilizada na configuração do Claude Code.
+> **Figura 20:** Chave de API pronta para ser utilizada na configuração do Claude Code.
 
-A lista de chaves ativas permite acompanhar o uso e criar novas regras de restrição:
+A lista de chaves ativas permite acompanhar o consumo, validar o status do token e criar novas regras de restrição:
 
-![Listagem de Chaves OrcaRouter](../assets/20_orcarouter_apikey_list.png)
+![Listagem de Chaves OrcaRouter](../assets/22_orcarouter_apikey_list.png)
 
-> **Figura 19:** Painel de gestão de credenciais do OrcaRouter.
+> **Figura 21:** Painel de gestão de credenciais com o token ativo.
 
-### 4. Endpoints e Volatilidade de Catálogos Gratuitos
+### 5. Endpoints e Modelos Gratuitos no Catálogo
 
-Consulte a documentação de endpoints do OrcaRouter para obter a URL base oficial:
+Consulte a documentação de endpoints do OrcaRouter para obter a URL base oficial de integração:
 
-![Endpoints Oficiais do OrcaRouter](../assets/21_orcarouter_apikey_enpoints.png)
+![Endpoints Oficiais do OrcaRouter](../assets/23_orcarouter_apikey_enpoints.png)
 
-> **Figura 20:** Endpoints de integração compatíveis (`https://api.orcarouter.ai`).
+> **Figura 22:** Endpoints de integração compatíveis com o padrão Anthropic (`https://api.orcarouter.ai`).
 
-O catálogo de modelos gratuitos do OrcaRouter inclui também variantes abertas e experimentais:
+O catálogo de modelos gratuitos do OrcaRouter inclui também variantes abertas e experimentais para exploração:
 
-![Outros Modelos Gratuitos no OrcaRouter](../assets/22_orcarouter_other_free_models.png)
+![Outros Modelos Gratuitos no OrcaRouter](../assets/24_orcarouter_other_free_models.png)
 
-> **Figura 21:** Outros modelos disponíveis no tier gratuito do OrcaRouter.
+> **Figura 23:** Outros modelos disponíveis no tier gratuito do OrcaRouter.
+
+### 6. Testando o Modelo no Playground Oficial antes de Configurar a CLI
+
+Uma das grandes vantagens do ecossistema OrcaRouter é a existência de um Playground interativo web. Antes mesmo de abrir o terminal ou configurar o Claude Code, você pode validar a disponibilidade, a velocidade de inferência e a qualidade de raciocínio do modelo gratuito diretamente pelo link oficial:
+
+👉 **[OrcaRouter Playground - DeepSeek V4 Flash FREE](https://www.orcarouter.ai/pt/playground?model=deepseek%2Fdeepseek-v4-flash-free)**
+
+![Playground do OrcaRouter com Modelo Gratuito](../assets/25_orcarouter_playground_free_model.png)
+
+> **Figura 24:** Playground do OrcaRouter carregando o modelo `deepseek/deepseek-v4-flash-free` pronto para inferência interativa.
+
+Envie um prompt de teste para verificar a latência e a precisão da resposta gerada:
+
+![Teste de Prompt no Playground](../assets/26_orcarouter_playground_free_model_question.png)
+
+> **Figura 25:** Resposta gerada em tempo real no Playground, comprovando que o modelo gratuito está 100% ativo e pronto para ser integrado ao Claude Code.
 
 > [!WARNING]
 > ### Regra de Volatilidade de Provedores Gratuitos
@@ -253,6 +283,28 @@ Quando o Claude Code roda em uma pasta de projeto sem a flag `--settings`, ele m
 ## Anatomia das Configurações Prontas para Uso
 
 Abaixo transcrevemos integralmente os dois modelos de configuração que você encontra na pasta [examples/.claude/](../examples/.claude/). Ambos já vêm pré-configurados com permissões completas, supressão de diálogos de risco, mapeamento de papéis e a blindagem de segurança que impede falhas em tempo de execução.
+
+> [!IMPORTANT]
+> ### Passo Obrigatório: Faça a Cópia do `.example` ANTES de Iniciar os Testes
+> Por questões de segurança e boas práticas de engenharia, este repositório **apenas versiona arquivos de template** terminados em `.example` (o arquivo ativo `settings.json` fica protegido no `.gitignore` para você nunca comitar suas credenciais privadas acidentalmente no Git).
+> 
+> Antes de abrir o Claude Code ou rodar qualquer comando no terminal:
+> 1. Escolha o provedor desejado e copie o modelo para o arquivo ativo `.claude/settings.json`:
+>    * **Se for utilizar a DeepSeek Platform:**
+>      ```bash
+>      cp examples/.claude/settings.json.deepseek.example examples/.claude/settings.json
+>      ```
+>    * **Se for utilizar o OrcaRouter (cota gratuita):**
+>      ```bash
+>      cp examples/.claude/settings.json.orcarouter.example examples/.claude/settings.json
+>      ```
+> 2. Abra o arquivo gerado (`examples/.claude/settings.json`) e preencha a variável `ANTHROPIC_AUTH_TOKEN` com a sua chave real (`sk-...`).
+> 3. **Regra de Ouro de Execução:** Inicie a sessão **sempre** com a flag `--settings`:
+>    ```bash
+>    cd examples
+>    claude --settings .claude/settings.json
+>    ```
+>    Essa prática é vital: ela isola totalmente a execução do Claude Code, impedindo que configurações residuais do arquivo global (`~/.claude/settings.json`) interfiram no projeto, e garante que o bloco `modelPicker` seja honrado pela CLI substituindo integralmente os modelos Anthropic do menu.
 
 ### Exemplo 1: DeepSeek Platform (`settings.json.deepseek.example`)
 
@@ -519,57 +571,139 @@ Verificamos no código binário da versão 2.1.268 da CLI: o comando `/logout` a
 
 ## Execução Prática no Terminal e Validação Visual
 
-Vamos acompanhar a execução real do Claude Code configurado com o DeepSeek.
+Vamos acompanhar a execução real do Claude Code em ambos os cenários de arquitetura: primeiro conectando à API direta da **DeepSeek Platform** e, em seguida, alternando para a cota gratuita do **OrcaRouter**.
 
-### 1. Inicializando a Sessão de Trabalho
+---
 
-Navegue até a pasta de testes e inicialize a CLI aplicando a configuração:
+### Cenário 1: Execução e Validação com DeepSeek Platform
 
-![Comando de Inicialização do Claude Code](../assets/23_claude_code_cli_command.png)
+Após copiar o template (`cp examples/.claude/settings.json.deepseek.example examples/.claude/settings.json`) e inserir sua chave de API, inicializamos a CLI isolada de qualquer configuração global.
 
-> **Figura 22:** Disparo do comando de inicialização com `--settings` apontando para o arquivo de configuração do DeepSeek.
+#### 1. Inicializando a Sessão com `--settings`
 
-A sessão abre instantaneamente no terminal com o prompt pronto para receber comandos, contornando qualquer assistente de login:
+No diretório de trabalho, inicialize o Claude Code apontando explicitamente para o arquivo de configuração local:
 
-![Sessão Ativa do Claude Code](../assets/24_claude_code_cli_view.png)
+![Disparo do comando de inicialização com --settings](../assets/27_claude_code_cli_command_start.png)
 
-> **Figura 23:** Claude Code operacional, conectado à API da DeepSeek com permissões completas ativas.
+> **Figura 26:** Execução do comando `claude --settings .claude/settings.json`, garantindo que as políticas locais tenham prioridade total e não herdem variáveis de `~/.claude/settings.json`.
 
-### 2. Alternando Modelos Interativamente
+A CLI inicia o processo de boot e reconhece as permissões pré-aprovadas:
 
-Para verificar as opções de modelos configuradas no projeto e alternar entre tarefas analíticas e trabalho corrente, abra o seletor com `/model`:
+![Mensagem inicial da CLI](../assets/28_claude_code_cli_command_message.png)
 
-![Abrindo o Seletor de Modelos](../assets/25_claude_code_cli_model_command.png)
+> **Figura 27:** Mensagem de inicialização da CLI Claude Code sem requisição de login na nuvem da Anthropic.
 
-> **Figura 24:** Disparo do seletor interativo de modelos da CLI.
+As notas de boas-vindas e o contexto da versão são apresentados de forma limpa:
 
-O menu exibe as opções limpas e descritivas configuradas no nosso arquivo:
+![Notas de versão e boas-vindas](../assets/29_claude_code_cli_command_notes.png)
 
-![Lista Customizada de Modelos](../assets/26_claude_code_cli_model_list.png)
+> **Figura 28:** Confirmação de inicialização do ambiente e parâmetros de sessão.
 
-> **Figura 25:** Menu interativo exibindo com clareza o DeepSeek Flash para tarefas correntes e o DeepSeek V4 PRO para raciocínio profundo de 1M de contexto.
+O setup de ferramentas e modos autônomos é carregado com bypass de confirmações de risco:
 
-### 3. Verificando o Modelo em Operação
+![Confirmação de setup da CLI](../assets/30_claude_code_cli_command_setup.png)
 
-Para inspecionar o status detalhado do modelo ativo no terminal:
+> **Figura 29:** Configurações de permissões ativas, contornando diálogos interativos repetitivos.
 
-![Comando Model Status](../assets/27_claude_code_cli_model_status_command.png)
+#### 2. Sessão Interativa Ativa Conectada à DeepSeek
 
-> **Figura 26:** Invocação do comando de status do modelo.
+O terminal abre diretamente no prompt de comando, operacional e conectado ao endpoint oficial da DeepSeek:
 
-A CLI confirma que o modelo ativo é o `DeepSeek Flash (Sonnet)` para trabalho corrente de alta velocidade e baixa latência:
+![Sessão Interativa Ativa com DeepSeek](../assets/31_claude_code_cli_view.png)
 
-![Visualização do Status do Modelo](../assets/28_claude_code_cli_model_status_view.png)
+> **Figura 30:** Claude Code em execução ativa conectado ao endpoint oficial da DeepSeek com permissões automáticas.
 
-> **Figura 27:** Confirmação de que o modelo DeepSeek Flash está respondendo pelo papel Sonnet.
+#### 3. Menu `/model` com os 4 Papéis Customizados do DeepSeek
 
-### 4. Executando Tarefas e Respostas no Terminal
+Ao abrir o seletor interativo com `/model`, o Claude Code honra o bloco `modelPicker` com `"replaceBuiltInOptions": true`, substituindo integralmente os modelos Anthropic:
 
-Ao submeter um prompt de desenvolvimento, a inferência é executada de ponta a ponta pelo motor DeepSeek, preservando o suporte a subagentes, leitura de arquivos e geração de código:
+![Seletor /model com os 4 Papéis DeepSeek](../assets/32_claude_code_cli_model_list.png)
 
-![Resposta do Modelo no Terminal](../assets/29_claude_code_cli_model_answer.png)
+> **Figura 31:** Menu interativo `/model` exibindo os 4 papéis configurados (`Sonnet`, `Opus`, `Fable` e `Haiku`) mapeados para os modelos DeepSeek sem opções nativas da Anthropic.
 
-> **Figura 28:** Claude Code gerando resposta rápida e precisa através da inferência do DeepSeek no terminal.
+#### 4. Verificação de Status do Modelo Ativo
+
+Para inspecionar o status detalhado da conexão e do modelo atualmente em uso:
+
+![Invocação do Comando de Status](../assets/33_claude_code_cli_model_status_command.png)
+
+> **Figura 32:** Invocação do comando de status do modelo na sessão do Claude Code.
+
+O painel confirma que o `DeepSeek Flash` está operando ativamente pelo papel Sonnet, com janela de contexto estendida e esforço máximo configurados:
+
+![Painel de Status do Modelo DeepSeek](../assets/34_claude_code_cli_model_status_view.png)
+
+> **Figura 33:** Painel de status comprovando que o modelo `deepseek-flash` está respondendo ativamente pelo papel Sonnet.
+
+#### 5. Execução de Tarefas e Validação da Resposta
+
+Submetemos uma pergunta técnica no prompt para testar a inferência do modelo DeepSeek:
+
+![Envio de Pergunta Técnica ao DeepSeek](../assets/35_claude_code_cli_model_question_basic.png)
+
+> **Figura 34:** Pergunta submetida no terminal para validação de inferência e raciocínio técnico.
+
+A resposta é gerada em frações de segundo com alta densidade técnica e raciocínio consistente:
+
+![Resposta e Raciocínio Verificados](../assets/36_claude_code_cli_model_question_verification.png)
+
+> **Figura 35:** Resposta técnica gerada com velocidade e precisão no terminal, validando a integração de ponta a ponta com a DeepSeek Platform.
+
+---
+
+### Cenário 2: Execução e Validação com OrcaRouter Free
+
+Agora, para comutar para a cota gratuita do OrcaRouter, copiamos o segundo template:
+
+```bash
+cp examples/.claude/settings.json.orcarouter.example examples/.claude/settings.json
+```
+
+Inserimos a chave gerada no OrcaRouter na variável `ANTHROPIC_AUTH_TOKEN` e disparamos a sessão com `claude --settings .claude/settings.json`.
+
+#### 1. Sessão Interativa Ativa com OrcaRouter
+
+A CLI inicializa apontando para a base `https://api.orcarouter.ai` com autenticação Bearer transparente:
+
+![Sessão Ativa Conectada ao OrcaRouter](../assets/37_claude_code_cli_view_in_orcarouter.png)
+
+> **Figura 36:** Claude Code operacional e autenticado no gateway OrcaRouter sem qualquer custo de assinatura.
+
+#### 2. Menu `/model` do OrcaRouter
+
+Ao abrir o seletor com `/model`, todas as opções apontam para a cota gratuita do `deepseek/deepseek-v4-flash-free`:
+
+![Menu /model do OrcaRouter](../assets/38_claude_code_cli_model_list_in_orcarouter.png)
+
+> **Figura 37:** Seletor interativo exibindo os 4 papéis mapeados para o modelo gratuito `deepseek/deepseek-v4-flash-free`.
+
+#### 3. Painel de Status do OrcaRouter
+
+Disparando o comando de verificação de status:
+
+![Comando de Status com OrcaRouter](../assets/39_claude_code_cli_model_status_command_in_orcarouter.png)
+
+> **Figura 38:** Comando de status disparado na sessão do OrcaRouter.
+
+A CLI confirma que o modelo ativo em operação é o `deepseek/deepseek-v4-flash-free` do catálogo do OrcaRouter:
+
+![Painel de Status do OrcaRouter](../assets/40_claude_code_cli_model_status_view_in_orcarouter.png)
+
+> **Figura 39:** Painel de status confirmando o modelo `deepseek/deepseek-v4-flash-free` em operação gratuita com janela ampla de contexto.
+
+#### 4. Submissão de Prompt e Validação de Resposta Gratuita
+
+Enviamos um prompt no terminal do Claude Code:
+
+![Pergunta Submetida ao OrcaRouter](../assets/41_claude_code_cli_model_question_basic_in_orcarouter.png)
+
+> **Figura 40:** Envio de pergunta no terminal para testar a cota gratuita do OrcaRouter.
+
+A inferência é completada com sucesso, gerando a resposta esperada através da infraestrutura gratuita do OrcaRouter:
+
+![Resposta Validada via OrcaRouter Free](../assets/42_claude_code_cli_model_question_verification_in_orcarouter.png)
+
+> **Figura 41:** Resposta conclusiva gerada com sucesso via OrcaRouter sem qualquer custo de API.
 
 ---
 

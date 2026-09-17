@@ -19,18 +19,20 @@ cp .claude/settings.json.example .claude/settings.json
 > Em seguida substitua `sk-sua-chave-do-9router` no arquivo pela chave que o
 > `sync_antigravity_token.py` grava no `.env` do módulo. O placeholder é recusado pelo gateway.
 
-### 2. Iniciar o Claude Code Conectado ao Combo
+### 2. Iniciar o Claude Code Conectado ao Combo (Recomendado: Sempre com `--settings`)
 
 Com o ambiente iniciado por `python3 ../src/manage_env.py start`, que sobe os serviços **e provisiona os combos**:
 
 ```bash
-claude --model arsenal-supremo
+claude --settings .claude/settings.json --model arsenal-supremo
 ```
+
+> **Por que usar `--settings` sempre?** No binário da CLI do Claude Code (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `--settings .claude/settings.json`, a CLI honra o menu customizado com `replaceBuiltInOptions: true` (ocultando os modelos Anthropic) e evita que configurações residuais de `~/.claude/settings.json` interfiram na sessão.
 
 Ou execute um prompt de teste diretamente:
 
 ```bash
-claude -p "Explique a lógica do script sample_task.py" --model arsenal-supremo
+claude --settings .claude/settings.json -p "Explique a lógica do script sample_task.py" --model arsenal-supremo
 ```
 
 ---
