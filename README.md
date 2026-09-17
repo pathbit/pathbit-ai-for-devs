@@ -35,6 +35,16 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 [📖 Ler Artigo](./0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0003_fallback_modelos_gratuitos_9router/README.md) | [🧪 Exemplos Práticos](./0003_fallback_modelos_gratuitos_9router/examples/README.md)
 
 ---
+### [0004 - DeepSeek como Alternativa ao ClaudeGravity: DeepSeek Platform e OrcaRouter no Claude Code](./0004_deep_claude_alternativa_claudegravity/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos | **Status:** em elaboração
+
+Conecta o Claude Code aos modelos **DeepSeek** sem depender do Antigravity: pela plataforma oficial (`api.deepseek.com/anthropic`) ou pelo **OrcaRouter**, que serve o DeepSeek V4 Flash gratuitamente na data da escrita. Os arquivos de configuração já estão validados; o texto do artigo está em rascunho.
+
+[📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/)
+
+---
+
 
 ## 📖 Documentação
 
@@ -50,7 +60,8 @@ Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, 
 
 - **[Padrões de Engenharia de IA](./docs/PADROES_ENGENHARIA_IA.md)** - Diretrizes de scripts em Python puro, isolamento de segredos e regras editoriais
 - **[Resumo da Organização](./docs/RESUMO_ORGANIZACAO.md)** - Topologia de diretórios, anatomia dos módulos e checklist de publicação
-- **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos três artigos a partir de um ambiente zerado
+- **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.json` dos exemplos, estado global da CLI e verificador de consistência
+- **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0003 a partir de um ambiente zerado
 
 ### 🔧 Soluções para Problemas Comuns
 
@@ -64,6 +75,7 @@ pathbit-ai-for-devs/
 ├── README.md                                # Este arquivo
 ├── docs/                                    # Documentação técnica
 │   ├── _DOCS.md
+│   ├── CHECKLIST_SETTINGS_CLAUDE_CODE.md
 │   ├── GUIA_CICLO_DE_VIDA_AMBIENTES.md
 │   ├── GUIA_INTEGRACAO_CLAUDE_CODE.md
 │   ├── GUIA_PERMISSOES_ANTIGRAVITY.md
@@ -89,15 +101,20 @@ pathbit-ai-for-devs/
 │   ├── assets/
 │   ├── examples/
 │   └── src/
-└── 0003_fallback_modelos_gratuitos_9router/   # Artigo 0003
+├── 0003_fallback_modelos_gratuitos_9router/   # Artigo 0003
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── docker-compose.yml
+│   ├── .env.example
+│   ├── article/
+│   ├── assets/
+│   ├── examples/
+│   └── src/
+└── 0004_deep_claude_alternativa_claudegravity/  # Artigo 0004
     ├── README.md
-    ├── requirements.txt
-    ├── docker-compose.yml
-    ├── .env.example
     ├── article/
     ├── assets/
-    ├── examples/
-    └── src/
+    └── examples/
 ```
 
 ---
@@ -125,8 +142,7 @@ XXXX_titulo_do_artigo/
 │   ├── README.md                        # Instruções de execução do Claude Code
 │   ├── sample_task.py                   # Código de exemplo para o agente
 │   └── .claude/
-│       ├── settings.json.example        # Políticas de permissão compartilhadas
-│       └── settings.local.json.example  # Preferências locais e menu de modelos
+│       └── settings.json.example        # Políticas de permissão compartilhadas
 └── src/                                 # Scripts executáveis em Python
 ```
 

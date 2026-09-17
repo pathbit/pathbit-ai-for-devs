@@ -2,14 +2,22 @@
   "model": "ag/gemini-3.8-flash-high",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
-    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
+    "ANTHROPIC_AUTH_TOKEN": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "Gemini 3.8 Flash High (Opus)",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION": "Primario: raciocinio alto, 1M de contexto",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL_NAME": "Gemini 3.1 Pro High (Fable)",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL_DESCRIPTION": "O mais denso da conta: use com parcimonia",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "Gemini 3.7 Flash High (Sonnet)",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION": "Trabalho corrente",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME": "Gemini 3.6 Flash High (Haiku)",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION": "Latencia minima, alta frequencia",
     "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
-    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
+    "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -30,7 +38,6 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
@@ -38,7 +45,7 @@
         "model": "ag/gemini-3.8-flash-high",
         "label": "Gemini 3.8 Flash High",
         "description": "Primario do Antigravity",
-        "behavesAs": "claude-opus-4-8"
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "ag/gemini-3.7-flash-high",
@@ -68,7 +75,7 @@
         "model": "arsenal-supremo",
         "label": "Arsenal Supremo (combo)",
         "description": "7 niveis, do Gemini ao Ollama local",
-        "behavesAs": "claude-opus-4-8"
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-rapido",

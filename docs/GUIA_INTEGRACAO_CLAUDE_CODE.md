@@ -46,7 +46,7 @@ Se preferir exportar as variáveis no seu terminal antes de executar o comando `
 
 ```bash
 export ANTHROPIC_BASE_URL="http://localhost:20128"
-export ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 
 # Executar com selecao do combo de fallback
 claude --model claudegravity-fallback
@@ -59,6 +59,19 @@ Para automações contínuas onde o Claude Code deve aplicar alterações de có
 ```bash
 claude --dangerously-skip-permissions --model claudegravity-fallback
 ```
+
+---
+
+## ⚙️ Antes da Primeira Sessão: Settings, Advisor e Estado Global
+
+Quatro regras evitam a maior parte dos problemas ao conectar a CLI a um gateway (9Router, DeepSeek, OrcaRouter ou outro compatível com a API Anthropic Messages):
+
+1. **Credencial em `ANTHROPIC_AUTH_TOKEN`**, não em `ANTHROPIC_API_KEY`. A primeira vai direto para `Authorization: Bearer`; a segunda exige uma aprovação interativa guardada fora do projeto e apagada pelo `/logout`.
+2. **Advisor desligado** com `"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"` no `env`. O advisor é uma *server tool* da API da Anthropic; com gateway, a requisição inteira é rejeitada.
+3. **`modelPicker` só vale em `~/.claude/settings.json`, em settings gerenciadas ou via `claude --settings <arquivo>`.** No `.claude/` do projeto ele é ignorado; os papéis `ANTHROPIC_DEFAULT_*_MODEL` são o que roteia.
+4. **Na primeira execução, ou depois de um `/logout`, inicie com `claude --settings .claude/settings.json`.** O assistente de primeiro uso roda antes de carregar o `settings.json` do projeto e, sem a flag, pede login na Anthropic.
+
+As regras completas, com as evidências e um verificador, estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md). O uso com DeepSeek e OrcaRouter está no artigo [0004](../0004_deep_claude_alternativa_claudegravity/README.md).
 
 ---
 

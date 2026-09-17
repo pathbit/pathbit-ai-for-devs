@@ -65,7 +65,10 @@ def run_claude(model, base_url, api_key, extra_args):
     """Executa a CLI do Claude Code com o ambiente e o combo configurados."""
     env = os.environ.copy()
     env["ANTHROPIC_BASE_URL"] = base_url
-    env["ANTHROPIC_API_KEY"] = api_key
+    # A CLI recebe a chave como ANTHROPIC_AUTH_TOKEN (Authorization: Bearer): sem a aprovacao
+    # interativa que ANTHROPIC_API_KEY exige, guardada em ~/.claude.json e apagada pelo /logout.
+    env["ANTHROPIC_AUTH_TOKEN"] = api_key
+    env.pop("ANTHROPIC_API_KEY", None)
     env["ANTHROPIC_MODEL"] = model
     # Os quatro papéis respeitam o que o .env do módulo definir, e só caem para o
     # combo de --model quando a variável não existe. Sobrescrever sempre apagaria a

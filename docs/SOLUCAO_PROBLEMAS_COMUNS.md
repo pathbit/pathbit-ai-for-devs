@@ -2,7 +2,7 @@
 
 Este documento reúne soluções práticas para os erros e incidentes operacionais mais frequentes encontrados ao executar os ambientes do **Pathbit AI for Devs**.
 
-> **Onde executar os comandos.** Os caminhos `src/...`, `.env` e `docker-compose.yml` citados aqui são relativos à **pasta do módulo** (`0001_antigravity_acesso_total_irrestrito`, `0002_claude_gravity_utilizando_9router` ou `0003_fallback_modelos_gratuitos_9router`), não à raiz do repositório. Entre na pasta correspondente antes de rodar.
+> **Onde executar os comandos.** Os caminhos `src/...`, `.env` e `docker-compose.yml` citados aqui são relativos à **pasta do módulo** (`0001_antigravity_acesso_total_irrestrito`, `0002_claude_gravity_utilizando_9router`, `0003_fallback_modelos_gratuitos_9router` ou `0004_deep_claude_alternativa_claudegravity`), não à raiz do repositório. Entre na pasta correspondente antes de rodar.
 
 ---
 
@@ -204,3 +204,72 @@ O token OAuth do Antigravity expira a cada 60 minutos. Além disso, o 9Router po
    ```
 
 3. Para entender todos os detalhes da análise forense e da auto-cura, consulte o guia dedicado [SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](./SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md).
+
+---
+
+## ❌ Problema 8 - O Claude Code Pede Login ao Abrir a Pasta de Exemplos
+
+### Sintoma
+
+Ao rodar `claude` dentro de `examples/`, aparece o assistente de primeiro uso ("Choose the text style") seguido de "Select login method", mesmo com o `.claude/settings.json` apontando para o gateway.
+
+### Causa
+
+Três causas, em ordem de frequência:
+
+1. **JSON inválido** no `settings.json` (uma vírgula sobrando depois da última chave). A CLI descarta o arquivo em silêncio e, sem `ANTHROPIC_BASE_URL`, cai no login da Anthropic.
+2. **O assistente de primeiro uso foi reiniciado** (um `/logout` faz isso). Enquanto ele roda, o `settings.json` do projeto ainda não foi carregado, então ele não enxerga a credencial do gateway.
+3. **A pasta foi renomeada ou movida.** A confiança é guardada por caminho absoluto em `~/.claude.json`.
+
+### Solução
+
+```bash
+# 1. Validar o JSON
+python3 -c "import json; json.load(open('.claude/settings.json'))"
+
+# 2. Passar pelo assistente com o arquivo do projeto aplicado antes dele
+claude --settings .claude/settings.json
+
+# 3. Aceitar a confiança da pasta quando perguntado; depois disso `claude` puro funciona
+```
+
+Use `ANTHROPIC_AUTH_TOKEN` (não `ANTHROPIC_API_KEY`) no `env` para não depender da aprovação de chave guardada fora do projeto. Detalhes em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
+
+---
+
+## ❌ Problema 9 - `/advisor` Mostra "Fable" Duas Vezes ou a Sessão Falha com o Advisor Ligado
+
+### Sintoma
+
+O menu `/advisor` lista o mesmo nome duas vezes e nenhum "Opus"; ao ligar o advisor, toda requisição ao gateway falha (no DeepSeek: `400 unknown variant advisor_20260301`).
+
+### Causa
+
+O advisor é uma *server tool* executada pela API da Anthropic; gateways e provedores alternativos não a implementam e rejeitam a requisição inteira. As linhas duplicadas aparecem porque o menu nomeia os aliases `fable`/`opus`/`sonnet` pelo modelo em que resolvem, e dois papéis apontam para o mesmo modelo do provedor.
+
+### Solução
+
+No `env` do `settings.json`:
+
+```json
+"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
+```
+
+Não use `CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL: "0"` (a CLI lê como booleano e `"0"` equivale a não definir) nem `"advisorModel": ""` (ignorada com o recurso desligado).
+
+---
+
+## ❌ Problema 10 - O Menu `/model` Ignora o `modelPicker` do Projeto
+
+### Sintoma
+
+O bloco `modelPicker` está no `.claude/settings.json` do projeto, mas o menu `/model` mostra a lista nativa da Anthropic.
+
+### Causa
+
+A CLI só honra `modelPicker` em `~/.claude/settings.json`, em settings gerenciadas ou via `--settings`. Em checkout de projeto o bloco é ignorado.
+
+### Solução
+
+Inicie com `claude --settings .claude/settings.json`, ou copie o bloco `modelPicker` para `~/.claude/settings.json`. Os quatro papéis (`ANTHROPIC_DEFAULT_*_MODEL`) continuam valendo no projeto e são o que roteia de fato.
+

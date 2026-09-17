@@ -17,7 +17,6 @@ Gere os arquivos ativos a partir dos modelos `.example`:
 
 ```bash
 cp .claude/settings.json.example .claude/settings.json
-cp .claude/settings.local.json.example .claude/settings.local.json
 ```
 
 ### 2. Executar a Tarefa de Exemplo com o Agente
@@ -38,5 +37,5 @@ agy --dangerously-skip-permissions
 
 ## Arquivos Disponíveis
 
-* **`.claude/`:** Contém modelos de políticas de permissão total (`bypassPermissions`) para testes.
+* **`.claude/`:** Contém o modelo de política de permissão total (`bypassPermissions`) para testes.
 * **`sample_task.py`:** Código Python demonstrando manipulação autônoma de arquivos e geração de relatórios sem interrupções manuais.

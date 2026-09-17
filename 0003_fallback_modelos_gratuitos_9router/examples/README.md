@@ -14,10 +14,9 @@ Gere os arquivos ativos a partir dos modelos `.example`:
 
 ```bash
 cp .claude/settings.json.example .claude/settings.json
-cp .claude/settings.local.json.example .claude/settings.local.json
 ```
 
-> Em seguida substitua `sk-sua-chave-do-9router` nos dois arquivos pela chave que o
+> Em seguida substitua `sk-sua-chave-do-9router` no arquivo pela chave que o
 > `sync_antigravity_token.py` grava no `.env` do módulo. O placeholder é recusado pelo gateway.
 
 ### 2. Iniciar o Claude Code Conectado ao Combo
@@ -38,5 +37,5 @@ claude -p "Explique a lógica do script sample_task.py" --model arsenal-supremo
 
 ## Arquivos Disponíveis
 
-* **`.claude/`:** Contém o mapeamento do combo `arsenal-supremo`, permissões totais e menu interativo `/model`.
+* **`.claude/`:** Modelos do Antigravity como padrão nos quatro papéis, combos `arsenal-*` disponíveis por `/model`, permissões totais e advisor desligado. O bloco `modelPicker` só vale com `claude --settings .claude/settings.json` ou em `~/.claude/settings.json`.
 * **`sample_task.py`:** Código Python de exemplo para testar inferência resiliente e fallback automático.

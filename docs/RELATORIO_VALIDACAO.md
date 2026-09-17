@@ -164,7 +164,7 @@ próprio binário trata a variante como opcional no padrão que usa para reconhe
 E um terceiro teste mostrou que quase nada precisa de override. Com o `modelPicker` substituindo a
 lista nativa e os quatro papéis declarados, removemos o bloco inteiro e reexecutamos as tarefas,
 inclusive com subagente: **nenhuma falhou, e nenhum consumidor pediu um `claude-*`**. Restou um único
-cenário, o de um `settings.local.json` com pin antigo.
+cenário, o de um `~/.claude/settings.json` com pin antigo (é onde o menu `/model` grava a escolha).
 
 O bloco final tem **três entradas, uma por família**, cada uma apontando para o mesmo modelo do papel
 correspondente  -  de modo que um pin esquecido resolve exatamente para onde o papel já apontava:

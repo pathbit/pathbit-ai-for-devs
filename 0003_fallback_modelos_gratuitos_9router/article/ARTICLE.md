@@ -94,7 +94,7 @@ Montar um arsenal que nunca para de programar exige diversificar as origens de t
 ### 6. OpenRouter Free Tier
 * **Modelo validado neste artigo:** `openrouter/nvidia/nemotron-3.5-lightning:free` (contexto de 1M de tokens).
 * **Vantagem:** Catálogo agregador que expõe versões gratuitas com sufixo `:free`. Na consulta que fizemos ao montar este artigo, 21 dos 430 modelos do catálogo tinham custo zero de prompt e de resposta; ao revalidar em 2026-09-13, eram **22 de 445**. O catálogo cresce e o subconjunto gratuito se mexe  -  reconte com o comando da seção [Modelos Gratuitos, Volatilidade e Catálogo Verificado](#modelos-gratuitos-volatilidade-e-catálogo-verificado).
-* **Atenção à rotatividade:** o conjunto gratuito muda com frequência, e alguns identificadores citados em tutoriais antigos simplesmente deixam de existir. Tratamos esse ponto em detalhe, com a lista do que está respondendo, na seção [Modelos Gratuitos: Volatilidade e Catálogo Verificado](#modelos-gratuitos-volatilidade-e-catálogo-verificado).
+* **Atenção à rotatividade:** o conjunto gratuito muda com frequência, e alguns identificadores citados em tutoriais antigos simplesmente deixam de existir. Tratamos esse ponto em detalhe, com a lista do que está respondendo, na seção [Modelos Gratuitos, Volatilidade e Catálogo Verificado](#modelos-gratuitos-volatilidade-e-catálogo-verificado).
 
 ### 7. Cloudflare Workers AI
 * **Modelos:** catálogo de modelos abertos servidos na edge (`@cf/meta/...`).
@@ -407,7 +407,7 @@ O mecanismo central de alta disponibilidade é o **Combo com estratégia Fallbac
 
 ## Arquitetura dos Combos de Fallback
 
-No 9Router, agrupamos os provedores em três perfis complementares, além do `claudegravity-fallback` herdado do Artigo 0002 de trabalho:
+No 9Router, agrupamos os provedores em três perfis complementares, além do `claudegravity-fallback` herdado do Artigo 0002:
 
 ![Cascata de Fallback Automático do Combo arsenal-supremo](../assets/17_diagrama_cascata_fallback.png)
 
@@ -826,11 +826,10 @@ E o cenário 4 mostra a auto-cura fechando o ciclo, com o caminho da credencial 
 
 ## Configuração do Claude Code com Autonomia Completa
 
-Para que o Claude Code utilize o combo `arsenal-supremo` como modelo nativo em todas as tarefas, estruturamos modelos de configuração exclusivamente dentro da pasta de testes do artigo (`examples/.claude/`). Para inicializar suas configurações locais:
+Para que o Claude Code use os modelos do Antigravity como padrão e deixe os combos `arsenal-*` a um `/model` de distância, estruturamos modelos de configuração exclusivamente dentro da pasta de testes do artigo (`examples/.claude/`). Para inicializar suas configurações locais:
 
 ```bash
 cp examples/.claude/settings.json.example examples/.claude/settings.json
-cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 cp .env.example .env
 ```
 
@@ -844,7 +843,7 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 | :--- | :--- | :--- |
 | `INITIAL_PASSWORD` | **Sim** | Senha do painel do 9Router. O `docker compose` recusa subir sem ela. |
 | `JWT_SECRET` | **Sim** | Valor longo e aleatório para assinar as sessões do painel. Gere com `openssl rand -hex 32`. |
-| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `sync_antigravity_token.py` na primeira execução e gravada aqui. |
+| `ANTHROPIC_API_KEY` | **Sim** | Não invente: é impressa pelo `sync_antigravity_token.py` na primeira execução e gravada aqui. No `.env` ela alimenta os scripts Python; no `settings.json` o mesmo valor entra como `ANTHROPIC_AUTH_TOKEN`. |
 | `MISTRAL_API_KEY` | Sim, para a cascata completa | Console da Mistral. Alimenta o nível 6 do `arsenal-supremo` e o nível 2 do `arsenal-rapido`. |
 | `GROQ_API_KEY` | Sim, para a cascata completa | `console.groq.com/keys`. Alimenta o nível 5 do `arsenal-supremo`. |
 | `OPENROUTER_API_KEY` | Sim, para a cascata completa | `openrouter.ai/settings/keys`, com limite `$0.00`. Alimenta o nível 4. |
@@ -853,18 +852,43 @@ O `.env.example` traz dezenas de variáveis, mas a maioria já vem com valor que
 
 Sem as chaves de provedor, o `setup_combos.py` pula a conexão correspondente e informa o motivo  -  a cascata continua funcionando com os níveis restantes, apenas mais curta.
 
-> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual modelo usar em cada classe de tarefa. Nos arquivos deste artigo elas apontam para modelos individuais do Antigravity, e os combos ficam disponíveis no menu `/model`  -  a comparação entre os dois arranjos está no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-e-a-escolha-do-padrão). **Não coloque `arsenal-offline` em nenhuma delas, nem como padrão:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
+> **Cuidado com os papéis de modelo.** As variáveis `ANTHROPIC_DEFAULT_FABLE_MODEL`, `_OPUS_MODEL`, `_SONNET_MODEL` e `_HAIKU_MODEL` dizem ao Claude Code qual modelo usar em cada classe de tarefa. Nos arquivos deste artigo elas apontam para modelos individuais do Antigravity, e os combos continuam acessíveis por `/model arsenal-supremo` (o menu customizado tem a ressalva da seção seguinte)  -  a comparação entre os dois arranjos está no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-e-a-escolha-do-padrão). **Não coloque `arsenal-offline` em nenhuma delas, nem como padrão:** o modelo local responde ao gateway, mas não segue instruções dentro do harness, e as tarefas daquele papel falhariam sem erro visível.
 
-### Os dois arquivos de configuração do Claude Code
+### O arquivo de configuração do Claude Code
 
-Ambos ficam em `examples/.claude/`, isolados do restante do repositório  -  por isso não interferem no projeto em que você estiver trabalhando.
+Ele fica em `examples/.claude/settings.json`, isolado do restante do repositório  -  por isso não interfere no projeto em que você estiver trabalhando. É versionado apenas na forma `.example`; a cópia ativa fica fora do controle de versão.
 
-| Arquivo | Papel | Contém |
+É a configuração do projeto, compartilhável com o time: modelo padrão, papéis de modelo, `modelPicker`, `modelOverrides`, permissões e variáveis de ambiente.
+
+**Por que não há um `settings.local.json` aqui.** O Claude Code lê também `.claude/settings.local.json`, com precedência sobre o `settings.json`, mas a função dele é guardar o que é específico da sua máquina e não pode ir para o git (uma chave pessoal, um caminho local). Neste artigo não existe nada nessa categoria: tudo o que a configuração precisa está no arquivo único acima, e a cópia ativa já fica fora do controle de versão. Uma cópia idêntica no arquivo local só criaria dois lugares para manter a mesma coisa. E o bloco `modelPicker` não seria motivo para tê-lo: a CLI só honra esse bloco em `~/.claude/settings.json`, em settings gerenciadas ou via `--settings`; em um checkout de projeto ele é ignorado tanto no `settings.json` quanto no `settings.local.json`. Para ter o menu `/model` customizado, copie o bloco `modelPicker` para o arquivo de usuário.
+
+### O que fica no estado global do Claude Code (e como não depender dele)
+
+Tudo o que este artigo configura mora em `examples/.claude/settings.json`. Mas o Claude Code guarda **fora do projeto**, em `~/.claude.json`, um estado que nenhuma chave de `settings.json` altera, por desenho:
+
+| O que | Onde fica | O que zera |
 | :--- | :--- | :--- |
-| `settings.json` | Políticas compartilhadas do projeto | Modelo padrão, papéis de modelo, permissões e variáveis de ambiente |
-| `settings.local.json` | Preferências da sua máquina | O menu interativo `/model` e ajustes pessoais. **Tem precedência** sobre o anterior |
+| Assistente de primeiro uso concluído (tema, notas de segurança) | `~/.claude.json` | `/logout`, ou uma instalação nova |
+| Login na conta Anthropic | `~/.claude.json` + chaveiro do sistema | `/logout` |
+| Aprovação de uma `ANTHROPIC_API_KEY` vinda do `env` (pergunta *"Do you want to use this API key?"*) | `~/.claude.json` | `/logout` |
+| Confiança na pasta (*"Do you trust the files in this folder?"*) | `~/.claude.json`, por caminho absoluto | Renomear ou mover a pasta |
 
-Os dois são versionados apenas na forma `.example`; as cópias ativas ficam fora do controle de versão.
+Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout` marca o assistente como não concluído e apaga a lista de chaves aprovadas. Foi exatamente isso que produziu o sintoma "entro na pasta e ele fica pedindo login": o assistente reaparece, e **enquanto ele roda, o `settings.json` do projeto ainda não foi carregado**. Medimos com uma configuração global zerada: mesmo com a pasta já confiável e o arquivo completo, o assistente mostrou a tela *"Select login method"*. O arquivo do projeto só entra depois do assistente e da confirmação de confiança.
+
+Duas decisões deixam este projeto imune a esse estado:
+
+1. **`ANTHROPIC_AUTH_TOKEN` no lugar de `ANTHROPIC_API_KEY`.** As duas autenticam no 9Router (o middleware lê `Authorization: Bearer` antes de `x-api-key`); a diferença é o que a CLI faz com cada uma. `ANTHROPIC_API_KEY` exige uma aprovação interativa única, guardada em `~/.claude.json` e apagada pelo `/logout` (medimos: com a chave não aprovada, pasta confiável e assistente concluído, a pergunta reaparece). `ANTHROPIC_AUTH_TOKEN` vai direto para o cabeçalho `Authorization: Bearer`, sem aprovação nem estado global. É [documentada](https://code.claude.com/docs/en/env-vars) para exatamente isso. Confirmamos que o 9Router lê esse cabeçalho.
+2. **Na primeira execução, ou depois de um `/logout`, inicie com `--settings`:**
+
+   ```bash
+   claude --settings .claude/settings.json
+   ```
+
+   A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** do assistente. Medimos com configuração global zerada: a sequência foi tema, notas de segurança, confiança na pasta e o prompt, sem nenhuma tela de login. Depois disso a pasta fica confiável, e o `claude` puro passa a carregar o `settings.json` do projeto em toda sessão. Um efeito colateral bem-vindo: com `--settings`, a CLI também honra o bloco `modelPicker`, que ela ignora quando vem do checkout do projeto.
+
+O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
+
+> **Se o Claude Code pedir login nesta pasta**, a ordem de verificação é: (1) o JSON do `settings.json` é válido? Uma vírgula sobrando faz a CLI descartar o arquivo em silêncio; (2) o assistente de primeiro uso está aparecendo? Saia dele com `claude --settings .claude/settings.json`; (3) a pasta foi renomeada? Aceite a confiança de novo.
 
 ### Estrutura do `settings.json.example`
 
@@ -873,14 +897,22 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   "model": "ag/gemini-3.8-flash-high",
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:20128",
-    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
+    "ANTHROPIC_AUTH_TOKEN": "sk-sua-chave-do-9router",
     "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "Gemini 3.8 Flash High (Opus)",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION": "Primario: raciocinio alto, 1M de contexto",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL_NAME": "Gemini 3.1 Pro High (Fable)",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL_DESCRIPTION": "O mais denso da conta: use com parcimonia",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "Gemini 3.7 Flash High (Sonnet)",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION": "Trabalho corrente",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME": "Gemini 3.6 Flash High (Haiku)",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION": "Latencia minima, alta frequencia",
     "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
-    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
+    "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",
@@ -901,7 +933,6 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
   },
   "skipDangerousModePermissionPrompt": true,
   "includeCoAuthoredBy": false,
-  "advisorModel": "ag/gemini-pro-agent",
   "modelPicker": {
     "replaceBuiltInOptions": true,
     "options": [
@@ -909,7 +940,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
         "model": "ag/gemini-3.8-flash-high",
         "label": "Gemini 3.8 Flash High",
         "description": "Primario do Antigravity",
-        "behavesAs": "claude-opus-4-8"
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "ag/gemini-3.7-flash-high",
@@ -939,7 +970,7 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
         "model": "arsenal-supremo",
         "label": "Arsenal Supremo (combo)",
         "description": "7 niveis, do Gemini ao Ollama local",
-        "behavesAs": "claude-opus-4-8"
+        "behavesAs": "claude-sonnet-4-6"
       },
       {
         "model": "arsenal-rapido",
@@ -963,8 +994,13 @@ Os dois são versionados apenas na forma `.example`; as cópias ativas ficam for
 }
 ```
 
+> [!IMPORTANT]
+> ### Por que o Advisor fica desligado (`"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"`)
+>
+> Não é economia nem esquecimento: **o advisor não funciona com nenhum modelo servido fora da API da Anthropic, e ligá-lo derruba a sessão.** Ele é uma *server tool* executada pelo servidor da Anthropic; um gateway ou provedor alternativo recebe um tipo de ferramenta que não conhece e rejeita a requisição inteira. Nenhuma outra chave (`advisorModel`, `modelOverrides`, papéis `ANTHROPIC_DEFAULT_*_MODEL`) contorna isso: elas só escolhem **qual** modelo entra na ferramenta, não **quem** a executa. Por isso `"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"` está em **todos** os arquivos deste artigo. O mecanismo, o erro exato devolvido pelo DeepSeek e o motivo do menu `/advisor` duplicar linhas estão no aviso `[!CAUTION]` da seção [Três blocos que merecem explicação](#três-blocos-que-merecem-explicação-modelpicker-behavesas-e-o-advisor), mais abaixo.
+
 O bloco `modelOverrides` tem **três entradas, uma por família**. Ele cobre um caso específico: um
-`settings.local.json` que ficou apontando para um modelo escolhido no menu `/model` antes de você
+`~/.claude/settings.json` (onde o menu `/model` grava a escolha) que ficou apontando para um modelo escolhido antes de você
 trocar a configuração. Não é preciso duplicar com o sufixo de janela (`[1m]`): a CLI normaliza o
 identificador antes de consultar o mapa. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)
 detalha a medição que levou a esse formato enxuto.
@@ -983,7 +1019,7 @@ most tasks, Haiku for quick questions*. Cada papel tem sua variável:
 | Haiku | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `ag/gemini-3.6-flash-high` | Alta frequência: **toda sessão**, para nomear a conversa |
 
 São modelos individuais, e não os combos  -  a mesma escolha do [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md#modelo-individual-ou-combo-e-a-escolha-do-padrão),
-pelo mesmo motivo: consumo previsível. Os combos `arsenal-*` continuam a um `/model` de distância,
+pelo mesmo motivo: consumo previsível. Os combos `arsenal-*` continuam a um `/model arsenal-supremo` de distância (ver a ressalva sobre `modelPicker` adiante),
 e nada impede apontar um papel para eles se você preferir resiliência a previsibilidade.
 
 Descobrir qual papel atende o quê não exige adivinhação. Aponte cada papel para um modelo diferente e
@@ -999,121 +1035,33 @@ linha de diagnóstico com o campo `query_source`, que nomeia quem fez o pedido:
 A segunda linha surpreende: **subagentes não usam o papel rápido, usam o de trabalho complexo.** Se
 sua rotina despacha subagentes, é o Opus que domina o seu consumo, não o modelo principal.
 
-### Estrutura do `settings.local.json.example` (Menu Interativo)
+### Três blocos que merecem explicação: `modelPicker`, `behavesAs` e o advisor
 
-O arquivo local carrega a **mesma configuração completa** do `settings.json`. Ele existe para ficar
-fora do controle de versão e para ter precedência  -  os dois trazem o conjunto completo, para que funcionem
-isoladamente. O que muda é a ênfase: é aqui que você ajusta o menu e as preferências da sua máquina.
+Os três estão no `settings.json` acima. Nenhum deles exige um `settings.local.json`; a razão está na seção
+[O arquivo de configuração do Claude Code](#o-arquivo-de-configuração-do-claude-code).
 
 - **`modelPicker`** popula o menu `/model`. Com **`replaceBuiltInOptions` em `true`**, suas entradas
   **substituem** a lista nativa em vez de somar a ela: o menu passa a oferecer apenas os seus combos,
-  e não há como selecionar por engano um modelo que o seu gateway não serve.
+  e não há como selecionar por engano um modelo que o seu gateway não serve. Vale a ressalva da seção
+  [O arquivo de configuração do Claude Code](#o-arquivo-de-configuração-do-claude-code): no checkout do projeto o bloco é ignorado; ele só vale em `~/.claude/settings.json` ou via `--settings`.
 - **`behavesAs`** em cada linha diz à CLI qual modelo conhecido serve de referência de capacidade
-  para aquele combo. Sem isso ela recusaria o identificador, porque não o encontra no catálogo dela.
-- **`advisorModel`** define quem atende as funções auxiliares de revisão. Aqui ele aponta para
-  `ag/gemini-pro-agent`, o modelo mais denso da conta  -  a regra é que o revisor seja **ao menos tão
-  capaz** quanto o principal. Se preferir que a revisão também herde a cascata, aponte-o para
-  `arsenal-supremo`: as chamadas passam a descer de nível junto com o restante em vez de falhar.
+  para aquele combo. Mapeamos com `"claude-sonnet-4-6"` para evitar que a verificação de direitos de conta (`Lbn`)
+  da CLI filtre ou oculte os modelos caso sua conta local Anthropic não possua assinatura com cota de Opus liberada.
+- **Advisor desligado** com `"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"` no bloco `env`. O advisor é uma
+  *server tool* executada pela API da Anthropic, e nenhum gateway a implementa; o detalhe está no aviso abaixo.
 
-O arquivo completo:
-
-```json
-{
-  "model": "ag/gemini-3.8-flash-high",
-  "advisorModel": "ag/gemini-pro-agent",
-  "modelPicker": {
-    "replaceBuiltInOptions": true,
-    "options": [
-      {
-        "model": "ag/gemini-3.8-flash-high",
-        "label": "Gemini 3.8 Flash High",
-        "description": "Primario do Antigravity",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "ag/gemini-3.7-flash-high",
-        "label": "Gemini 3.7 Flash High",
-        "description": "Trabalho corrente",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "ag/gemini-3.6-flash-high",
-        "label": "Gemini 3.6 Flash High",
-        "description": "Latencia minima",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      },
-      {
-        "model": "groq/openai/gpt-oss-120b",
-        "label": "GPT-OSS 120B (Groq)",
-        "description": "LPU, resposta em fracao de segundo",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "mistral/codestral-latest",
-        "label": "Codestral (Mistral)",
-        "description": "Especialista em codigo",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "arsenal-supremo",
-        "label": "Arsenal Supremo (combo)",
-        "description": "7 niveis, do Gemini ao Ollama local",
-        "behavesAs": "claude-opus-4-8"
-      },
-      {
-        "model": "arsenal-rapido",
-        "label": "Arsenal Rapido (combo)",
-        "description": "4 niveis, otimizado para latencia",
-        "behavesAs": "claude-sonnet-4-6"
-      },
-      {
-        "model": "arsenal-offline",
-        "label": "Arsenal Offline (combo)",
-        "description": "So Ollama local. Responde sempre, nao opera o harness",
-        "behavesAs": "claude-haiku-4-5-20251001"
-      }
-    ]
-  },
-  "env": {
-    "ANTHROPIC_BASE_URL": "http://localhost:20128",
-    "ANTHROPIC_API_KEY": "sk-sua-chave-do-9router",
-    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "ag/gemini-pro-agent",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "ag/gemini-3.8-flash-high",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "ag/gemini-3.7-flash-high",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ag/gemini-3.6-flash-high",
-    "ANTHROPIC_MODEL": "ag/gemini-3.8-flash-high",
-    "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL": "1"
-  },
-  "permissions": {
-    "defaultMode": "bypassPermissions",
-    "allow": [
-      "Bash(*)",
-      "Read(*)",
-      "Edit(*)",
-      "Write(*)",
-      "Glob(*)",
-      "Grep(*)",
-      "WebFetch(*)",
-      "WebSearch(*)",
-      "NotebookEdit(*)",
-      "TodoWrite(*)",
-      "Agent(*)",
-      "Skill(*)"
-    ]
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "includeCoAuthoredBy": false,
-  "modelOverrides": {
-    "claude-fable-5-1": "ag/gemini-pro-agent",
-    "claude-opus-5": "ag/gemini-3.8-flash-high",
-    "claude-sonnet-5": "ag/gemini-3.7-flash-high"
-  }
-}
-```
-
-
-O arquivo completo, com todos os blocos herdados, está em `examples/.claude/settings.local.json.example`.
+> [!CAUTION]
+> ### O Advisor (`/advisor`) não funciona com modelos de terceiros
+>
+> O advisor **não é uma chamada extra feita pela CLI**. Ele é uma *server tool* da API da Anthropic: a cada requisição, o Claude Code acrescenta ao array `tools` um bloco `{"type": "advisor_20260301", "name": "advisor", "model": "<modelo escolhido>"}`, e é o **servidor da Anthropic** que decide quando consultar o modelo revisor, executa a consulta e devolve o resultado em blocos `advisor_result`. A [documentação oficial](https://code.claude.com/docs/en/advisor) é explícita: *"the advisor runs server-side on Anthropic's infrastructure as a server tool"* e *"requires the Anthropic API"*.
+>
+> Consequências com `ANTHROPIC_BASE_URL` apontando para um gateway ou provedor alternativo:
+>
+> 1. **O provedor recebe um tipo de ferramenta que não conhece.** A API do DeepSeek, por exemplo, responde `400 invalid_request_error: tools[0]: unknown variant advisor_20260301, expected web_search_20250305 or web_search_20260209`, e a requisição inteira falha, não só o advisor. Um gateway local que traduz para outro provedor tem o mesmo problema: ninguém fora da Anthropic executa esse bloco.
+> 2. **Nenhuma configuração muda isso.** `advisorModel`, `modelOverrides` e os papéis `ANTHROPIC_DEFAULT_*_MODEL` só escolhem **qual** modelo vai dentro do bloco; quem executa continua sendo a Anthropic. Não é uma questão de `WebSearch`: o DeepSeek até aceita as *server tools* `web_search_*`; o que ele não tem é o advisor.
+> 3. **O menu `/advisor` engana.** Ele lista apenas os aliases `fable`, `opus` e `sonnet` e nomeia cada linha pelo modelo em que o alias resolve. Se dois papéis, ou duas entradas de `modelOverrides`, apontam para o mesmo modelo do provedor, o menu mostra duas linhas com o mesmo nome (o "Fable" duplicado, sem nenhum "Opus"). É sintoma da mesma limitação: nada ali funcionaria de qualquer forma.
+>
+> **Como desligar de verdade:** no bloco `env` dos arquivos de configuração use `"CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"`. Essa é a chave de desligamento documentada: remove o comando `/advisor` e impede que o bloco seja anexado, mesmo que exista um `advisorModel` salvo em `~/.claude/settings.json` de uma sessão antiga. Não use `CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL: "0"`: a CLI trata a variável como booleano, e `"0"` equivale a não defini-la; ela só serve, com `"1"`, para **liberar** o modo experimental. Tampouco é preciso `"advisorModel": ""`; com o recurso desligado a chave é ignorada.
 
 Com essa estrutura, quando o Claude Code solicita o modelo padrão de raciocínio, o 9Router recebe a requisição com o identificador `arsenal-supremo`. Ele envia o prompt para o Gemini 3.8 Flash; caso o rate limit por minuto seja alcançado, o gateway salta automaticamente para o Gemini 3.7 Flash e, sucessivamente, até o último nível local.
 
@@ -1207,13 +1155,13 @@ Ou diretamente pelo terminal:
 ```bash
 # macOS e Linux (bash / zsh)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
-export ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 
 claude --dangerously-skip-permissions --model arsenal-supremo
 
 # Windows (PowerShell)
 $env:ANTHROPIC_BASE_URL="http://localhost:20128"
-$env:ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+$env:ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 
 claude --dangerously-skip-permissions --model arsenal-supremo
 ```

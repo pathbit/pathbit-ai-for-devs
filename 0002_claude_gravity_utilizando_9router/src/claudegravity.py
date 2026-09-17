@@ -190,7 +190,10 @@ def main():
     # Configurar variáveis de ambiente requeridas
     env = os.environ.copy()
     env["ANTHROPIC_BASE_URL"] = args.base_url
-    env["ANTHROPIC_API_KEY"] = args.api_key
+    # A CLI recebe a chave como ANTHROPIC_AUTH_TOKEN (Authorization: Bearer): sem a aprovacao
+    # interativa que ANTHROPIC_API_KEY exige, guardada em ~/.claude.json e apagada pelo /logout.
+    env["ANTHROPIC_AUTH_TOKEN"] = args.api_key
+    env.pop("ANTHROPIC_API_KEY", None)
     env["ANTHROPIC_MODEL"] = args.model
     # Os quatro papéis espelham o bloco env de examples/.claude/settings.json.example,
     # que é a fonte da verdade. Cada papel usa um modelo ag/* individual, o que torna

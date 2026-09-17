@@ -1,0 +1,66 @@
+{
+    "model": "deepseek-v4-pro",
+    "env": {
+        "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+        "ANTHROPIC_AUTH_TOKEN": "sk-sua-chave-do-DEEPSEEK-PLATFORM",
+        "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "DeepSeek V4 PRO (Opus)",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION": "Primario: raciocinio alto, 1M de contexto",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-flash",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "DeepSeek Flash (Sonnet)",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION": "Trabalho corrente: alta velocidade e baixa latencia",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL": "deepseek-v4-pro",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL_NAME": "DeepSeek V4 PRO (Fable)",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL_DESCRIPTION": "Tarefas longas e raciocinio profundo",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-flash",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME": "DeepSeek Flash (Haiku)",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION": "Latencia minima e respostas rapidas",
+        "ANTHROPIC_MODEL": "deepseek-flash",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-flash",
+        "CLAUDE_CODE_EFFORT_LEVEL": "max",
+        "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432",
+        "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
+    },
+    "permissions": {
+        "defaultMode": "bypassPermissions",
+        "allow": [
+            "Bash(*)",
+            "Read(*)",
+            "Edit(*)",
+            "Write(*)",
+            "Glob(*)",
+            "Grep(*)",
+            "WebFetch(*)",
+            "WebSearch(*)",
+            "NotebookEdit(*)",
+            "TodoWrite(*)",
+            "Agent(*)",
+            "Skill(*)"
+        ]
+    },
+    "skipDangerousModePermissionPrompt": true,
+    "includeCoAuthoredBy": false,
+    "modelPicker": {
+        "replaceBuiltInOptions": true,
+        "options": [
+            {
+                "model": "deepseek-flash",
+                "label": "DeepSeek Flash (Sonnet)",
+                "description": "Trabalho corrente: alta velocidade e baixa latencia",
+                "behavesAs": "claude-sonnet-4-6"
+            },
+            {
+                "model": "deepseek-v4-pro",
+                "label": "DeepSeek V4 PRO (Opus)",
+                "description": "Primario: raciocinio alto, 1M de contexto",
+                "behavesAs": "claude-sonnet-4-6"
+            }
+        ]
+    },
+    "modelOverrides": {
+        "claude-fable-5-1": "deepseek-v4-pro[1m]",        
+        "claude-opus-5": "deepseek-v4-pro",
+        "claude-sonnet-5": "deepseek-flash"
+    }
+}

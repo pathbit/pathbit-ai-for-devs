@@ -55,7 +55,7 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 ├── .env.example                   # Modelo de variáveis de ambiente do gateway e Claude
 ├── article/
 │   └── ARTICLE.md                 # Artigo técnico completo e aprofundado
-├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 13b)
+├── assets/                        # Imagens, telas e diagramas do artigo (sequenciados 00 a 13)
 │   ├── diagrams/                  # Fontes vetoriais semânticas em HTML (diagram-design)
 │   ├── cover_linkedin.png              # Capa para compartilhamento no LinkedIn
 │   ├── 00_cover_claudegravity.png         # Capa do artigo
@@ -68,17 +68,16 @@ Enquanto o mercado popularizou o conceito de *DeepClaude* (DeepSeek como cérebr
 │   ├── 07_9router_antigravity_connected.png# Provedor Antigravity com conta ativa (active OAuth #1)
 │   ├── 08_9router_cli_tools.png           # Painel de ferramentas CLI no 9Router
 │   ├── 09_9router_claude_code_config.png  # Instruções de configuração do Claude Code
-│   ├── 10_9router_combos.png              # Visualização dos combos virtuais de fallback
-│   ├── 11_claude_gravity_terminal.png     # Validação de inferência em tempo real no terminal
-│   ├── 12_diagrama_arquitetura_equipes.png# Diagrama de arquitetura para equipes
-│   ├── 13a_app_seletor_modelo.png         # Seletor de modelo nativo do app desktop Claude
-│   └── 13b_app_submenu_mais_modelos.png   # Submenu Mais modelos do app desktop Claude
+│   ├── 10a_app_seletor_modelo.png         # Seletor de modelo nativo do app desktop Claude
+│   ├── 10b_app_submenu_mais_modelos.png   # Submenu Mais modelos do app desktop Claude
+│   ├── 11_9router_combos.png              # Visualização dos combos virtuais de fallback
+│   ├── 12_claude_gravity_terminal.png     # Validação de inferência em tempo real no terminal
+│   └── 13_diagrama_arquitetura_equipes.png # Diagrama de arquitetura para equipes
 ├── examples/                      # Espaço isolado de execução e testes práticos do Claude Code
 │   ├── README.md                  # Instruções de execução do Claude Code
 │   ├── sample_task.py             # Código de exemplo para testes práticos
 │   └── .claude/
-│       ├── settings.json.example  # Modelo de configurações compartilhadas do Claude Code
-│       └── settings.local.json.example # Modelo de menu interativo /model e permissões
+│       └── settings.json.example  # Modelo de configurações compartilhadas do Claude Code
 └── src/
     ├── claudegravity.py           # Launcher CLI do Claude Code pré-configurado (Python)
     ├── manage_env.py              # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
@@ -158,7 +157,6 @@ Na pasta deste módulo, inicialize as configurações a partir dos modelos `.exa
 cd 0002_claude_gravity_utilizando_9router
 cp .env.example .env
 cp examples/.claude/settings.json.example examples/.claude/settings.json
-cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 ```
 
 #### 3. Gerenciamento do Ciclo de Vida do Ambiente (Criar e Destruir)
@@ -274,11 +272,11 @@ python3 src/claudegravity.py --list-models
 ```bash
 # macOS e Linux (bash / zsh)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
-export ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 
 # Windows (PowerShell)
 $env:ANTHROPIC_BASE_URL="http://localhost:20128"
-$env:ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+$env:ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 
 # Teste 1 - ClaudeGravity Principal
 claude --dangerously-skip-permissions --model ag/gemini-3.8-flash-high

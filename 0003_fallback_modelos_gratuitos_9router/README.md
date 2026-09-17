@@ -37,7 +37,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 0003_fallback_modelos_gratuitos_9router/
 ├── README.md                              # Este arquivo com resumo executivo e instruções
 ├── requirements.txt                       # Dependências Python mínimas (requests)
-├── docker-compose.yml                     # Orquestração do gateway 9Router e 9RTKSync em container
+├── docker-compose.yml                     # Orquestração do 9Router, Ollama e 9RTKSync em containers
 ├── .env.example                           # Modelo de variáveis de ambiente e chaves gratuitas
 ├── article/
 │   └── ARTICLE.md                         # Artigo técnico completo, ilustrado e aprofundado
@@ -71,8 +71,7 @@ Guia prático e orquestração de infraestrutura para criar um ecossistema de al
 │   ├── README.md                          # Instruções de execução do Claude Code
 │   ├── sample_task.py                     # Código de exemplo para testes práticos
 │   └── .claude/
-│       ├── settings.json.example          # Configurações compartilhadas apontando para o combo
-│       └── settings.local.json.example    # Configurações locais com menu /model customizado
+│       └── settings.json.example          # Configurações compartilhadas apontando para o combo
 └── src/
     ├── arsenal_launcher.py                # Launcher CLI para iniciar o Claude Code conectado ao combo
     ├── manage_env.py                      # Gerenciador do ciclo de vida do ambiente (start, stop, destroy, status)
@@ -160,7 +159,6 @@ Na pasta deste módulo, inicialize as configurações e chaves a partir dos arqu
 cd 0003_fallback_modelos_gratuitos_9router
 cp .env.example .env
 cp examples/.claude/settings.json.example examples/.claude/settings.json
-cp examples/.claude/settings.local.json.example examples/.claude/settings.local.json
 ```
 
 Edite o arquivo `.env` para inserir suas chaves caso deseje personalizá-las.
@@ -269,12 +267,12 @@ Ou diretamente pelo comando shell:
 ```bash
 # macOS e Linux (bash / zsh)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
-export ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+export ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 claude --dangerously-skip-permissions --model arsenal-supremo
 
 # Windows (PowerShell)
 $env:ANTHROPIC_BASE_URL="http://localhost:20128"
-$env:ANTHROPIC_API_KEY="sk-sua-chave-do-9router"
+$env:ANTHROPIC_AUTH_TOKEN="sk-sua-chave-do-9router"
 claude --dangerously-skip-permissions --model arsenal-supremo
 ```
 

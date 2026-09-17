@@ -230,7 +230,10 @@ def run_claude_cli_test(model_name, prompt):
     ]
     env = os.environ.copy()
     env["ANTHROPIC_BASE_URL"] = GATEWAY_URL
-    env["ANTHROPIC_API_KEY"] = API_KEY
+    # A CLI recebe a chave como ANTHROPIC_AUTH_TOKEN (Authorization: Bearer): sem a aprovacao
+    # interativa que ANTHROPIC_API_KEY exige, guardada em ~/.claude.json e apagada pelo /logout.
+    env["ANTHROPIC_AUTH_TOKEN"] = API_KEY
+    env.pop("ANTHROPIC_API_KEY", None)
 
     examples_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "examples"))
     t0 = time.time()

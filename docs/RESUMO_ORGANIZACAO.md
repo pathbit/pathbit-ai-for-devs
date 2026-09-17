@@ -11,6 +11,7 @@ pathbit-ai-for-devs/
 ├── 0001_antigravity_acesso_total_irrestrito/  # Artigo 0001: Permissões irrestritas no Antigravity
 ├── 0002_claude_gravity_utilizando_9router/              # Artigo 0002: ClaudeGravity e roteamento 9Router
 ├── 0003_fallback_modelos_gratuitos_9router/  # Artigo 0003: Arsenal multi-provedor e fallback
+├── 0004_deep_claude_alternativa_claudegravity/ # Artigo 0004: DeepSeek e OrcaRouter como alternativa ao ClaudeGravity
 ├── docs/                                     # Documentação técnica e padrões de engenharia
 ├── README.md                                 # Índice executivo do repositório
 ├── .editorconfig                             # Padronização de indentação e charset
@@ -37,8 +38,7 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 │   └── *.py                       # Scripts utilitários e testes de inferência em Python puro
 ├── examples/
 │   ├── .claude/                   # Sandbox isolado para testes com Claude Code
-│   │   ├── settings.json.example  # Configuração padrão versionada
-│   │   └── settings.local.json.example
+│   │   └── settings.json.example  # Configuração padrão versionada (um .example por provedor quando há mais de um, como no 0004)
 │   ├── README.md                  # Instruções de execução isolada do exemplo
 │   └── sample_*.py                # Tarefa prática de demonstração
 ├── docker-compose.yml             # Manifesto de infraestrutura (gateway + 9RTKSync quando aplicável)
@@ -50,7 +50,7 @@ Cada artigo do repositório é um pacote auto-contido que possui cinco component
 
 ## 🔄 Checklist para Publicação de Novos Artigos
 
-Ao criar um novo módulo (por exemplo, `0004_novo_artigo/`), siga este checklist de qualidade:
+Ao criar um novo módulo (por exemplo, `0005_novo_artigo/`), siga este checklist de qualidade:
 
 1. **Numeração Sequencial:** O prefixo da pasta deve seguir o formato `000X_nome_em_snake_case`.
 2. **Imagens e Assets:**
@@ -61,6 +61,7 @@ Ao criar um novo módulo (por exemplo, `0004_novo_artigo/`), siga este checklist
 4. **Isolamento de Configurações:**
    - Garanta que `.claude/` esteja somente dentro de `examples/`.
    - Adicione arquivos `.example` para todas as configurações que utilizem caminhos ou chaves locais.
+   - Um único `settings.json.example` por cenário, sem `settings.local.json`; credencial em `ANTHROPIC_AUTH_TOKEN`; `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`; JSON validado e idêntico ao bloco publicado no artigo. Rode o verificador de [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md) antes do commit.
 5. **Automação em Python:**
    - Todo script deve ser escrito em Python 3 puro sem dependências pesadas de terceiros e executado em virtual environment.
    - Forneça scripts de verificação e testes com saída limpa no terminal.

@@ -314,7 +314,8 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
 > **Sem bloco `env` aqui, e é de propósito.** Este artigo trata de permissões e autonomia, não de
 > roteamento de modelos: nada aponta para um gateway. As variáveis de ambiente, os papéis de modelo e
 > o `modelPicker` entram no [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md),
-> junto com o 9Router.
+> junto com o 9Router. Um aviso desde já: a CLI só honra o `modelPicker` em `~/.claude/settings.json`, em
+> settings gerenciadas ou via `claude --settings <arquivo>`; copiá-lo para o `.claude/` do projeto não tem efeito.
 
 #### Anatomia da Configuração Compartilhada de Pareamento
 
@@ -327,37 +328,7 @@ Quando você utiliza o Antigravity em conjunto com o Claude Code para pareamento
 
 ---
 
-### 7. Configuração Local de Máquina (`settings.local.json.example`)
-
-O arquivo local repete as concessões de permissões para a máquina do desenvolvedor e tem precedência sobre o arquivo compartilhado:
-
-```json
-{
-  "permissions": {
-    "defaultMode": "bypassPermissions",
-    "allow": [
-      "Bash(*)",
-      "Read(*)",
-      "Edit(*)",
-      "Write(*)",
-      "Glob(*)",
-      "Grep(*)",
-      "WebFetch(*)",
-      "WebSearch(*)",
-      "NotebookEdit(*)",
-      "TodoWrite(*)",
-      "Agent(*)",
-      "Skill(*)"
-    ]
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "includeCoAuthoredBy": false
-}
-```
-
----
-
-### 8. Estrutura do Relatório de Diagnóstico e Saúde (`health_report.json`)
+### 7. Estrutura do Relatório de Diagnóstico e Saúde (`health_report.json`)
 
 Para demonstrar a autonomia de leitura e escrita dentro do ambiente isolado, o script de exemplo `examples/sample_task.py` grava um relatório estruturado em JSON no formato de diagnóstico esperado:
 
@@ -532,6 +503,7 @@ Com o motor do Google Antigravity configurado para autonomia desimpedida, o ecos
 
 1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a autenticação eternamente ativa através do container sidecar de auto-renovação (`router-sync`).
 2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático e suporte do sidecar contínuo, eliminando paradas por limite de cota.
+3. **Usar o DeepSeek como Alternativa ao ClaudeGravity:** No [Artigo 0004 - DeepSeek como Alternativa ao ClaudeGravity](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o Claude Code conecta-se aos modelos DeepSeek pela plataforma oficial ou pelo OrcaRouter, sem depender do Antigravity, reaproveitando as mesmas permissões deste artigo.
 
 ---
 

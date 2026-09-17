@@ -57,15 +57,17 @@ A localização permitida para `.claude/` é exclusivamente dentro da subpasta d
 ├── examples/
 │   ├── .claude/
 │   │   ├── settings.json.example        # Versionado no Git
-│   │   ├── settings.local.json.example  # Versionado no Git
-│   │   ├── settings.json                # Ignorado no Git (.gitignore)
-│   │   └── settings.local.json          # Ignorado no Git (.gitignore)
+│   │   └── settings.json                # Ignorado no Git (.gitignore)
 ```
 
 ### 2. Gestão de Chaves de API e `.env`
 
 - Arquivos `.env` contendo chaves reais são de uso estritamente local, devem estar sempre no `.gitignore` e **NUNCA** devem existir na raiz do repositório (apenas dentro da pasta de cada artigo).
 - Arquivos `.env.example` devem ser versionados e documentar cada variável de ambiente com exemplos descritivos ou chaves de demonstração públicas sem limite financeiro (como chaves gratuitas do OpenRouter limitadas a $0.00).
+
+### 3. Regras para os `settings.json` do Claude Code nos Exemplos
+
+Cada artigo versiona um único `examples/.claude/settings.json.example` (sem `settings.local.json`), com `ANTHROPIC_AUTH_TOKEN` como credencial, `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` no `env` e JSON validado antes do commit. O bloco JSON dentro do `ARTICLE.md` deve ser idêntico ao arquivo. As regras completas, o porquê de cada uma e um verificador estão em [CHECKLIST_SETTINGS_CLAUDE_CODE.md](./CHECKLIST_SETTINGS_CLAUDE_CODE.md).
 
 ---
 

@@ -54,8 +54,7 @@ Elimina todas as confirmações manuais, aprovações de terminal e diálogos de
 │   ├── README.md                          # Instruções de uso do ambiente isolado
 │   ├── sample_task.py                     # Script de exemplo para testes agênticos
 │   └── .claude/
-│       ├── settings.json.example          # Modelo de configuração bypass
-│       └── settings.local.json.example    # Modelo de configuração local
+│       └── settings.json.example          # Modelo de configuração bypass
 └── src/                                   # Ferramentas de engenharia 100% em Python
     ├── setup_permissions.py               # Aplicador multiplataforma de permissões com backup
     ├── verify_permissions.py              # Diagnóstico automatizado de integridade
@@ -167,3 +166,4 @@ Este módulo estabelece a fundação de permissões do ecossistema de engenharia
 
 * **[Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/):** Conecte a sessão do Antigravity ao Claude Code CLI sem pagar faturas de tokens de API, com renovação contínua via container sidecar `router-sync`.
 * **[Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../0003_fallback_modelos_gratuitos_9router/):** Construa uma malha resiliente com 9 fontes gratuitas mapeadas e 5 integradas com auto-cura, combos de alta disponibilidade e suporte contínuo do sidecar de tokens.
+* **[Artigo 0004 - DeepSeek como Alternativa ao ClaudeGravity](../0004_deep_claude_alternativa_claudegravity/):** Conecte o Claude Code aos modelos DeepSeek pela plataforma oficial ou pelo OrcaRouter, sem depender do Antigravity, com as mesmas permissões deste módulo.
