@@ -139,8 +139,10 @@ O motivo é concreto: o GitHub monta a lista de *Contributors* da página públi
 Ao clonar, ative o hook que higieniza as mensagens (o Git não versiona `.git/hooks`):
 
 ```bash
-git config core.hooksPath .githooks
+make setup
 ```
+
+(equivale a `git config core.hooksPath .githooks`)
 
 E confira antes de publicar:
 

@@ -67,8 +67,10 @@ Três camadas, porque nenhuma delas sozinha basta:
 O Git não versiona `.git/hooks`, então cada clone precisa ativar uma vez:
 
 ```bash
-git config core.hooksPath .githooks
+make setup
 ```
+
+O alvo faz exatamente `git config core.hooksPath .githooks` e confirma o resultado.
 
 ### Conferir antes de publicar
 

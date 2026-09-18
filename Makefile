@@ -1,7 +1,15 @@
-.PHONY: test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
+.PHONY: setup test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
+
+# Prepara o clone: ativa o hook que impede assinatura de coautoria de IA nos
+# commits. O Git nao versiona .git/hooks, entao cada clone precisa fazer isso uma
+# vez -- foi a ausencia desse passo que deixou quatro commits assinados passarem.
+setup:
+	@git config core.hooksPath .githooks
+	@echo "core.hooksPath = $$(git config --get core.hooksPath)"
+	@echo "Hook de autoria ativo. Regras do repositorio: AGENTS.md"
 
 # Executa todos os testes de integracao via container Docker (zero dependencias no host alem do Docker)
 test: test-container
