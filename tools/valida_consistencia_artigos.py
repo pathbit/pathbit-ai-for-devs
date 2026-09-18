@@ -32,6 +32,7 @@ O que se confere aqui:
 """
 
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -259,6 +260,31 @@ def valida_autoria_dos_commits():
     else:
         aviso("~/.claude/settings.json não define includeCoAuthoredBy=false -- o padrão é true "
               "e o trailer volta em qualquer repo sem settings próprio")
+
+    # As regras precisam existir por escrito para qualquer agente, não só para a
+    # ferramenta que por acaso estiver em uso.
+    for doc in ("AGENTS.md", "CLAUDE.md"):
+        caminho = RAIZ / doc
+        if not caminho.is_file():
+            falha(f"{doc} ausente na raiz -- as regras de autoria precisam estar versionadas")
+        elif "Co-Authored-By" not in caminho.read_text(encoding="utf-8"):
+            falha(f"{doc} não declara a proibição de coautoria de IA")
+        else:
+            ok(f"{doc} presente e declara a regra de autoria")
+
+    # O hook só protege quem o ativou: `.git/hooks` não é versionado.
+    hook = RAIZ / ".githooks" / "commit-msg"
+    if not hook.is_file():
+        falha(".githooks/commit-msg ausente -- o hook precisa ser versionado para valer em outros clones")
+    elif not os.access(hook, os.X_OK):
+        falha(".githooks/commit-msg não é executável")
+    else:
+        ativo = subprocess.run(["git", "config", "--get", "core.hooksPath"],
+                               cwd=RAIZ, capture_output=True, text=True).stdout.strip()
+        if ativo == ".githooks":
+            ok("hook commit-msg versionado e ativo neste clone")
+        else:
+            aviso("hook versionado existe mas não está ativo aqui: rode `git config core.hooksPath .githooks`")
 
 
 def valida_links_internos():

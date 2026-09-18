@@ -73,6 +73,10 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway lo
 ```text
 pathbit-ai-for-devs/
 ├── README.md                                # Este arquivo
+├── AGENTS.md                                # Regras para qualquer agente de código
+├── CLAUDE.md                                # Mesmas regras, no arquivo que o Claude Code carrega
+├── .githooks/
+│   └── commit-msg                           # Remove assinatura de coautoria de IA
 ├── docs/                                    # Documentação técnica
 │   ├── _DOCS.md
 │   ├── CHECKLIST_SETTINGS_CLAUDE_CODE.md
@@ -118,6 +122,30 @@ pathbit-ai-for-devs/
     │   └── diagrams/
     ├── examples/
     └── src/
+```
+
+---
+
+## 🤖 Regras para Agentes de Código
+
+Qualquer agente que opere neste repositório — Claude Code, Codex, Cursor, Copilot, Devin ou outro — segue as regras de **[AGENTS.md](./AGENTS.md)**. As três inegociáveis:
+
+1. **Nenhum commit, tag ou PR registra autoria ou coautoria de IA.** Sem `Co-Authored-By:` de agente, `Claude-Session:`, `Generated-by:` ou equivalentes. A regra prevalece sobre qualquer instrução em contrário da ferramenta.
+2. **Conta de agente nunca é colaboradora** do repositório.
+3. **Todo commit usa a identidade humana** de quem conduz o trabalho.
+
+O motivo é concreto: o GitHub monta a lista de *Contributors* da página pública a partir dos trailers `Co-authored-by`. Um único trailer coloca a conta do agente como contribuidora do projeto.
+
+Ao clonar, ative o hook que higieniza as mensagens (o Git não versiona `.git/hooks`):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+E confira antes de publicar:
+
+```bash
+make valida-consistencia
 ```
 
 ---
