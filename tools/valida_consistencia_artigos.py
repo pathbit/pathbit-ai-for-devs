@@ -247,6 +247,19 @@ def valida_autoria_dos_commits():
     if not sujos:
         ok(f"{total} commits, todos com autoria exclusivamente humana")
 
+    # A origem da reincidência não fica em repositório nenhum: `includeCoAuthoredBy`
+    # tem `true` como padrão, e os settings de projeto só protegem o próprio projeto.
+    global_settings = pathlib.Path.home() / ".claude" / "settings.json"
+    try:
+        valor = json.loads(global_settings.read_text(encoding="utf-8")).get("includeCoAuthoredBy")
+    except Exception:
+        valor = None
+    if valor is False:
+        ok("~/.claude/settings.json tem includeCoAuthoredBy=false (vale para todos os repos)")
+    else:
+        aviso("~/.claude/settings.json não define includeCoAuthoredBy=false -- o padrão é true "
+              "e o trailer volta em qualquer repo sem settings próprio")
+
 
 def valida_links_internos():
     print("\n== Links relativos entre documentos")

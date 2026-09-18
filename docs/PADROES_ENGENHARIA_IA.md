@@ -103,6 +103,27 @@ claude config set -g includeCoAuthor false
 
 Essa configuração grava `"includeCoAuthor": false` em `~/.claude.json`, garantindo que nenhum commit gerado por ferramentas locais receba trailers indesejados.
 
+### 1.0. A Causa Real da Reincidência: a Chave Está no Arquivo GLOBAL
+
+O trailer voltou a aparecer em 18/09/2026, depois de já ter sido removido — e a explicação não estava em nenhum repositório.
+
+A chave `includeCoAuthoredBy` **tem `true` como padrão** na CLI. Os settings de projeto deste repositório declaram `false`, o que resolve o problema *dentro deles*. Mas qualquer repositório sem settings próprio — ou seja, a maioria — continua recebendo o trailer automaticamente, porque o arquivo global do usuário nunca recebeu a chave:
+
+```bash
+# diagnóstico: se isto imprimir "(nao definido)", o padrão true está valendo
+python3 -c "import json,os; print(json.load(open(os.path.expanduser('~/.claude/settings.json'))).get('includeCoAuthoredBy','(nao definido)'))"
+```
+
+A correção que vale para **todos** os repositórios da máquina é declarar a chave no arquivo global `~/.claude/settings.json`:
+
+```json
+{
+    "includeCoAuthoredBy": false
+}
+```
+
+> **Por que isso importa além do histórico.** O GitHub deriva a lista de *Contributors* — a que aparece na página pública do projeto — dos trailers `Co-authored-by` dos commits. Um único commit com o trailer faz a IA figurar como contribuidora do repositório. Depois de limpar o histórico, a página pode levar algum tempo para recalcular: a API (`/repos/OWNER/REPO/contributors?anon=1`) reflete o estado real antes da interface.
+
 ### 1.1. O Hook Não é Versionado — Verifique o Histórico Também
 
 O hook `commit-msg` instalado pelo `setup_permissions.py` do artigo 0001 higieniza a mensagem no momento do commit, mas ele vive em `.git/hooks` (ou no `core.hooksPath` global). Nada disso é versionado: **um clone novo, ou uma máquina onde o hook não foi instalado, aceita o trailer sem reclamar**.
