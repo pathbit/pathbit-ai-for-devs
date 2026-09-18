@@ -21,6 +21,8 @@ Opera o **Claude Code CLI** diretamente com os modelos da família **DeepSeek** 
 
 Representa a alternativa universal ao ClaudeGravity do [Artigo 0002](../0002_claude_gravity_utilizando_9router/) para desenvolvedores que não possuem acesso ao Google Antigravity, funcionando também integrado à cascata de fallback do 9Router apresentada no [Artigo 0003](../0003_fallback_modelos_gratuitos_9router/).
 
+Estabelece também o **padrão arquitetural universal** para plugar qualquer família de modelos (Llama, Qwen, Mistral, etc.) ou roteador de inferência (OpenRouter, Together AI, Groq, Novita AI) diretamente ao Claude Code sem gateways locais, desde que o provedor disponibilize APIs compatíveis com a Anthropic Messages (`/v1/messages`) — reforçando a importância de sempre consultar a documentação técnica oficial antes da implementação.
+
 ---
 
 ### Estrutura de Arquivos do Módulo
