@@ -23,6 +23,10 @@ O que se confere aqui:
   `ANTHROPIC_AUTH_TOKEN` (nunca `ANTHROPIC_API_KEY`, que dispara diálogo
   interativo), advisor desligado pelo kill switch, `ANTHROPIC_BASE_URL` sem o
   sufixo `/v1`, e nenhum token real dentro de um template versionado.
+- **Autoria dos commits**: nenhum commit do histórico carrega assinatura
+  sintética de coautoria de IA. A regra está em PADROES_ENGENHARIA_IA.md; o hook
+  `commit-msg` a aplica na hora de commitar, mas ele não é versionado -- esta
+  verificação vale em qualquer clone e em CI.
 - **Links internos**: todo link relativo entre documentos aponta para um arquivo
   que existe.
 """
@@ -30,6 +34,7 @@ O que se confere aqui:
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
@@ -191,6 +196,58 @@ def valida_settings_de_todos_os_modulos():
         ok("todos os templates seguem as regras (AUTH_TOKEN, advisor desligado, URL sem /v1, sem credencial real)")
 
 
+def valida_autoria_dos_commits():
+    """Confere que nenhum commit carrega assinatura sintética de coautoria de IA.
+
+    A regra está em docs/PADROES_ENGENHARIA_IA.md: todo commit deve refletir
+    exclusivamente autoria humana. O `commit-msg` instalado pelo artigo 0001
+    higieniza a mensagem na hora de commitar, mas ele vive em `.git/hooks`, que
+    não é versionado -- um clone novo, ou uma máquina onde o hook não foi
+    instalado, aceita o trailer sem reclamar. Esta verificação roda a partir do
+    repositório e por isso vale em qualquer clone e em CI.
+    """
+    print("\n== Autoria dos commits")
+    proibidos = re.compile(
+        r"^\s*(Co-Authored-By|Signed-off-by|Authored-by):.*"
+        r"(claude|anthropic|gemini|antigravity|openai|gpt|copilot|cursor|devin|"
+        r"windsurf|codeium|aider|cline|bot|noreply@)"
+        r"|^\s*(Claude-Session|Session-ID|Generated-by|AI-Generated|Assisted-by):"
+        r"|Generated with \[?Claude Code"
+        r"|claude\.ai/code/session"
+        r"|^\s*🤖",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    try:
+        bruto = subprocess.run(
+            ["git", "log", "--format=%H%x1f%s%x1f%B%x1e"],
+            cwd=RAIZ, capture_output=True, text=True, timeout=60,
+        )
+    except Exception as exc:
+        aviso(f"não foi possível ler o histórico ({exc})")
+        return
+    if bruto.returncode != 0:
+        aviso("não é um repositório git ou o histórico está indisponível")
+        return
+
+    sujos = 0
+    total = 0
+    for registro in bruto.stdout.split("\x1e"):
+        if not registro.strip():
+            continue
+        total += 1
+        partes = registro.strip("\n").split("\x1f")
+        if len(partes) < 3:
+            continue
+        sha, assunto, corpo = partes[0][:7], partes[1], partes[2]
+        achado = proibidos.search(corpo)
+        if achado:
+            linha = achado.group(0).strip().splitlines()[0]
+            falha(f"commit {sha} ({assunto[:48]}) tem assinatura de IA: {linha[:60]}")
+            sujos += 1
+    if not sujos:
+        ok(f"{total} commits, todos com autoria exclusivamente humana")
+
+
 def valida_links_internos():
     print("\n== Links relativos entre documentos")
     quebrados = 0
@@ -216,6 +273,7 @@ def main():
     valida_convencao_de_nomes()
     valida_sufixo_1m()
     valida_settings_de_todos_os_modulos()
+    valida_autoria_dos_commits()
     valida_links_internos()
     print("\n" + "=" * 72)
     if falhas:

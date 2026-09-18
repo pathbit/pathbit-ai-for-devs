@@ -103,6 +103,49 @@ claude config set -g includeCoAuthor false
 
 Essa configuração grava `"includeCoAuthor": false` em `~/.claude.json`, garantindo que nenhum commit gerado por ferramentas locais receba trailers indesejados.
 
+### 1.1. O Hook Não é Versionado — Verifique o Histórico Também
+
+O hook `commit-msg` instalado pelo `setup_permissions.py` do artigo 0001 higieniza a mensagem no momento do commit, mas ele vive em `.git/hooks` (ou no `core.hooksPath` global). Nada disso é versionado: **um clone novo, ou uma máquina onde o hook não foi instalado, aceita o trailer sem reclamar**.
+
+Foi exatamente o que aconteceu neste repositório em 17/09/2026: quatro commits entraram com `Co-Authored-By:` e `Claude-Session:` porque o clone não tinha `core.hooksPath` configurado. As mensagens foram reescritas e o histórico republicado.
+
+Para que a regra valha em qualquer clone e em CI, a verificação também roda a partir do repositório:
+
+```bash
+make valida-consistencia
+```
+
+A seção **Autoria dos commits** percorre todas as mensagens do histórico e falha se encontrar qualquer assinatura sintética. Para instalar o hook neste clone:
+
+```bash
+python3 0001_antigravity_acesso_total_irrestrito/src/setup_permissions.py
+```
+
+### 1.2. Como Limpar um Histórico que Já Recebeu Trailers
+
+Reescrever mensagens muda os SHAs e exige `push --force`. Faça backup antes:
+
+```bash
+git bundle create ../backup.bundle --all          # backup completo
+git branch backup-antes-limpeza                   # rede de segurança local
+
+git filter-branch -f --msg-filter '
+  sed -E "/^Co-Authored-By:.*(claude|anthropic|devin|copilot|bot|noreply)/Id;
+          /^Claude-Session:/Id;
+          /Generated with \[?Claude Code/Id;
+          /^https:\/\/claude\.ai\/code\/session/Id;
+          /🤖/d"
+' <commit-base>..HEAD
+
+git push --force-with-lease origin master
+```
+
+Confira que a árvore não mudou antes de publicar — só as mensagens deveriam ter sido tocadas:
+
+```bash
+git diff backup-antes-limpeza master     # precisa sair vazio
+```
+
 ### 2. Configuração de Autoria do Git
 
 Certifique-se de que seu ambiente Git esteja sempre configurado com seu nome e e-mail oficiais:
