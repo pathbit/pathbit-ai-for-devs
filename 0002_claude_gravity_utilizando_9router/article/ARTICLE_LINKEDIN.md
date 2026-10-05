@@ -1135,7 +1135,6 @@ Como a janela de conversa não tem repositório, a configuração vai no **arqui
   }
 }
 ```
-```
 
 ### O seletor de modelo do aplicativo é outro
 
