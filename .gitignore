@@ -1364,6 +1364,8 @@ temp/
 **/test_output/
 **/test-results/
 **/*.test.log
+**/tmp/
+**/temp/
 
 ### Not Ignored ###
 !**/.vscode/
