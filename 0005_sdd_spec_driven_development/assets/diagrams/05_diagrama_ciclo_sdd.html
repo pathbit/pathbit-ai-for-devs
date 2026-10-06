@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seis fases, um loop: o ciclo iterativo do SDD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; height: auto; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ciclo-sdd-title ciclo-sdd-desc">
+      <title id="ciclo-sdd-title">Seis fases, um loop: o ciclo iterativo do SDD</title>
+      <desc id="ciclo-sdd-desc">Fluxo horizontal de seis fases — princípios, especificar, planejar, tarefas, implementar e verificar — com uma seta tracejada de retorno de verificar para especificar, indicando que voltar é o processo funcionando.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Cabeçalho editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Seis fases, um loop</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ===== FAIXAS PENSAR / FAZER ===== -->
+      <rect x="40" y="150" width="690" height="110" rx="3" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.08)" stroke-width="0.8"/>
+      <text x="385" y="172" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">PENSAR</text>
+
+      <rect x="760" y="150" width="330" height="110" rx="3" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.08)" stroke-width="0.8"/>
+      <text x="925" y="172" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">FAZER</text>
+
+      <!-- ===== SEIS NÓS ===== -->
+      <rect x="40" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="115" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">princípios</text>
+
+      <line x1="190" y1="225" x2="218" y2="225" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <rect x="220" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="295" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">especificar</text>
+
+      <line x1="370" y1="225" x2="398" y2="225" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <rect x="400" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="475" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">planejar</text>
+
+      <line x1="550" y1="225" x2="578" y2="225" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <rect x="580" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="655" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">tarefas</text>
+
+      <line x1="730" y1="225" x2="758" y2="225" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <rect x="760" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="835" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">implementar</text>
+
+      <line x1="910" y1="225" x2="938" y2="225" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <rect x="940" y="190" width="150" height="70" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="1015" y="230" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">verificar</text>
+
+      <!-- Seta de retorno: desviou? volta pra spec -->
+      <path d="M 1090,260 V 320 H 295 V 260" fill="none" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-accent)"/>
+      <text x="690" y="312" fill="#eb6c36" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">desviou? volta pra spec</text>
+
+      <!-- Nota -->
+      <rect x="340" y="360" width="520" height="44" rx="3" fill="rgba(45,49,66,0.04)"/>
+      <text x="600" y="388" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle">o ciclo é iterativo — voltar é o processo funcionando</text>
+
+      <!-- Rodapé -->
+      <line x1="40" y1="460" x2="1160" y2="460" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="488" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">Voltar não é recomeçar: é a spec absorvendo o que o código revelou.</text>
+      <text x="40" y="516" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">PATHBIT AI FOR DEVS · ARTIGO 0005</text>
+    </svg>
+  </div>
+</body>
+</html>

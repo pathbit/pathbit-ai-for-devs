@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nenhum método vence sempre: o mapa de métodos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; height: auto; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mapa-metodos-title mapa-metodos-desc">
+      <title id="mapa-metodos-title">Nenhum método vence sempre: o mapa de métodos</title>
+      <desc id="mapa-metodos-desc">Plano cartesiano com ambiguidade da tarefa no eixo x e custo do erro no eixo y, posicionando vibe coding, SDD e os casos intermediários em quadrantes, com uma faixa sobre o waterfall no rodapé.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Cabeçalho editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Nenhum método vence sempre — o que muda é a região do mapa</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ===== PLANO CARTESIANO ===== -->
+      <!-- Região SDD em acento (superior-direita) -->
+      <rect x="600" y="140" width="460" height="190" fill="rgba(235,108,54,0.05)"/>
+
+      <!-- Eixos -->
+      <line x1="600" y1="140" x2="600" y2="520" stroke="rgba(45,49,66,0.25)" stroke-width="1"/>
+      <polygon points="600 140, 596 150, 604 150" fill="#4f5d75"/>
+      <line x1="140" y1="330" x2="1060" y2="330" stroke="rgba(45,49,66,0.25)" stroke-width="1"/>
+      <polygon points="1060 330, 1050 326, 1050 334" fill="#4f5d75"/>
+
+      <!-- Quadrante superior-esquerdo: ambíguo mas barato -->
+      <text x="370" y="210" fill="#2d3142" font-size="12.5" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">ambíguo mas barato:</text>
+      <text x="370" y="232" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">explore antes, especifique depois</text>
+
+      <!-- Quadrante superior-direito: SDD (em acento) -->
+      <text x="830" y="200" fill="#eb6c36" font-size="16" font-family="'Geist', sans-serif" font-weight="600" text-anchor="middle">SDD</text>
+      <text x="830" y="226" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">feature nova, requisito ambíguo,</text>
+      <text x="830" y="246" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">trabalho em time, código que fica</text>
+
+      <!-- Quadrante inferior-esquerdo: vibe coding -->
+      <text x="370" y="410" fill="#2d3142" font-size="12.5" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">vibe coding</text>
+      <text x="370" y="432" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">script descartável, protótipo,</text>
+      <text x="370" y="452" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">correção trivial, exploração</text>
+
+      <!-- Quadrante inferior-direito: tarefa clara, mas crítica -->
+      <text x="830" y="410" fill="#2d3142" font-size="12.5" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">tarefa clara, mas crítica:</text>
+      <text x="830" y="432" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">spec curta + testes fortes</text>
+
+      <!-- Rótulos dos eixos -->
+      <text x="600" y="560" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">ambiguidade da tarefa →</text>
+      <text x="100" y="330" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle" transform="rotate(-90 100 330)">custo do erro →</text>
+
+      <!-- Faixa: waterfall -->
+      <rect x="140" y="580" width="920" height="36" rx="3" fill="rgba(45,49,66,0.04)"/>
+      <text x="600" y="603" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">waterfall: especifica tudo, uma vez só, e não volta</text>
+
+      <!-- Rodapé -->
+      <text x="40" y="644" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">PATHBIT AI FOR DEVS · ARTIGO 0005</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -46,6 +46,16 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway lo
 
 ---
 
+### [0005 - Spec Driven Development no Claude Code: Como Eliminar o Vibe Coding com Especificações Executáveis](./0005_sdd_spec_driven_development/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Método de Desenvolvimento
+
+Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, este artigo aborda a camada metodológica: o que você entrega ao agente para ele construir? Apresenta o **Spec Driven Development (SDD)**, a disciplina de engenharia que substitui o improviso do *vibe coding* por especificações executáveis e verificáveis, tornando a especificação a fonte primária da verdade e o código um subproduto estritamente derivado. Detalha as seis seções fundamentais de uma especificação funcional, o ciclo de desenvolvimento em seis fases com loopback consciente, a física cognitiva da janela de contexto do agente e a sinergia com o TDD. Mostra como o ecossistema nativo do Claude Code (como `CLAUDE.md`, plan mode, slash commands e subagentes com contexto isolado) viabiliza o método na prática, acompanhado do estudo de caso completo de uma API de agregador de notícias desenvolvida em seis ciclos incrementais.
+
+[📖 Ler Artigo](./0005_sdd_spec_driven_development/article/ARTICLE.md) | [🔧 Executar Localmente](./0005_sdd_spec_driven_development/README.md) | [🧪 Exemplos Práticos](./0005_sdd_spec_driven_development/examples/README.md)
+
+---
+
 ## 📖 Documentação
 
 Índice geral em **[docs/_DOCS.md](./docs/_DOCS.md)**.
@@ -114,14 +124,22 @@ pathbit-ai-for-devs/
 │   ├── assets/
 │   ├── examples/
 │   └── src/
-└── 0004_deep_claude_alternativa_claudegravity/  # Artigo 0004
+├── 0004_deep_claude_alternativa_claudegravity/  # Artigo 0004
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── article/
+│   ├── assets/
+│   │   └── diagrams/
+│   ├── examples/
+│   └── src/
+└── 0005_sdd_spec_driven_development/      # Artigo 0005
     ├── README.md
-    ├── requirements.txt
     ├── article/
     ├── assets/
     │   └── diagrams/
-    ├── examples/
-    └── src/
+    └── examples/
+        ├── specs/
+        └── .claude/
 ```
 
 ---

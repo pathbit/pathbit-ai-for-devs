@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cada ferramenta atende uma fase do ciclo: ferramentas por fase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:    'Instrument Serif', Georgia, serif;
+      --font-mono:     'Geist Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; height: auto; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ferramentas-fases-title ferramentas-fases-desc">
+      <title id="ferramentas-fases-title">Cada ferramenta atende uma fase do ciclo: ferramentas por fase</title>
+      <desc id="ferramentas-fases-desc">As seis fases do ciclo SDD — princípios, especificar, planejar, tarefas, implementar e verificar — cada uma conectada à ferramenta do Claude Code correspondente, de CLAUDE.md ao subagente revisor.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Cabeçalho editorial -->
+      <text x="40" y="40" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005</text>
+      <text x="40" y="72" fill="#2d3142" font-size="26" font-family="'Instrument Serif', Georgia, serif">Cada ferramenta atende uma fase do ciclo</text>
+      <line x1="40" y1="92" x2="1160" y2="92" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- Colunas -->
+      <text x="190" y="130" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">FASE DO CICLO</text>
+      <text x="780" y="130" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">FERRAMENTA CLAUDE CODE</text>
+
+      <!-- Linha 1: princípios → CLAUDE.md -->
+      <rect x="40" y="148" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="186" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">princípios</text>
+      <line x1="340" y1="178" x2="558" y2="178" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="148" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="186" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">CLAUDE.md</text>
+
+      <!-- Linha 2: especificar → comando /spec -->
+      <rect x="40" y="228" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="266" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">especificar</text>
+      <line x1="340" y1="258" x2="558" y2="258" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="228" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="266" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">comando /spec</text>
+
+      <!-- Linha 3: planejar → plan mode -->
+      <rect x="40" y="308" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="346" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">planejar</text>
+      <line x1="340" y1="338" x2="558" y2="338" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="308" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="346" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">plan mode</text>
+
+      <!-- Linha 4: tarefas → plano aprovado em etapas -->
+      <rect x="40" y="388" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="426" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">tarefas</text>
+      <line x1="340" y1="418" x2="558" y2="418" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="388" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="426" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">plano aprovado em etapas</text>
+
+      <!-- Linha 5: implementar → edição + Git -->
+      <rect x="40" y="468" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="506" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">implementar</text>
+      <line x1="340" y1="498" x2="558" y2="498" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="468" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="506" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">edição + Git</text>
+
+      <!-- Linha 6: verificar → subagente revisor -->
+      <rect x="40" y="548" width="300" height="60" rx="3" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+      <text x="190" y="586" fill="#2d3142" font-size="13" font-family="'Geist', sans-serif" font-weight="500" text-anchor="middle">verificar</text>
+      <line x1="340" y1="578" x2="558" y2="578" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="560" y="548" width="440" height="60" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="780" y="586" fill="#2d3142" font-size="12" font-family="'Geist Mono', monospace" text-anchor="middle">subagente revisor</text>
+
+      <!-- Legenda -->
+      <text x="600" y="646" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle">as ferramentas não são o método — elas removem o atrito de praticá-lo</text>
+
+      <!-- Rodapé -->
+      <line x1="40" y1="664" x2="1160" y2="664" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="692" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">PATHBIT AI FOR DEVS · ARTIGO 0005</text>
+    </svg>
+  </div>
+</body>
+</html>

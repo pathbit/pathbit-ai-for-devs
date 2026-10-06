@@ -1,0 +1,45 @@
+# CLAUDE.md: Agregador de Notícias com resumo por IA
+
+## Projeto
+
+API "Agregador de Notícias com resumo por IA": importa artigos de feeds RSS, gera resumos por IA, classifica por tema e entrega um digest diário, com favoritos e um mini-dashboard.
+
+## Stack
+
+- Node.js 20+
+- Express
+- SQLite via better-sqlite3
+- rss-parser
+- @anthropic-ai/sdk
+- Vitest + supertest (testes)
+
+## Como rodar
+
+- Dev: `npm run dev`
+- Testes: `npm test`
+
+## Estrutura de pastas
+
+- `src/routes`: rotas HTTP
+- `src/services`: lógica de negócio (importação, resumo, classificação, digest)
+- `src/db`: acesso a dados e criação do schema
+- `specs/`: uma spec por incremento (`NN-nome.md`)
+- `tests/`: espelhando `src`
+
+## Convenções
+
+- Datas no formato ISO `YYYY-MM-DD`.
+- Erro de validação = HTTP 422 com corpo `{ "erro": "<mensagem>" }`; recurso inexistente = 404.
+- Chave da API SEMPRE via `process.env.ANTHROPIC_API_KEY`, nunca hardcoded.
+- Banco SQLite em arquivo local, criado na inicialização se não existir.
+- Queries sempre com parâmetros vinculados, nunca concatenação de SQL.
+- Chamadas de IA sempre com cache e limite de tamanho do conteúdo enviado.
+- Nos testes, a IA é sempre mockada.
+
+## Fluxo de trabalho
+
+1. Spec em `specs/NN-nome.md`.
+2. Plano em plan mode.
+3. Implementação.
+4. Verificação contra os critérios de aceite.
+5. Commit da spec antes do commit do código.
