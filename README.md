@@ -46,7 +46,7 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway lo
 
 ---
 
-### [0005 - Spec Driven Development (SDD) com Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes](./0005_sdd_spec_driven_development/)
+### [0005 - Spec Driven Development no Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes](./0005_sdd_spec_driven_development/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Método de Desenvolvimento
 

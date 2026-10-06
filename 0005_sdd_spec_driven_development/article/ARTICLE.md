@@ -1,4 +1,4 @@
-# Spec Driven Development (SDD) com Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
+# Spec Driven Development no Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
@@ -333,8 +333,50 @@ A adoção sustentável do SDD depende da remoção de atritos na rotina diária
 ### 1. `CLAUDE.md`: a memória permanente do projeto
 Localizado na raiz do repositório, o arquivo `CLAUDE.md` é lido automaticamente na inicialização de cada sessão de trabalho. Ele funciona como o repositório imutável dos princípios do projeto: comandos de compilação, scripts de teste, políticas de banco de dados e convenções de estilo. Informações transitórias de um único incremento nunca devem poluir esse arquivo, pertencendo exclusivamente à especificação daquela tarefa.
 
-### 2. Slash command `/spec`: o gerador estruturado
-Através da criação do template `.claude/commands/spec.md`, o desenvolvedor disponibiliza o comando `/spec <descrição>` diretamente no terminal. Esse comando instrui o modelo a gerar a especificação estruturada nas seis seções obrigatórias e impõe uma diretriz fundamental: antes de escrever o documento, o agente é forçado a listar todas as ambiguidades do pedido e aguardar a resposta humana.
+### 2. Slash commands: o ritual automatizado do ciclo
+No Claude Code, definimos comandos reutilizáveis na pasta `.claude/commands/` para transformar o fluxo de SDD em rotina instantânea.
+
+O primeiro comando é o `.claude/commands/spec.md`, acionado via `/spec <descrição>`:
+
+```markdown
+Escreva uma especificação para o incremento descrito abaixo e salve em specs/ com o próximo número da sequência. Use exatamente esta estrutura:
+
+## Objetivo
+O problema real e quem se beneficia, em duas linhas.
+
+## Requisitos funcionais
+Um por linha, comportamento observável.
+
+## Requisitos não-funcionais
+Desempenho, segurança, persistência, com números.
+
+## Escopo e Fora de escopo
+As duas listas, sempre.
+
+## Restrições técnicas
+O "como" que já foi decidido, com o motivo.
+
+## Critérios de aceite
+Cada um verificável com sim ou não.
+
+Antes de escrever, liste as ambiguidades que encontrou no meu pedido e me pergunte sobre elas.
+
+Incremento: $ARGUMENTS
+```
+
+O segundo comando é o `.claude/commands/implementar-spec.md`, que padroniza a execução a partir do arquivo de especificação:
+
+```markdown
+Leia a spec em: $ARGUMENTS
+
+1. Entre em plan mode e me proponha o plano de implementação. NÃO altere arquivos ainda.
+2. Aguarde minha aprovação antes de tocar em qualquer arquivo.
+3. Implemente APENAS o que está nesta spec; não adiante features de ciclos futuros.
+4. Respeite as convenções e decisões registradas no CLAUDE.md.
+5. Ao final, verifique o resultado contra os Critérios de aceite da spec e me diga, item a item, se cada um passou.
+```
+
+Com esse comando configurado, a instrução diária no terminal se resume a uma única linha enxuta: `/implementar-spec specs/01-feed-artigos.md`. Essa prática consolida uma regra de ouro: **os prompts no chat devem ser propositalmente magros**. O peso do conhecimento reside nas especificações versionadas e no `CLAUDE.md`. Se você sentir necessidade de digitar parágrafos explicativos no chat da CLI, não faça isso no prompt: atualize a especificação.
 
 ### 3. Plan Mode: pensar antes de tocar no disco
 Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca o agente em modo de leitura estrita e investigação arquitetural. O modelo analisa dependências, inspeciona interfaces existentes e propõe uma rota passo a passo. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório. Discordar de um plano em texto consome trinta segundos; reverter cinquenta arquivos modificados equivocadamente consome horas.
@@ -342,7 +384,24 @@ Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca 
 ### 4. Subagentes com contexto isolado: auditoria imparcial
 Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um erro conceitual comum na engenharia com inteligência artificial. O agente principal carrega o viés de confirmação de toda a sessão e das decisões tomadas ao longo das tentativas anteriores.
 
-No Claude Code, definimos subagentes especializados dentro da pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, instanciado em uma janela de contexto totalmente virgem. Ele recebe exclusivamente dois insumos: a especificação em Markdown do incremento e o diff gerado pelo Git (`git diff`). O revisor audita a entrega critério por critério, classificando o resultado como atendido, não atendido ou duvidoso, e aponta inclusive código excedente que foi adicionado sem constar na especificação.
+No Claude Code, definimos subagentes especializados dentro da pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, instanciado em uma janela de contexto totalmente virgem:
+
+```markdown
+---
+name: revisor-de-spec
+description: Confere a implementação contra os critérios de aceite da spec.
+---
+
+Você recebe o caminho de uma spec e o diff da implementação. Para cada critério de aceite da spec, responda:
+
+- ATENDIDO, e onde no código isso acontece.
+- NÃO ATENDIDO, e o que exatamente está faltando.
+- DUVIDOSO, e qual ambiguidade da spec impede decidir.
+
+Aponte também o que foi implementado e não estava na spec. Não sugira melhorias de estilo. Não elogie. Sua única pergunta é: isto cumpre a spec?
+```
+
+O revisor recebe exclusivamente dois insumos: a especificação em Markdown do incremento e o diff gerado pelo Git (`git diff`). Ele audita a entrega critério por critério, classificando o resultado de forma imparcial e alertando sobre eventuais desvios ou códigos excedentes que foram adicionados sem constar na especificação.
 
 ### 5. Controle de versão com a disciplina dos dois commits
 O fluxo de versionamento do SDD estabelece a separação explícita entre intenção e implementação através de dois commits por incremento:
