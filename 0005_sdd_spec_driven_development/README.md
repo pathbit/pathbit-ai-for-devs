@@ -1,4 +1,4 @@
-# 0005 - Spec Driven Development no Claude Code: Como Eliminar o Vibe Coding com Especificações Executáveis
+# 0005 - Spec Driven Development (SDD) com Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
 
 Nos módulos anteriores desta série, resolvemos toda a infraestrutura operacional: acesso irrestrito ao Antigravity, roteamento de modelos no Claude Code, malha de fallback e alternativas de baixo custo. Com o ambiente de alta performance estabelecido, a pergunta central muda de figura: o que você entrega ao agente para ele construir?
 

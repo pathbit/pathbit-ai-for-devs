@@ -1,4 +1,4 @@
-# Post LinkedIn: Spec Driven Development no Claude Code
+# Post LinkedIn: Spec Driven Development (SDD) com Claude Code
 
 O seu agente de IA não erra o problema por incapacidade técnica. Ele simplesmente acerta outro problema, o único que estava subentendido no seu pedido vago.
 

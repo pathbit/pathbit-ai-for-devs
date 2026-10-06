@@ -1,275 +1,411 @@
-# Spec Driven Development no Claude Code: Como Eliminar o Vibe Coding com Especificações Executáveis
+# Spec Driven Development (SDD) com Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
-Nos quatro primeiros artigos desta série, resolvemos toda a infraestrutura computacional e operacional para programar com inteligência artificial no terminal. No [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md) destravamos a autonomia irrestrita do motor Agent 2.0 no Google Antigravity. No [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) construímos o ClaudeGravity, conectando o Claude Code CLI aos modelos Gemini via 9Router sem custos de API. No [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) estabelecemos uma malha de resiliência multi-provedores com combos de fallback automático. E no [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) expandimos essa arquitetura para os modelos DeepSeek através da plataforma oficial e do OrcaRouter.
+Nos quatro primeiros artigos desta série, construímos toda a infraestrutura computacional para operar inteligência artificial com autonomia no terminal. No [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), liberamos o acesso irrestrito ao sistema com o motor Agent 2.0 no Google Antigravity. No [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), criamos o ClaudeGravity para utilizar modelos Gemini no Claude Code via 9Router sem custos de API. No [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), montamos a malha de fallback automático com provedores gratuitos. E no [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), conectamos modelos DeepSeek diretamente ao harness oficial da Anthropic.
 
-Com o ambiente devidamente configurado, o desenvolvedor dispõe de uma das ferramentas mais potentes da engenharia moderna: um agente autônomo conectado diretamente ao terminal, munido de ferramentas de leitura de repositório, execução de testes, manipulação de arquivos e uma janela massiva de contexto de até um milhão de tokens a custo praticamente nulo.
+Com essa malha técnica estabilizada, o desenvolvedor dispõe de uma máquina de altíssima vazão: um agente autônomo plugado no shell, com acesso de leitura e escrita ao disco, execução de comandos e janelas de contexto que alcançam até um milhão de tokens.
 
-É exatamente nesse ponto de maturidade de infraestrutura que surge a pergunta central de engenharia de software: **o que você entrega para esse agente construir?**
+É exatamente quando a infraestrutura deixa de ser um obstáculo que surge a principal questão da engenharia de software contemporânea: **o que você entrega para esse agente construir?**
 
-A resposta predominante no mercado tem sido o improviso do chamado *vibe coding*. O desenvolvedor abre o chat da CLI, digita um comando de uma frase em linguagem natural, como "crie um endpoint que liste as transações do mês", e espera que o modelo adivinhe a arquitetura ideal. Em segundos, o agente emite trezentas linhas de código funcional, os testes básicos passam e o código sobe para produção. Semanas depois, a equipe descobre que "do mês" foi interpretado pelo modelo como os últimos trinta dias corridos, quando o setor financeiro exigia o mês contábil com fechamento no dia 25. Ninguém decidiu isso explicitamente. A lacuna do pedido vago foi silenciosamente preenchida pela continuação probabilística mais frequente da rede neural.
+A resposta mais comum no mercado tem sido o improviso conhecido como *vibe coding*. O desenvolvedor abre o terminal, digita um comando de uma frase em linguagem natural e espera que o modelo adivinhe as decisões de arquitetura e produto por telepatia. Em poucos segundos, o agente gera centenas de linhas de código funcional, os testes preliminares passam e a entrega sobe para homologação. Semanas mais tarde, a equipe descobre que o agente adotou premissas silenciosas que contrariam o modelo de negócio, forçando dias de depuração arqueológica para reconstruir qual alvo o modelo imaginou.
 
-Este artigo apresenta o **Spec Driven Development (SDD)**, a disciplina de engenharia que substitui a loteria do *vibe coding* por especificações executáveis e verificáveis. Demonstramos como inverter a relação tradicional entre documentação e código, estabelecendo a especificação escrita como a fonte primária da verdade. Exploramos a anatomia completa de uma boa especificação, o ciclo iterativo em seis fases, o funcionamento cognitivo da janela de contexto de um agente e como os recursos nativos do Claude Code (como `CLAUDE.md`, plan mode, slash commands e subagentes com contexto isolado) removem o atrito de praticar esse método em esteiras reais de desenvolvimento.
+Este artigo apresenta o **Spec Driven Development (SDD)**, a disciplina que substitui a loteria dos prompts soltos por especificações executáveis e verificáveis. Mostramos como inverter a relação tradicional entre documentação e código, colocando a especificação escrita como a fonte primária da verdade. Exploramos a anatomia técnica de uma especificação precisa, as armadilhas comuns de ambiguidade, o ciclo iterativo em seis fases, o funcionamento cognitivo da janela de contexto e como os recursos nativos do Claude Code removem o atrito operacional desse método em sistemas de produção.
 
 ---
 
-## A economia invertida do software na era dos agentes
+## A economia invertida do software e o fim do "codar no chute"
 
-A chegada de agentes autônomos de desenvolvimento alterou radicalmente o custo de digitação de código, mas não alterou em nada a economia das decisões de arquitetura e produto.
+A ascensão dos agentes de inteligência artificial alterou radicalmente o custo de digitação de código, mas não alterou a economia das decisões de produto e arquitetura.
 
 ![Do codar no chute à especificação como alvo](../assets/01_diagrama_chute_vs_spec.png)
 
-> **Figura 1.** Comparativo entre o fluxo sem especificação, onde pedidos vagos geram ciclos infinitos de retrabalho, e o fluxo com SDD, onde o incremento possui alvo claro e critérios verificáveis.
+> **Figura 1.** O fluxo sem especificação gera retrabalho cíclico e resultado incerto, enquanto o fluxo com SDD conduz a implementação a um destino verificável.
 
-Quando um desenvolvedor trabalha no improviso, o custo de gerar a primeira versão do software caiu para quase zero. No entanto, o custo de gerar a versão errada continua exatamente o mesmo de sempre. Na realidade, ele ficou ainda mais perigoso, porque agora o código errado chega em poucos segundos, com aparência impecável, tipagem elegante e testes sintéticos que mascaram a falha de requisito.
+No modelo do improviso, também chamado de "codar no chute", o custo da primeira versão caiu para quase zero. No entanto, o custo de construir a versão errada continua o mesmo de sempre. Na prática, ele se tornou ainda mais perigoso: o software equivocado chega instantaneamente, com tipagem elegante, boa estrutura sintática e testes artificiais que comprovam as premissas inventadas pelo próprio agente.
 
-O padrão do improviso é recorrente em equipes que adotam ferramentas como Claude Code ou Cursor sem rigor metodológico:
+Considere a dinâmica real de um pedido genérico enviado ao terminal:
 
-1. O desenvolvedor digita um comando genérico no terminal.
-2. O agente assume dezenas de premissas não declaradas sobre persistência, tratamento de erros, idempotência e regras de negócio.
-3. O código gerado é internamente consistente, mas diverge do objetivo real do produto.
-4. O desenvolvedor percebe a divergência e digita um novo prompt corretivo: "não era bem isso, faça de outro jeito".
-5. O agente tenta corrigir o código anterior adicionando remendos que incham o contexto e introduzem regressões.
-6. Horas são consumidas em um ciclo de depuração arqueológica, tentando descobrir por que o agente tomou determinadas decisões.
+```bash
+claude "faz um sistema de login com autenticacao pra mim"
+```
 
-Por que o SDD faz sentido hoje, quando metodologias formais do passado eram consideradas burocráticas? Antes dos modelos de linguagem, o mesmo engenheiro humano precisava escrever a especificação detalhada e depois digitar manualmente cada linha de código. Escrever a especificação parecia fazer o trabalho duas vezes.
+Diante dessa instrução de uma linha, o agente precisa preencher dezenas de lacunas críticas sem qualquer orientação do desenvolvedor:
 
-Com agentes autônomos, essa equação econômica inverteu-se por completo. Um engenheiro investe dez minutos para redigir trinta linhas de especificação precisa com critérios de aceite objetivos. Em seguida, o agente consome essa especificação e constrói quinhentas linhas de código, migrations e testes unitários em menos de um minuto. A alavancagem de especificar é ordens de grandeza superior à alavancagem de digitar código.
+- O login deve usar e-mail e senha, OAuth social ou link mágico por e-mail?
+- Onde esses dados serão persistidos e qual é a política de hash de senhas?
+- A sessão deve ser gerenciada por cookies HTTP-only seguros ou tokens JWT em headers?
+- Existe fluxo de recuperação de senha com expiração temporária?
+- Qual é o critério exato para afirmar que a tarefa está concluída?
+
+Como os modelos de linguagem são sistemas treinados para minimizar o erro na previsão do próximo token, o agente não interrompe a sessão para pedir uma tese sobre o produto. Ele escolhe a resposta estatisticamente mais comum em seus dados de treino, assume essas premissas em silêncio e escreve quatrocentas linhas de código perfeitamente alinhadas com o seu palpite.
+
+Quando o desenvolvedor finalmente analisa o resultado, surge o veredito inevitável: "não era bem isso". O código construído usou JWT em local storage quando a equipe precisava de cookies de sessão, ou gerou tabelas no MongoDB quando a stack corporativa era PostgreSQL.
+
+O desenvolvedor tenta corrigir a rota com um novo prompt: "não use JWT, mude para cookies e adicione recuperação de senha". O agente adiciona novas camadas de código sobre as anteriores, incha o histórico da conversa com tentativas conflitantes e introduz efeitos colaterais. Uma tarefa simples consome horas em um ciclo desgastante de retrabalho.
+
+Por que o SDD faz sentido econômico hoje, quando métodos formais do passado eram tachados de lentos e burocráticos? No modelo tradicional de software, o mesmo engenheiro humano precisava redigir a documentação detalhada e, depois, digitar manualmente cada linha de código, testes e migrações. Especificar parecia fazer o mesmo trabalho duas vezes.
+
+Com agentes autônomos, essa equação se inverteu por completo. Um engenheiro experiente investe dez minutos para estruturar trinta linhas de especificação cirúrgica com critérios de aceite binários. Em seguida, o agente consome esse documento e gera quinhentas linhas de código, schemas e testes unitários em menos de um minuto. A alavancagem de especificar é ordens de grandeza superior à alavancagem de digitar código.
 
 ---
 
-## A spec como fonte da verdade
+## A virada hierárquica: da documentação morta à especificação executável
 
-No desenvolvimento tradicional, o código é tratado como a única verdade do sistema. A documentação técnica corre atrás do repositório, quase sempre desatualizada e incompleta. Se o código diverge do documento, assume-se que o documento está errado.
+No desenvolvimento clássico, o código-fonte sempre foi considerado a única verdade incontestável do repositório. A documentação técnica corria atrás do código, escrita com atraso quando sobrava tempo na sprint e rapidamente abandonada em wikis internas. Se o código discordava da documentação, assumia-se que a documentação estava desatualizada.
 
-O Spec Driven Development inverte intencionalmente essa hierarquia.
+O Spec Driven Development inverte deliberadamente essa ordem de autoridade.
 
 ![A especificação como fonte da verdade](../assets/02_diagrama_spec_fonte_da_verdade.png)
 
-> **Figura 2.** A inversão de hierarquia do SDD, estabelecendo a especificação como o artefato primário e o código como um derivado verificável.
+> **Figura 2.** A inversão de autoridade do SDD: a especificação passa a ser o artefato primário da verdade, e o código se torna um subproduto derivado.
 
-No SDD, a especificação escrita é a fonte primária da verdade, e o código-fonte é apenas uma representação compilada e derivada dela. Quando surge uma divergência entre a especificação e a implementação, essa discrepância não é tratada como um mero desvio acidental, mas como um evento consciente que exige uma decisão explícita de engenharia: ou a implementação está errada e deve ser corrigida pelo agente, ou a realidade do produto mudou e a especificação deve ser atualizada e commitada antes do código.
+No SDD, a especificação escrita é a fonte primária da verdade do sistema. O código-fonte, os schemas de migração e as suítes de teste são apenas artefatos secundários, derivados mecanicamente a partir dos requisitos definidos.
 
-Essa inversão traz três benefícios diretos para a engenharia de software:
+Quando surge uma divergência entre o código e a especificação, essa discrepância não é tratada como um desvio silencioso, mas como uma decisão consciente de engenharia. Existem apenas duas alternativas: ou o código está errado e o agente deve corrigi-lo imediatamente, ou os requisitos de produto mudaram e a especificação deve ser atualizada e versionada no Git antes de qualquer alteração na implementação.
 
-A especificação passa a ser, simultaneamente, documentação para humanos e contexto de altíssima densidade para o modelo de linguagem. O mesmo arquivo em Markdown que alinha expectativas com o time de produto é o arquivo que ancora a atenção do Claude Code no terminal.
+Essa inversão resolve um problema histórico dos times de tecnologia: o fenômeno da documentação morta.
 
-Além disso, a intenção do sistema deixa de morar na cabeça de quem digitou o prompt no calor do momento e passa a residir em um artefato versionado no Git, revisável em Pull Requests e compartilhado com toda a organização.
+| Dimensão | Documentação Morta Tradicional | Especificação Executável (SDD) |
+| :--- | :--- | :--- |
+| Momento de Criação | Escrita depois do código, se houver tempo | Escrita antes do código, orientando o incremento |
+| Papel no Sistema | Ninguém consome para gerar trabalho ativo | É o input obrigatório para o agente e para a equipe |
+| Efeito da Desatualização | Desatualiza em silêncio sem ser notada | Quebra o ciclo seguinte; o erro surge de imediato |
+| Propósito Principal | Prestar contas e registrar histórico passivo | Construir o software e verificar sua conformidade |
+| Equação Econômica | Custo contínuo com benefício intangível | Paga seu investimento no primeiro retrabalho evitado |
 
-Por fim, o argumento econômico é definitivo. O custo de corrigir uma decisão errada escala exponencialmente conforme ela avança no ciclo de vida do software.
+O termo "executável" não significa que a especificação seja um arquivo binário ou um script que rode na CPU. Significa que existe um agente autônomo com capacidade de interpretá-la literalmente e produzir software a partir dela. Para um modelo de linguagem, uma especificação bem estruturada é combustível de produção de altíssima densidade.
+
+### A fronteira entre o "o quê/por quê" e o "como"
+
+A regra estrutural do SDD reside na separação estrita entre o domínio do problema e os detalhes da implementação:
+
+- **Pertence à especificação (o "o quê" e o "por quê"):** regras de negócio, comportamentos observáveis de fora, contratos de interface, limites de validação, tratamento de erros e critérios de conclusão.
+- **Pertence ao código (o "como"):** nomes de variáveis locais, laços de repetição, estruturas de dados transitórias e detalhes internos que nenhum consumidor externo do sistema consegue observar.
+
+A prova de fogo dessa separação é simples: se você decidir trocar a linguagem de programação de Python para Node.js ou Go, o "como" inteiro será reescrito, mas a especificação funcional do "o quê" deve permanecer exatamente idêntica, sem a alteração de uma única linha.
+
+A única exceção admitida ocorre quando o "como" é, na verdade, uma restrição técnica inegociável da infraestrutura com justificativa arquitetural sólida, como exigir o driver `better-sqlite3` por compatibilidade de plataforma ou PostgreSQL por exigência de transações distribuídas já operadas pela organização.
+
+### A curva exponencial do custo do erro
+
+A justificativa financeira para adotar o SDD fundamenta-se na curva clássica de custo de resolução de defeitos.
 
 ![O custo do erro por momento de descoberta](../assets/03_diagrama_custo_do_erro.png)
 
-> **Figura 3.** A curva exponencial do custo do erro. Alterar uma frase na especificação custa segundos, enquanto corrigir o mesmo erro em produção custa sprints inteiras.
+> **Figura 3.** O custo exponencial da correção: alterar uma frase na especificação consome segundos; consertar a mesma falha em produção custa semanas.
 
-Corrigir uma premissa incorreta enquanto ela é apenas uma linha de texto na fase de especificação custa trinta segundos. Corrigir essa mesma premissa depois que ela virou tabelas no banco de dados, regras de negócio distribuídas, integrações externas e comportamento assumido por usuários consome dias de retrabalho e gera incidentes em produção. O SDD desloca a detecção do erro para o momento mais barato possível: antes de existir código.
+Corrigir uma premissa errada enquanto ela é apenas uma linha de texto no arquivo de especificação leva trinta segundos. Corrigir essa mesma premissa depois que ela virou tabelas no banco de dados, regras distribuídas em microsserviços, chamadas de front-end e comportamento assumido por usuários finais custa sprints inteiras de trabalho e gera incidentes graves. O SDD desloca a detecção de inconsistências para o ponto mais barato do ciclo de desenvolvimento: antes de existir código.
 
 ---
 
-## Anatomia de uma especificação executável
+## Anatomia técnica de uma especificação executável
 
-Uma boa especificação para agentes de inteligência artificial não é um documento longo, prolixo ou acadêmico. É um documento conciso, estruturado e rigorosamente verificável.
+Uma boa especificação para agentes de inteligência artificial não é um manual volumoso e enfadonho. É um documento conciso, enxuto e orientado a comportamentos verificáveis. Documentos prolixos dispersam a atenção do modelo e aumentam a probabilidade de alucinações.
+
+Uma especificação sólida no SDD estrutura-se em seis blocos fundamentais.
 
 ![Anatomia de uma especificação](../assets/04_diagrama_anatomia_spec.png)
 
-> **Figura 4.** As seis seções fundamentais de uma especificação de SDD, com os critérios de aceite posicionados no centro da verificação.
+> **Figura 4.** A anatomia de uma especificação funcional com os critérios de aceite operando como núcleo de verificação.
 
-Para garantir que o agente implemente exatamente o que o produto necessita, uma especificação funcional divide-se em seis blocos fundamentais:
+### 1. Objetivo claro
+O propósito do incremento e o usuário beneficiado descritos em duas ou três linhas diretas. Esta seção ancora a intenção do incremento e impede que o agente resolva um problema sem contexto de negócio.
 
-### 1. Objetivo
-O propósito do incremento e o público beneficiado resumidos em duas ou três linhas diretas. Se o objetivo não puder ser explicado com clareza em poucas sentenças, o incremento provavelmente está excessivamente amplo e deve ser fatiado em ciclos menores.
-
-Exemplo correto: "Permitir que o usuário filtre transações por intervalo de datas para calcular seus gastos mensais."
-Exemplo incorreto: "Criar o módulo de relatórios e refatorar o banco de dados."
+- Exemplo correto: "Permitir que o usuário filtre transações financeiras por intervalo de datas para calcular seus gastos mensais com clareza."
+- Exemplo incorreto: "Criar o endpoint de resumo e refatorar as rotas de banco de dados."
 
 ### 2. Requisitos funcionais
-Comportamentos observáveis descritos em frases diretas no formato de ação e resultado. Devem descrever o que o sistema faz a partir do ponto de vista de quem consome a interface ou API.
+Comportamentos observáveis descritos em frases diretas no formato de ação e resultado. Cada requisito deve ocupar uma linha própria, evitando conjunções aditivas ("e") que agrupem duas ações diferentes na mesma sentença.
+
+- O usuário pode filtrar transações por categoria com correspondência exata.
+- O usuário pode definir uma data inicial e uma data final para delimitar o período.
+- O sistema combina múltiplos filtros ativos por meio de conjunção lógica (AND).
 
 ### 3. Requisitos não-funcionais
-Restrições de performance, segurança, persistência e durabilidade expressas numericamente sempre que possível. Inclui exigências como índices em colunas de busca frequente, persistência que sobrevive ao reinício da aplicação e obrigatoriedade de variáveis de ambiente para credenciais.
+Restrições de performance, segurança, durabilidade e concorrência expressas numericamente. Sempre que uma qualidade for desejada, ela deve ser quantificada objetivamente.
 
-### 4. Critérios de aceite
-A seção mais crítica de toda a especificação. São afirmações binárias que só admitem duas respostas: sim ou não. É a partir dos critérios de aceite que nascem os testes automatizados e as checagens do subagente revisor.
+- A rota de listagem deve responder em menos de 300 ms com uma massa de 10.000 registros no banco.
+- Todas as credenciais de provedores externos devem ser consumidas estritamente via variáveis de ambiente, sem nenhuma chave exposta no código.
+- O estado das transações deve sobreviver ao reinício da aplicação por meio de persistência durável no SQLite.
 
-A diferença entre um requisito subjetivo e um critério de aceite objetivo é a linha divisória entre estabilidade e retrabalho. Dizer que "o feed não deve conter duplicatas" é ambíguo. Já especificar que "importar a mesma URL de feed duas vezes consecutivas não duplica registros na tabela de artigos, e a contagem de novos itens importados retorna zero na segunda chamada, utilizando a coluna link como chave única" elimina qualquer margem para o agente improvisar.
+### 4. Critérios de aceite binários
+O componente mais importante de toda a especificação. Um critério de aceite é uma afirmação que qualquer pessoa ou subagente consegue testar e responder com sim ou não, sem margem para subjetividade.
+
+Se dois revisores independentes puderem discordar sobre se um critério foi atendido, ele não é um critério de aceite válido, mas uma opinião disfarçada de requisito.
+
+- Exemplo correto: "POST /transacoes com valor menor ou igual a zero retorna status HTTP 422 com mensagem detalhando o campo inválido."
+- Exemplo incorreto: "A validação da API deve ser robusta e tratar erros adequadamente."
 
 ### 5. Escopo e fora de escopo
-Duas listas explícitas delimitando as fronteiras do incremento. A lista de fora de escopo é frequentemente mais valiosa do que a de escopo, pois impede que o agente invente funcionalidades não solicitadas (como implementar paginação avançada ou autenticação JWT quando o objetivo era apenas listar artigos em memória).
+Duas listas complementares que delimitam rigidamente o que faz e o que não faz parte daquele ciclo de trabalho. A lista de itens fora de escopo é frequentemente mais valiosa do que a de escopo, pois ela atua como um escudo protetor contra o crescimento descontrolado da tarefa.
 
-### 6. Restrições técnicas
-Decisões de implementação que já estão tomadas por razões arquiteturais e que não devem ser alteradas pelo modelo. Inclui a versão da linguagem, o banco de dados específico, bibliotecas obrigatórias e convenções de rotas.
+Sem uma seção explícita de fora de escopo, o agente identifica uma lacuna adjacente e decide resolvê-la por iniciativa própria, implementando paginação complexa, autenticação JWT ou busca textual quando a meta era apenas uma listagem básica em memória.
 
-A regra de ouro que separa uma especificação de uma implementação precoce reside na fronteira entre o "o quê/por quê" e o "como":
+### 6. Restrições técnicas fundamentais
+Decisões de engenharia que já foram tomadas por motivos de infraestrutura e governança do time, acompanhadas da respectiva justificativa:
 
-A especificação deve detalhar o comportamento observável, as regras de negócio e os limites que não podem ser violados. Detalhes internos como nomes de variáveis locais, laços de repetição ou estruturas efêmeras de dados pertencem à implementação e devem ser decididos pelo agente. A única exceção ocorre quando o "como" é um requisito de infraestrutura com justificativa técnica sólida, como exigir o driver `better-sqlite3` em vez de outro pacote por restrição de ambiente.
+- Node.js versão 20+ utilizando módulos ESM nativos para manter conformidade com os demais serviços da Pathbit.
+- Persistência em SQLite via biblioteca `better-sqlite3` para permitir execução local determinística sem dependências de containers externos nos testes de CI.
 
 ---
 
-## O ciclo iterativo em seis fases
+## Comparativo: especificação vaga versus especificação precisa
 
-O Spec Driven Development não é um evento único que acontece no início do projeto, mas um processo cíclico que se repete a cada novo incremento de software.
+Para compreender a diferença prática entre um pedido superficial e uma especificação funcional, compare as duas abordagens para a mesma funcionalidade de filtro de transações:
+
+### A abordagem vaga (armadilha do improviso)
+
+```markdown
+# Funcionalidade
+Filtro de transações financeiras.
+
+# Descrição
+O usuário precisa conseguir filtrar suas transações de forma prática na API.
+O endpoint deve ser rápido e seguro. Tratar os erros adequadamente.
+```
+
+À primeira vista, o texto soa razoável. No entanto, ele terceiriza cinco decisões críticas de produto para o modelo:
+
+- O que significa "filtrar"? Quais campos são pesquisáveis?
+- O que significa "de forma prática"? Os filtros podem ser combinados ou operam de forma isolada?
+- O que significa "rápido"? Qual é o teto aceitável de latência e sob qual volume de dados?
+- O que significa "tratar os erros"? Consultar uma categoria que não existe no banco é um erro HTTP 404 ou uma listagem vazia com HTTP 200?
+- O que acontece se a data inicial informada for posterior à data final?
+
+### A abordagem precisa (padrão SDD)
+
+```markdown
+# Objetivo
+Permitir que o usuário localize transações financeiras específicas por categoria e data sem percorrer a lista completa.
+
+# Requisitos Funcionais
+- Filtrar por categoria através de valor exato em query param.
+- Filtrar por período através de data inicial e data final inclusivas no formato YYYY-MM-DD.
+- Permitir a combinação simultânea de filtros de categoria e período com conjunção lógica (AND).
+
+# Requisitos Não-Funcionais
+- Tempo de resposta inferior a 300 ms em consultas contendo até 10.000 registros indexados.
+
+# Fora de Escopo
+- Busca por texto livre em descrições de transações.
+- Persistência de filtros favoritos salvos pelo usuário.
+
+# Critérios de Aceite
+- GET /transacoes?categoria=alimentacao retorna apenas registros com essa categoria.
+- Consultar categoria sem lançamentos cadastrados retorna array vazio [] com status HTTP 200.
+- GET /transacoes com data_inicio posterior a data_fim retorna status HTTP 422 com payload de erro explicativo.
+- Requisição sem parâmetros de query retorna a listagem completa preservando a ordenação decrescente por data.
+```
+
+Na versão precisa, cada linha adicional existe para fechar uma pergunta que o agente teria que adivinhar por conta própria. Não resta nenhuma decisão de produto aberta para ser preenchida estatisticamente.
+
+---
+
+## As seis armadilhas mais comuns de especificação e seus antídotos
+
+Ao redigir especificações para agentes de inteligência artificial, desenvolvedores frequentemente caem em armadilhas de linguagem que parecem inofensivas, mas desestabilizam o comportamento do modelo:
+
+1. **Adjetivos no lugar de números:** Termos como "rápido", "escalável", "amigável" ou "leve" não são verificáveis. O antídoto é quantificar ou descartar. "Rápido" deve ser transformado em "latência p95 abaixo de 200 ms sob 50 requisições simultâneas".
+2. **Descrever apenas o caminho feliz:** A especificação detalha o fluxo perfeito, mas esquece o comportamento diante de falhas. O antídoto consiste em incluir obrigatoriamente a pergunta "o que acontece se der errado?" para cada requisito, definindo códigos de status HTTP e mensagens para parâmetros inválidos ou dados ausentes.
+3. **Especificação monolítica:** Documentar um sistema complexo inteiro em um único documento extenso esgota a janela de contexto e introduz contradições internas. O antídoto é redigir uma especificação atômica por incremento funcional, cobrindo apenas o próximo ciclo de entrega.
+4. **Especificação que é código disfarçado:** Descrever nomes de métodos internos, assinaturas de funções privadas ou estruturas de laços de repetição retira a flexibilidade do agente e confunde a revisão. O antídoto é focar exclusivamente nos efeitos observáveis a partir da interface externa do módulo.
+5. **Ambiguidade silenciosa de pronomes:** Expressões como "listar as transações dele", "no mês corrente" ou "quando apropriado" escondem premissas perigosas. O antídoto é caçar termos relativos e substituí-los por regras explícitas de fuso horário, limites de calendário e papéis de usuário.
+6. **Requisitos agregados com conjunção "e":** Frases que contêm "o sistema valida a entrada, grava no banco e dispara um e-mail" impedem a verificação atômica. O antídoto é fatiar o comportamento em sentenças independentes, permitindo que cada ação seja testada isoladamente.
+
+### A regra de ouro do SDD
+
+Para validar a qualidade de uma especificação antes de submetê-la ao Claude Code, aplique o teste definitivo:
+
+> **Regra de Ouro:** Se um desenvolvedor novo na equipe conseguisse implementar a funcionalidade lendo apenas a especificação, sem fazer nenhuma pergunta adicional aos colegas, então o agente autônomo também conseguirá.
+
+Toda vez que você reler a sua especificação e pensar "aqui um desenvolvedor júnior precisaria me perguntar qual formato de data utilizar", você acabou de identificar uma decisão em aberto que o modelo completará por adivinhação estatística.
+
+---
+
+## O ciclo iterativo em seis fases e a mecânica do loopback
+
+O Spec Driven Development não é um evento estático de início de projeto, mas um motor de entrega contínua que opera em ciclos atômicos.
 
 ![O ciclo iterativo em seis fases](../assets/05_diagrama_ciclo_sdd.png)
 
-> **Figura 5.** O ciclo iterativo do SDD em seis fases coordenadas, destacando o loopback de retorno à especificação sempre que divergências são identificadas.
+> **Figura 5.** O ciclo em seis fases do SDD. A seta de retorno evidencia que voltar à especificação faz parte da operação normal do método.
 
-O ciclo estrutura-se em seis fases encadeadas:
+O fluxo de cada incremento atravessa seis fases encadeadas:
 
-### Fase 0. Princípios
-Definição dos padrões duradouros do projeto que valem para todos os ciclos. Inclui a stack tecnológica, convenções de código, comandos de teste e armadilhas conhecidas. No Claude Code, essa fase é materializada de forma permanente no arquivo `CLAUDE.md`.
+### Fase 0: Princípios globais
+Definição dos padrões duradouros do repositório que se aplicam a todos os incrementos futuros: convenções de formatação, suítes de teste, políticas de branches e regras de persistência. No ecossistema do Claude Code, esses princípios são centralizados de forma viva no arquivo `CLAUDE.md`.
 
-### Fase 1. Especificar
-Redação da especificação correspondente a um único incremento de funcionalidade, salva em um arquivo versionado dentro da pasta `specs/`. O desenvolvedor especifica apenas o que será construído a seguir, nunca o sistema inteiro de uma vez.
+### Fase 1: Especificar
+Redação da especificação do próximo incremento atômico de funcionalidade, versionada no diretório `specs/` (por exemplo, `specs/01-feed-artigos.md`). O desenvolvedor documenta apenas o próximo bloco de entrega, nunca a aplicação inteira de uma vez.
 
-### Fase 2. Planejar
-O agente inspeciona o repositório existente, lê a especificação do incremento e gera um plano técnico detalhado em modo somente leitura (plan mode). O desenvolvedor analisa a rota proposta antes que qualquer linha de código seja modificada no disco.
+### Fase 2: Planejar
+O agente de inteligência artificial inspeciona a árvore de arquivos existente, lê a especificação do incremento e gera uma proposta técnica detalhada em modo somente leitura (plan mode). O engenheiro revisa a rota proposta, aponta ajustes arquiteturais e alinha decisões antes que qualquer modificação seja gravada no disco.
 
-### Fase 3. Tarefas
-O plano técnico aprovado é decomposto em uma sequência ordenada de tarefas atômicas e verificáveis, servindo como checklist de execução.
+### Fase 3: Tarefas
+O plano técnico aprovado é quebrado em uma sequência ordenada de tarefas atômicas e rastreáveis, funcionando como um checklist executável para a sessão de trabalho.
 
-### Fase 4. Implementar
-Com a rota e o objetivo rigidamente definidos, o agente escreve o código-fonte, atualiza migrações e implementa a lógica necessária.
+### Fase 4: Implementar
+Com o plano e os critérios blindados, o agente escreve o código-fonte, atualiza migrações e conecta os componentes necessários.
 
-### Fase 5. Verificar
-A implementação é auditada de forma estrita contra cada um dos critérios de aceite da especificação, disparando suítes de testes unitários e revisões de conformidade.
+### Fase 5: Verificar
+A entrega é submetida a uma bateria rigorosa de validação contra cada um dos critérios de aceite previamente estabelecidos na especificação.
 
-A característica que diferencia o SDD do modelo tradicional em cascata (waterfall) é a seta de retorno evidenciada no diagrama. Voltar atrás no SDD não representa uma falha de planejamento, mas o processo operando normalmente. Se durante a implementação o agente ou o desenvolvedor constatam que uma premissa técnica é inviável, o trabalho é pausado, a especificação é atualizada com a nova decisão acordada e o ciclo recomeça a partir de uma base transparente.
+### A mecânica do laço de retorno consciente (loopback)
+
+O aspecto que afasta definitivamente o SDD do modelo tradicional em cascata (waterfall) é o laço de retorno evidenciado no diagrama. Voltar atrás no SDD não representa uma falha de planejamento, mas sim o método funcionando com maturidade.
+
+Se durante a fase de implementação o agente ou o desenvolvedor identificam que uma restrição técnica é inviável, que uma biblioteca externa mudou sua interface pública ou que uma regra de negócio se mostrou incoerente, a implementação é pausada imediatamente. O desenvolvedor não remenda o código no improviso: ele retorna à especificação, atualiza o texto com a nova decisão consciente, commita a alteração e reinicia o fluxo a partir de uma base transparente.
 
 ---
 
-## Sob o capô: como um agente interpreta uma especificação
+## Sob o capô da rede neural: como um agente interpreta uma especificação
 
-Para extrair resultados previsíveis de ferramentas como Claude Code, Cursor ou GitHub Copilot Workspace, o desenvolvedor precisa compreender como os modelos de linguagem processam instruções no nível de tensores e contexto.
+Para extrair resultados de nível profissional de ferramentas agênticas, o engenheiro precisa dominar a física da janela de contexto.
 
-Um agente de inteligência artificial não possui consciência do seu repositório, não participou das reuniões da sua equipe e não acessa intuitivamente o que você quis dizer. A cada interação, a totalidade do raciocínio do modelo depende exclusivamente do pacote de texto presente na sua janela de contexto.
+Um modelo de linguagem não tem consciência dos acordos verbais firmados na reunião da equipe, não lê mensagens trocadas no Slack e não sabe o que o desenvolvedor "quis dizer". A totalidade da capacidade cognitiva do agente em cada turno depende exclusivamente do texto presente na sua janela de contexto.
 
 ![A janela de contexto do agente](../assets/06_diagrama_janela_contexto.png)
 
 > **Figura 6.** A janela de contexto como fronteira finita do agente, ilustrando o sinal visível contra o conhecimento implícito que fica de fora.
 
-Entram na janela de contexto: a mensagem enviada pelo usuário, os arquivos abertos e lidos pelo modelo, o arquivo `CLAUDE.md` carregado na raiz do projeto, as saídas de comandos bash e o histórico da conversa recente.
+Fazem parte do sinal visível: a mensagem digitada pelo usuário, os arquivos lidos do repositório, o arquivo de configuração `CLAUDE.md`, as saídas de comandos bash e o histórico da conversa recente.
 
-Ficam irremediavelmente de fora: as mensagens trocadas no Slack da empresa, decisões implícitas que "todo mundo no time já sabe" e qualquer intenção que não tenha sido formalmente escrita em texto.
+Ficam irremediavelmente de fora: os padrões implícitos que "todo mundo na empresa sabe", premissas de produto não escritas e decisões informais de arquitetura.
 
-Quando o modelo encontra uma lacuna ou ambiguidade em um pedido, o comportamento da rede neural é determinístico em sua natureza probabilística: o modelo não trava e raramente interrompe o fluxo para fazer perguntas. Ele faz exatamente aquilo para o qual foi treinado por meio de bilhões de parâmetros, completando o texto com a continuação estatisticamente mais plausível com base em corpora públicos da internet.
+Quando um modelo de linguagem encontra uma instrução ambígua ou incompleta, sua resposta é governada pela mecânica estatística da rede neural: o modelo não trava por indecisão e raramente pede esclarecimentos adicionais. Ele completa o texto com a sequência de tokens estatisticamente mais provável com base em trilhões de palavras absorvidas no seu treinamento.
 
-Plausível, contudo, não significa correto para o seu domínio de negócio. O agente toma decisões de arquitetura e regras de negócio em silêncio, sem deixar avisos no código. Pior ainda, todas as classes, métodos e testes gerados subsequentemente são construídos em perfeita harmonia interna com a premissa errada inicial. O código resultante é internamente coerente e globalmente inadequado.
+Plausível, no entanto, é o oposto de correto para a regra de negócio específica do seu produto. Pior ainda: o modelo gera centenas de linhas de código que mantêm uma consistência interna absoluta com o palpite equivocado. O código compila sem erros, os testes sintéticos passam com louvor e a aplicação parece impecável, enquanto resolve com perfeição o problema errado.
 
-A engenharia de contexto no SDD não consiste em colar milhares de linhas de código ou prompts gigantescos na tela. Pelo contrário: encher a janela de contexto de forma indiscriminada dilui a atenção do modelo e aumenta o risco de alucinação. A verdadeira engenharia de contexto reside na curadoria enxuta: fornecer uma especificação atômica de trinta linhas precisas, garantir que as convenções globais estejam no `CLAUDE.md` e iniciar uma sessão limpa a cada novo ciclo de trabalho.
+A engenharia de contexto no SDD não consiste em entupir a conversa com prompts descomunais ou colar cinquenta arquivos desnecessários na tela. Alimentar a janela com excesso de informação gera diluição de atenção e alucinações de dependências cruzadas. A verdadeira disciplina de contexto reside na curadoria enxuta: uma especificação concisa por ciclo, convenções globais salvas no `CLAUDE.md` e a renovação periódica de sessões limpas para evitar contaminação por históricos antigos.
 
 ---
 
-## Mapa de métodos: SDD, TDD, Vibe Coding e Waterfall
+## Matriz metodológica: SDD, TDD, Vibe Coding e Waterfall
 
-Nenhuma metodologia é universalmente superior para todos os problemas de engenharia. A maturidade técnica consiste em reconhecer em qual região de risco e incerteza o seu projeto se encontra.
+Nenhuma abordagem técnica é uma bala de prata universal para todos os cenários de software. O discernimento de um engenheiro sênior reside em posicionar o método correto no quadrante adequado de risco e incerteza.
 
 ![Mapa de métodos por ambiguidade e custo do erro](../assets/07_diagrama_mapa_metodos.png)
 
-> **Figura 7.** Posicionamento metodológico avaliando o grau de ambiguidade da tarefa versus o custo de eventuais erros em produção.
+> **Figura 7.** Posicionamento das metodologias avaliando o grau de ambiguidade do requisito versus o custo de erros em produção.
 
-O *vibe coding* possui um espaço legítimo na engenharia: scripts descartáveis de automação pessoal, protótipos exploratórios de fim de semana ou tarefas mecânicas simples onde o custo do erro é insignificante. Tentar aplicar especificações formais para corrigir um erro de digitação é puro desperdício de tempo.
+O *vibe coding* possui utilidade real e produtiva no seu quadrante legítimo: scripts de automação pessoal, protótipos descartáveis de prova de conceito e correções cosméticas simples onde a falha tem custo irrelevante. Tentar aplicar um fluxo formal de especificação para alterar o texto de um botão em uma página interna é mero desperdício operacional.
 
-O modelo em cascata (waterfall) clássico falha porque tenta especificar o sistema inteiro meses antes da primeira entrega, tratando qualquer mudança posterior como um desvio inaceitável em um ambiente onde o mercado e os requisitos mudam semanalmente.
+O modelo em cascata (waterfall) clássico fracassa na ponta oposta: tenta redigir as especificações de um sistema massivo inteiro com meses de antecedência, tratando qualquer mudança posterior como um desvio custoso em um mercado onde as necessidades de produto mudam semanalmente.
 
-O Spec Driven Development brilha exatamente no quadrante onde vive o software corporativo profissional: tarefas onde há ambiguidade de requisitos, trabalho colaborativo entre múltiplos desenvolvedores, regras de negócio sensíveis e código que precisará ser mantido e evoluído por meses ou anos.
+O Spec Driven Development ocupa com precisão a região de alto valor: código corporativo de produção, onde há ambiguidade nos requisitos, trabalho colaborativo entre múltiplos engenheiros, regras sensíveis de negócio e necessidade de sustentação do software por anos.
 
-### A sinergia entre SDD e TDD
+### A sinergia arquitetural entre SDD e TDD
 
-Uma dúvida comum entre engenheiros é se o SDD compete com o Test-Driven Development (TDD). A resposta técnica é que eles operam em camadas perfeitamente complementares.
+Uma dúvida recorrente entre desenvolvedores é se a adoção do SDD torna o Test-Driven Development (TDD) redundante. Na realidade, os dois métodos atuam em camadas complementares da engenharia:
 
-| Dimensão de Comparação | Spec Driven Development (SDD) | Test-Driven Development (TDD) |
+| Dimensão de Análise | Spec Driven Development (SDD) | Test-Driven Development (TDD) |
 | :--- | :--- | :--- |
-| Pergunta Fundamental | O que devemos construir e com quais limites? | O código implementado atende às expectativas técnicas? |
-| Camada de Abstração | Comportamento do produto e regras de negócio | Unidades de código, funções e integração de módulos |
-| Artefato Primário | Especificação em Markdown com critérios de aceite | Suíte automatizada de testes (Jest, PyTest, Mocha) |
-| Destinatários | Engenheiros, time de produto e agentes de IA | Compiladores, esteiras de CI/CD e desenvolvedores |
+| Pergunta Fundamental | O que devemos construir e quais são os limites do negócio? | O código implementado executa a lógica conforme o esperado? |
+| Nível de Abstração | Comportamento observável do produto e fronteiras de domínio | Funções, classes, contratos de métodos e integração técnica |
+| Artefato Primário | Especificação em Markdown com critérios de aceite binários | Suítes de testes unitários e de integração em código |
+| Destinatários | Engenheiros, time de produto e agentes autônomos de IA | Compiladores, esteiras de CI/CD e desenvolvedores |
 
-O critério de aceite da especificação é a ponte natural que dá origem aos testes do TDD. Um critério de aceite bem formulado é literalmente a descrição do caso de teste que será codificado. Uma suíte de testes unitários inteiramente verde prova que a aplicação funciona conforme os testes foram escritos, mas não prova se o software resolve o problema correto de negócio. A especificação garante a direção do produto, enquanto o TDD assegura a robustez da implementação.
+O critério de aceite da especificação é a matéria-prima exata que origina os testes do TDD. Um critério de aceite formulado como "POST /transacoes com valor negativo retorna HTTP 422" é a descrição literal do caso de teste automatizado que será escrito na suíte.
+
+Uma bateria inteira de testes verdes comprova que a aplicação opera estritamente conforme o código foi escrito, mas não garante que o sistema atende à necessidade real da organização. A especificação assegura o rumo correto do produto, enquanto o TDD garante a solidez da implementação.
 
 ---
 
-## Ferramentas do Claude Code configuradas para SDD
+## Governança de engenharia e SDD em equipe
 
-A disciplina de especificação pode ser praticada com qualquer ferramenta de texto, mas sua adoção sustentável em equipes depende da eliminação do atrito operacional. O Claude Code CLI oferece um ecossistema nativo de recursos que se encaixam com precisão matemática em cada uma das fases do ciclo de SDD.
+Quando múltiplos desenvolvedores colaboram em um repositório auxiliados por agentes de inteligência artificial, o SDD deixa de ser apenas uma técnica individual de produtividade e se transforma no pilar central da governança técnica da equipe:
+
+- **A especificação como contrato compartilhado:** O arquivo de especificação em Markdown atua como a ponte de alinhamento entre gerentes de produto, designers, engenheiros de backend e especialistas em segurança. Não existem especificações perdidas em ferramentas de gestão de tarefas separadas do repositório.
+- **Revisão de Pull Request da especificação:** No fluxo corporativo maduro de SDD, a especificação é submetida a revisão e aprovação em Pull Request antes da escrita do código. Os pares discutem a modelagem de domínio, os critérios de aceite e os itens fora de escopo quando alterar o rumo da funcionalidade ainda custa segundos.
+- **Rastreabilidade histórica e arqueologia zero:** Quando um desenvolvedor inspeciona o histórico do Git dois anos depois para entender por que determinada rota foi desenhada com restrições rígidas de concorrência, o `git log` da pasta `specs/` fornece a explicação explícita da intenção original do negócio, eliminando a dependência da memória de quem escreveu o código.
+
+---
+
+## O ecossistema do Claude Code configurado para SDD
+
+A adoção sustentável do SDD depende da remoção de atritos na rotina diária. A ferramenta Claude Code CLI disponibiliza um ecossistema nativo de recursos que se acoplam com precisão a cada fase do ciclo de desenvolvimento.
 
 ![Ferramentas do Claude Code encaixadas nas fases do ciclo](../assets/08_diagrama_ferramentas_fases.png)
 
-> **Figura 8.** O mapeamento dos recursos do Claude Code sobre cada uma das fases do ciclo de Spec Driven Development.
+> **Figura 8.** O mapeamento das ferramentas nativas do Claude Code sobre as fases do ciclo de Spec Driven Development.
 
 ### 1. `CLAUDE.md`: a memória permanente do projeto
-Localizado na raiz do repositório, o arquivo `CLAUDE.md` é ingerido automaticamente pelo Claude Code na inicialização de cada sessão de trabalho. Ele deve conter apenas informações permanentes que valem para todos os ciclos de desenvolvimento: comandos de build e teste, convenções de estilo, regras de manipulação de banco de dados e políticas de segurança. Informações específicas de uma única feature pertencem à especificação daquela feature, e nunca ao `CLAUDE.md`.
+Localizado na raiz do repositório, o arquivo `CLAUDE.md` é lido automaticamente na inicialização de cada sessão de trabalho. Ele funciona como o repositório imutável dos princípios do projeto: comandos de compilação, scripts de teste, políticas de banco de dados e convenções de estilo. Informações transitórias de um único incremento nunca devem poluir esse arquivo, pertencendo exclusivamente à especificação daquela tarefa.
 
-### 2. Slash command `/spec`: o ritual automatizado
-Por meio da criação do arquivo `.claude/commands/spec.md`, o desenvolvedor instancia um comando customizado invocável diretamente no terminal com a sintaxe `/spec <descrição do incremento>`. O template orienta o agente a estruturar o documento nas seis seções obrigatórias e inclui uma diretiva essencial: antes de gerar a especificação, o agente é forçado a listar todas as ambiguidades encontradas no pedido do usuário e aguardar as respostas. Isso impede que lacunas sejam preenchidas por adivinhação.
+### 2. Slash command `/spec`: o gerador estruturado
+Através da criação do template `.claude/commands/spec.md`, o desenvolvedor disponibiliza o comando `/spec <descrição>` diretamente no terminal. Esse comando instrui o modelo a gerar a especificação estruturada nas seis seções obrigatórias e impõe uma diretriz fundamental: antes de escrever o documento, o agente é forçado a listar todas as ambiguidades do pedido e aguardar a resposta humana.
 
-### 3. Plan mode: pensar antes de modificar o disco
-Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca o agente em modo de investigação pura e proposição arquitetural. O modelo lê os arquivos relevantes, analisa a árvore de dependências e apresenta um plano passo a passo com a rota de implementação. O desenvolvedor revisa o plano e discute escolhas antes que qualquer arquivo seja alterado. Discordar de um plano em texto leva trinta segundos; reverter cinquenta arquivos modificados incorretamente exige tempo e paciência.
+### 3. Plan Mode: pensar antes de tocar no disco
+Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca o agente em modo de leitura estrita e investigação arquitetural. O modelo analisa dependências, inspeciona interfaces existentes e propõe uma rota passo a passo. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório. Discordar de um plano em texto consome trinta segundos; reverter cinquenta arquivos modificados equivocadamente consome horas.
 
-### 4. Subagentes com contexto isolado: o revisor independente
-Uma das maiores armadilhas de desenvolvimento assistido por IA é pedir para o mesmo agente que implementou o código auditar seu próprio trabalho. O agente principal está condicionado pelo histórico da sessão e pelas tentativas e erros anteriores.
+### 4. Subagentes com contexto isolado: auditoria imparcial
+Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um erro conceitual comum na engenharia com inteligência artificial. O agente principal carrega o viés de confirmação de toda a sessão e das decisões tomadas ao longo das tentativas anteriores.
 
-No Claude Code, definimos subagentes especializados na pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, que é invocado com uma janela de contexto totalmente limpa. Ele recebe apenas dois insumos: a especificação do incremento e o diff de código gerado pelo Git. O revisor percorre cada critério de aceite e classifica o status como atendido, não atendido ou duvidoso, apontando inclusive código extra que foi implementado sem constar na especificação.
+No Claude Code, definimos subagentes especializados dentro da pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, instanciado em uma janela de contexto totalmente virgem. Ele recebe exclusivamente dois insumos: a especificação em Markdown do incremento e o diff gerado pelo Git (`git diff`). O revisor audita a entrega critério por critério, classificando o resultado como atendido, não atendido ou duvidoso, e aponta inclusive código excedente que foi adicionado sem constar na especificação.
 
-### 5. Git com commits atômicos de especificação
-A disciplina de controle de versão do SDD adota o padrão de dois commits por incremento:
+### 5. Controle de versão com a disciplina dos dois commits
+O fluxo de versionamento do SDD estabelece a separação explícita entre intenção e implementação através de dois commits por incremento:
 
 ```bash
+# Passo 1: Commitar a intencao (especificacao)
 git add specs/01-feed-artigos.md
 git commit -m "spec: definir leitura de feed rss e listagem de artigos"
 
-# Planejamento, implementação e verificação
+# Passo 2: Executar o ciclo (planejar, implementar e verificar)
+# ...
 
+# Passo 3: Commitar a realizacao (codigo e testes validados)
 git add src/ tests/
-git commit -m "feat: implementar ingestao de feed rss (spec 01)"
+git commit -m "feat: implementar ingestao de feed rss conforme spec 01"
 ```
 
-Commitar a especificação antes do código garante que a intenção foi registrada previamente na linha do tempo do Git, permitindo que revisores humanos avaliem a spec no Pull Request de forma desacoplada da implementação técnica.
+Essa separação registra a cronologia da intenção antes da escrita do código, garantindo que o histórico do Git conte a evolução arquitetural do produto com total transparência.
 
 ---
 
-## Estudo de caso: API de agregador de notícias em seis ciclos
+## Estudo de caso: API de Agregador de Notícias em seis ciclos de SDD
 
-Para demonstrar a eficácia prática do método, o repositório disponibiliza na pasta `examples/` uma API completa de um agregador de notícias com resumo por inteligência artificial, construída em Node.js, Express, SQLite e SDK da Anthropic.
+Para demonstrar a eficácia prática da metodologia, o repositório oficial da Pathbit disponibiliza no diretório `examples/` uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial, construída em Node.js com Express, SQLite durável e SDK da Anthropic.
 
-O projeto foi decomposto em seis ciclos estritos de SDD. A tabela a seguir documenta as decisões críticas de negócio que cada especificação precisou congelar para evitar que o agente tomasse decisões inadequadas:
+O projeto foi dividido em seis ciclos atômicos de SDD. A tabela a seguir documenta as armadilhas de produto e arquitetura que cada especificação congelou antecipadamente, evitando que o agente tomasse decisões inadequadas no improviso:
 
-| Ciclo | Incremento | Decisão Crítica de Negócio Travada pela Spec |
+| Ciclo | Incremento Funcional | Decisão Crítica de Negócio Travada pela Spec |
 | :--- | :--- | :--- |
-| Ciclo 01 | Leitura de Feed RSS e Listagem de Artigos | Chave primária de desduplicação fixada na coluna `link` e ordenação decrescente por data |
-| Ciclo 02 | Gerenciamento e Sincronização de Fontes | Validação prévia de URL XML e garantia de que uma fonte fora do ar não derruba a sincronização das demais |
-| Ciclo 03 | Resumo de Artigos com Claude 3.5 Haiku | Política estrita de cache em banco local para evitar cobrança duplicada de tokens na API |
-| Ciclo 04 | Categorização Automática e Filtros | Classificação por vocabulário com fallback seguro e validação de período com código HTTP 422 |
-| Ciclo 05 | Digest Diário e Testes de Regressão | Tratamento determinístico para dias sem notícias e mock obrigatório da API de IA nos testes unitários |
-| Ciclo 06 | Gestão de Favoritos, Métricas e Deploy | Portas de rede e credenciais lidas estritamente de variáveis de ambiente sem dados sensíveis no código |
+| Ciclo 01 | Leitura de Feed RSS e Listagem | Chave primária de desduplicação fixada na coluna `link` e ordenação cronológica decrescente |
+| Ciclo 02 | Gestão e Sincronização de Fontes | Validação prévia de XML e isolamento de falhas: uma fonte fora do ar não interrompe as demais |
+| Ciclo 03 | Resumo de Artigos com IA | Política estrita de cache em banco local para mitigar custos e impedir chamadas redundantes à API |
+| Ciclo 04 | Categorização e Filtros | Mapeamento temático com fallback seguro e retorno obrigatório de status HTTP 422 para datas inválidas |
+| Ciclo 05 | Digest Diário e Testes | Resposta previsível para dias sem notícias e mock determinístico obrigatório da IA na suíte de testes |
+| Ciclo 06 | Favoritos, Métricas e Deploy | Isolamento de portas e injeção de credenciais estritamente via variáveis de ambiente |
 
-Cada uma das decisões da coluna direita representa uma armadilha em potencial. Se o desenvolvedor tivesse pedido apenas "resuma as notícias com IA", o agente não saberia se deveria armazenar o resumo em cache, qual modelo chamar, qual timeout aplicar ou o que devolver caso a API estivesse indisponível. A especificação converteu essas incertezas em regras claras antes da geração da primeira linha de código.
+Em cada um desses ciclos, um pedido vago de *vibe coding* ("faça um agregador de notícias com IA") teria produzido um sistema imprevisível: o modelo chamaria a API da Anthropic a cada requisição de leitura esgotando o limite de tokens, usaria o título da notícia como chave de desduplicação duplicando matérias reescritas e derrubaria o servidor quando um dos feeds RSS estivesse fora do ar. A especificação transformou todas essas incertezas em contratos rígidos antes da escrita da primeira linha de código.
 
 ---
 
-## Configuração mínima para iniciar hoje
+## Roteiro prático para adotar SDD na sua equipe
 
-Para adotar o Spec Driven Development imediatamente no seu projeto com Claude Code, basta estruturar cinco elementos na raiz do seu repositório:
+Para implementar o Spec Driven Development imediatamente em qualquer projeto apoiado por Claude Code, estruture cinco elementos na raiz do seu repositório:
 
-1. Um arquivo `CLAUDE.md` objetivo contendo os comandos de build, suítes de teste e convenções fundamentais da aplicação.
-2. Um diretório `specs/` versionado no Git para armazenar os arquivos de especificação numerados sequencialmente.
-3. O comando customizado `.claude/commands/spec.md` para automatizar a geração de novas especificações estruturadas.
-4. O subagente `.claude/agents/revisor-de-spec.md` configurado para auditar diffs finais contra critérios de aceite.
-5. O compromisso prático de sempre revisar a rota no plan mode antes de autorizar a escrita de código no disco.
+1. **Memória permanente:** Crie um arquivo `CLAUDE.md` objetivo contendo comandos de build, suítes de teste e convenções de estilo que valem para todos os ciclos.
+2. **Pasta de especificações:** Crie o diretório `specs/` versionado no Git para armazenar as especificações atômicas de cada incremento numeradas em ordem sequencial.
+3. **Template de comando `/spec`:** Configure o arquivo `.claude/commands/spec.md` com as seis seções obrigatórias e a diretiva de caçar ambiguidades antes da escrita.
+4. **Subagente de auditoria:** Configure o arquivo `.claude/agents/revisor-de-spec.md` para comparar diffs de código contra critérios de aceite em contexto virgem.
+5. **Disciplina operacional:** Estabeleça o compromisso de revisar a rota técnica no Plan Mode (`Shift+Tab`) e commitar a especificação antes da autorização de escrita no disco.
 
-Todos os templates, prompts e códigos de exemplo estão disponíveis para clonagem direta na pasta `examples/` do repositório oficial da Pathbit.
+Todos os templates de configuração, especificações do estudo de caso, comandos customizados e o subagente revisor estão prontos para cópia direta no diretório `examples/` do repositório da Pathbit.
 
 ---
 
 ## Conclusão
 
-Os primeiros quatro artigos desta série entregaram a infraestrutura necessária para operar modelos de inteligência artificial de ponta no terminal com custo controlado e sem barreiras de permissão. Este quinto módulo entrega o método que transforma essa capacidade de computação em software previsível, auditável e de alta qualidade.
+A evolução dos agentes autônomos de desenvolvimento não tornou a engenharia de software obsoleta. Ao contrário: transferiu o valor da profissão da digitação mecânica de código para a capacidade de formular problemas, desenhar arquiteturas e definir critérios de validação rigorosos.
 
-O Spec Driven Development não é um retorno à burocracia do passado, mas a adaptação necessária da engenharia de software para uma era onde o código é gerado por máquinas em segundos. Ao ancorar o agente em especificações atômicas, critérios de aceite verificáveis e verificações com contexto isolado, eliminamos a loteria do *vibe coding* e colocamos o desenvolvedor no papel de arquiteto e garantidor da qualidade do sistema.
+Quando o custo de produzir código colapsa, a habilidade mais valiosa de um desenvolvedor deixa de ser a velocidade de digitação e passa a ser a precisão de pensamento. O Spec Driven Development devolve ao engenheiro o controle soberano sobre a arquitetura do sistema. Ao ancorar o Claude Code em especificações executáveis, planos validados previamente e auditorias em contexto isolado, transformamos a potência probabilística da inteligência artificial em uma esteira de entrega previsível, estável e profissional.
 
 ---
 
-## Referências
+## Referências Bibliográficas
 
 - [Beck, Kent: Test-Driven Development by Example (Addison-Wesley)](https://www.oreilly.com/library/view/test-driven-development/0321146530/)
 - [Anthropic: Claude Code Official CLI Documentation and Best Practices](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview)

@@ -1,10 +1,10 @@
-# Spec Driven Development no Claude Code: Como Eliminar o Vibe Coding com Especificações Executáveis
+# Spec Driven Development (SDD) com Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
 Nos últimos meses, a engenharia de software presenciou uma das maiores transformações de produtividade da história da computação. Ferramentas agênticas operando direto no terminal, como o Claude Code CLI, trouxeram janelas massivas de contexto, capacidade de leitura autônoma de diretórios e execução de comandos sem necessidade de intervenção manual contínua.
 
-Com modelos avançados disponíveis a custos irrisórios ou até sem custo adicional de tokens por meio de gateways locais, o gargalo tradicional da programação mudou de lugar. Digitar trezentas linhas de código deixou de ser um trabalho demorado. Um agente moderno cospe implementações completas, tipadas e sintaticamente perfeitas em menos de quinze segundos.
+Com modelos avançados disponíveis a custos irrisórios ou até sem custo adicional de tokens por meio de gateways locais, o gargalo tradicional da programação mudou de lugar. Digitar trezentas linhas de código deixou de ser um trabalho demorado. Um agente moderno gera implementações completas, tipadas e sintaticamente funcionais em menos de quinze segundos.
 
 No entanto, essa velocidade revelou um paradoxo brutal nos times de tecnologia. O custo de gerar código caiu para praticamente zero, mas o custo de gerar o código errado continua exatamente o mesmo de sempre. Na verdade, ele ficou pior: o software equivocado agora chega instantaneamente, empacotado em abstrações convincentes e testes unitários rasos que mascaram premissas incorretas de negócio.
 
@@ -20,9 +20,8 @@ Para entender por que métodos puramente conversacionais falham em sistemas de p
 
 Quando um desenvolvedor envia uma instrução vaga para o agente no terminal, como "crie um endpoint que liste as transações do mês", o modelo de linguagem se depara com um vácuo de decisões críticas de produto:
 
-Qual é a definição exata de "mês"? São os trinta dias corridos retroativos a partir de hoje? É o mês calendário de primeiro ao último dia? Ou seria o mês contábil da organização, cujo fechamento ocorre no dia 25?
-
-Como esses registros devem ser ordenados por padrão? Como a paginação deve se comportar diante de dezenas de milhares de lançamentos? O que acontece caso o cliente solicite um filtro sem transações correspondentes?
+- Qual é a definição exata de "mês"? São os trinta dias corridos retroativos a partir de hoje? É o mês calendário de primeiro ao último dia? Ou seria o mês contábil da organização, cujo fechamento ocorre no dia 25?
+- Como esses registros devem ser ordenados por padrão? Como a paginação deve se comportar diante de dezenas de milhares de lançamentos? O que acontece caso o cliente solicite um filtro sem transações correspondentes?
 
 ![Do codar no chute à especificação como alvo](../assets/01_diagrama_chute_vs_spec.png)
 
@@ -34,7 +33,7 @@ O resultado é um software internamente impecável, porém externamente inadequa
 
 ---
 
-## A inversão hierárquica: a especificação como fonte primária da verdade
+## A inversão hierárquica: da documentação morta à especificação executável
 
 No desenvolvimento de software tradicional, o código é historicamente reverenciado como a única fonte da verdade. A documentação técnica costuma ser tratada como um fardo burocrático, redigida com atraso após a entrega da funcionalidade e rapidamente esquecida em wikis desatualizadas.
 
@@ -69,13 +68,13 @@ Uma especificação madura no SDD é construída sobre seis blocos essenciais.
 ![Anatomia de uma especificação](../assets/04_diagrama_anatomia_spec.png)
 
 ### 1. Objetivo claro
-O propósito do incremento de software e o usuário impactado, resumidos em no máximo três linhas. Se o objetivo demandar explicações extensas, o incremento está excessivamente amplo e deve ser decomposto em ciclos menores.
+O propósito do incremento de software e o usuário impactado, resumidos em no máximo três linhas diretas.
 
 ### 2. Requisitos funcionais
-Declarações objetivas descrevendo as ações executadas pelo sistema e seus resultados observáveis. Devem focar sempre na experiência do consumidor da interface ou serviço.
+Declarações objetivas descrevendo as ações executadas pelo sistema e seus resultados observáveis, um por linha.
 
 ### 3. Requisitos não-funcionais
-Critérios de arquitetura, tolerância a falhas, tempo de resposta e segurança expressos com métricas concretas, como limites de memória, índices obrigatórios e consumo seguro de credenciais via ambiente.
+Critérios de arquitetura, tolerância a falhas, tempo de resposta e segurança expressos numericamente, como limites de latência p95 e isolamento de credenciais via variáveis de ambiente.
 
 ### 4. Critérios de aceite binários
 O coração técnico da especificação. São afirmações lógicas que só podem ser respondidas com sim ou não. Requisitos subjetivos como "o sistema deve ser rápido" ou "evitar duplicação de dados" são proibidos.
@@ -88,33 +87,39 @@ Duas listas complementares que delimitam com rigor as fronteiras do que deve e d
 ### 6. Restrições técnicas fundamentais
 Decisões de stack e infraestrutura já acordadas pela equipe que não podem ser alteradas pelo modelo, como a versão do runtime, a biblioteca de banco de dados e as convenções de diretórios.
 
-A linha divisória entre uma especificação bem elaborada e uma implementação precoce repousa na separação estrita entre o "o quê" e o "como". A especificação deve ser soberana sobre regras de negócio, limites e contratos externos. Detalhes efêmeros de implementação, como nomes de variáveis auxiliares ou laços de repetição, pertencem ao domínio de execução do agente.
+### A regra de ouro do método
+
+Para checar se a sua especificação está pronta para o agente, utilize um teste prático:
+
+> Se um desenvolvedor novo na equipe conseguisse implementar a funcionalidade lendo apenas a especificação, sem fazer nenhuma pergunta aos colegas, então o agente autônomo também conseguirá.
+
+Toda vez que você reler o texto e sentir vontade de perguntar um detalhe de regra de negócio, você encontrou uma decisão que o modelo preencherá por adivinhação.
 
 ---
 
-## O ciclo iterativo em seis fases
+## As armadilhas comuns e seus antídotos
+
+Ao especificar para agentes, quatro armadilhas são frequentes em equipes de tecnologia:
+
+1. **Adjetivos no lugar de números:** Troque palavras como "rápido" ou "escalável" por métricas mensuráveis (ex: "resposta abaixo de 300 ms sob 10.000 registros").
+2. **Descrever apenas o caminho feliz:** Adicione sempre a pergunta "e se der errado?", definindo o código de status HTTP e a mensagem para cenários de erro e parâmetros ausentes.
+3. **Especificação monolítica:** Nunca tente descrever o produto inteiro em um único documento. Escreva uma especificação atômica por incremento funcional.
+4. **Especificação que é código disfarçado:** Não prescreva nomes de classes internas ou laços de repetição. Deixe o "como" para o agente e concentre-se no comportamento observável de fora.
+
+---
+
+## O ciclo iterativo em seis fases e o loopback consciente
 
 O SDD não revive a rigidez do modelo em cascata tradicional. Ele opera como um loop contínuo de pequenos ciclos atômicos, onde cada incremento de produto passa por seis fases bem definidas.
 
 ![O ciclo iterativo em seis fases](../assets/05_diagrama_ciclo_sdd.png)
 
-### Fase 0: Princípios globais
-Definição dos padrões arquiteturais e convenções universais do repositório que se aplicam a todos os ciclos futuros. No ecossistema do Claude Code, esses princípios são centralizados no arquivo `CLAUDE.md`.
-
-### Fase 1: Especificar
-Redação da especificação do próximo incremento atômico de valor. O desenvolvedor escreve uma especificação de no máximo cinquenta linhas cobrindo apenas o próximo passo da aplicação.
-
-### Fase 2: Planejar
-O agente de IA analisa o código existente no repositório, cruza as dependências com a nova especificação e propõe uma estratégia técnica passo a passo em modo somente leitura (plan mode). O desenvolvedor valida o plano antes que qualquer linha seja gravada no disco.
-
-### Fase 3: Tarefas
-O plano técnico validado é quebrado em uma sequência curta de tarefas atômicas e ordenadas, funcionando como um roteiro de checagem.
-
-### Fase 4: Implementar
-O agente entra em ação para codificar as alterações, criar arquivos e rodar migrations de forma coordenada com a rota planejada.
-
-### Fase 5: Verificar
-A entrega é submetida a uma validação estrita contra cada um dos critérios de aceite previamente estabelecidos na especificação.
+1. **Fase 0: Princípios globais.** Padrões arquiteturais e convenções universais do repositório centralizados no arquivo `CLAUDE.md`.
+2. **Fase 1: Especificar.** Redação da especificação de no máximo cinquenta linhas cobrindo apenas o próximo incremento atômico na pasta `specs/`.
+3. **Fase 2: Planejar.** O agente de IA analisa o código existente e propõe uma estratégia técnica passo a passo em modo somente leitura (plan mode). O desenvolvedor valida o plano antes que qualquer linha seja gravada no disco.
+4. **Fase 3: Tarefas.** O plano técnico validado é decomposto em uma sequência curta de tarefas ordenadas.
+5. **Fase 4: Implementar.** O agente codifica as alterações, cria arquivos e roda migrações de forma coordenada com a rota planejada.
+6. **Fase 5: Verificar.** A entrega é submetida a uma validação estrita contra cada um dos critérios de aceite da especificação.
 
 O ponto crucial desse fluxo é o laço de retorno consciente (loopback). Encontrar um obstáculo técnico durante a implementação não é um erro de processo, mas um gatilho legítimo de revisão. Se uma premissa se mostrar inadequada no meio da escrita do código, a execução é interrompida, a especificação é ajustada e commitada, e o ciclo é retomado a partir de um alinhamento claro.
 
@@ -158,49 +163,24 @@ A disciplina de especificação atinge sua máxima eficiência quando apoiada po
 
 ![Ferramentas do Claude Code encaixadas nas fases do ciclo](../assets/08_diagrama_ferramentas_fases.png)
 
-### 1. `CLAUDE.md` como memória permanente
-O arquivo `CLAUDE.md`, posicionado na raiz do repositório, é ingerido automaticamente pelo Claude Code a cada inicialização de sessão. Ele funciona como o guardião dos princípios do projeto: comandos de compilação, scripts de teste, políticas de branches e convenções de estilo. Informações transitórias de funcionalidades específicas nunca devem poluir esse arquivo, permanecendo restritas às suas respectivas specs.
-
-### 2. Slash command `/spec` para criação orientada
-Criando o template `.claude/commands/spec.md`, o desenvolvedor disponibiliza o comando `/spec` diretamente no terminal. Esse ritual automatizado recebe o nome do incremento e instrui o modelo a gerar a estrutura completa das seis seções, obrigando o agente a identificar e listar todas as ambiguidades do pedido antes de prosseguir com a redação.
-
-### 3. Plan Mode para antecipação de arquitetura
-Acionado pela combinação de teclas `Shift+Tab`, o modo de planejamento instrui o Claude Code a investigar o repositório e apresentar a proposta técnica sem fazer alterações em disco. Ajustar uma estratégia em texto consome menos de um minuto de leitura do engenheiro, prevenindo refatorações desnecessárias em múltiplos arquivos.
-
-### 4. Subagentes com contexto isolado para auditoria
-Pedir para o mesmo agente que implementou o código validar sua própria entrega é um erro conceitual comum. Esse agente carrega o viés de confirmação de toda a conversa anterior.
-
-No Claude Code, configuramos subagentes especializados na pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, que é instanciado em uma janela de contexto totalmente virgem. Ele recebe exclusivamente dois artefatos: a especificação em Markdown e o diff gerado pelo Git. O subagente audita a entrega critério por critério, classificando o resultado de forma imparcial e alertando inclusive sobre códigos extras inseridos sem autorização da spec.
-
-### 5. Controle de versão com commits atômicos de spec
-A disciplina do SDD reflete-se na linha do tempo do Git por meio de commits separados para intenção e implementação:
-
-```bash
-git add specs/01-feed-artigos.md
-git commit -m "spec: definir leitura de feed rss e listagem de artigos"
-
-# Fase de planejamento, implementação e verificação
-
-git add src/ tests/
-git commit -m "feat: implementar ingestao de feed rss (spec 01)"
-```
-
-Essa separação garante que a intenção do produto fique registrada de forma cronológica antes do código, facilitando revisões de arquitetura e documentando a evolução do software no histórico do repositório.
+1. **`CLAUDE.md` como memória permanente:** Centraliza na raiz do repositório os comandos de compilação, scripts de teste, políticas de branches e convenções de estilo. Informações transitórias de funcionalidades específicas nunca devem poluir esse arquivo.
+2. **Slash command `/spec` para criação orientada:** Template em `.claude/commands/spec.md` que recebe o nome do incremento e instrui o modelo a listar todas as ambiguidades do pedido antes de redigir a especificação.
+3. **Plan Mode para antecipação de arquitetura:** Acionado por `Shift+Tab`, coloca o agente em modo de leitura pura para propor a estratégia passo a passo antes de alterar qualquer arquivo em disco.
+4. **Subagentes com contexto isolado para auditoria:** Subagente em `.claude/agents/revisor-de-spec.md` instanciado com janela de contexto virgem, recebendo apenas a spec e o diff do Git para auditar critérios sem viés de confirmação.
+5. **Controle de versão com commits atômicos:** Separação explícita entre intenção (`git commit -m "spec: ..."`) e implementação (`git commit -m "feat: ..."`), documentando a linha do tempo do produto.
 
 ---
 
 ## Estudo de caso: API de notícias em seis ciclos incrementais
 
-Para comprovar a viabilidade técnica do método em um cenário de produção, o repositório oficial da Pathbit disponibiliza uma API completa de um agregador de notícias com geração de resumos automatizados por inteligência artificial.
+Para comprovar a viabilidade técnica do método em um cenário de produção, o repositório oficial da Pathbit disponibiliza uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial em Node.js com Express e SQLite:
 
-A aplicação foi construída em Node.js com Express, persistência em SQLite e chamadas à API da Anthropic via SDK oficial, dividida em seis ciclos atômicos de SDD:
-
-1. **Ciclo 01: Leitura de feed RSS e listagem de artigos.** A especificação blindou a aplicação contra duplicações ao fixar a chave única na coluna de link e padronizou a ordenação cronológica decrescente.
-2. **Ciclo 02: Gestão e sincronização de fontes.** A especificação determinou que a indisponibilidade transitória de um feed não pode interromper a leitura das fontes restantes.
-3. **Ciclo 03: Resumo com Claude 3.5 Haiku.** A especificação estabeleceu uma política obrigatória de cache local no SQLite para impedir chamadas duplicadas à API externa e mitigar custos desnecessários de tokens.
-4. **Ciclo 04: Categorização automática e filtros temporais.** A especificação definiu validações estritas de datas, exigindo o retorno do código HTTP 422 para consultas com parâmetros invertidos.
-5. **Ciclo 05: Digest diário e testes automatizados.** A especificação garantiu respostas previsíveis para dias sem publicações e exigiu o mock determinístico da API de inteligência artificial na suíte de testes.
-6. **Ciclo 06: Favoritos, métricas de saúde e deploy.** A especificação travou o isolamento de portas e a leitura de credenciais estritamente via variáveis de ambiente.
+- **Ciclo 01: Leitura de feed RSS e listagem.** Desduplicação travada na coluna `link` e ordenação cronológica decrescente.
+- **Ciclo 02: Gestão de fontes e sincronização.** Tolerância a falhas parciais: um feed fora do ar não interrompe a sincronização dos demais.
+- **Ciclo 03: Resumo com Claude 3.5 Haiku.** Política estrita de cache em SQLite para evitar cobrança duplicada de tokens.
+- **Ciclo 04: Categorização automática e filtros.** Mapeamento temático com fallback seguro e retorno obrigatório de status HTTP 422 para datas inválidas.
+- **Ciclo 05: Digest diário e testes.** Resposta previsível para dias sem notícias e mock determinístico obrigatório da API de IA na suíte de testes.
+- **Ciclo 06: Favoritos, métricas e deploy.** Isolamento de portas e injeção de credenciais estritamente via variáveis de ambiente.
 
 Cada um desses seis ciclos representou uma decisão que, se deixada para a adivinhação do modelo em um fluxo de *vibe coding*, teria gerado retrabalho e inconsistências em produção.
 
