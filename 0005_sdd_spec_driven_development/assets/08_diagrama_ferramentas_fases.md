@@ -17,7 +17,7 @@ Diagrama "Cada ferramenta atende uma fase do ciclo", com cabeçalho editorial (k
 - `verificar` → `subagente revisor`
 
 - Colunas rotuladas "FASE DO CICLO" e "FERRAMENTA CLAUDE CODE", com caixas de ferramenta em borda de acento laranja.
-- Legenda: "as ferramentas não são o método — elas removem o atrito de praticá-lo".
+- Legenda: "as ferramentas não são o método: elas removem o atrito de praticá-lo".
 - Rodapé com linha divisória e kicker "PATHBIT AI FOR DEVS · ARTIGO 0005".
 
 ## Estilo
@@ -26,4 +26,4 @@ Paleta e tipografia do repo: fundo `#f5f5f5`, tinta `#2d3142`, secundário `#4f5
 
 ## Como gerar
 
-Fonte primária: `diagrams/08_diagrama_ferramentas_fases.html` — abrir no navegador e exportar/capturar como PNG em 2x. Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.
+Fonte primária: `diagrams/08_diagrama_ferramentas_fases.html` (abrir no navegador e exportar/capturar como PNG em 2x). Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.

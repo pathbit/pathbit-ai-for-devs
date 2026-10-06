@@ -75,6 +75,8 @@ web_modules/
 *.sqlite3
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 *.sqlite-journal
 *.pem
 *.key

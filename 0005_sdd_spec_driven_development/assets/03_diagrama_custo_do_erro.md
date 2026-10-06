@@ -20,4 +20,4 @@ Paleta e tipografia do repo: fundo `#f5f5f5`, tinta `#2d3142`, secundário `#4f5
 
 ## Como gerar
 
-Fonte primária: `diagrams/03_diagrama_custo_do_erro.html` — abrir no navegador e exportar/capturar como PNG em 2x. Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.
+Fonte primária: `diagrams/03_diagrama_custo_do_erro.html` (abrir no navegador e exportar/capturar como PNG em 2x). Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.

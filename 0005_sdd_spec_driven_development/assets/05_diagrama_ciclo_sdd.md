@@ -12,7 +12,7 @@ Diagrama "Seis fases, um loop", com cabeçalho editorial (kicker mono "SDD · SP
 - Fluxo horizontal de seis nós conectados por setas: `princípios` → `especificar` → `planejar` → `tarefas` → `implementar` → `verificar`.
 - Seta tracejada laranja de retorno de `verificar` para `especificar`, rotulada `desviou? volta pra spec`.
 - Etiquetas sob os quatro primeiros nós ("PENSAR") e sob os dois últimos ("FAZER"), em faixas sutis.
-- Nota em destaque: "o ciclo é iterativo — voltar é o processo funcionando".
+- Nota em destaque: "o ciclo é iterativo: voltar é o processo funcionando".
 - Rodapé com linha divisória, nota editorial e kicker "PATHBIT AI FOR DEVS · ARTIGO 0005".
 
 ## Estilo
@@ -21,4 +21,4 @@ Paleta e tipografia do repo: fundo `#f5f5f5`, tinta `#2d3142`, secundário `#4f5
 
 ## Como gerar
 
-Fonte primária: `diagrams/05_diagrama_ciclo_sdd.html` — abrir no navegador e exportar/capturar como PNG em 2x. Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.
+Fonte primária: `diagrams/05_diagrama_ciclo_sdd.html` (abrir no navegador e exportar/capturar como PNG em 2x). Alternativa: regenerar com modelo de imagem usando o Conteúdo e Estilo acima.

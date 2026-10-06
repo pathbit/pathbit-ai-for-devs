@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agregador de Notícias SDD · Pathbit AI for Devs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-paper: #f7f7f9;
+      --bg-card: #ffffff;
+      --bg-card-hover: #ffffff;
+      --color-ink: #202430;
+      --color-muted: #5d6878;
+      --color-border: #e2e6ec;
+      --color-accent: #eb6c36;
+      --color-accent-soft: rgba(235, 108, 54, 0.08);
+      --color-accent-hover: #d95a24;
+      --color-success: #10b981;
+      --color-blue: #2563eb;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'Geist Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--color-ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 5rem;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 1rem 0;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    .main-title {
+      font-family: var(--font-serif);
+      font-size: 1.65rem;
+      font-weight: 400;
+      color: var(--color-ink);
+      letter-spacing: -0.01em;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background: #ffffff;
+      color: var(--color-ink);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #f1f4f8;
+      border-color: #cbd5e1;
+    }
+
+    .btn-accent {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #ffffff;
+    }
+
+    .btn-accent:hover {
+      background: var(--color-accent-hover);
+      border-color: var(--color-accent-hover);
+    }
+
+    /* Live Stats Bar */
+    .stats-bar {
+      margin-top: 1.8rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.3rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card .label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+    }
+
+    .stat-card .value {
+      font-size: 1.85rem;
+      font-weight: 600;
+      color: var(--color-ink);
+      margin-top: 0.2rem;
+    }
+
+    /* Daily Digest Banner */
+    .digest-banner {
+      margin-top: 2rem;
+      background: #ffffff;
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-accent);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.8rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .digest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .digest-title {
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      color: var(--color-ink);
+    }
+
+    .digest-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .digest-summary-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .digest-item {
+      background: #fafafc;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+    }
+
+    .digest-item-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-ink);
+      margin-bottom: 0.3rem;
+    }
+
+    .digest-item-meta {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Controls Bar */
+    .controls-wrapper {
+      margin-top: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .search-filter-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.4rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      font-size: 0.9rem;
+      font-family: var(--font-sans);
+      outline: none;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-box input:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-soft);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+
+    .category-pills {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.4rem;
+    }
+
+    .pill {
+      border: 1px solid var(--color-border);
+      background: #ffffff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.16s ease;
+    }
+
+    .pill:hover {
+      border-color: #cbd5e1;
+      color: var(--color-ink);
+    }
+
+    .pill.active {
+      background: var(--color-ink);
+      color: #ffffff;
+      border-color: var(--color-ink);
+    }
+
+    /* Articles Grid */
+    .articles-grid {
+      margin-top: 1.8rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .article-card {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .article-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .article-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .cat-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--color-blue);
+      background: #eff6ff;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+    }
+
+    .btn-fav {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      color: #94a3b8;
+      transition: transform 0.15s ease, color 0.15s ease;
+      padding: 0.2rem;
+    }
+
+    .btn-fav:hover { transform: scale(1.15); }
+    .btn-fav.active { color: #f59e0b; }
+
+    .article-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--color-ink);
+      margin-bottom: 0.6rem;
+      text-decoration: none;
+      display: block;
+    }
+
+    .article-title:hover {
+      color: var(--color-accent);
+    }
+
+    .article-excerpt {
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* AI Summary Box inside Card */
+    .ai-summary-box {
+      background: #fdfaf6;
+      border: 1px solid rgba(235, 108, 54, 0.22);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem;
+      margin-top: auto;
+      margin-bottom: 0.9rem;
+    }
+
+    .ai-summary-header {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      margin-bottom: 0.4rem;
+    }
+
+    .ai-summary-text {
+      font-size: 0.84rem;
+      color: #38322e;
+      line-height: 1.45;
+    }
+
+    .article-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--color-border);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+    }
+
+    .btn-resumir {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      background: var(--color-accent-soft);
+      border: 1px solid rgba(235, 108, 54, 0.2);
+      padding: 0.35rem 0.7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-resumir:hover {
+      background: rgba(235, 108, 54, 0.16);
+      border-color: var(--color-accent);
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      max-width: 540px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group {
+      margin-top: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      font-size: 0.9rem;
+      font-family: var(--font-sans);
+    }
+
+    .presets-row {
+      margin-top: 0.8rem;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-chip {
+      font-size: 0.75rem;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .preset-chip:hover {
+      background: #e2e8f0;
+    }
+
+    .modal-footer {
+      margin-top: 1.8rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--color-ink);
+      color: #ffffff;
+      padding: 0.75rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-content">
+      <div class="brand-block">
+        <span class="kicker">Pathbit AI for Devs · Artigo 0005</span>
+        <h1 class="main-title">Agregador de Notícias com Resumo por IA</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btnVerFontes" class="btn">📡 Gerenciar Fontes</button>
+        <button id="btnAtualizarTodas" class="btn">🔄 Atualizar Tudo</button>
+        <button id="btnNovoFeed" class="btn btn-accent">+ Importar Feed RSS</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Live Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="label">Total de Artigos</span>
+        <span id="statTotalArtigos" class="value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="label">Resumidos com IA</span>
+        <span id="statTotalResumos" class="value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="label">Favoritos</span>
+        <span id="statTotalFavoritos" class="value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="label">Fontes RSS</span>
+        <span id="statTotalFontes" class="value">0</span>
+      </div>
+    </div>
+
+    <!-- Daily Digest Banner -->
+    <section class="digest-banner" id="digestBanner">
+      <div class="digest-header">
+        <div>
+          <span class="kicker">Spec 05 · Resumo Executivo</span>
+          <h2 class="digest-title" id="digestTitle">Digest Diário de Tecnologia</h2>
+        </div>
+        <span class="digest-badge" id="digestBadge">0 Destaques</span>
+      </div>
+      <div class="digest-summary-list" id="digestList">
+        <!-- Itens inseridos dinamicamente -->
+      </div>
+    </section>
+
+    <!-- Controls Bar -->
+    <div class="controls-wrapper">
+      <div class="search-filter-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Buscar por título, palavra-chave ou termo técnico...">
+        </div>
+        <button id="btnToggleFavoritos" class="btn">⭐ Apenas Favoritos</button>
+      </div>
+
+      <div class="category-pills" id="categoryPills">
+        <button class="pill active" data-cat="Todos">Todas as Categorias</button>
+        <button class="pill" data-cat="IA & Agentes">IA & Agentes</button>
+        <button class="pill" data-cat="Engenharia de Software">Engenharia de Software</button>
+        <button class="pill" data-cat="Cloud & DevOps">Cloud & DevOps</button>
+        <button class="pill" data-cat="Segurança">Segurança</button>
+        <button class="pill" data-cat="Frontend">Frontend</button>
+        <button class="pill" data-cat="Geral">Geral</button>
+      </div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="articles-grid" id="articlesGrid">
+      <!-- Artigos carregados via fetch -->
+    </div>
+  </main>
+
+  <!-- Modal Importar Feed RSS -->
+  <div class="modal-backdrop" id="modalImportar">
+    <div class="modal-card">
+      <h3 class="modal-title">Importar Feed RSS</h3>
+      <p style="font-size:0.88rem; color:var(--color-muted);">Cole a URL de qualquer fonte RSS para extrair e persistir artigos no SQLite.</p>
+      
+      <div class="form-group">
+        <label for="feedUrlInput">URL do Feed RSS</label>
+        <input type="url" id="feedUrlInput" placeholder="https://exemplo.com/feed.xml" required>
+      </div>
+
+      <div class="form-group">
+        <label>Sugestões Rápidas:</label>
+        <div class="presets-row">
+          <span class="preset-chip" onclick="setPreset('https://techcrunch.com/category/artificial-intelligence/feed/')">TechCrunch AI</span>
+          <span class="preset-chip" onclick="setPreset('https://github.blog/engineering/feed/')">GitHub Eng</span>
+          <span class="preset-chip" onclick="setPreset('https://theverge.com/rss/tech/index.xml')">The Verge Tech</span>
+          <span class="preset-chip" onclick="setPreset('https://news.ycombinator.com/rss')">Hacker News</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="fecharModal()">Cancelar</button>
+        <button class="btn btn-accent" id="btnConfirmarImport">Importar Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Fontes -->
+  <div class="modal-backdrop" id="modalFontes">
+    <div class="modal-card" style="max-width: 620px;">
+      <h3 class="modal-title">Fontes RSS Monitoradas</h3>
+      <div id="fontesList" style="margin-top:1rem; max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:0.6rem;"></div>
+      <div class="modal-footer" style="margin-top:1.5rem;">
+        <button class="btn" onclick="document.getElementById('modalFontes').classList.remove('open')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Ação concluída com sucesso</div>
+
+  <script>
+    let categoriaAtual = 'Todos';
+    let buscaAtual = '';
+    let apenasFavoritos = false;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function setPreset(url) {
+      document.getElementById('feedUrlInput').value = url;
+    }
+
+    function fecharModal() {
+      document.getElementById('modalImportar').classList.remove('open');
+      document.getElementById('feedUrlInput').value = '';
+    }
+
+    // Carregar Artigos
+    async function carregarArtigos() {
+      const grid = document.getElementById('articlesGrid');
+      let url = '/artigos?limit=60';
+      if (categoriaAtual && categoriaAtual !== 'Todos') {
+        url += `&categoria=${encodeURIComponent(categoriaAtual)}`;
+      }
+      if (buscaAtual) {
+        url += `&busca=${encodeURIComponent(buscaAtual)}`;
+      }
+
+      try {
+        const res = await fetch(url);
+        let artigos = await res.json();
+
+        if (apenasFavoritos) {
+          artigos = artigos.filter(a => a.favorito === 1);
+        }
+
+        if (artigos.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 4rem 1rem; text-align: center; color: var(--color-muted);">
+              <p style="font-size: 1.1rem; font-weight: 500;">Nenhum artigo encontrado</p>
+              <p style="font-size: 0.88rem; margin-top: 0.4rem;">Clique em "+ Importar Feed RSS" acima para carregar notícias em tempo real.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = artigos.map(a => `
+          <div class="article-card" id="card-${a.id}">
+            <div>
+              <div class="article-meta-top">
+                <span class="cat-tag">${a.categoria || 'Geral'}</span>
+                <button class="btn-fav ${a.favorito ? 'active' : ''}" onclick="toggleFavorito(${a.id}, ${a.favorito ? 0 : 1})" title="${a.favorito ? 'Remover dos favoritos' : 'Favoritar'}">
+                  ${a.favorito ? '★' : '☆'}
+                </button>
+              </div>
+              <a href="${a.link}" target="_blank" rel="noopener noreferrer" class="article-title">${a.titulo}</a>
+              <p class="article-excerpt">${a.conteudo || 'Sem descrição detalhada disponível.'}</p>
+            </div>
+
+            <div>
+              ${a.resumo ? `
+                <div class="ai-summary-box">
+                  <div class="ai-summary-header">✨ Resumo por Inteligência Artificial</div>
+                  <div class="ai-summary-text">${a.resumo}</div>
+                </div>
+              ` : `
+                <div style="margin-bottom: 0.8rem;">
+                  <button class="btn-resumir" onclick="gerarResumo(${a.id}, this)">✨ Resumir com IA</button>
+                </div>
+              `}
+
+              <div class="article-footer">
+                <span>${a.fonte || 'RSS Feed'}</span>
+                <span>${a.data_publicacao || 'Hoje'}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        grid.innerHTML = `<p style="color:red;">Erro ao carregar artigos: ${err.message}</p>`;
+      }
+    }
+
+    // Carregar Estatísticas e Digest
+    async function carregarDigestEEstatisticas() {
+      try {
+        const res = await fetch('/digest/hoje');
+        const data = await res.json();
+
+        document.getElementById('statTotalArtigos').innerText = data.estatisticas.totalArtigosBanco || 0;
+        document.getElementById('statTotalResumos').innerText = data.estatisticas.totalResumidos || 0;
+        document.getElementById('statTotalFavoritos').innerText = data.estatisticas.totalFavoritos || 0;
+        document.getElementById('statTotalFontes').innerText = data.estatisticas.totalFontes || 0;
+
+        document.getElementById('digestTitle').innerText = data.titulo;
+        document.getElementById('digestBadge').innerText = `${data.totalNoDigest} Notícias Selecionadas`;
+
+        const digestList = document.getElementById('digestList');
+        if (data.destaques && data.destaques.length > 0) {
+          digestList.innerHTML = data.destaques.map(d => `
+            <div class="digest-item">
+              <div class="digest-item-title"><a href="${d.link}" target="_blank" style="text-decoration:none; color:inherit;">${d.titulo}</a></div>
+              <div class="digest-item-meta">${d.fonte} · ${d.categoria}</div>
+            </div>
+          `).join('');
+        } else {
+          digestList.innerHTML = `<p style="font-size:0.85rem; color:var(--color-muted);">Nenhum destaque hoje ainda.</p>`;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Gerar Resumo
+    async function gerarResumo(id, btn) {
+      btn.disabled = true;
+      btn.innerText = 'Processando IA...';
+      try {
+        const res = await fetch(`/artigos/${id}/resumir`, { method: 'POST' });
+        const data = await res.json();
+        if (data.erro) {
+          showToast(`Erro: ${data.erro}`);
+          btn.disabled = false;
+          btn.innerText = '✨ Resumir com IA';
+          return;
+        }
+        showToast(data.cached ? 'Resumo recuperado do cache!' : 'Resumo gerado com sucesso!');
+        await carregarArtigos();
+        await carregarDigestEEstatisticas();
+      } catch (e) {
+        showToast(`Falha ao conectar com o serviço de IA: ${e.message}`);
+        btn.disabled = false;
+        btn.innerText = '✨ Resumir com IA';
+      }
+    }
+
+    // Toggle Favorito
+    async function toggleFavorito(id, novoStatus) {
+      try {
+        const metodo = novoStatus === 1 ? 'POST' : 'DELETE';
+        await fetch(`/artigos/${id}/favoritar`, { method: metodo });
+        await carregarArtigos();
+        await carregarDigestEEstatisticas();
+        showToast(novoStatus === 1 ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+      } catch (e) {
+        showToast(`Erro ao alterar favorito: ${e.message}`);
+      }
+    }
+
+    // Importar Feed
+    document.getElementById('btnConfirmarImport').addEventListener('click', async () => {
+      const urlInput = document.getElementById('feedUrlInput');
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      const btn = document.getElementById('btnConfirmarImport');
+      btn.disabled = true;
+      btn.innerText = 'Importando...';
+
+      try {
+        const res = await fetch('/feeds/importar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.erro) {
+          showToast(`Erro: ${data.erro}`);
+        } else {
+          showToast(`Sucesso! ${data.importados} novos artigos importados.`);
+          fecharModal();
+          await carregarArtigos();
+          await carregarDigestEEstatisticas();
+        }
+      } catch (e) {
+        showToast(`Erro: ${e.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Importar Agora';
+      }
+    });
+
+    // Atualizar Todas as Fontes
+    document.getElementById('btnAtualizarTodas').addEventListener('click', async () => {
+      const btn = document.getElementById('btnAtualizarTodas');
+      btn.disabled = true;
+      btn.innerText = 'Atualizando...';
+      try {
+        const res = await fetch('/fontes/atualizar-todas', { method: 'POST' });
+        const data = await res.json();
+        showToast(`Fontes sincronizadas! ${data.totalImportados} novos artigos.`);
+        await carregarArtigos();
+        await carregarDigestEEstatisticas();
+      } catch (e) {
+        showToast(`Erro ao atualizar: ${e.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔄 Atualizar Tudo';
+      }
+    });
+
+    // Gerenciar Fontes Modal
+    document.getElementById('btnVerFontes').addEventListener('click', async () => {
+      const modal = document.getElementById('modalFontes');
+      const list = document.getElementById('fontesList');
+      modal.classList.add('open');
+      list.innerHTML = '<p>Carregando fontes...</p>';
+
+      try {
+        const res = await fetch('/fontes');
+        const fontes = await res.json();
+        list.innerHTML = fontes.map(f => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.8rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+            <div>
+              <div style="font-weight:600; font-size:0.88rem;">${f.nome}</div>
+              <div style="font-size:0.75rem; color:var(--color-muted); font-family:var(--font-mono);">${f.url}</div>
+            </div>
+            <button class="btn" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="atualizarFonteEspecifica(${f.id}, this)">Sincronizar</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        list.innerHTML = `<p style="color:red;">Erro: ${e.message}</p>`;
+      }
+    });
+
+    async function atualizarFonteEspecifica(id, btn) {
+      btn.disabled = true;
+      btn.innerText = '...';
+      try {
+        const res = await fetch(`/fontes/${id}/atualizar`, { method: 'POST' });
+        const data = await res.json();
+        showToast(`Fonte atualizada: ${data.importados} novos artigos.`);
+        await carregarArtigos();
+        await carregarDigestEEstatisticas();
+      } catch (e) {
+        showToast(`Erro: ${e.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Sincronizar';
+      }
+    }
+
+    // Modal controls
+    document.getElementById('btnNovoFeed').addEventListener('click', () => {
+      document.getElementById('modalImportar').classList.add('open');
+    });
+
+    // Filtros de Categoria
+    document.querySelectorAll('#categoryPills .pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('#categoryPills .pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        categoriaAtual = pill.dataset.cat;
+        carregarArtigos();
+      });
+    });
+
+    // Busca com debounce
+    let timeoutBusca;
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      clearTimeout(timeoutBusca);
+      timeoutBusca = setTimeout(() => {
+        buscaAtual = e.target.value.trim();
+        carregarArtigos();
+      }, 300);
+    });
+
+    // Toggle Favoritos
+    document.getElementById('btnToggleFavoritos').addEventListener('click', () => {
+      apenasFavoritos = !apenasFavoritos;
+      const btn = document.getElementById('btnToggleFavoritos');
+      if (apenasFavoritos) {
+        btn.classList.add('btn-accent');
+        btn.innerText = '★ Exibindo Favoritos';
+      } else {
+        btn.classList.remove('btn-accent');
+        btn.innerText = '⭐ Apenas Favoritos';
+      }
+      carregarArtigos();
+    });
+
+    // Inicialização
+    carregarDigestEEstatisticas();
+    carregarArtigos();
+  </script>
+</body>
+</html>

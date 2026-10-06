@@ -18,9 +18,30 @@ Este módulo apresenta o **Spec Driven Development (SDD)**, a disciplina de escr
 
 | Diretório | Conteúdo |
 | :--- | :--- |
+| `src/` | Aplicação executável: API Express, banco SQLite, serviço de resumo com IA, rotas e dashboard web |
 | `article/` | O artigo completo para o repositório, a versão editorial para LinkedIn e o post de divulgação |
 | `examples/` | Kit pronto para uso: as seis specs do estudo de caso, o `CLAUDE.md.example`, os slash commands `/spec` e `/implementar-spec`, o subagente revisor e o roteiro de prompts |
-| `assets/` | Diagramas conceituais em PNG de alta resolução acompanhados de seus respectivos briefs em Markdown |
+| `assets/` | Diagramas conceituais em PNG de alta resolução acompanhados de seus respectivos briefs em Markdown e fontes HTML |
+| `tests/` | Suíte de testes automatizados cobrindo os critérios de aceite das specs 01 a 06 |
+
+## Como rodar o produto (Agregador de Notícias)
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+2. Execute a suíte de testes automatizados:
+   ```bash
+   npm test
+   ```
+3. Inicie o servidor da aplicação:
+   ```bash
+   npm start
+   ```
+4. Acesse o dashboard interativo no navegador:
+   - **URL:** [http://localhost:3005](http://localhost:3005)
+   - **API de Artigos:** [http://localhost:3005/artigos](http://localhost:3005/artigos)
+   - **Digest Diário:** [http://localhost:3005/digest/hoje](http://localhost:3005/digest/hoje)
 
 > Sobre as imagens: os diagramas em `assets/` seguem rigorosamente a paleta de cores e o padrão editorial sóbrio dos módulos anteriores. Cada imagem conta com um brief descritivo em arquivo `.md` contendo seu conteúdo semântico, dimensões e instruções de geração.
 
