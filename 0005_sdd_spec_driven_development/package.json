@@ -1,7 +1,7 @@
 {
   "name": "agregador-noticias-sdd",
   "version": "1.0.0",
-  "description": "Estudo de caso do Artigo 0005: Agregador de Notícias com resumo por IA construído com Spec Driven Development",
+  "description": "Estudo de caso do Artigo 0005: Agregador de Notícias com resumo por IA construído com Spec-Driven Development (SDD) no Claude Code",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

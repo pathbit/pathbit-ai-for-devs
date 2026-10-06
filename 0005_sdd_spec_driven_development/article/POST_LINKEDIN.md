@@ -1,4 +1,4 @@
-# Post LinkedIn: Spec Driven Development no Claude Code
+# Post LinkedIn: Spec-Driven Development (SDD) no Claude Code: Do Vibe Coding à Engenharia Determinística
 
 O seu agente de IA não erra o problema por incapacidade técnica. Ele simplesmente acerta outro problema, o único que estava subentendido no seu pedido vago.
 

@@ -1,4 +1,4 @@
-# Spec Driven Development no Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes
+# Spec-Driven Development (SDD) no Claude Code: Do Vibe Coding à Engenharia Determinística
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
