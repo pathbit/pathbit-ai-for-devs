@@ -150,3 +150,41 @@ ambiente. Atualize o CLAUDE.md com as instruções de deploy e faça o commit fi
 - **Cuidado com custo de IA:** resumo e classificação chamam a API, então reforce cache e limite de conteúdo; nos testes, a IA é sempre mockada.
 - **CLAUDE.md ao fim de cada ciclo:** toda decisão nova vira uma linha lá. É o que faz o ciclo seguinte "já saber".
 - **Commit por ciclo:** cada incremento fechado é um commit; a spec correspondente entra versionada junto.
+
+---
+
+## Arsenal de Prompts de Alta Certeza e Validação Cruzada
+
+Estes prompts colocam qualquer agente de IA (Claude Code, Antigravity, Cline, Cursor) em um funil de conformidade estrita, eliminando viés cognitivo e alucinações de frontend:
+
+### 1. Prova com Evidências Visuais em Navegador Real (Auditoria de Wireframes)
+```text
+PROVE COM EVIDENCIAS VISUAIS EM NAVEGADOR REAL VALIDANDO DE FORMA RESTRITA TODO VISUAL DO
+  WIREFRAME QUE ESTA NA PASTAS ./docs/design/wireframes/v1/* E SALVE AS EVIDENCIAS EM ./tmp/evidencias/specs/<spec>
+```
+*O que faz:* Força o agente a abrir uma sessão real no navegador (`http://localhost:3005`), capturar telas inteiras e componentes, comparar visualmente pixel a pixel contra os wireframes canônicos e salvar os relatórios exclusivamente em `./tmp/evidencias/specs/<spec>/`.
+
+### 2. Validação Cruzada de Critérios de Aceite Binários (Subagente Auditor / QA)
+```text
+INICIE UMA SESSÃO ISOLADA DE AUDITORIA (SEM VIÉS COGNITIVO DA SESSÃO PRINCIPAL). LEIA ESTRITAMENTE A SPEC EM specs/NN-nome.md E AUDITE O GIT DIFF ATUAL. PARA CADA UM DOS CRITÉRIOS DE ACEITE BINÁRIOS, RESPONDA EXCLUSIVAMENTE COM:
+1. [ATENDIDO / NÃO ATENDIDO / DUVIDOSO], INDICANDO A LINHA EXATA DO CÓDIGO E O TESTE AUTOMATIZADO CORRESPONDENTE.
+2. IDENTIFIQUE QUALQUER CÓDIGO OU DEPENDÊNCIA ADICIONADA QUE NÃO ESTAVA DECLARADA NA SPEC (ANTI-ESCOPO).
+3. REGISTRE O RELATÓRIO DE AUDITORIA EM ./tmp/evidencias/specs/<spec>/auditoria_cruzada.md
+```
+
+### 3. Auditoria Cruzada Multidisciplinar das 6 Camadas
+```text
+EXECUTE UMA AUDITORIA CRUZADA MULTIDISCIPLINAR NAS 6 DISCIPLINAS DO SDD:
+- [DB]: Confirme persistência atômica, modo WAL no SQLite e constraints UNIQUE contra duplicação de dados.
+- [API]: Valide envelopes de erro HTTP 422 descritivos em entradas inválidas e contratos de resposta JSON.
+- [DESIGN SYSTEM]: Audite se todas as cores, espaçamentos e fontes consom os tokens oficiais (zero cores hex hardcoded).
+- [FRONTEND]: Inspecione reatividade da busca, feedback visual de carregamento (spinner) e tratamento de listas vazias.
+- [DEVOPS]: Audite o Dockerfile garantindo imagem Alpine, usuário não-root (USER node) e healthcheck configurado.
+- [QA]: Execute a suíte automatizada (npm test) e comprove que 100% dos testes passam de forma idempotente.
+SALVE O LAUDO DE CONFORMIDADE EM ./tmp/evidencias/specs/<spec>/relatorio_multidisciplinar.md
+```
+
+### 4. Blindagem de Governança e Autoria Humana no Git
+```text
+INSPECIONE O HISTÓRICO DO GIT (git log -n 5) E AUDITE SE TODOS OS COMMITS POSSUEM AUTORIA EXCLUSIVAMENTE HUMANA, SEM QUALQUER TRAILER SINTÉTICO ('Co-Authored-By: Claude', 'Signed-off-by: AI'). CONFIRME SE O .gitignore BLINDA O REPOSITÓRIO CONTRA METADADOS (.DS_Store), ARQUIVOS DE BANCO LOCAIS (.sqlite, .db) E CREDENCIAIS (.env).
+```

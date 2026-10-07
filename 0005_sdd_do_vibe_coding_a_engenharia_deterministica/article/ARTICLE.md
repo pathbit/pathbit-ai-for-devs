@@ -455,26 +455,13 @@ Essa disciplina reflete uma verdade econômica crucial: **descartar texto custa 
 ### 4. Orquestração de Subagentes e Equipes de IA para Validação Cruzada (Cross-Validation)
 Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um dos erros conceituais mais graves na engenharia com inteligência artificial. O agente principal carrega o **viés de confirmação** de toda a sessão: ele tende a justificar as próprias premissas e a ignorar lacunas no código que ele mesmo gerou.
 
-No Spec-Driven Development maduro, reduzimos pontos cegos através de uma **Equipe de Agentes com Três Papéis Especializados**:
+No Spec-Driven Development maduro, reduzimos pontos cegos através de uma **Equipe de Agentes com Papéis Especializados**:
 
-```text
-┌─────────────────────────┐
-│   1. Agente Arquiteto   │  Opera em Plan Mode, lê docs/arquitetura.md e a spec,
-│      (Planejamento)     │  e formula o plano sem tocar no disco.
-└────────────┬────────────┘
-             │ Plano Aprovado pelo Engenheiro
-             ▼
-┌─────────────────────────┐
-│ 2. Agente Implementador │  Recebe o plano e a spec e materializa estritamente
-│      (Construção)       │  o código das disciplinas (DB, API, SPA, Docker).
-└────────────┬────────────┘
-             │ Código e Testes Derivados
-             ▼
-┌─────────────────────────┐
-│  3. Subagente Auditor   │  Inicia em uma contexto separado, que ainda recebe instruções e dados do projeto.
-│   (Cross-Validation)    │  Audita o git diff contra os critérios binários de aceite.
-└─────────────────────────┘
-```
+1. **Agente Arquiteto (Plan Mode):** Opera em modo estrito de leitura (`claude --permission-mode plan`), lê `specs/NN-nome.md`, `CLAUDE.md` e `docs/arquitetura.md`, formulando a rota técnica sem tocar no disco.
+2. **Agente Implementador (Execution):** Recebe o plano validado pelo engenheiro e materializa o código estritamente dentro do escopo aprovado nas seis disciplinas (DB, API, Design System, SPA, DevOps e QA).
+3. **Subagente Auditor / QA (Cross-Validation):** Inicia em uma sessão isolada com janela de contexto limpa (sem o histórico de tentativas do implementador). Recebe apenas a spec e o `git diff` para auditar a conformidade dos critérios binários de aceite.
+
+*(Para o diagrama visual e editável desse fluxo de orquestração agêntica, consulte os artefatos vetoriais em [assets/diagrams/fluxo_sdd_subagentes.svg](../assets/diagrams/fluxo_sdd_subagentes.svg) e [fluxo_sdd_subagentes.excalidraw](../assets/diagrams/fluxo_sdd_subagentes.excalidraw)).*
 
 No Claude Code, definimos o subagente auditor dentro de `.claude/agents/revisor-de-spec.md`:
 
@@ -493,17 +480,67 @@ Você recebe o caminho de uma spec e o diff da implementação. Para cada crité
 Aponte também o que foi implementado e não estava na spec. Não sugira melhorias de estilo. Não elogie. Sua única pergunta é: isto cumpre a spec?
 ```
 
-O auditor recebe exclusivamente a especificação e o `git diff`. Como sua janela de contexto não contém o histórico de tentativa e erro do implementador, sua avaliação pode detectar pontos cegos, mas não é imune a erro nem substitui testes e revisão humana.
+O auditor recebe exclusivamente a especificação e o `git diff`. Como sua janela de contexto não contém o histórico de tentativa e erro do implementador, sua avaliação detecta pontos cegos com total neutralidade.
 
-### 5. Memória Viva do Repositório: `AGENTS.md`, `CLAUDE.md` e Documentação de Arquitetura
-Para evitar que o modelo sofra de "amnésia arquitetural" ao longo de semanas de desenvolvimento, o repositório mantém uma malha viva de documentação técnica:
+### 5. Arsenal de Prompts de Alta Certeza: Evidências Visuais e Validação Cruzada
 
-- **`AGENTS.md` (Governança Universal):** Documento lido por qualquer agente de mercado (Claude Code, Antigravity, Cursor, Devin, Copilot). Estabelece a regra pétrea de **autoria humana nos commits** (proibição de trailers sintéticos) e aponta os padrões do projeto.
-- **`CLAUDE.md` (Harness do Claude Code):** Declara comandos operacionais imediatos (`npm start`, `npm test`), variáveis locais e atalhos de slash commands.
-- **`docs/arquitetura.md` e `docs/infraestrutura.md`:** Documentos vivos que registram diagramas C4, decisões de design tokens, convenções de erro HTTP 422, mapeamento de portas locais e estratégias de containerização Docker.
-- **`specs/roadmap.md` e o comando `/status-sdd`:** Matriz de governança que rastreia os incrementos entregues (`CONCLUÍDO`) e pendentes (`BACKLOG`), impedindo que o agente gaste tokens revalidando código antigo em ciclos desnecessários.
+Para extrair o nível máximo de confiabilidade dos agentes e transformar a entrega em um processo determinístico, utilizamos prompts especializados de **alta certeza**. Esses prompts colocam o modelo em um funil de validação sem escapatórias:
 
-### 6. Controle de versão com a disciplina dos dois commits
+#### Prompt 1: Prova com Evidências Visuais em Navegador Real (Auditoria de Wireframes)
+O maior risco no desenvolvimento de frontend com IA é a "alucinação de interface": o agente declara que a tela está pronta e bonita apenas porque gerou classes CSS plausíveis, mas a página real apresenta elementos sobrepostos, contraste quebrado ou responsividade arruinada.
+
+Para blindar o visual da aplicação contra qualquer suposição, utilizamos este prompt de auditoria estrita:
+
+```text
+PROVE COM EVIDENCIAS VISUAIS EM NAVEGADOR REAL VALIDANDO DE FORMA RESTRITA TODO VISUAL DO
+  WIREFRAME QUE ESTA NA PASTAS ./docs/design/wireframes/v1/* E SALVE AS EVIDENCIAS EM ./tmp/evidencias/specs/<spec>
+```
+
+**Por que este prompt é revolucionário:**
+1. **Navegador Real em Ação:** Obriga o agente a subir o servidor web local (ex: porta `3005`) e utilizar ferramentas de automação de browser (como o subagente de navegação web, Playwright ou Puppeteer) para carregar a página real.
+2. **Validação Restrita contra Wireframe:** O agente inspeciona visualmente cada componente contra o wireframe canônico em `./docs/design/wireframes/v1/*` (grid, header, barra de busca, cards, badges de fontes, estados vazios e modais).
+3. **Governança de Evidências em `tmp/`:** Todas as capturas de tela em alta resolução e o relatório comparativo são gravados exclusivamente em `./tmp/evidencias/specs/<spec>/`, preservando a árvore de código-fonte limpa e auditável.
+
+#### Prompt 2: Validação Cruzada de Critérios Binários de Aceite (Auditoria de Spec & Zero Viés)
+Quando a implementação é finalizada, usamos um prompt para acionar uma sessão independente de revisão:
+
+```text
+INICIE UMA SESSÃO ISOLADA DE AUDITORIA (SEM VIÉS COGNITIVO DA SESSÃO PRINCIPAL). LEIA ESTRITAMENTE A SPEC EM specs/NN-nome.md E AUDITE O GIT DIFF ATUAL. PARA CADA UM DOS CRITÉRIOS DE ACEITE BINÁRIOS, RESPONDA EXCLUSIVAMENTE COM:
+1. [ATENDIDO / NÃO ATENDIDO / DUVIDOSO], INDICANDO A LINHA EXATA DO CÓDIGO E O TESTE AUTOMATIZADO CORRESPONDENTE.
+2. IDENTIFIQUE QUALQUER CÓDIGO OU DEPENDÊNCIA ADICIONADA QUE NÃO ESTAVA DECLARADA NA SPEC (ANTI-ESCOPO).
+3. REGISTRE O RELATÓRIO DE AUDITORIA EM ./tmp/evidencias/specs/<spec>/auditoria_cruzada.md
+```
+
+#### Prompt 3: Auditoria Cruzada Multidisciplinar das 6 Camadas
+Para garantir que nenhuma disciplina foi esquecida ou tratada de forma superficial:
+
+```text
+EXECUTE UMA AUDITORIA CRUZADA MULTIDISCIPLINAR NAS 6 DISCIPLINAS DO SDD:
+- [DB]: Confirme persistência atômica, modo WAL no SQLite e constraints UNIQUE contra duplicação de dados.
+- [API]: Valide envelopes de erro HTTP 422 descritivos em entradas inválidas e contratos de resposta JSON.
+- [DESIGN SYSTEM]: Audite se todas as cores, espaçamentos e fontes consom os tokens oficiais (zero cores hex hardcoded).
+- [FRONTEND]: Inspecione reatividade da busca, feedback visual de carregamento (spinner) e tratamento de listas vazias.
+- [DEVOPS]: Audite o Dockerfile garantindo imagem Alpine, usuário não-root (USER node) e healthcheck configurado.
+- [QA]: Execute a suíte automatizada (npm test) e comprove que 100% dos testes passam de forma idempotente.
+SALVE O LAUDO DE CONFORMIDADE EM ./tmp/evidencias/specs/<spec>/relatorio_multidisciplinar.md
+```
+
+#### Prompt 4: Blindagem de Governança e Autoria Humana no Git
+Para assegurar a integridade do repositório antes de qualquer push:
+
+```text
+INSPECIONE O HISTÓRICO DO GIT (git log -n 5) E AUDITE SE TODOS OS COMMITS POSSUEM AUTORIA EXCLUSIVAMENTE HUMANA, SEM QUALQUER TRAILER SINTÉTICO ('Co-Authored-By: Claude', 'Signed-off-by: AI'). CONFIRME SE O .gitignore BLINDA O REPOSITÓRIO CONTRA METADADOS (.DS_Store), ARQUIVOS DE BANCO LOCAIS (.sqlite, .db) E CREDENCIAIS (.env).
+```
+
+### 6. Memória Viva do Repositório: A Arquitetura em Três Níveis (`CLAUDE.md`, `AGENTS.md` e `docs/`)
+Para evitar que o modelo sofra de "amnésia arquitetural" ao longo de semanas de desenvolvimento, o repositório adota uma arquitetura modular de memória viva:
+
+1. **`CLAUDE.md` Ultra-Enxuto (Harness do Claude Code):** Em vez de inchar o arquivo principal com centenas de linhas, o `CLAUDE.md` pode ser tão direto quanto importar `@AGENTS.md` ou declarar atalhos operacionais imediatos (`npm start`, `npm test`) e slash commands.
+2. **`AGENTS.md` Universal e Agnóstico:** Documento de governança consumido por qualquer agente de mercado (Claude Code, Antigravity, Cursor, Windsurf, Devin, GitHub Copilot). Declara a regra pétrea de **autoria humana inegociável** nos commits, a proibição de *vibe coding* e a obrigação do Plan Mode.
+3. **Documentação Viva de Apoio (`docs/CONVENTIONS.md`, `docs/arquitetura.md`, `docs/infraestrutura.md`):** Registra decisões de stack, diagramas de fluxo, convenções de status HTTP 422, mapeamento de portas e topologia Docker.
+4. **`specs/roadmap.md` e o comando `/status-sdd`:** Matriz de governança que rastreia os incrementos entregues (`CONCLUÍDO`) e pendentes (`BACKLOG`), impedindo que o agente gaste tokens revalidando código antigo em ciclos desnecessários.
+
+### 7. Controle de versão com a disciplina dos dois commits
 O fluxo de versionamento do SDD estabelece a separação explícita entre intenção e implementação através de dois commits por incremento:
 
 ```bash

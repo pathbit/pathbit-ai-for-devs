@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0A0D14; }
+      .title-box { fill: #141921; stroke: #7C3AED; stroke-width: 1.5; rx: 8px; }
+      .card { fill: #1E2638; stroke-width: 2; rx: 8px; }
+      .card-spec { stroke: #38BDF8; }
+      .card-arq { stroke: #7C3AED; }
+      .card-imp { stroke: #FBBF24; }
+      .card-audit { stroke: #34D399; }
+      .footer-box { fill: #141921; stroke: #7C3AED; stroke-width: 1.5; rx: 8px; }
+      .text-title { fill: #C3B6FD; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: bold; }
+      .card-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: bold; }
+      .card-sub { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; }
+      .text-body { fill: #E2E8F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11.5px; }
+      .arrow { stroke-width: 2; marker-end: url(#arrowhead); }
+      .arrow-lbl { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: bold; text-anchor: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 9 3, 0 6" fill="#A855F7" />
+    </marker>
+  </defs>
+
+  <rect width="1200" height="460" class="bg" />
+
+  <rect x="40" y="20" width="1120" height="50" class="title-box" />
+  <text x="600" y="51" class="text-title" text-anchor="middle">FLUXO SDD: GOVERNANÇA, PLAN MODE E VALIDAÇÃO CRUZADA DE SUBAGENTES</text>
+
+  <!-- Card 1: Spec Canônica -->
+  <rect x="40" y="95" width="250" height="245" class="card card-spec" />
+  <text x="60" y="125" class="card-title" fill="#38BDF8">📋 1. SPEC CANÔNICA</text>
+  <text x="60" y="142" class="card-sub" fill="#94A3B8">specs/01-feed-artigos.md</text>
+  <text x="60" y="172" class="text-body">• 1. O Quê: Propósito direto</text>
+  <text x="60" y="194" class="text-body">• 2. Por Quê: Valor de negócio</text>
+  <text x="60" y="216" class="text-body">• 3. Req. Funcionais: API &amp; UX</text>
+  <text x="60" y="238" class="text-body">• 4. Não-Funcionais: &lt; 50ms</text>
+  <text x="60" y="260" class="text-body">• 5. Escopo e Fora de Escopo</text>
+  <text x="60" y="282" class="text-body">• 6. Restrições: SQLite WAL</text>
+  <text x="60" y="304" class="text-body">• 7. Critérios Aceite: SIM / NÃO</text>
+
+  <line x1="290" y1="217" x2="322" y2="217" stroke="#38BDF8" class="arrow" />
+  <text x="306" y="210" fill="#38BDF8" class="arrow-lbl">SPEC</text>
+
+  <!-- Card 2: Agente Arquiteto -->
+  <rect x="330" y="95" width="250" height="245" class="card card-arq" />
+  <text x="350" y="125" class="card-title" fill="#C3B6FD">🧠 2. AGENTE ARQUITETO</text>
+  <text x="350" y="142" class="card-sub" fill="#A855F7">Plan Mode (Shift+Tab)</text>
+  <text x="350" y="172" class="text-body">• Consulta specs/roadmap.md</text>
+  <text x="350" y="194" class="text-body">• Lê memória viva (CLAUDE.md)</text>
+  <text x="350" y="216" class="text-body">• Desenha plano em 6 disciplinas</text>
+  <text x="350" y="238" class="text-body">• ZERO escrita em disco (RO)</text>
+  <text x="350" y="260" class="text-body">• Mapeia arquivos e contratos</text>
+  <text x="350" y="295" class="text-body" fill="#00B050" font-weight="bold">✓ Aprovação Humana com Enter</text>
+
+  <line x1="580" y1="217" x2="612" y2="217" stroke="#7C3AED" class="arrow" />
+  <text x="596" y="210" fill="#C3B6FD" class="arrow-lbl">PLANO</text>
+
+  <!-- Card 3: Agente Implementador -->
+  <rect x="620" y="95" width="250" height="245" class="card card-imp" />
+  <text x="640" y="125" class="card-title" fill="#FBBF24">⚡ 3. IMPLEMENTADOR</text>
+  <text x="640" y="142" class="card-sub" fill="#F59E0B">/implementar-spec</text>
+  <text x="640" y="172" class="text-body">• DB: data/noticias.db (WAL)</text>
+  <text x="640" y="194" class="text-body">• API: src/routes/feedRoutes.js</text>
+  <text x="640" y="216" class="text-body">• UI: public/ (Design System)</text>
+  <text x="640" y="238" class="text-body">• DevOps: Dockerfile Multi-Stage</text>
+  <text x="640" y="260" class="text-body">• Testes: tests/artigos.test.js</text>
+  <text x="640" y="282" class="text-body">• Implementação cirúrgica</text>
+
+  <line x1="870" y1="217" x2="902" y2="217" stroke="#FBBF24" class="arrow" />
+  <text x="886" y="210" fill="#FBBF24" class="arrow-lbl">DIFF</text>
+
+  <!-- Card 4: Subagente Auditor / QA -->
+  <rect x="910" y="95" width="250" height="245" class="card card-audit" />
+  <text x="930" y="125" class="card-title" fill="#34D399">🛡️ 4. SUBAGENTE AUDITOR</text>
+  <text x="930" y="142" class="card-sub" fill="#10B981">Cross-Validation Isolada</text>
+  <text x="930" y="172" class="text-body">• Contexto 100% virgem</text>
+  <text x="930" y="194" class="text-body">• Sem viés de confirmação</text>
+  <text x="930" y="216" class="text-body">• Audita git diff vs Spec</text>
+  <text x="930" y="238" class="text-body">• Executa npm test (7/7 OK)</text>
+  <text x="930" y="260" class="text-body">• Valida latência &lt; 50ms</text>
+  <text x="930" y="295" class="text-body" fill="#34D399" font-weight="bold">PARECER: APROVADO ✅</text>
+
+  <!-- Footer -->
+  <rect x="40" y="365" width="1120" height="65" class="footer-box" />
+  <text x="600" y="390" class="text-body" text-anchor="middle" font-weight="bold" fill="#C3B6FD">🔒 MEMÓRIA VIVA &amp; GOVERNANÇA: AGENTS.md + CLAUDE.md + docs/arquitetura.md + docs/infraestrutura.md</text>
+  <text x="600" y="412" class="text-body" text-anchor="middle" fill="#94A3B8">Roadmap atualizado com [x] Concluído • Autoria humana garantida em commits • Zero efeitos colaterais</text>
+</svg>

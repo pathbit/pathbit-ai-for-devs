@@ -188,6 +188,22 @@ A disciplina de especificação atinge sua máxima eficiência quando apoiada po
 
 ---
 
+## O Arsenal de Prompts de Alta Certeza: Evidências Visuais e Validação Cruzada
+
+Para extrair previsibilidade cirúrgica da IA, equipes maduras de SDD utilizam comandos operacionais que eliminam alucinações e viés cognitivo:
+
+### 1. Prova com Evidências Visuais em Navegador Real (Auditoria de Wireframe)
+> *"PROVE COM EVIDENCIAS VISUAIS EM NAVEGADOR REAL VALIDANDO DE FORMA RESTRITA TODO VISUAL DO WIREFRAME QUE ESTA NA PASTAS ./docs/design/wireframes/v1/* E SALVE AS EVIDENCIAS EM ./tmp/evidencias/specs/<spec>"*
+
+O agente é obrigado a subir o servidor web local, abrir uma sessão real no navegador (headless ou automação web), capturar telas inteiras e componentes, e comparar visualmente contra os wireframes canônicos em `./docs/design/wireframes/v1/*`. Nenhuma interface é aceita apenas por ter código CSS gerado; a validação é visual e comprovada em disco.
+
+### 2. Validação Cruzada de Critérios de Aceite Binários (Zero Viés Cognitivo)
+> *"INICIE UMA SESSÃO ISOLADA DE AUDITORIA (SEM VIÉS COGNITIVO DA SESSÃO PRINCIPAL). LEIA ESTRITAMENTE A SPEC EM specs/NN-nome.md E AUDITE O GIT DIFF ATUAL. PARA CADA UM DOS CRITÉRIOS DE ACEITE BINÁRIOS, RESPONDA EXCLUSIVAMENTE COM [ATENDIDO / NÃO ATENDIDO / DUVIDOSO], INDICANDO A LINHA EXATA DO CÓDIGO E O TESTE AUTOMATIZADO CORRESPONDENTE. REPORTE QUALQUER LINHA FORA DE ESCOPO."*
+
+Isolando a sessão do subagente auditor, removemos todo o viés de confirmação gerado na implementação, garantindo um crivo rigoroso e imparcial antes do merge.
+
+---
+
 ## Estudo de caso prático: Ingestão e Telemetria em seis ciclos determinísticos de SDD
 
 Para comprovar a viabilidade técnica do método em cenários corporativos, o repositório oficial da Pathbit disponibiliza uma API completa de ingestão, desduplicação e agregação inteligente em Node.js com Express e SQLite em modo WAL:

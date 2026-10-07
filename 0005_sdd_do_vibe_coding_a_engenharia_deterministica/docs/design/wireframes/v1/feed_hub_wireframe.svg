@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <style>
+      .bg { fill: #0A0D14; }
+      .card { fill: #121824; stroke: #232D42; stroke-width: 1.5; rx: 12px; }
+      .header-card { fill: #101622; stroke: #1E2738; stroke-width: 1; rx: 8px; }
+      .btn-purple { fill: #8B5CF6; rx: 6px; }
+      .btn-secondary { fill: #1E2638; stroke: #313D57; stroke-width: 1; rx: 6px; }
+      .badge-green { fill: #064E3B; stroke: #00B050; stroke-width: 1; rx: 4px; }
+      .badge-purple { fill: #4C1D95; stroke: #C3B6FD; stroke-width: 1; rx: 4px; }
+      .text-title { font-family: 'Exo 2', sans-serif; font-weight: 700; fill: #FFFFFF; }
+      .text-sub { font-family: 'Roboto', sans-serif; font-size: 13px; fill: #94A3B8; }
+      .text-body { font-family: 'Roboto', sans-serif; font-size: 14px; fill: #CBD5E1; }
+      .text-accent { font-family: 'Exo 2', sans-serif; font-size: 12px; font-weight: 600; fill: #C3B6FD; }
+      .text-success { font-family: 'Exo 2', sans-serif; font-size: 12px; font-weight: 600; fill: #34D399; }
+      .input-box { fill: #0B0E17; stroke: #232D42; stroke-width: 1.5; rx: 6px; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" class="bg"/>
+
+  <!-- Top Navbar / Header -->
+  <rect x="40" y="30" width="1120" height="70" class="header-card"/>
+  <text x="70" y="68" class="text-title" font-size="22">⚡ PATHBIT SDD FEED HUB</text>
+  <text x="70" y="86" class="text-sub">Spec-Driven Development · Clean Architecture &amp; Deterministic Ingestion</text>
+
+  <!-- Status Badges -->
+  <rect x="740" y="50" width="120" height="28" class="badge-green"/>
+  <text x="752" y="69" class="text-success">● 9ROUTER :20128</text>
+
+  <rect x="875" y="50" width="140" height="28" class="badge-purple"/>
+  <text x="888" y="69" class="text-accent">★ GEMINI 3.8 FLASH</text>
+
+  <rect x="1030" y="50" width="100" height="28" class="header-card"/>
+  <text x="1045" y="69" class="text-sub">SQLITE WAL</text>
+
+  <!-- Controls Box: Import Feed -->
+  <rect x="40" y="125" width="1120" height="95" class="card"/>
+  <text x="70" y="155" class="text-title" font-size="16">IMPORTAÇÃO DE FEEDS RSS</text>
+
+  <rect x="70" y="168" width="620" height="38" class="input-box"/>
+  <text x="85" y="192" class="text-sub">https://techcrunch.com/feed/ ou selecione um preset ao lado...</text>
+
+  <rect x="705" y="168" width="110" height="38" class="btn-secondary"/>
+  <text x="725" y="192" class="text-body" font-size="13">TechCrunch</text>
+
+  <rect x="825" y="168" width="100" height="38" class="btn-secondary"/>
+  <text x="847" y="192" class="text-body" font-size="13">BBC Tech</text>
+
+  <rect x="940" y="168" width="190" height="38" class="btn-purple"/>
+  <text x="980" y="192" class="text-title" font-size="14">⚡ IMPORTAR FEED</text>
+
+  <!-- Filter & Search Bar -->
+  <rect x="40" y="240" width="1120" height="50" class="input-box"/>
+  <text x="70" y="271" class="text-sub" font-size="14">🔍 Buscar artigos por título, fonte ou conteúdo em tempo real...</text>
+  <text x="1020" y="271" class="text-accent">6 ARTIGOS ATIVOS</text>
+
+  <!-- Article Cards Grid -->
+  <!-- Card 1 -->
+  <rect x="40" y="315" width="355" height="200" class="card"/>
+  <rect x="60" y="335" width="90" height="22" class="badge-purple"/>
+  <text x="72" y="351" class="text-accent" font-size="11">TECHCRUNCH</text>
+  <text x="290" y="351" class="text-sub" font-size="11">2026-10-07</text>
+  <text x="60" y="385" class="text-title" font-size="15">Avanços em Modelos de Alto Raciocínio</text>
+  <text x="60" y="415" class="text-body" font-size="13">Pesquisadores demonstram arquiteturas agênticas híbridas com síntese de contexto...</text>
+  <text x="60" y="490" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Card 2 -->
+  <rect x="422" y="315" width="355" height="200" class="card"/>
+  <rect x="442" y="335" width="90" height="22" class="badge-purple"/>
+  <text x="454" y="351" class="text-accent" font-size="11">THE VERGE</text>
+  <text x="672" y="351" class="text-sub" font-size="11">2026-10-07</text>
+  <text x="442" y="385" class="text-title" font-size="15">Novo Padrão de Engenharia Agêntica</text>
+  <text x="442" y="415" class="text-body" font-size="13">Equipes de desenvolvimento migram do freestyle vibe coding para especificações determinísticas...</text>
+  <text x="442" y="490" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Card 3 -->
+  <rect x="805" y="315" width="355" height="200" class="card"/>
+  <rect x="825" y="335" width="90" height="22" class="badge-purple"/>
+  <text x="842" y="351" class="text-accent" font-size="11">BBC TECH</text>
+  <text x="1055" y="351" class="text-sub" font-size="11">2026-10-06</text>
+  <text x="825" y="385" class="text-title" font-size="15">A Revolução dos Harnesses Abertos</text>
+  <text x="825" y="415" class="text-body" font-size="13">Desenvolvedores contornam monopólios de APIs proprietárias com gateways de tradução local...</text>
+  <text x="825" y="490" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Row 2 -->
+  <!-- Card 4 -->
+  <rect x="40" y="535" width="355" height="200" class="card"/>
+  <rect x="60" y="555" width="90" height="22" class="badge-purple"/>
+  <text x="72" y="571" class="text-accent" font-size="11">TECHCRUNCH</text>
+  <text x="290" y="571" class="text-sub" font-size="11">2026-10-06</text>
+  <text x="60" y="605" class="text-title" font-size="15">SQLite em Modo WAL no Edge Computing</text>
+  <text x="60" y="635" class="text-body" font-size="13">Bancos de dados embarcados superam bancos de rede tradicionais em latência de leitura p99...</text>
+  <text x="60" y="710" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Card 5 -->
+  <rect x="422" y="535" width="355" height="200" class="card"/>
+  <rect x="442" y="555" width="90" height="22" class="badge-purple"/>
+  <text x="460" y="571" class="text-accent" font-size="11">INFOQ</text>
+  <text x="672" y="571" class="text-sub" font-size="11">2026-10-05</text>
+  <text x="442" y="605" class="text-title" font-size="15">Auditorias Cruzadas com Subagentes de QA</text>
+  <text x="442" y="635" class="text-body" font-size="13">Pesquisa comprova que isolar o revisor em sessão limpa reduz em 88% os pontos cegos de implementação...</text>
+  <text x="442" y="710" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Card 6 -->
+  <rect x="805" y="535" width="355" height="200" class="card"/>
+  <rect x="825" y="555" width="90" height="22" class="badge-purple"/>
+  <text x="842" y="571" class="text-accent" font-size="11">PATHBIT AI</text>
+  <text x="1055" y="571" class="text-sub" font-size="11">2026-10-05</text>
+  <text x="825" y="605" class="text-title" font-size="15">Autoria Humana e Governança no Git</text>
+  <text x="825" y="635" class="text-body" font-size="13">A regra inegociável de manter 100% dos commits limpos contra trailers sintéticos de inteligência artificial...</text>
+  <text x="825" y="710" class="text-accent" font-size="12">Ler artigo original →</text>
+
+  <!-- Footer -->
+  <text x="40" y="775" class="text-sub">Pathbit · Spec-Driven Development (SDD) · Wireframe Canônico de Referência Visual (v1)</text>
+</svg>
