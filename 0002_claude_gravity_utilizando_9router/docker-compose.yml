@@ -84,5 +84,56 @@ services:
       retries: 3
       start_period: 10s
 
+  # --- Acesso remoto opcional: Cloudflare Tunnel ---------------------------
+  # Suba com: docker compose --profile tunel up -d
+  # IMPORTANTE: Antes de ligar, garanta REQUIRE_LOGIN=true e REQUIRE_API_KEY=true.
+  claudegravity-tunel:
+    image: cloudflare/cloudflared:latest
+    container_name: claudegravity-tunel
+    hostname: claudegravity-tunel
+    profiles: ["tunel"]
+    restart: unless-stopped
+    command: >-
+      tunnel --no-autoupdate
+      ${TUNNEL_TOKEN:+run --token ${TUNNEL_TOKEN}}
+      ${TUNNEL_TOKEN:---url http://claudegravity-router:20128}
+    depends_on:
+      - claudegravity-router
+
+  # --- Acesso remoto seguro: Tailscale ------------------------------------
+  # Suba com: docker compose --profile tailnet up -d
+  claudegravity-tailnet:
+    image: tailscale/tailscale:latest
+    container_name: claudegravity-tailnet
+    hostname: claudegravity-9router
+    profiles: ["tailnet"]
+    restart: unless-stopped
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY:-}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=true
+      - TS_SERVE_CONFIG=/config/serve.json
+    volumes:
+      - claudegravity_tailnet:/var/lib/tailscale
+    depends_on:
+      - claudegravity-router
+
+  # --- Otimizacao de tokens: Headroom -------------------------------------
+  # Suba com: docker compose --profile headroom up -d
+  claudegravity-headroom:
+    image: ghcr.io/headroomlabs-ai/headroom:latest
+    container_name: claudegravity-headroom
+    hostname: claudegravity-headroom
+    profiles: ["headroom"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      - UPSTREAM_URL=http://claudegravity-router:20128
+      - PORT=8787
+    depends_on:
+      - claudegravity-router
+
 volumes:
   9router_data:
+  claudegravity_tailnet:

@@ -290,6 +290,45 @@ $env:CLAUDE_CODE_DISABLE_ADVISOR_TOOL="1"
 claude --dangerously-skip-permissions --model arsenal-supremo
 ```
 
+### 8. Acesso Remoto Seguro: Cloudflare Tunnel e Tailscale
+
+Por padrão, o 9Router está vinculado ao loopback (`127.0.0.1:20128`) para proteger suas credenciais e tokens. Quando você precisar acessar os combos do 9Router a partir de outras máquinas, notebooks ou celulares:
+
+> ⚠️ **Segurança Obrigatória:** Antes de expor qualquer rota, configure no `.env`:
+> 1. `REQUIRE_LOGIN=true` (com `INITIAL_PASSWORD` forte)
+> 2. `REQUIRE_API_KEY=true` (com chave gerada para suas ferramentas)
+> Se o gateway for exposto com `REQUIRE_API_KEY=false`, qualquer um que descobrir o link poderá consumir seus limites de inferência.
+
+* **Opção 1 — Cloudflare Quick Tunnel (URL pública temporária):**
+  ```bash
+  docker compose --profile tunel up -d
+  docker logs claudegravity-tunel
+  ```
+  O log exibirá a URL `https://...trycloudflare.com` pronta para uso. Você também pode ativar pelo botão **Tunnel** no painel do 9Router.
+* **Opção 2 — Cloudflare Tunnel Nomeado (Domínio Próprio):**
+  Defina `TUNNEL_TOKEN=<seu_token>` no `.env` e inicie com `docker compose --profile tunel up -d`.
+* **Opção 3 — Tailscale (VPN Mesh Privada — Recomendado):**
+  Não publica nada na internet pública: apenas seus dispositivos autorizados na tailnet alcançam o 9Router.
+  Defina `TS_AUTHKEY` no `.env` e suba o perfil:
+  ```bash
+  docker compose --profile tailnet up -d
+  ```
+  Acesse via MagicDNS em `http://claudegravity-9router:20128` ou pelo IP Tailscale (`100.x.y.z:20128`). Também disponível pelo botão **Tailscale** no painel do 9Router.
+
+### 9. Otimização de Tokens com Headroom e Caveman
+
+Para estender a duração das cotas gratuitas e evitar limites de taxa durante sessões longas de desenvolvimento, integre a dupla **Headroom + Caveman**:
+
+* **Headroom (Compressão de Entrada / Input):**
+  - Proxy local que analisa os prompts e ferramentas do agente, comprimindo logs, git diffs e saídas de terminal antes de passá-los ao 9Router.
+  - Suba o container integrado:
+    ```bash
+    docker compose --profile headroom up -d
+    ```
+  - Aponte suas ferramentas para `http://127.0.0.1:8787/v1`. O Headroom comprime o contexto de entrada e repassa ao 9Router na porta `20128`.
+* **Caveman (Modo Conciso de Saída / Output):**
+  - Adaptação de comportamento / skill para Claude Code ou Cursor que instrui o agente a responder de forma ultra-direta e compacta ("modo homem das cavernas"), reduzindo em até 60% os tokens gerados em explicações prolixas.
+
 ---
 
 ### Artigos e Links Relacionados

@@ -245,6 +245,50 @@ npm install -g 9router
 
 O serviço abrirá a mesma porta `20128` localmente.
 
+#### 6. Acesso Remoto Seguro: Cloudflare Tunnel e Tailscale
+
+Por padrão, as portas estão presas em `127.0.0.1`. Para acessar o 9Router remotamente (de outro computador, notebook, celular ou compartilhar com o time):
+
+> ⚠️ **Regra de Ouro de Segurança:** Antes de expor o gateway, certifique-se de configurar no `.env`:
+> 1. `REQUIRE_LOGIN=true` (com `INITIAL_PASSWORD` forte)
+> 2. `REQUIRE_API_KEY=true` (com `ANTHROPIC_API_KEY` gerada)
+> Sem essas duas diretivas ativas, qualquer um que alcançar a URL pública poderá consumir suas cotas do Antigravity.
+
+* **Opção 1 — Cloudflare Quick Tunnel (URL pública efêmera):**
+  - Suba o perfil com:
+    ```bash
+    docker compose --profile tunel up -d
+    docker logs claudegravity-tunel
+    ```
+  - Copie o endereço `https://...trycloudflare.com` exibido nos logs.
+  - Alternativamente, clique no botão **Tunnel** na tela *API Endpoint* do painel do 9Router.
+* **Opção 2 — Cloudflare Tunnel Nomeado (Domínio Próprio):**
+  - Defina `TUNNEL_TOKEN=<seu_token>` no arquivo `.env`.
+  - Suba o container com `docker compose --profile tunel up -d`.
+* **Opção 3 — Tailscale (Rede Privada Mesh — Recomendado):**
+  - Não expõe nenhuma porta para a internet; apenas seus dispositivos autorizados na tailnet alcançam o 9Router.
+  - Defina `TS_AUTHKEY` no `.env` e suba o perfil:
+    ```bash
+    docker compose --profile tailnet up -d
+    ```
+  - O gateway ficará acessível via MagicDNS em `http://claudegravity-9router:20128` ou pelo IP da Tailscale (`100.x.y.z:20128`).
+  - Você também pode clicar no botão **Tailscale** no painel do 9Router ou instalar direto no host (`curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`).
+
+#### 7. Otimização de Tokens com Headroom e Caveman
+
+Durante loops extensos de desenvolvimento com Claude Code ou Cursor, agentes consomem muitos tokens com logs longos de terminal, leituras de código e respostas conversacionais. A dobradinha **Headroom + Caveman** resolve isso:
+
+* **Headroom (Compressão de Entrada / Input):**
+  - Middleware proxy que intercepta arquivos, git diffs e logs, compactando o payload sem perder semântica.
+  - Suba o container integrado via perfil:
+    ```bash
+    docker compose --profile headroom up -d
+    ```
+  - Aponte suas ferramentas para `http://127.0.0.1:8787/v1` em vez da porta do 9Router. O Headroom comprime o contexto e repassa automaticamente para o 9Router na porta `20128`.
+* **Caveman (Economia de Saída / Output):**
+  - Skill / instrução de prompt que força o Claude Code a falar de forma ultra-concisa ("modo homem das cavernas / direto ao ponto"), eliminando rodeios conversacionais e economizando de 30% a 60% de tokens de saída.
+  - Configure nas instruções do agente ou no `.claude/settings.local.json`.
+
 ---
 
 ### Configuração do Claude Code (Zero Interrupção)
