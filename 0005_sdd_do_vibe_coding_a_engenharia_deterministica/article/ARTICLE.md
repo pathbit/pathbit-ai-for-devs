@@ -113,50 +113,46 @@ Corrigir uma premissa errada enquanto ela é apenas uma linha de texto no arquiv
 
 Uma boa especificação para agentes de inteligência artificial não é um manual volumoso e enfadonho. É um documento conciso, enxuto e orientado a comportamentos verificáveis. Documentos prolixos dispersam a atenção do modelo e aumentam a probabilidade de alucinações.
 
-Uma especificação sólida no SDD estrutura-se em seis blocos fundamentais.
-
 ![Anatomia de uma especificação](../assets/04_diagrama_anatomia_spec.png)
 
 > **Figura 4.** A anatomia de uma especificação funcional com os critérios de aceite operando como núcleo de verificação.
 
-### 1. Objetivo claro
-O propósito do incremento e o usuário beneficiado descritos em duas ou três linhas diretas. Esta seção ancora a intenção do incremento e impede que o agente resolva um problema sem contexto de negócio.
+Uma especificação sólida no SDD estrutura-se em sete blocos fundamentais:
 
-- Exemplo correto: "Permitir que o usuário filtre transações financeiras por intervalo de datas para calcular seus gastos mensais com clareza."
-- Exemplo incorreto: "Criar o endpoint de resumo e refatorar as rotas de banco de dados."
+### 1. O Quê (Definição do Incremento)
+A descrição concisa e objetiva do incremento que será construído. Deve responder sem rodeios: o que é essa entrega em termos de funcionalidade concreta?
+- Exemplo: "Construção de um agregador de feeds RSS com persistência relacional em SQLite e dashboard web responsivo."
 
-### 2. Requisitos funcionais
+### 2. Por Quê (Problema de Negócio & Valor Entregue)
+O propósito econômico do incremento e quem é o usuário beneficiado, sintetizados em duas ou três linhas diretas. Esta seção ancora a intenção do incremento e impede que o agente resolva uma tarefa sem contexto de negócio.
+- Exemplo: "Permitir que desenvolvedores centralizem atualizações tecnológicas de múltiplos portais sem distração de anúncios, viabilizando leitura offline e busca rápida."
+
+### 3. Requisitos Funcionais
 Comportamentos observáveis descritos em frases diretas no formato de ação e resultado. Cada requisito deve ocupar uma linha própria, evitando conjunções aditivas ("e") que agrupem duas ações diferentes na mesma sentença.
-
 - O usuário pode filtrar transações por categoria com correspondência exata.
 - O usuário pode definir uma data inicial e uma data final para delimitar o período.
 - O sistema combina múltiplos filtros ativos por meio de conjunção lógica (AND).
 
-### 3. Requisitos não-funcionais
+### 4. Requisitos Não-Funcionais
 Restrições de performance, segurança, durabilidade e concorrência expressas numericamente. Sempre que uma qualidade for desejada, ela deve ser quantificada objetivamente.
-
 - A rota de listagem deve responder em menos de 300 ms com uma massa de 10.000 registros no banco.
 - Todas as credenciais de provedores externos devem ser consumidas estritamente via variáveis de ambiente, sem nenhuma chave exposta no código.
-- O estado das transações deve sobreviver ao reinício da aplicação por meio de persistência durável no SQLite.
+- O estado das transações deve sobreviver ao reinício da aplicação por meio de persistência durável no SQLite com modo WAL.
 
-### 4. Critérios de aceite binários
+### 5. Escopo e Fora de Escopo
+Duas listas complementares que delimitam rigidamente o que faz e o que não faz parte daquele ciclo de trabalho. A lista de itens fora de escopo é frequentemente mais valiosa do que a de escopo, pois ela atua como um escudo protetor contra o crescimento descontrolado da tarefa (*scope creep*).
+- Sem uma seção explícita de fora de escopo, o agente identifica uma lacuna adjacente e decide resolvê-la por iniciativa própria, implementando paginação complexa, autenticação JWT ou busca textual quando a meta era apenas uma listagem básica em memória.
+
+### 6. Restrições Técnicas Fundamentais
+Decisões de engenharia que já foram tomadas por motivos de infraestrutura e governança do time, acompanhadas da respectiva justificativa:
+- Node.js versão 20+ utilizando módulos ESM nativos para manter conformidade com os demais serviços da Pathbit.
+- Persistência em SQLite via biblioteca `better-sqlite3` operando em modo WAL (`journal_mode = WAL`) para permitir execução local determinística sem dependências de containers externos nos testes de CI.
+
+### 7. Critérios de Aceite Binários (O Núcleo de Verificação)
 O componente mais importante de toda a especificação. Um critério de aceite é uma afirmação que qualquer pessoa ou subagente consegue testar e responder com sim ou não, sem margem para subjetividade.
-
-Se dois revisores independentes puderem discordar sobre se um critério foi atendido, ele não é um critério de aceite válido, mas uma opinião disfarçada de requisito.
-
+- Se dois revisores independentes puderem discordar sobre se um critério foi atendido, ele não é um critério de aceite válido, mas uma opinião disfarçada de requisito.
 - Exemplo correto: "POST /transacoes com valor menor ou igual a zero retorna status HTTP 422 com mensagem detalhando o campo inválido."
 - Exemplo incorreto: "A validação da API deve ser robusta e tratar erros adequadamente."
-
-### 5. Escopo e fora de escopo
-Duas listas complementares que delimitam rigidamente o que faz e o que não faz parte daquele ciclo de trabalho. A lista de itens fora de escopo é frequentemente mais valiosa do que a de escopo, pois ela atua como um escudo protetor contra o crescimento descontrolado da tarefa.
-
-Sem uma seção explícita de fora de escopo, o agente identifica uma lacuna adjacente e decide resolvê-la por iniciativa própria, implementando paginação complexa, autenticação JWT ou busca textual quando a meta era apenas uma listagem básica em memória.
-
-### 6. Restrições técnicas fundamentais
-Decisões de engenharia que já foram tomadas por motivos de infraestrutura e governança do time, acompanhadas da respectiva justificativa:
-
-- Node.js versão 20+ utilizando módulos ESM nativos para manter conformidade com os demais serviços da Pathbit.
-- Persistência em SQLite via biblioteca `better-sqlite3` para permitir execução local determinística sem dependências de containers externos nos testes de CI.
 
 ---
 
@@ -433,12 +429,37 @@ Leia a spec em: $ARGUMENTS
 Com esse comando configurado, a instrução diária no terminal se resume a uma única linha enxuta: `/implementar-spec specs/01-feed-artigos.md`. Essa prática consolida uma regra de ouro: **os prompts no chat devem ser propositalmente magros**. O peso do conhecimento reside nas especificações versionadas e no `CLAUDE.md`. Se você sentir necessidade de digitar parágrafos explicativos no chat da CLI, não faça isso no prompt: atualize a especificação.
 
 ### 3. Plan Mode para pensar antes de tocar no disco
-Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca o agente em modo de leitura estrita e investigação arquitetural. O modelo analisa dependências, inspeciona interfaces existentes e propõe uma rota passo a passo. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório. Discordar de um plano em texto consome trinta segundos; reverter cinquenta arquivos modificados equivocadamente consome horas.
+Acionado pelo atalho `Shift+Tab` no terminal do Claude Code ou integrado diretamente na lógica do `/implementar-spec`, o **Plan Mode** coloca o agente em modo de leitura estrita e investigação arquitetural preliminar.
 
-### 4. Subagentes com contexto isolado para auditoria imparcial
-Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um erro conceitual comum na engenharia com inteligência artificial. O agente principal carrega o viés de confirmação de toda a sessão e das decisões tomadas ao longo das tentativas anteriores.
+O agente analisa a árvore de arquivos, inspeciona os esquemas existentes em `src/db/`, lê os contratos de rotas e propõe uma estratégia técnica passo a passo dividida pelas disciplinas de engenharia. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório.
 
-No Claude Code, definimos subagentes especializados dentro da pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, instanciado em uma janela de contexto totalmente virgem:
+Essa disciplina reflete uma verdade econômica crucial: **descartar texto custa segundos; descartar código implementado custa horas**. Mudar de ideia durante a leitura de um plano técnico consome zero linhas de diff no Git; refatorar cinquenta arquivos modificados precipitadamente por um agente impulsivo consome tardes inteiras de depuração.
+
+### 4. Orquestração de Subagentes e Equipes de IA para Validação Cruzada (Cross-Validation)
+Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um dos erros conceituais mais graves na engenharia com inteligência artificial. O agente principal carrega o **viés de confirmação** de toda a sessão: ele tende a justificar as próprias premissas e a ignorar lacunas no código que ele mesmo gerou.
+
+No Spec-Driven Development maduro, quebramos esse viés através de uma **Equipe de Agentes com Três Papéis Especializados**:
+
+```text
+┌─────────────────────────┐
+│   1. Agente Arquiteto   │  Opera em Plan Mode, lê docs/arquitetura.md e a spec,
+│      (Planejamento)     │  e formula o plano sem tocar no disco.
+└────────────┬────────────┘
+             │ Plano Aprovado pelo Engenheiro
+             ▼
+┌─────────────────────────┐
+│ 2. Agente Implementador │  Recebe o plano e a spec e materializa estritamente
+│      (Construção)       │  o código das disciplinas (DB, API, SPA, Docker).
+└────────────┬────────────┘
+             │ Código e Testes Derivados
+             ▼
+┌─────────────────────────┐
+│  3. Subagente Auditor   │  Inicia em uma janela de contexto 100% virgem e isolada.
+│   (Cross-Validation)    │  Audita o git diff contra os critérios binários de aceite.
+└─────────────────────────┘
+```
+
+No Claude Code, definimos o subagente auditor dentro de `.claude/agents/revisor-de-spec.md`:
 
 ```markdown
 ---
@@ -455,9 +476,17 @@ Você recebe o caminho de uma spec e o diff da implementação. Para cada crité
 Aponte também o que foi implementado e não estava na spec. Não sugira melhorias de estilo. Não elogie. Sua única pergunta é: isto cumpre a spec?
 ```
 
-O revisor recebe exclusivamente dois insumos: a especificação em Markdown do incremento e o diff gerado pelo Git (`git diff`). Ele audita a entrega critério por critério, classificando o resultado de forma imparcial e alertando sobre eventuais desvios ou códigos excedentes que foram adicionados sem constar na especificação.
+O auditor recebe exclusivamente a especificação e o `git diff`. Como sua janela de contexto não contém o histórico de tentativa e erro do implementador, sua avaliação é fria, imparcial e puramente determinística.
 
-### 5. Controle de versão com a disciplina dos dois commits
+### 5. Memória Viva do Repositório: `AGENTS.md`, `CLAUDE.md` e Documentação de Arquitetura
+Para evitar que o modelo sofra de "amnésia arquitetural" ao longo de semanas de desenvolvimento, o repositório mantém uma malha viva de documentação técnica:
+
+- **`AGENTS.md` (Governança Universal):** Documento lido por qualquer agente de mercado (Claude Code, Antigravity, Cursor, Devin, Copilot). Estabelece a regra pétrea de **autoria humana nos commits** (proibição de trailers sintéticos) e aponta os padrões do projeto.
+- **`CLAUDE.md` (Harness do Claude Code):** Declara comandos operacionais imediatos (`npm start`, `npm test`), variáveis locais e atalhos de slash commands.
+- **`docs/arquitetura.md` e `docs/infraestrutura.md`:** Documentos vivos que registram diagramas C4, decisões de design tokens, convenções de erro HTTP 422, mapeamento de portas locais e estratégias de containerização Docker.
+- **`specs/roadmap.md` e o comando `/status-sdd`:** Matriz de governança que rastreia os incrementos entregues (`CONCLUÍDO`) e pendentes (`BACKLOG`), impedindo que o agente gaste tokens revalidando código antigo em ciclos desnecessários.
+
+### 6. Controle de versão com a disciplina dos dois commits
 O fluxo de versionamento do SDD estabelece a separação explícita entre intenção e implementação através de dois commits por incremento:
 
 ```bash
@@ -465,11 +494,11 @@ O fluxo de versionamento do SDD estabelece a separação explícita entre inten�
 git add specs/01-feed-artigos.md
 git commit -m "spec: definir leitura de feed rss e listagem de artigos"
 
-# Passo 2: Executar o ciclo (planejar, implementar e verificar)
+# Passo 2: Executar o ciclo (planejar, implementar e verificar com testes)
 # ...
 
 # Passo 3: Commitar a realizacao (codigo e testes validados)
-git add src/ tests/
+git add src/ tests/ specs/roadmap.md
 git commit -m "feat: implementar ingestao de feed rss conforme spec 01"
 ```
 
