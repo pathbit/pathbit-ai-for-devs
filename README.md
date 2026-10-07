@@ -215,7 +215,7 @@ O único pré-requisito é ter o Docker instalado. Nada mais precisa ser instala
 
 ```bash
 # Executar todos os testes de integração em containers
-./run_tests.sh
+./tools/run_tests.sh
 
 # Ou via Makefile
 make test-container

@@ -15,7 +15,7 @@ setup:
 test: test-container
 
 test-container:
-	./run_tests.sh
+	./tools/run_tests.sh
 
 test-gateway:
 	docker run --rm --network claudegravity_default -v "$$(pwd)":/app -w /app \
@@ -69,7 +69,7 @@ test-local:
 		$(VENV)/bin/python3 0003_fallback_modelos_gratuitos_9router/src/test_arsenal.py; \
 	else \
 		echo "Ambiente virtual local nao encontrado. Executando em container..."; \
-		./run_tests.sh; \
+		./tools/run_tests.sh; \
 	fi
 
 up:

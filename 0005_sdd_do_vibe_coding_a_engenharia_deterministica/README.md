@@ -11,8 +11,9 @@ Este módulo apresenta o **Spec Driven Development (SDD)**, a disciplina de escr
 3. O ciclo iterativo em seis fases: princípios, especificar, planejar, tarefas, implementar e verificar
 4. Como um agente interpreta uma especificação: janela de contexto, preenchimento de lacunas e curadoria enxuta
 5. Onde o SDD brilha, onde é exagero, e como ele se combina com o TDD sem qualquer competição
-6. As ferramentas nativas do Claude Code encaixadas em cada fase: `CLAUDE.md`, plan mode, slash commands e subagentes isolados
-7. Um estudo de caso completo: a API de Agregador de Notícias com resumo por inteligência artificial, construída em seis ciclos de SDD em Node.js
+6. Por que o SDD transforma a equipe inteira: o alinhamento multidisciplinar entre Produto (PM), Qualidade (QA), Arquitetura e Engenharia
+7. As ferramentas nativas do Claude Code encaixadas em cada fase: `CLAUDE.md`, plan mode, slash commands e subagentes isolados
+8. Um estudo de caso completo: a API de Agregador de Notícias com resumo por inteligência artificial, construída em seis ciclos de SDD em Node.js
 
 ## Estrutura do módulo
 

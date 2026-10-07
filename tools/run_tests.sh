@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+# Garante que os caminhos relativos funcionem a partir da raiz do repositório
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
+
 echo "======================================================================"
 echo "🧪 Executando testes em container Docker (zero dependencias na maquina)"
 echo "======================================================================"
