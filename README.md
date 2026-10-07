@@ -46,13 +46,13 @@ Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway lo
 
 ---
 
-### [0005 - Spec Driven Development no Claude Code: A Especificação Executável como Fonte da Verdade na Engenharia com Agentes](./0005_sdd_spec_driven_development/)
+### [0005 - Do Vibe Coding à Engenharia Determinística usando Spec-Driven Development (SDD) no Claude Code](./0005_sdd_do_vibe_coding_a_engenharia_deterministica/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Método de Desenvolvimento
 
-Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, este artigo aborda a camada metodológica central: o que você entrega ao agente para ele construir? Apresenta o **Spec Driven Development (SDD)**, a disciplina de engenharia que substitui o improviso do *vibe coding* por especificações executáveis e verificáveis, estabelecendo a especificação como a fonte primária da verdade e o código como um subproduto estritamente derivado. Detalha a anatomia de uma especificação precisa, as armadilhas comuns de ambiguidade, o ciclo iterativo em seis fases com loopback consciente, a física cognitiva da janela de contexto do agente e a sinergia com o TDD. Mostra como o ecossistema nativo do Claude Code (como `CLAUDE.md`, plan mode, slash commands e subagentes com contexto isolado) viabiliza o método na prática, acompanhado do estudo de caso completo de uma API de agregador de notícias desenvolvida em seis ciclos incrementais.
+Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, este artigo aborda a camada metodológica central: o que você entrega ao agente para ele construir? Apresenta o **Spec-Driven Development (SDD)**, a disciplina de engenharia que substitui o improviso do *vibe coding* por especificações executáveis e verificáveis, estabelecendo a especificação como a fonte primária da verdade e o código como um subproduto estritamente derivado. Detalha a anatomia de uma especificação precisa, as armadilhas comuns de ambiguidade, o ciclo iterativo em seis fases com loopback consciente, a física cognitiva da janela de contexto do agente e a sinergia com o TDD. Mostra como o ecossistema nativo do Claude Code (como `CLAUDE.md`, plan mode, slash commands e subagentes com contexto isolado) viabiliza o método na prática, acompanhado do estudo de caso completo de uma API de agregador de notícias desenvolvida em seis ciclos incrementais.
 
-[📖 Ler Artigo](./0005_sdd_spec_driven_development/article/ARTICLE.md) | [🔧 Executar Localmente](./0005_sdd_spec_driven_development/README.md) | [🧪 Exemplos Práticos](./0005_sdd_spec_driven_development/examples/README.md)
+[📖 Ler Artigo](./0005_sdd_do_vibe_coding_a_engenharia_deterministica/article/ARTICLE.md) | [🔧 Executar Localmente](./0005_sdd_do_vibe_coding_a_engenharia_deterministica/README.md) | [🧪 Exemplos Práticos](./0005_sdd_do_vibe_coding_a_engenharia_deterministica/examples/README.md)
 
 ---
 
@@ -132,11 +132,13 @@ pathbit-ai-for-devs/
 │   │   └── diagrams/
 │   ├── examples/
 │   └── src/
-└── 0005_sdd_spec_driven_development/      # Artigo 0005
+└── 0005_sdd_do_vibe_coding_a_engenharia_deterministica/      # Artigo 0005
     ├── README.md
     ├── article/
     ├── assets/
     │   └── diagrams/
+    ├── src/
+    ├── tests/
     └── examples/
         ├── specs/
         └── .claude/

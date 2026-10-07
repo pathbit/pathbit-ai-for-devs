@@ -1,4 +1,4 @@
-# Spec-Driven Development (SDD) no Claude Code: Do Vibe Coding à Engenharia Determinística
+# Do Vibe Coding à Engenharia Determinística usando Spec-Driven Development (SDD) no Claude Code
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
@@ -33,7 +33,7 @@ O resultado é um software internamente impecável, porém externamente inadequa
 
 ---
 
-## A inversão hierárquica: da documentação morta à especificação executável
+## A inversão hierárquica da documentação morta para a especificação executável
 
 No desenvolvimento de software tradicional, o código é historicamente reverenciado como a única fonte da verdade. A documentação técnica costuma ser tratada como um fardo burocrático, redigida com atraso após a entrega da funcionalidade e rapidamente esquecida em wikis desatualizadas.
 
@@ -125,7 +125,7 @@ O ponto crucial desse fluxo é o laço de retorno consciente (loopback). Encontr
 
 ---
 
-## Engenharia de contexto: o que o agente realmente enxerga
+## Engenharia de contexto e o que o agente realmente enxerga
 
 Para maximizar a eficácia de um agente autônomo, o engenheiro precisa gerenciar ativamente o que entra e o que sai da sua janela de contexto.
 
@@ -139,7 +139,7 @@ A boa engenharia de contexto no SDD não consiste em entupir a conversa com deze
 
 ---
 
-## Onde o SDD se posiciona: mapa de métodos e a relação com o TDD
+## Onde o SDD se posiciona no mapa de métodos e sua relação com o TDD
 
 O desenvolvimento guiado por especificações não anula as outras abordagens de engenharia, mas estabelece fronteiras claras sobre quando utilizá-las.
 
@@ -171,7 +171,7 @@ A disciplina de especificação atinge sua máxima eficiência quando apoiada po
 
 ---
 
-## Estudo de caso: API de notícias em seis ciclos incrementais
+## Estudo de caso da API de notícias em seis ciclos incrementais
 
 Para comprovar a viabilidade técnica do método em um cenário de produção, o repositório oficial da Pathbit disponibiliza uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial em Node.js com Express e SQLite:
 
@@ -186,7 +186,7 @@ Cada um desses seis ciclos representou uma decisão que, se deixada para a adivi
 
 ---
 
-## Conclusão: a especificação é a verdadeira alavancagem da engenharia
+## Conclusão e a especificação como verdadeira alavancagem da engenharia
 
 O advento dos agentes de inteligência artificial não tornou o rigor de engenharia obsoleto. Ao contrário: tornou o rigor mais valioso do que nunca.
 

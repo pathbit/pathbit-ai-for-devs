@@ -1,4 +1,4 @@
-# Spec-Driven Development (SDD) no Claude Code: Do Vibe Coding à Engenharia Determinística
+# Do Vibe Coding à Engenharia Determinística usando Spec-Driven Development (SDD) no Claude Code
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
@@ -50,7 +50,7 @@ Com agentes autônomos, essa equação se inverteu por completo. Um engenheiro e
 
 ---
 
-## A virada hierárquica: da documentação morta à especificação executável
+## A virada hierárquica da documentação morta para a especificação executável
 
 No desenvolvimento clássico, o código-fonte sempre foi considerado a única verdade incontestável do repositório. A documentação técnica corria atrás do código, escrita com atraso quando sobrava tempo na sprint e rapidamente abandonada em wikis internas. Se o código discordava da documentação, assumia-se que a documentação estava desatualizada.
 
@@ -150,7 +150,7 @@ Decisões de engenharia que já foram tomadas por motivos de infraestrutura e go
 
 ---
 
-## Comparativo: especificação vaga versus especificação precisa
+## Comparativo entre especificação vaga e especificação precisa
 
 Para compreender a diferença prática entre um pedido superficial e uma especificação funcional, compare as duas abordagens para a mesma funcionalidade de filtro de transações:
 
@@ -233,22 +233,22 @@ O Spec Driven Development não é um evento estático de início de projeto, mas
 
 O fluxo de cada incremento atravessa seis fases encadeadas:
 
-### Fase 0: Princípios globais
+### Fase 0 - Princípios globais
 Definição dos padrões duradouros do repositório que se aplicam a todos os incrementos futuros: convenções de formatação, suítes de teste, políticas de branches e regras de persistência. No ecossistema do Claude Code, esses princípios são centralizados de forma viva no arquivo `CLAUDE.md`.
 
-### Fase 1: Especificar
+### Fase 1 - Especificar
 Redação da especificação do próximo incremento atômico de funcionalidade, versionada no diretório `specs/` (por exemplo, `specs/01-feed-artigos.md`). O desenvolvedor documenta apenas o próximo bloco de entrega, nunca a aplicação inteira de uma vez.
 
-### Fase 2: Planejar
+### Fase 2 - Planejar
 O agente de inteligência artificial inspeciona a árvore de arquivos existente, lê a especificação do incremento e gera uma proposta técnica detalhada em modo somente leitura (plan mode). O engenheiro revisa a rota proposta, aponta ajustes arquiteturais e alinha decisões antes que qualquer modificação seja gravada no disco.
 
-### Fase 3: Tarefas
+### Fase 3 - Tarefas
 O plano técnico aprovado é quebrado em uma sequência ordenada de tarefas atômicas e rastreáveis, funcionando como um checklist executável para a sessão de trabalho.
 
-### Fase 4: Implementar
+### Fase 4 - Implementar
 Com o plano e os critérios blindados, o agente escreve o código-fonte, atualiza migrações e conecta os componentes necessários.
 
-### Fase 5: Verificar
+### Fase 5 - Verificar
 A entrega é submetida a uma bateria rigorosa de validação contra cada um dos critérios de aceite previamente estabelecidos na especificação.
 
 ### A mecânica do laço de retorno consciente (loopback)
@@ -259,7 +259,7 @@ Se durante a fase de implementação o agente ou o desenvolvedor identificam que
 
 ---
 
-## Sob o capô da rede neural: como um agente interpreta uma especificação
+## Sob o capô da rede neural e como um agente interpreta uma especificação
 
 Para extrair resultados de nível profissional de ferramentas agênticas, o engenheiro precisa dominar a física da janela de contexto.
 
@@ -281,7 +281,7 @@ A engenharia de contexto no SDD não consiste em entupir a conversa com prompts 
 
 ---
 
-## Matriz metodológica: SDD, TDD, Vibe Coding e Waterfall
+## Matriz metodológica entre SDD, TDD, Vibe Coding e Waterfall
 
 Nenhuma abordagem técnica é uma bala de prata universal para todos os cenários de software. O discernimento de um engenheiro sênior reside em posicionar o método correto no quadrante adequado de risco e incerteza.
 
@@ -330,10 +330,10 @@ A adoção sustentável do SDD depende da remoção de atritos na rotina diária
 
 > **Figura 8.** O mapeamento das ferramentas nativas do Claude Code sobre as fases do ciclo de Spec Driven Development.
 
-### 1. `CLAUDE.md`: a memória permanente do projeto
+### 1. `CLAUDE.md` como memória permanente do projeto
 Localizado na raiz do repositório, o arquivo `CLAUDE.md` é lido automaticamente na inicialização de cada sessão de trabalho. Ele funciona como o repositório imutável dos princípios do projeto: comandos de compilação, scripts de teste, políticas de banco de dados e convenções de estilo. Informações transitórias de um único incremento nunca devem poluir esse arquivo, pertencendo exclusivamente à especificação daquela tarefa.
 
-### 2. Slash commands: o ritual automatizado do ciclo
+### 2. Slash commands e o ritual automatizado do ciclo
 No Claude Code, definimos comandos reutilizáveis na pasta `.claude/commands/` para transformar o fluxo de SDD em rotina instantânea.
 
 O primeiro comando é o `.claude/commands/spec.md`, acionado via `/spec <descrição>`:
@@ -378,10 +378,10 @@ Leia a spec em: $ARGUMENTS
 
 Com esse comando configurado, a instrução diária no terminal se resume a uma única linha enxuta: `/implementar-spec specs/01-feed-artigos.md`. Essa prática consolida uma regra de ouro: **os prompts no chat devem ser propositalmente magros**. O peso do conhecimento reside nas especificações versionadas e no `CLAUDE.md`. Se você sentir necessidade de digitar parágrafos explicativos no chat da CLI, não faça isso no prompt: atualize a especificação.
 
-### 3. Plan Mode: pensar antes de tocar no disco
+### 3. Plan Mode para pensar antes de tocar no disco
 Acionado pelo atalho `Shift+Tab` no terminal do Claude Code, o plan mode coloca o agente em modo de leitura estrita e investigação arquitetural. O modelo analisa dependências, inspeciona interfaces existentes e propõe uma rota passo a passo. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório. Discordar de um plano em texto consome trinta segundos; reverter cinquenta arquivos modificados equivocadamente consome horas.
 
-### 4. Subagentes com contexto isolado: auditoria imparcial
+### 4. Subagentes com contexto isolado para auditoria imparcial
 Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um erro conceitual comum na engenharia com inteligência artificial. O agente principal carrega o viés de confirmação de toda a sessão e das decisões tomadas ao longo das tentativas anteriores.
 
 No Claude Code, definimos subagentes especializados dentro da pasta `.claude/agents/`. Criamos o subagente `revisor-de-spec.md`, instanciado em uma janela de contexto totalmente virgem:
@@ -423,7 +423,7 @@ Essa separação registra a cronologia da intenção antes da escrita do código
 
 ---
 
-## Estudo de caso: API de Agregador de Notícias em seis ciclos de SDD
+## Estudo de caso da API de Agregador de Notícias em seis ciclos de SDD
 
 Para demonstrar a eficácia prática da metodologia, o repositório oficial da Pathbit disponibiliza no diretório `examples/` uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial, construída em Node.js com Express, SQLite durável e SDK da Anthropic.
 
@@ -474,6 +474,6 @@ Quando o custo de produzir código colapsa, a habilidade mais valiosa de um dese
 
 ---
 
-Repositório oficial no GitHub no endereço https://github.com/pathbit/pathbit-ai-for-devs no módulo 0005_sdd_spec_driven_development.
+Repositório oficial no GitHub no endereço https://github.com/pathbit/pathbit-ai-for-devs no módulo 0005_sdd_do_vibe_coding_a_engenharia_deterministica.
 
 #InteligenciaArtificial #SpecDrivenDevelopment #SDD #ClaudeCode #EngenhariaDeSoftware #VibeCoding #SoftwareArchitecture #Pathbit

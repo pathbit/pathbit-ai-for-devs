@@ -1,4 +1,4 @@
-# 0005 - Spec-Driven Development (SDD) no Claude Code: Do Vibe Coding à Engenharia Determinística
+# 0005 - Do Vibe Coding à Engenharia Determinística usando Spec-Driven Development (SDD) no Claude Code
 
 Nos módulos anteriores desta série, resolvemos toda a infraestrutura operacional: acesso irrestrito ao Antigravity, roteamento de modelos no Claude Code, malha de fallback e alternativas de baixo custo. Com o ambiente de alta performance estabelecido, a pergunta central muda de figura: o que você entrega ao agente para ele construir?
 
