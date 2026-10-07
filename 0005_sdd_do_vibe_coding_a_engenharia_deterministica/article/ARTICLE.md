@@ -440,24 +440,11 @@ Pedir para o mesmo agente que implementou o código auditar a sua própria entre
 
 No Spec-Driven Development maduro, quebramos esse viés através de uma **Equipe de Agentes com Três Papéis Especializados**:
 
-```text
-┌─────────────────────────┐
-│   1. Agente Arquiteto   │  Opera em Plan Mode, lê docs/arquitetura.md e a spec,
-│      (Planejamento)     │  e formula o plano sem tocar no disco.
-└────────────┬────────────┘
-             │ Plano Aprovado pelo Engenheiro
-             ▼
-┌─────────────────────────┐
-│ 2. Agente Implementador │  Recebe o plano e a spec e materializa estritamente
-│      (Construção)       │  o código das disciplinas (DB, API, SPA, Docker).
-└────────────┬────────────┘
-             │ Código e Testes Derivados
-             ▼
-┌─────────────────────────┐
-│  3. Subagente Auditor   │  Inicia em uma janela de contexto 100% virgem e isolada.
-│   (Cross-Validation)    │  Audita o git diff contra os critérios binários de aceite.
-└─────────────────────────┘
-```
+| Papel do Agente | Modo de Execução & Contexto | Responsabilidade Estrita | Saída / Entregável |
+| :--- | :--- | :--- | :--- |
+| **1. Agente Arquiteto** | **Plan Mode** (`Shift+Tab`) / Somente leitura | Lê `docs/arquitetura.md`, memória viva e a spec; formula o plano nas 6 disciplinas sem tocar no disco. | Estratégia técnica aprovada pelo engenheiro |
+| **2. Agente Implementador** | **Execution Mode** / Contexto ativo de código | Materializa estritamente os arquivos autorizados no plano aprovado (DB, rotas, SPA e Docker). | Código desacoplado e testes unitários |
+| **3. Subagente Auditor / QA** | **Janela Virgem Isolada** (Zero viés prévio) | Audita o `git diff` contra os critérios binários de aceite da spec e executa a suíte `npm test`. | Parecer binário (Aprovado / Reprovado) |
 
 No Claude Code, definimos o subagente auditor dentro de `.claude/agents/revisor-de-spec.md`:
 
