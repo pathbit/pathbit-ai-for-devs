@@ -66,7 +66,7 @@ O efeito colateral é silencioso e incômodo: toda nova sessão do Claude Code �
 Para checar e limpar o vazamento:
 
 ```bash
-python3 ../../0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+python3 ../../0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --fix-global
 ```
 
 ---

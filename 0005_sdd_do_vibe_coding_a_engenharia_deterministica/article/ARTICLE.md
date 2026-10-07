@@ -2,7 +2,7 @@
 
 ![Capa do Artigo - SDD](../assets/00_cover_sdd.png)
 
-Nos quatro primeiros artigos desta série, construímos toda a infraestrutura computacional para operar inteligência artificial com autonomia no terminal. No [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), liberamos o acesso irrestrito ao sistema com o motor Agent 2.0 no Google Antigravity. No [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), criamos o ClaudeGravity para utilizar modelos Gemini no Claude Code via 9Router sem custos de API. No [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), montamos a malha de fallback automático com provedores gratuitos. E no [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), conectamos modelos DeepSeek diretamente ao harness oficial da Anthropic.
+Nos quatro primeiros artigos desta série, construímos toda a infraestrutura computacional para operar inteligência artificial com autonomia no terminal. No [Artigo 0001](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), liberamos o acesso irrestrito ao sistema com o motor Agent 2.0 no Google Antigravity. No [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), criamos o ClaudeGravity para utilizar modelos Gemini no Claude Code via 9Router sem custos de API. No [Artigo 0003](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), montamos a malha de fallback automático com provedores gratuitos. E no [Artigo 0004](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md), conectamos modelos DeepSeek diretamente ao harness oficial da Anthropic.
 
 Com essa malha técnica estabilizada, o desenvolvedor dispõe de uma máquina de altíssima vazão: um agente autônomo plugado no shell, com acesso de leitura e escrita ao disco, execução de comandos e janelas de contexto que alcançam até um milhão de tokens.
 
@@ -12,15 +12,32 @@ A resposta mais comum no mercado tem sido o improviso (`_eu chamo de freestyle h
 
 Este artigo apresenta o **Spec Driven Development (SDD)**, a disciplina que substitui a loteria dos prompts soltos por especificações executáveis e verificáveis. Mostramos como inverter a relação tradicional entre documentação e código, colocando a especificação escrita como a fonte primária da verdade. Exploramos a anatomia técnica de uma especificação precisa, as armadilhas comuns de ambiguidade, o ciclo iterativo em seis fases, o funcionamento cognitivo da janela de contexto e como os recursos nativos do Claude Code removem o atrito operacional desse método em sistemas de produção.
 
+## SDD torna a entrega verificável, não a geração determinística
+
+Considere um pedido de importação de RSS: “não duplicar links” é uma intenção;
+uma restrição UNIQUE e um teste de reimportação são evidências. A spec define
+o alvo, o agente propõe a implementação, e revisão/testes verificam o contrato.
+Markdown não é compilador nem prova formal; duas execuções podem gerar códigos
+diferentes, e uma spec pode estar ambígua ou desatualizada.
+
+O título usa “determinística” no sentido de critérios verificáveis. Não há
+experimento neste repo que prove multiplicadores universais de economia,
+taxa de acerto inicial ou ausência de regressões. Meça tempo até aceite,
+retrabalho, tokens e falhas em tarefas equivalentes antes de prometer ganhos.
+
+Este método não exige 9Router, Antigravity nem acesso irrestrito. A infraestrutura
+dos artigos anteriores é uma opção de execução; escopo, menor privilégio,
+revisão humana e evidências continuam sendo decisões de engenharia.
+
 ---
 
-## A economia invertida do software e o fim do "codar no chute"
+## A economia invertida do software: Da ilusão do freestyle à engenharia determinística
 
 A ascensão dos agentes de inteligência artificial alterou radicalmente o custo de digitação de código, mas não alterou a economia das decisões de produto e arquitetura.
 
-![Do codar no chute à especificação como alvo](../assets/01_diagrama_chute_vs_spec.png)
+![Do freestyle probabilístico à especificação determinística](../assets/01_diagrama_chute_vs_spec.png)
 
-> **Figura 1.** O fluxo sem especificação gera retrabalho cíclico e resultado incerto, enquanto o fluxo com SDD conduz a implementação a um destino verificável.
+> **Figura 1.** O fluxo no freestyle gera premissas implícitas e retrabalho cíclico, enquanto o SDD conduz a implementação de forma determinística até a aprovação de critérios de aceite objetivos.
 
 No modelo do improviso, também chamado de "codar no chute", o custo da primeira versão caiu para quase zero. No entanto, o custo de construir a versão errada continua o mesmo de sempre. Na prática, ele se tornou ainda mais perigoso: o software equivocado chega instantaneamente, com tipagem elegante, boa estrutura sintática e testes artificiais que comprovam as premissas inventadas pelo próprio agente.
 
@@ -54,9 +71,9 @@ Um dos maiores equívocos de quem migra do *vibe coding* para o Spec-Driven Deve
 
 - **No Minuto 0 (A Ilusão do Freestyle):** O *vibe coding* entrega uma gratificação instantânea imbatível. O desenvolvedor dispara um prompt solto de uma frase (`"cria uma API de feed de notícias"`) e, em dez segundos, o terminal cospe trezentas linhas de código colorido com rotas e funções. O cérebro recebe uma descarga imediata de dopamina com a sensação de que a tarefa está quase pronta. Enquanto isso, o engenheiro que adota o SDD ainda está na linha 20 do seu arquivo Markdown em `specs/`, ponderando requisitos não-funcionais de latência e delimitando os itens formalmente fora de escopo. Para um observador desatento, o vibe coder parece estar mil quilômetros à frente.
 - **No Minuto 20 (O Muro de Tijolos):** É aqui que a realidade da engenharia se impõe. O código gerado no freestyle não persiste dados corretamente ou falha na primeira requisição real. Ao tentar corrigir com novos prompts soltos, o agente altera silenciosamente contratos de API existentes, quebra rotas que já funcionavam e inventa dependências incompatíveis. O desenvolvedor passa os próximos quarenta minutos em sessões frenéticas de tentativa e erro, poluindo a janela de contexto até que o agente entre em looping alucinatório. A velocidade líquida de entrega despenca para zero.
-- **No SDD (A Velocidade Determinística Sustentada):** Os primeiros sete minutos foram consumidos em pensamento disciplinado, estruturando um contrato sólido com critérios de aceite binários e restrições técnicas. Mas quando o comando de implementação é disparado, o agente opera com foco absoluto: entra em *Plan Mode*, quebra a tarefa nas disciplinas certas (banco, rotas, interface e testes) e materializa o código correto na primeira tentativa. Aos quinze minutos, a suíte inteira de testes passa com louvor e a funcionalidade está pronta para homologação sem nenhum débito técnico oculto.
+- **No SDD (A Velocidade Determinística Sustentada):** Os primeiros sete minutos foram consumidos em pensamento disciplinado, estruturando um contrato sólido com critérios de aceite binários e restrições técnicas. Mas quando o comando de implementação é disparado, o agente opera com foco absoluto: entra em *Plan Mode*, quebra a tarefa nas disciplinas certas (banco, rotas, interface e testes) e implementa um alvo explícito e verifica cada critério. Os tempos deste exemplo são narrativos, não uma medição comparativa; testes e revisão ainda podem encontrar falhas.
 
-O SDD não compete com o vibe coding pela rapidez de digitar o primeiro caractere; ele domina o ciclo completo ao garantir que o trabalho feito não precise ser jogado no lixo vinte minutos depois.
+O SDD não compete com o vibe coding pela rapidez de digitar o primeiro caractere; ele busca reduzir retrabalho no ciclo completo. Esse ganho precisa ser medido, não presumido.
 
 ---
 
@@ -237,7 +254,7 @@ Essa métrica não é arbitrária; ela reflete a física da janela de contexto e
 - **Entre 100 e 300 linhas (O Ponto Ótimo):** Essa extensão é suficiente para documentar uma fatia vertical completa de valor: o objetivo de negócio, 4 a 8 requisitos funcionais, métricas numéricas não-funcionais, listas rigorosas de escopo e fora-de-escopo, restrições técnicas do projeto e entre 5 e 8 critérios binários de aceite. Cabe integralmente na atenção primária da rede neural, sem cansar a janela de contexto.
 - **Acima de 400 linhas (A Regra dos 400 Linhas):** Quando uma especificação ultrapassa 400 linhas, ela invariavelmente tenta abraçar múltiplos domínios ao mesmo tempo (ex.: autenticação, faturamento e notificações em um único arquivo). Modelos de linguagem começam a apresentar o efeito de diluição de atenção (*attention drift*), priorizando instruções do topo ou do rodapé e esquecendo regras cruciais no meio do documento.
 
-> **A Regra de Decomposição:** Se a sua especificação ultrapassar 400 linhas, **pare imediatamente e decomponha**. Divida o incremento em sub-especificações por valor observável entregue (por exemplo: `specs/01-feed-artigos.md`, `specs/02-busca-filtros.md`, `specs/03-dashboard-analytics.md`). Cada sub-spec mantém seu próprio ciclo de validação, testes e commit, permitindo que a aplicação evolua de forma modular e 100% determinística.
+> **A Regra de Decomposição:** Se a sua especificação ultrapassar 400 linhas, **pare imediatamente e decomponha**. Divida o incremento em sub-especificações por valor observável entregue (por exemplo: `specs/01-feed-artigos.md`, `specs/02-busca-filtros.md`, `specs/03-dashboard-analytics.md`). Cada sub-spec mantém seu próprio ciclo de validação, testes e commit, permitindo que a aplicação evolua de forma modular e verificável por incremento.
 
 ---
 
@@ -332,7 +349,7 @@ Uma dúvida recorrente entre desenvolvedores é se a adoção do SDD torna o Tes
 
 O critério de aceite da especificação é a matéria-prima exata que origina os testes do TDD. Um critério de aceite formulado como "POST /transacoes com valor negativo retorna HTTP 422" é a descrição literal do caso de teste automatizado que será escrito na suíte.
 
-Uma bateria inteira de testes verdes comprova que a aplicação opera estritamente conforme o código foi escrito, mas não garante que o sistema atende à necessidade real da organização. A especificação assegura o rumo correto do produto, enquanto o TDD garante a solidez da implementação.
+Uma bateria inteira de testes verdes comprova que a aplicação opera estritamente conforme o código foi escrito, mas não garante que o sistema atende à necessidade real da organização. A especificação registra o rumo acordado e o TDD verifica comportamentos selecionados; nenhum dos dois garante ausência de defeitos.
 
 ---
 
@@ -353,7 +370,7 @@ A tabela a seguir consolida como o SDD revoluciona a rotina e as entregas de cad
 | **Product Manager (PM / PO)** | Descolamento crônico entre os cartões de tarefas e o código real em produção; incapacidade de auditar o que o agente de fato construiu sem ler código técnico. | Autoria e validação direta das regras de negócio em Markdown. O PM aprova o comportamento observável antes da escrita de uma única linha de código. | `specs/NN-nome.md` (seções Objetivo, Requisitos Funcionais e Escopo). |
 | **QA / Engenheiro de Testes** | Elaboração de planos de teste reativos no fim da sprint; necessidade de adivinhar casos de borda e comportamentos esperados por falta de critérios objetivos. | Critérios de aceite binários já nascem como a suíte de testes. Zero adivinhação: o QA audita a spec antes da implementação e automatiza testes diretamente dos critérios. | Matriz de Critérios de Aceite Binários (`specs/NN-nome.md`) e testes automatizados (`tests/*.test.js`). |
 | **Tech Lead / Arquiteto** | Dívida técnica gerada pelo agente de IA importando bibliotecas arbitrárias, ignorando padrões de persistência e criando complexidade desnecessária. | Blindagem arquitetural absoluta. As decisões de persistência, segurança, performance e convenções ficam travadas nas restrições da spec e no `CLAUDE.md`. | Seções de *Restrições Técnicas*, *Requisitos Não-Funcionais* e o arquivo `CLAUDE.md`. |
-| **Desenvolvedor / Engenheiro** | Sobrecarga cognitiva ao ter que "adivinhar por telepatia" a regra de negócio enquanto orquestra o agente de IA; loops infinitos de refatoração para corrigir alucinações. | Foco total na arquitetura e na orquestração. O agente de IA opera com mais de 95% de assertividade na primeira tentativa, eliminando a fadiga de contexto. | Plano de execução (`plan mode`), comandos do harness (`/implementar-spec`) e código derivado. |
+| **Desenvolvedor / Engenheiro** | Sobrecarga cognitiva ao ter que "adivinhar por telepatia" a regra de negócio enquanto orquestra o agente de IA; loops infinitos de refatoração para corrigir alucinações. | Foco total na arquitetura e na orquestração. O agente de IA opera com critérios explícitos e menos premissas implícitas; o repo não mede uma taxa de acerto inicial. | Plano de execução (`plan mode`), comandos do harness (`/implementar-spec`) e código derivado. |
 | **Stakeholders / Negócio / C-Level** | Imprevisibilidade de prazos, alto custo de retrabalho e dependência da memória tácita de desenvolvedores veteranos para entender o sistema. | Rastreabilidade histórica impecável via `git log`. Previsibilidade de entrega, redução drástica do ciclo de feedback e documentação viva que nunca envelhece. | Histórico de commits das especificações versionadas e relatórios de verificação de critérios de aceite. |
 
 ### Os 4 Pilares da Governança em Equipe com SDD
@@ -381,7 +398,7 @@ A adoção sustentável do SDD depende da remoção de atritos na rotina diária
 > **Figura 8.** O mapeamento das ferramentas nativas do Claude Code sobre as fases do ciclo de Spec Driven Development.
 
 ### 1. `CLAUDE.md` como memória permanente do projeto
-Localizado na raiz do repositório, o arquivo `CLAUDE.md` é lido automaticamente na inicialização de cada sessão de trabalho. Ele funciona como o repositório imutável dos princípios do projeto: comandos de compilação, scripts de teste, políticas de banco de dados e convenções de estilo. Informações transitórias de um único incremento nunca devem poluir esse arquivo, pertencendo exclusivamente à especificação daquela tarefa.
+Localizado na raiz do repositório, o arquivo `CLAUDE.md` é lido automaticamente na inicialização de cada sessão de trabalho. Ele funciona como o registro versionado e revisável dos princípios do projeto: comandos de compilação, scripts de teste, políticas de banco de dados e convenções de estilo. Informações transitórias de um único incremento nunca devem poluir esse arquivo, pertencendo exclusivamente à especificação daquela tarefa.
 
 ### 2. Slash commands e o ritual automatizado do ciclo
 No Claude Code, definimos comandos reutilizáveis na pasta `.claude/commands/` para transformar o fluxo de SDD em rotina instantânea.
@@ -429,7 +446,7 @@ Leia a spec em: $ARGUMENTS
 Com esse comando configurado, a instrução diária no terminal se resume a uma única linha enxuta: `/implementar-spec specs/01-feed-artigos.md`. Essa prática consolida uma regra de ouro: **os prompts no chat devem ser propositalmente magros**. O peso do conhecimento reside nas especificações versionadas e no `CLAUDE.md`. Se você sentir necessidade de digitar parágrafos explicativos no chat da CLI, não faça isso no prompt: atualize a especificação.
 
 ### 3. Plan Mode para pensar antes de tocar no disco
-Acionado pelo atalho `Shift+Tab` no terminal do Claude Code ou integrado diretamente na lógica do `/implementar-spec`, o **Plan Mode** coloca o agente em modo de leitura estrita e investigação arquitetural preliminar.
+Selecionado na CLI com `claude --permission-mode plan` ou pelo ciclo de modos em `Shift+Tab`, o **Plan Mode** restringe ações no projeto durante a investigação. Um prompt Markdown que pede planejamento não troca sozinho o modo de permissão; confirme o indicador e a transição para escrita na interface.
 
 O agente analisa a árvore de arquivos, inspeciona os esquemas existentes em `src/db/`, lê os contratos de rotas e propõe uma estratégia técnica passo a passo dividida pelas disciplinas de engenharia. O desenvolvedor valida o plano antes que qualquer linha seja modificada no repositório.
 
@@ -438,13 +455,26 @@ Essa disciplina reflete uma verdade econômica crucial: **descartar texto custa 
 ### 4. Orquestração de Subagentes e Equipes de IA para Validação Cruzada (Cross-Validation)
 Pedir para o mesmo agente que implementou o código auditar a sua própria entrega é um dos erros conceituais mais graves na engenharia com inteligência artificial. O agente principal carrega o **viés de confirmação** de toda a sessão: ele tende a justificar as próprias premissas e a ignorar lacunas no código que ele mesmo gerou.
 
-No Spec-Driven Development maduro, quebramos esse viés através de uma **Equipe de Agentes com Três Papéis Especializados**:
+No Spec-Driven Development maduro, reduzimos pontos cegos através de uma **Equipe de Agentes com Três Papéis Especializados**:
 
-| Papel do Agente | Modo de Execução & Contexto | Responsabilidade Estrita | Saída / Entregável |
-| :--- | :--- | :--- | :--- |
-| **1. Agente Arquiteto** | **Plan Mode** (`Shift+Tab`) / Somente leitura | Lê `docs/arquitetura.md`, memória viva e a spec; formula o plano nas 6 disciplinas sem tocar no disco. | Estratégia técnica aprovada pelo engenheiro |
-| **2. Agente Implementador** | **Execution Mode** / Contexto ativo de código | Materializa estritamente os arquivos autorizados no plano aprovado (DB, rotas, SPA e Docker). | Código desacoplado e testes unitários |
-| **3. Subagente Auditor / QA** | **Janela Virgem Isolada** (Zero viés prévio) | Audita o `git diff` contra os critérios binários de aceite da spec e executa a suíte `npm test`. | Parecer binário (Aprovado / Reprovado) |
+```text
+┌─────────────────────────┐
+│   1. Agente Arquiteto   │  Opera em Plan Mode, lê docs/arquitetura.md e a spec,
+│      (Planejamento)     │  e formula o plano sem tocar no disco.
+└────────────┬────────────┘
+             │ Plano Aprovado pelo Engenheiro
+             ▼
+┌─────────────────────────┐
+│ 2. Agente Implementador │  Recebe o plano e a spec e materializa estritamente
+│      (Construção)       │  o código das disciplinas (DB, API, SPA, Docker).
+└────────────┬────────────┘
+             │ Código e Testes Derivados
+             ▼
+┌─────────────────────────┐
+│  3. Subagente Auditor   │  Inicia em uma contexto separado, que ainda recebe instruções e dados do projeto.
+│   (Cross-Validation)    │  Audita o git diff contra os critérios binários de aceite.
+└─────────────────────────┘
+```
 
 No Claude Code, definimos o subagente auditor dentro de `.claude/agents/revisor-de-spec.md`:
 
@@ -463,7 +493,7 @@ Você recebe o caminho de uma spec e o diff da implementação. Para cada crité
 Aponte também o que foi implementado e não estava na spec. Não sugira melhorias de estilo. Não elogie. Sua única pergunta é: isto cumpre a spec?
 ```
 
-O auditor recebe exclusivamente a especificação e o `git diff`. Como sua janela de contexto não contém o histórico de tentativa e erro do implementador, sua avaliação é fria, imparcial e puramente determinística.
+O auditor recebe exclusivamente a especificação e o `git diff`. Como sua janela de contexto não contém o histórico de tentativa e erro do implementador, sua avaliação pode detectar pontos cegos, mas não é imune a erro nem substitui testes e revisão humana.
 
 ### 5. Memória Viva do Repositório: `AGENTS.md`, `CLAUDE.md` e Documentação de Arquitetura
 Para evitar que o modelo sofra de "amnésia arquitetural" ao longo de semanas de desenvolvimento, o repositório mantém uma malha viva de documentação técnica:
@@ -493,22 +523,22 @@ Essa separação registra a cronologia da intenção antes da escrita do código
 
 ---
 
-## Estudo de caso da API de Agregador de Notícias em seis ciclos de SDD
+## Estudo de caso prático: A API de Agregação e Telemetria em seis ciclos determinísticos de SDD
 
-Para demonstrar a eficácia prática da metodologia, o repositório oficial da Pathbit disponibiliza no diretório `examples/` uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial, construída em Node.js com Express, SQLite durável e SDK da Anthropic.
+Para demonstrar a eficácia prática da metodologia em cenários reais de engenharia, o repositório oficial da Pathbit disponibiliza no diretório `examples/` uma API completa de ingestão, agregação e sumarização com IA, desenvolvida em Node.js com Express, persistência relacional SQLite em modo WAL e integração com modelos de linguagem.
 
-O projeto foi dividido em seis ciclos atômicos de SDD. A tabela a seguir documenta as armadilhas de produto e arquitetura que cada especificação congelou antecipadamente, evitando que o agente tomasse decisões inadequadas no improviso:
+O projeto foi decomposto em seis ciclos atômicos de SDD, onde cada especificação blindou decisões arquiteturais críticas que, no modelo freestyle, seriam preenchidas por palpites estatísticos:
 
-| Ciclo | Incremento Funcional | Decisão Crítica de Negócio Travada pela Spec |
+| Ciclo | Incremento Funcional | Decisão Crítica de Arquitetura & Negócio Blindada pela Spec |
 | :--- | :--- | :--- |
-| Ciclo 01 | Leitura de Feed RSS e Listagem | Chave primária de desduplicação fixada na coluna `link` e ordenação cronológica decrescente |
-| Ciclo 02 | Gestão e Sincronização de Fontes | Validação prévia de XML e isolamento de falhas: uma fonte fora do ar não interrompe as demais |
-| Ciclo 03 | Resumo de Artigos com IA | Política estrita de cache em banco local para mitigar custos e impedir chamadas redundantes à API |
-| Ciclo 04 | Categorização e Filtros | Mapeamento temático com fallback seguro e retorno obrigatório de status HTTP 422 para datas inválidas |
-| Ciclo 05 | Digest Diário e Testes | Resposta previsível para dias sem notícias e mock determinístico obrigatório da IA na suíte de testes |
-| Ciclo 06 | Favoritos, Métricas e Deploy | Isolamento de portas e injeção de credenciais estritamente via variáveis de ambiente |
+| Ciclo 01 | Ingestão Resiliente e Desduplicação | Chave primária de desduplicação indexada na coluna `link` e ordenação cronológica decrescente |
+| Ciclo 02 | Gestão Concorrente de Fontes | Validação prévia de XML e isolamento de falhas: uma fonte fora do ar não derruba nem bloqueia as demais |
+| Ciclo 03 | Enriquecimento Cognitivo com Cache | Política estrita de cache persistido localmente para mitigar custos e impedir chamadas redundantes ao modelo |
+| Ciclo 04 | Categorização e Validação de Contrato | Mapeamento temático determinístico e envelope uniforme de erro com status HTTP 422 para consultas inválidas |
+| Ciclo 05 | Observabilidade, Digest e Testes | Resposta previsível para datas sem eventos e mocks determinísticos obrigatórios de IA na suíte de testes |
+| Ciclo 06 | Dashboard de Telemetria e Deploy | Isolamento de portas locais, injeção estrita de credenciais via variáveis de ambiente e containerização Docker |
 
-Em cada um desses ciclos, um pedido vago de *vibe coding* ("faça um agregador de notícias com IA") teria produzido um sistema imprevisível: o modelo chamaria a API da Anthropic a cada requisição de leitura esgotando o limite de tokens, usaria o título da notícia como chave de desduplicação duplicando matérias reescritas e derrubaria o servidor quando um dos feeds RSS estivesse fora do ar. A especificação transformou todas essas incertezas em contratos rígidos antes da escrita da primeira linha de código.
+Em cada um desses ciclos, um pedido vago de *vibe coding* ("crie um agregador de feeds com inteligência artificial") teria resultado em dívida técnica imediata: o agente chamaria a API externa a cada requisição de leitura esgotando cotas de tokens em minutos, adotaria o título da notícia como chave duplicando matérias reescritas e travaria a esteira ao encontrar um feed malformado. A especificação transformou todas essas incertezas em contratos rígidos antes da escrita da primeira linha de código.
 
 ---
 
@@ -519,7 +549,7 @@ Para implementar o Spec Driven Development imediatamente em qualquer projeto apo
 1. **Memória permanente:** Crie um arquivo `CLAUDE.md` objetivo contendo comandos de build, suítes de teste e convenções de estilo que valem para todos os ciclos.
 2. **Pasta de especificações:** Crie o diretório `specs/` versionado no Git para armazenar as especificações atômicas de cada incremento numeradas em ordem sequencial.
 3. **Template de comando `/spec`:** Configure o arquivo `.claude/commands/spec.md` com as seis seções obrigatórias e a diretiva de caçar ambiguidades antes da escrita.
-4. **Subagente de auditoria:** Configure o arquivo `.claude/agents/revisor-de-spec.md` para comparar diffs de código contra critérios de aceite em contexto virgem.
+4. **Subagente de auditoria:** Configure o arquivo `.claude/agents/revisor-de-spec.md` para comparar diffs de código contra critérios de aceite em contexto separado.
 5. **Disciplina operacional:** Estabeleça o compromisso de revisar a rota técnica no Plan Mode (`Shift+Tab`) e commitar a especificação antes da autorização de escrita no disco.
 
 Todos os templates de configuração, especificações do estudo de caso, comandos customizados e o subagente revisor estão prontos para cópia direta no diretório `examples/` do repositório da Pathbit.

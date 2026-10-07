@@ -52,13 +52,13 @@ def start():
     setup_script = os.path.join(BASE_DIR, "src", "setup_combos.py")
     if os.path.exists(setup_script):
         print("\n[*] Provisionando combos de fallback no 9Router...")
-        subprocess.run([sys.executable, setup_script], cwd=BASE_DIR)
+        subprocess.run([sys.executable, setup_script], cwd=BASE_DIR, check=True)
 
     # Executa teste do arsenal
     test_script = os.path.join(BASE_DIR, "src", "test_arsenal.py")
     if os.path.exists(test_script):
         print("\n[*] Validando inferencia dos combos...")
-        subprocess.run([sys.executable, test_script], cwd=BASE_DIR)
+        subprocess.run([sys.executable, test_script], cwd=BASE_DIR, check=True)
 
 def stop():
     print("=" * 60)

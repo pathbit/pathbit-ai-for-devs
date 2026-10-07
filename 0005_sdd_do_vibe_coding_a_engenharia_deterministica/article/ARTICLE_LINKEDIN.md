@@ -12,6 +12,23 @@ A resposta da maior parte do mercado a essa nova realidade tem sido o improviso 
 
 Este artigo demonstra por que o *vibe coding* é insustentável na engenharia de software profissional e apresenta o **Spec Driven Development (SDD)**: a metodologia que transforma a especificação técnica na fonte primária da verdade, convertendo o código-fonte em um subproduto rigorosamente derivado e verificável.
 
+## SDD torna a entrega verificável, não a geração determinística
+
+Considere um pedido de importação de RSS: “não duplicar links” é uma intenção;
+uma restrição UNIQUE e um teste de reimportação são evidências. A spec define
+o alvo, o agente propõe a implementação, e revisão/testes verificam o contrato.
+Markdown não é compilador nem prova formal; duas execuções podem gerar códigos
+diferentes, e uma spec pode estar ambígua ou desatualizada.
+
+O título usa “determinística” no sentido de critérios verificáveis. Não há
+experimento neste repo que prove multiplicadores universais de economia,
+taxa de acerto inicial ou ausência de regressões. Meça tempo até aceite,
+retrabalho, tokens e falhas em tarefas equivalentes antes de prometer ganhos.
+
+Este método não exige 9Router, Antigravity nem acesso irrestrito. A infraestrutura
+dos artigos anteriores é uma opção de execução; escopo, menor privilégio,
+revisão humana e evidências continuam sendo decisões de engenharia.
+
 ---
 
 ## A armadilha do improviso e o autocompletamento estatístico
@@ -23,7 +40,7 @@ Quando um desenvolvedor envia uma instrução vaga para o agente no terminal, co
 - Qual é a definição exata de "mês"? São os trinta dias corridos retroativos a partir de hoje? É o mês calendário de primeiro ao último dia? Ou seria o mês contábil da organização, cujo fechamento ocorre no dia 25?
 - Como esses registros devem ser ordenados por padrão? Como a paginação deve se comportar diante de dezenas de milhares de lançamentos? O que acontece caso o cliente solicite um filtro sem transações correspondentes?
 
-![Do codar no chute à especificação como alvo](../assets/01_diagrama_chute_vs_spec.png)
+![Do freestyle probabilístico à especificação determinística](../assets/01_diagrama_chute_vs_spec.png)
 
 Diante dessas lacunas não preenchidas, uma rede neural probabilística não interrompe o processo para fazer perguntas conceituais. Ela segue a física estatística dos seus pesos treinados e preenche cada decisão em aberto com a continuação mais provável encontrada em bases públicas de código.
 
@@ -166,23 +183,23 @@ A disciplina de especificação atinge sua máxima eficiência quando apoiada po
 1. **`CLAUDE.md` como memória permanente:** Centraliza na raiz do repositório os comandos de compilação, scripts de teste, políticas de branches e convenções de estilo. Informações transitórias de funcionalidades específicas nunca devem poluir esse arquivo.
 2. **Slash command `/spec` para criação orientada:** Template em `.claude/commands/spec.md` que recebe o nome do incremento e instrui o modelo a listar todas as ambiguidades do pedido antes de redigir a especificação.
 3. **Plan Mode para antecipação de arquitetura:** Acionado por `Shift+Tab`, coloca o agente em modo de leitura pura para propor a estratégia passo a passo antes de alterar qualquer arquivo em disco.
-4. **Subagentes com contexto isolado para auditoria:** Subagente em `.claude/agents/revisor-de-spec.md` instanciado com janela de contexto virgem, recebendo apenas a spec e o diff do Git para auditar critérios sem viés de confirmação.
+4. **Subagentes com contexto isolado para auditoria:** Subagente em `.claude/agents/revisor-de-spec.md` instanciado com contexto separado, recebendo apenas a spec e o diff do Git para auditar critérios com menor influência do histórico do implementador.
 5. **Controle de versão com commits atômicos:** Separação explícita entre intenção (`git commit -m "spec: ..."`) e implementação (`git commit -m "feat: ..."`), documentando a linha do tempo do produto.
 
 ---
 
-## Estudo de caso da API de notícias em seis ciclos incrementais
+## Estudo de caso prático: Ingestão e Telemetria em seis ciclos determinísticos de SDD
 
-Para comprovar a viabilidade técnica do método em um cenário de produção, o repositório oficial da Pathbit disponibiliza uma API completa de um agregador de notícias com resumo automatizado por inteligência artificial em Node.js com Express e SQLite:
+Para comprovar a viabilidade técnica do método em cenários corporativos, o repositório oficial da Pathbit disponibiliza uma API completa de ingestão, desduplicação e agregação inteligente em Node.js com Express e SQLite em modo WAL:
 
-- **Ciclo 01: Leitura de feed RSS e listagem.** Desduplicação travada na coluna `link` e ordenação cronológica decrescente.
-- **Ciclo 02: Gestão de fontes e sincronização.** Tolerância a falhas parciais: um feed fora do ar não interrompe a sincronização dos demais.
-- **Ciclo 03: Resumo com Claude 3.5 Haiku.** Política estrita de cache em SQLite para evitar cobrança duplicada de tokens.
-- **Ciclo 04: Categorização automática e filtros.** Mapeamento temático com fallback seguro e retorno obrigatório de status HTTP 422 para datas inválidas.
-- **Ciclo 05: Digest diário e testes.** Resposta previsível para dias sem notícias e mock determinístico obrigatório da API de IA na suíte de testes.
-- **Ciclo 06: Favoritos, métricas e deploy.** Isolamento de portas e injeção de credenciais estritamente via variáveis de ambiente.
+- **Ciclo 01: Ingestão Resiliente e Desduplicação.** Desduplicação travada na coluna `link` e ordenação cronológica decrescente.
+- **Ciclo 02: Gestão Concorrente de Fontes.** Tolerância a falhas parciais e isolamento: um feed fora do ar não derruba nem bloqueia os demais.
+- **Ciclo 03: Resumo com Enriquecimento Cognitivo.** Política estrita de cache em SQLite para evitar consumo redundante de tokens.
+- **Ciclo 04: Motor de Categorização e Contratos.** Mapeamento temático determinístico com envelope padronizado de erro HTTP 422 para datas inválidas.
+- **Ciclo 05: Observabilidade, Digest e Testes.** Resposta determinística para dias sem notícias e mock de IA obrigatório na suíte de testes.
+- **Ciclo 06: Dashboard de Telemetria e Deploy.** Isolamento de portas, injeção de credenciais via variáveis de ambiente e containerização Docker.
 
-Cada um desses seis ciclos representou uma decisão que, se deixada para a adivinhação do modelo em um fluxo de *vibe coding*, teria gerado retrabalho e inconsistências em produção.
+Cada um desses seis ciclos representou uma decisão arquitetural que, se deixada para a adivinhação do modelo em um fluxo de *vibe coding*, teria gerado retrabalho e inconsistências graves em produção.
 
 ---
 

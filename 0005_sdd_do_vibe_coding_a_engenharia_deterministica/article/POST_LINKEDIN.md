@@ -19,7 +19,7 @@ No novo artigo da série Pathbit AI for Devs, detalhamos a esteira completa:
 5. A esteira no Claude Code com CLAUDE.md, slash command /spec, plan mode e subagentes isolados para auditoria independente
 6. Estudo de caso completo de uma API de agregador de notícias construída em seis ciclos incrementais
 
-Especificar não é burocracia. É a única forma de garantir que o agente não tome decisões críticas de negócio no seu lugar.
+Especificar não é burocracia. É uma forma de explicitar decisões antes da geração; revisão e controle de escopo continuam necessários.
 
 O artigo completo e o repositório com todos os templates e códigos estão no link do primeiro comentário.
 

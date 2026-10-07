@@ -2,7 +2,7 @@
 
 Este documento reúne soluções práticas para os erros e incidentes operacionais mais frequentes encontrados ao executar os ambientes do **Pathbit AI for Devs**.
 
-> **Onde executar os comandos.** Os caminhos `src/...`, `.env` e `docker-compose.yml` citados aqui são relativos à **pasta do módulo** (`0001_antigravity_acesso_total_irrestrito`, `0002_claude_gravity_utilizando_9router`, `0003_fallback_modelos_gratuitos_9router` ou `0004_deep_claude_alternativa_claudegravity`), não à raiz do repositório. Entre na pasta correspondente antes de rodar.
+> **Onde executar os comandos.** Os caminhos `src/...`, `.env` e `docker-compose.yml` citados aqui são relativos à **pasta do módulo** (`0001_antigravity_acesso_total_irrestrito`, `0002_claude_gravity_utilizando_9router`, `0003_fallback_modelos_gratuitos_9router` ou `0004_deepclaude_alternativa_ao_claudegravity`), não à raiz do repositório. Entre na pasta correspondente antes de rodar.
 
 ---
 
@@ -299,7 +299,7 @@ Isso acontece **mesmo com a sessão iniciada por `--settings`**: um arquivo pass
 Remova a chave `model` do arquivo global:
 
 ```bash
-python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --fix-global
 ```
 
 Ou manualmente:
@@ -370,7 +370,7 @@ export SSL_CERT_FILE=/caminho/para/ca-corporativa.pem
 Ou, para uma execução pontual de diagnóstico:
 
 ```bash
-python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --online --insecure
+python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --online --insecure
 ```
 
 ---

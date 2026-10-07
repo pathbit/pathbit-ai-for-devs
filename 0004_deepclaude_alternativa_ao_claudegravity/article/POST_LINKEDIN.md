@@ -23,6 +23,6 @@ Mais do que uma solução específica para a DeepSeek, este artigo consolida um 
 O artigo completo, com 44 capturas de tela técnicas, diagramas de precedência de settings e templates prontos para uso, já está disponível:
 
 🔗 Repositório oficial: https://github.com/pathbit/pathbit-ai-for-devs
-📖 Módulo: 0004_deep_claude_alternativa_claudegravity
+📖 Módulo: 0004_deepclaude_alternativa_ao_claudegravity
 
 #DeepClaude #DeepSeek #ClaudeCode #OrcaRouter #OpenSource #DevOps #EngenhariaDeSoftware #Pathbit

@@ -14,6 +14,24 @@ E o melhor: **sem pagar tokens adicionais na API do Google AI Studio**. Você ut
 
 > Caso você ainda não tenha configurado o seu ambiente Google Antigravity para autonomia total e sem confirmações manuais, recomendamos iniciar pelo [Artigo 0001 - Google Antigravity com Acesso Total Irrestrito e sem Interrupções](../../0001_antigravity_acesso_total_irrestrito/article/ARTICLE.md), no qual cobrimos o destravamento do motor Agent 2.0 e da CLI `agy`.
 
+## Como ler este laboratório sem confundir catálogo e garantia
+
+IDs como `ag/gemini-3.8-flash-high` são os identificadores expostos pelo
+**9Router local** e foram encontrados em `/v1/models` nesta revisão. Isso não
+prova que sejam nomes públicos oficiais da API Gemini ou que todo leitor
+tenha o mesmo catálogo. Confira catálogo, permissões e uma inferência antes
+de copiar a configuração. Janela e limite de saída são específicos do modelo.
+
+“Sem custo adicional de API” refere-se ao acesso permitido pela conexão e
+assinatura utilizadas, não a gratuidade ilimitada: cotas, termos, bloqueios e
+alterações comerciais continuam aplicáveis. Renovar OAuth não impede
+revogação, indisponibilidade ou expiração da autorização de refresh.
+
+Messages API aceita chamadas comuns e streaming; **SSE é o formato de
+streaming**, não uma API diferente. A sonda `prova_no_fio.py` comprova modelos
+e headers da CLI testada contra uma API simulada; não comprova inferência no
+provedor, qualidade de ferramentas ou disponibilidade futura.
+
 ---
 
 ## A Arquitetura do ClaudeGravity
@@ -590,10 +608,10 @@ Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout`
 >
 > **A regra:** no menu `/model`, use `s` ou `Esc`. Nunca Enter.
 >
-> Para verificar e limpar, o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) traz um script pronto:
+> Para verificar e limpar, o [Artigo 0004](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md) traz um script pronto:
 >
 > ```bash
-> python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+> python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --fix-global
 > ```
 >
 > Vale registrar o contraponto: medimos o hash SHA-256 de `~/.claude/settings.json` antes e depois de uma sessão completa aberta com `--settings`, incluindo inferência real, e o valor não mudou. A flag, sozinha, não escreve nada. O vazamento vem exclusivamente do seletor de modelos.
@@ -610,9 +628,9 @@ Duas decisões deixam este projeto imune a esse estado:
    A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** de qualquer outro escopo de configuração. 
    
    Por que recomendamos subir **sempre** com `--settings .claude/settings.local.json` em todas as sessões:
-   * **Isolamento Absoluto:** Impede que o Claude Code herde variáveis, ferramentas antigas ou configurações residuais do arquivo global (`~/.claude/settings.json`).
+   * **Configuração explícita da sessão:** reduz dependência de valores globais, mas não remove a precedência dos demais escopos nem cria isolamento de processo.
    * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.local.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos Gemini e ocultando os modelos Anthropic.
-   * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, garantindo que o Claude Code nunca caia no assistente de login da nuvem da Anthropic.
+   * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, reduzindo dependência do login Anthropic na versão testada, sem garantia para atualizações.
 
 O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
 
@@ -1459,7 +1477,7 @@ ele tem porte. O harness continua sem saber, e sem precisar saber.
 
 E o gateway nem é obrigatório. Quando o provedor já fala a Messages API, como a DeepSeek em
 `api.deepseek.com/anthropic` ou o OrcaRouter, basta apontar `ANTHROPIC_BASE_URL` para ele. O
-[Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) faz exatamente isso,
+[Artigo 0004](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md) faz exatamente isso,
 sem nenhum container no meio.
 
 ---
@@ -1582,7 +1600,7 @@ Para posicionar claramente o valor de engenharia do ClaudeGravity em relação �
 | Recurso | Claude Code Nativo | DeepClaude | ClaudeGravity (Este Artigo) |
 | :--- | :--- | :--- | :--- |
 | **Harness CLI** | Claude Code | Claude Code | **Claude Code** |
-| **Modelo Principal** | A geração corrente da Anthropic  -  na CLI 2.1.270 desta máquina (medição de 13 de setembro de 2026), o seletor oferece Fable 5.1, Opus 5, Sonnet 5 e Haiku 4.5 (veja a Figura 10a) | DeepSeek V4 Pro e V4.1 Flash (o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) monta essa variante) | **Gemini 3.8 Flash (High Reasoning)** |
+| **Modelo Principal** | A geração corrente da Anthropic  -  na CLI 2.1.270 desta máquina (medição de 13 de setembro de 2026), o seletor oferece Fable 5.1, Opus 5, Sonnet 5 e Haiku 4.5 (veja a Figura 10a) | DeepSeek V4 Pro e V4.1 Flash (o [Artigo 0004](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md) monta essa variante) | **Gemini 3.8 Flash (High Reasoning)** |
 | **Modelos Auxiliares** | Os demais papéis da mesma família | Nenhum | **Gemini 3.7, 3.6, 3.1 Pro, GPT-OSS 120B** |
 | **Janela de Contexto** | [A VERIFICAR: leia a janela vigente na página de modelos da Anthropic e cite URL + data de leitura. Ela muda a cada geração, e o sufixo de janela no identificador (visto em `claude-opus-5[1m]`) indica variante estendida] | 1.000.000 tokens (1M), saída até 384K (página de modelos da DeepSeek, lida em 17 de setembro de 2026) | **1.000.000 tokens (1M)** |
 | **Custo de Inferência** | Faturado por token, ou incluído numa assinatura Pro/Max [A VERIFICAR: preço por 1M na página de preços da Anthropic, com data de leitura] | Por token na API da DeepSeek: V4.1 Flash a $0,15 de entrada e $0,60 de saída por 1M, V4 Pro a $0,66 e $1,98 (tarifa fora de pico, lida em 17 de setembro de 2026); ou DeepSeek V4 Flash gratuito no OrcaRouter, com as condições do Artigo 0004 | **$0 extra** (incluído na conta Google AI Pro) |
@@ -2073,10 +2091,10 @@ O artigo disponibiliza uma suíte completa de infraestrutura e ferramentas em Py
 
 Para reproduzir a infraestrutura do ClaudeGravity localmente, assegure que as seguintes ferramentas e credenciais estejam instaladas e prontas:
 
-1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
-   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
+1. **Python 3.10 ou superior (testes desta revisão: ambiente local disponível):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/downloads/) (pacote instalador macOS).
    - Necessário para rodar os scripts de ciclo de vida (`src/manage_env.py`), sincronização de credenciais (`src/sync_antigravity_token.py`) e diagnóstico (`src/verify_setup.py`).
-   - Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
+   - Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/downloads/) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
 
 2. **Ambiente Virtual Dedicado:** Crie e ative o ambiente virtual para isolamento das dependências:
    ```bash
@@ -2136,7 +2154,7 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 1. **Configure Combos de Fallback no 9Router:** Crie um combo no dashboard que tente primeiro o `ag/gemini-3.8-flash-high` e, caso o rate limit por minuto da Google seja atingido em tarefas brutas, comute automaticamente para `ag/gemini-3.7-flash-high` e `ag/gemini-3.6-flash-high`.
 2. **Adicione Servidores MCP:** conecte servidores de PostgreSQL, GitHub e navegadores locais. Para liberá-los sem confirmação, acrescente ao `allow` uma entrada por servidor no formato `mcp__<servidor>__*`  -  o curinga solto `mcp__*` é recusado, porque uma regra de `allow` precisa nomear o servidor que amplia.
 3. **Explore Projetos Extensos:** Graças à janela de 1M de tokens do Gemini combinada com o harness do Claude Code, submeta módulos inteiros de microsserviços para refatoração arquitetural em lote.
-4. **Troque o motor sem gateway:** no [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o mesmo `settings.local.json` aponta o harness direto para a API da DeepSeek ou para o OrcaRouter, sem Antigravity e sem container.
+4. **Troque o motor sem gateway:** no [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md), o mesmo `settings.local.json` aponta o harness direto para a API da DeepSeek ou para o OrcaRouter, sem Antigravity e sem container.
 5. **Evolua para o Arsenal Ilimitado com Provedores Gratuitos:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mostramos como integrar Google AI Studio, Groq, OpenRouter e Ollama para nunca mais ficar sem tokens e programar continuamente com custo zero.
 6. **Empilhe um proxy na frente do outro:** o 9Router expõe uma API compatível com OpenAI, então nada impede que outro proxy — o LiteLLM, por exemplo — o trate como se fosse um provedor. Quem faz isso ganha do LiteLLM o que o 9Router não dá: chave virtual por pessoa, orçamento por chave e um teto de requisições que vale para o time inteiro, enquanto o 9Router continua fazendo o que faz bem, que é escolher conta e provedor. O procedimento inteiro, com os dois erros que não são óbvios, está em [Chaining Gateways](https://github.com/pathbit/LiteLlmRTKSync/wiki/Chaining-Gateways).
 

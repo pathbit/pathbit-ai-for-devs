@@ -1,4 +1,4 @@
-# DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code
+# DeepClaude: A Alternativa de Alto Raciocínio ao ClaudeGravity com DeepSeek e OrcaRouter
 
 ![Capa do Artigo - DeepClaude](../assets/00_cover_deepclaude.png)
 
@@ -21,6 +21,18 @@ Contudo, vale um alerta indispensável de engenharia: **é fundamental avaliar s
 - **Suporte a Recursos Agênticos Avançados:** Nem todo endpoint anunciado como "compatível com Anthropic" suporta 100% dos recursos que o Claude Code exige para operar com alta produtividade. É imperativo conferir na documentação técnica se a API implementa suporte pleno a streaming SSE (*Server-Sent Events*), chamadas a ferramentas (*tool calling* / *function calling*), blocos de raciocínio (*thinking blocks*) e cabeçalhos de *prompt caching* (`cache_control`).
 
 Além do passo a passo visual com 41 capturas de tela e diagramas cobrindo desde a obtenção das chaves até a operação no terminal, detalharemos a fundo a arquitetura de configurações do Claude Code, esclarecendo a diferença entre `settings.json` e `settings.local.json`, o que o sufixo `[1m]` realmente faz, como a escolha do menu `/model` vaza para a sua conta pessoal e por que o Advisor experimental deve ser rigorosamente desativado em qualquer integração com terceiros.
+
+## O que os exemplos comprovam — e o que depende do provedor
+
+Os templates e a sonda local permitem validar seleção de modelos, URL e
+headers sem credencial externa. Não comprovam que a conta tem saldo/cota,
+que um ID continua disponível ou que o fornecedor manterá gratuidade e
+janela de contexto. Confirme preços e catálogo diretamente no provedor.
+
+`--settings` aplica uma configuração à sessão; não equivale a sandbox nem
+elimina todos os outros escopos. Configuração gerenciada, ambiente, flags e
+estado global ainda podem influenciar a CLI. A prova no fio verifica o
+comportamento da versão executada, não uma promessa para qualquer atualização.
 
 ---
 

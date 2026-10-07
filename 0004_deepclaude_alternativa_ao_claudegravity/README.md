@@ -1,12 +1,12 @@
 # pathbit-ai-for-devs
 
-## 0004_deep_claude_alternativa_claudegravity
+## 0004_deepclaude_alternativa_ao_claudegravity
 
 ![Capa - DeepClaude](assets/00_cover_deepclaude.png)
 
 **Ano:** 2026  
 **ID do Artigo:** 0004  
-**Título:** DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code  
+**Título:** DeepClaude: A Alternativa de Alto Raciocínio ao ClaudeGravity com DeepSeek e OrcaRouter  
 **Autor:** Eliel Sousa  
 **Categoria:** Engenharia de IA / Claude Code / Provedores Alternativos  
 **Status:** Publicado / Validado  
@@ -28,7 +28,7 @@ Estabelece também o **padrão arquitetural universal** para plugar qualquer fam
 ### Estrutura de Arquivos do Módulo
 
 ```text
-0004_deep_claude_alternativa_claudegravity/
+0004_deepclaude_alternativa_ao_claudegravity/
 ├── README.md                                  # Este documento
 ├── article/
 │   └── ARTICLE.md                             # Artigo completo: capa + 41 prints e análise técnica
@@ -62,7 +62,7 @@ Só os templates `.example` são versionados. A cópia ativa `examples/.claude/s
 2. Escolha o template desejado e gere o arquivo ativo `.claude/settings.local.json` ANTES de iniciar os testes:
 
    ```bash
-   cd 0004_deep_claude_alternativa_claudegravity/examples
+   cd 0004_deepclaude_alternativa_ao_claudegravity/examples
 
    # Opção A: DeepSeek Platform oficial
    cp .claude/settings.local.json.deepseek.example .claude/settings.local.json
@@ -99,7 +99,7 @@ Só os templates `.example` são versionados. A cópia ativa `examples/.claude/s
 O módulo traz um verificador que confere a configuração e, opcionalmente, dispara uma inferência real contra o provedor ativo:
 
 ```bash
-cd 0004_deep_claude_alternativa_claudegravity
+cd 0004_deepclaude_alternativa_ao_claudegravity
 
 python3 src/verify_deepclaude.py              # validação offline, sem rede
 python3 src/verify_deepclaude.py --online     # inclui uma chamada real à API

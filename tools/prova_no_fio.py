@@ -22,6 +22,8 @@ do provedor configurado, nunca um `claude-*`.
 Uso:
     python3 tools/prova_no_fio.py            # todos os artigos
     python3 tools/prova_no_fio.py 0004       # só os cenários de um artigo
+
+Artefatos gerados ficam em tmp/prova_no_fio/, nunca no diretório de código.
 """
 
 import http.server
@@ -126,8 +128,8 @@ def main():
         print("[!] O binário 'claude' não está no PATH -- não há o que provar sem ele.")
         return 1
 
-    destino = pathlib.Path(__file__).parent / ".prova_no_fio"
-    destino.mkdir(exist_ok=True)
+    destino = RAIZ / "tmp" / "prova_no_fio"
+    destino.mkdir(parents=True, exist_ok=True)
 
     print("=" * 92)
     print("O QUE A CLI REALMENTE ENVIA NO FIO")

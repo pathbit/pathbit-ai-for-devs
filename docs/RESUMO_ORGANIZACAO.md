@@ -11,7 +11,7 @@ pathbit-ai-for-devs/
 ├── 0001_antigravity_acesso_total_irrestrito/  # Artigo 0001: Permissões irrestritas no Antigravity
 ├── 0002_claude_gravity_utilizando_9router/              # Artigo 0002: ClaudeGravity e roteamento 9Router
 ├── 0003_fallback_modelos_gratuitos_9router/  # Artigo 0003: Arsenal multi-provedor e fallback
-├── 0004_deep_claude_alternativa_claudegravity/ # Artigo 0004: DeepSeek e OrcaRouter como alternativa ao ClaudeGravity
+├── 0004_deepclaude_alternativa_ao_claudegravity/ # Artigo 0004: DeepSeek e OrcaRouter como alternativa ao ClaudeGravity
 ├── docs/                                     # Documentação técnica e padrões de engenharia
 ├── README.md                                 # Índice executivo do repositório
 ├── .editorconfig                             # Padronização de indentação e charset

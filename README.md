@@ -20,29 +20,29 @@ Elimina as confirmações manuais que interrompem tarefas agênticas longas, con
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Gateways e Model Routing
 
-Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de modelos do **Google Antigravity (Google AI Pro)** através do gateway **9Router** em container Docker, sem custo adicional de tokens de API. Aborda a tradução bidirecional de protocolo, a compressão RTK de saídas de ferramentas, a auto-renovação contínua de tokens via container sidecar (`router-sync`, imagem oficial `ghcr.io/pathbit/9rtksync:latest` em Alpine) e o mapeamento de modelos primários, secundários e de subagentes. Inclui análise de risco, arquitetura multi-conta com Round-Robin e scripts de diagnóstico e inferência.
+Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de modelos do **Google Antigravity (Google AI Pro)** através do gateway **9Router** em container Docker, sujeito às cotas e condições da conexão utilizada. Aborda a tradução bidirecional de protocolo, a compressão RTK de saídas de ferramentas, a auto-renovação contínua de tokens via container sidecar (`router-sync`, imagem oficial `ghcr.io/pathbit/9rtksync:latest` em Alpine) e o mapeamento de modelos primários, secundários e de subagentes. Inclui análise de risco, arquitetura multi-conta com Round-Robin e scripts de diagnóstico e inferência.
 
 [📖 Ler Artigo](./0002_claude_gravity_utilizando_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0002_claude_gravity_utilizando_9router/README.md) | [🧪 Exemplos Práticos](./0002_claude_gravity_utilizando_9router/examples/README.md)
 
 ---
 
-### [0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](./0003_fallback_modelos_gratuitos_9router/)
+### [0003 - Claude Code com Cotas e Fallback no Arsenal de Modelos Gratuitos e Fallback no 9Router](./0003_fallback_modelos_gratuitos_9router/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Alta Disponibilidade
 
-Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, mapeando **9 fontes gratuitas de modelos** e integrando 5 delas em **combos com fallback automático**. Quando um provedor atinge o teto de cota, sai do catálogo ou passa a exigir permissão, o gateway comuta para o próximo nível sem derrubar a sessão. Inclui provisionamento idempotente dos combos, validação nível a nível da cascata e um laboratório que simula rate limit, desautenticação e auto-cura.
+Transforma o 9Router em uma central de alta disponibilidade para o Claude Code, mapeando **9 fontes gratuitas de modelos** e integrando 5 delas em **combos com fallback automático**. Quando um provedor atinge o teto de cota, sai do catálogo ou passa a exigir permissão, o gateway comuta para o próximo nível quando há uma rota compatível disponível. Inclui provisionamento idempotente dos combos, validação nível a nível da cascata e um laboratório que simula rate limit, desautenticação e auto-cura.
 
 [📖 Ler Artigo](./0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) | [🔧 Executar Localmente](./0003_fallback_modelos_gratuitos_9router/README.md) | [🧪 Exemplos Práticos](./0003_fallback_modelos_gratuitos_9router/examples/README.md)
 
 ---
 
-### [0004 - DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](./0004_deep_claude_alternativa_claudegravity/)
+### [0004 - DeepClaude: A Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](./0004_deepclaude_alternativa_ao_claudegravity/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Provedores Alternativos
 
 Opera o **Claude Code CLI** diretamente com modelos **DeepSeek**, sem gateway local e sem assinatura do Google Antigravity: pela plataforma oficial (**DeepSeek Platform**, com preços mínimos por milhão de tokens) ou pelo **OrcaRouter** (com o `deepseek/deepseek-v4-flash-free` gratuito e 1M de contexto). Detalha os cinco escopos de configuração da CLI e por que a credencial mora em `settings.local.json`, mostra o que o sufixo `[1m]` realmente faz (a CLI o remove; o gateway recusa), e expõe a armadilha do menu `/model` — o Enter grava o modelo no `~/.claude/settings.json` global e faz o DeepSeek virar o padrão até da sua conta Anthropic. Traz 41 capturas de tela cobrindo cadastro, vinculação do GitHub para elegibilidade do tier gratuito, validação no Playground e operação no terminal com ambos os provedores, além de um verificador que prova a integração com inferência real.
 
-[📖 Ler Artigo](./0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deep_claude_alternativa_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deep_claude_alternativa_claudegravity/examples/README.md)
+[📖 Ler Artigo](./0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md) | [🔧 Executar Localmente](./0004_deepclaude_alternativa_ao_claudegravity/README.md) | [🧪 Exemplos Práticos](./0004_deepclaude_alternativa_ao_claudegravity/examples/README.md)
 
 ---
 
@@ -71,7 +71,7 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 - **[Padrões de Engenharia de IA](./docs/PADROES_ENGENHARIA_IA.md)** - Diretrizes de scripts em Python puro, isolamento de segredos e regras editoriais
 - **[Resumo da Organização](./docs/RESUMO_ORGANIZACAO.md)** - Topologia de diretórios, anatomia dos módulos e checklist de publicação
 - **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.local.json` dos exemplos, estado global da CLI e verificador de consistência
-- **[Relatório de Validação](./docs/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0004 a partir de um ambiente zerado
+- **[Relatório de Validação](./tmp/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0004 a partir de um ambiente zerado
 
 ### 🔧 Soluções para Problemas Comuns
 
@@ -87,6 +87,10 @@ pathbit-ai-for-devs/
 ├── CLAUDE.md                                # Mesmas regras, no arquivo que o Claude Code carrega
 ├── .githooks/
 │   └── commit-msg                           # Remove assinatura de coautoria de IA
+├── tmp/                                     # Relatórios e evidências locais
+│   ├── RELATORIO_VALIDACAO.md
+│   ├── RELATORIO_REVISAO_2026-10-07.md
+│   └── prova_no_fio/
 ├── docs/                                    # Documentação técnica
 │   ├── _DOCS.md
 │   ├── CHECKLIST_SETTINGS_CLAUDE_CODE.md
@@ -94,7 +98,6 @@ pathbit-ai-for-devs/
 │   ├── GUIA_INTEGRACAO_CLAUDE_CODE.md
 │   ├── GUIA_PERMISSOES_ANTIGRAVITY.md
 │   ├── PADROES_ENGENHARIA_IA.md
-│   ├── RELATORIO_VALIDACAO.md
 │   ├── RESUMO_ORGANIZACAO.md
 │   ├── SOLUCAO_PROBLEMAS_COMUNS.md
 │   └── SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md
@@ -124,7 +127,7 @@ pathbit-ai-for-devs/
 │   ├── assets/
 │   ├── examples/
 │   └── src/
-├── 0004_deep_claude_alternativa_claudegravity/  # Artigo 0004
+├── 0004_deepclaude_alternativa_ao_claudegravity/  # Artigo 0004
 │   ├── README.md
 │   ├── requirements.txt
 │   ├── article/

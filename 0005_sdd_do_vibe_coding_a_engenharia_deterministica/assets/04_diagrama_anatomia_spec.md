@@ -9,12 +9,12 @@
 
 Diagrama "Anatomia de uma especificação", com cabeçalho editorial (kicker mono "SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005", título em serifa "Anatomia de uma especificação" e linha divisória) e seis blocos numerados em grade 3×2:
 
-1. `Objetivo`: "o 'por quê' em duas linhas"
-2. `Requisitos funcionais`: "o que o sistema faz"
-3. `Requisitos não-funcionais`: "como o sistema se comporta"
-4. `Critérios de aceite`: "afirmação testável com sim ou não" (bloco em destaque, com borda tracejada de acento laranja, a peça central)
-5. `Escopo / Fora de escopo`: "as duas listas"
-6. `Restrições técnicas`: "o 'como' que já foi decidido"
+1. `O Quê & Por Quê`: "problema de negócio e valor entregue"
+2. `Requisitos Funcionais`: "comportamentos observáveis em frases atômicas"
+3. `Requisitos Não-Funcionais`: "métricas quantificáveis de SLA, latência e segurança"
+4. `Critérios de Aceite Binários`: "núcleo de verificação: asserções objetivas com sim/não" (bloco central em destaque, com borda tracejada de acento laranja)
+5. `Escopo & Fora de Escopo`: "delimitação estrita e blindagem contra scope creep"
+6. `Restrições Arquiteturais`: "decisões inegociáveis de stack, drivers e persistência"
 
 - Rodapé com linha divisória, nota editorial e kicker "PATHBIT AI FOR DEVS · ARTIGO 0005".
 

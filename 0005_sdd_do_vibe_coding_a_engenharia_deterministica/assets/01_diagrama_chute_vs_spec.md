@@ -7,10 +7,10 @@
 
 ## Conteúdo
 
-Diagrama "O mesmo trabalho, dois caminhos", com cabeçalho editorial (kicker mono "SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005", título em serifa "Do codar no chute à especificação como alvo" e linha divisória) e duas pistas horizontais empilhadas:
+Diagrama "Do freestyle probabilístico à especificação determinística", com cabeçalho editorial (kicker mono "SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005", título em serifa "Do freestyle probabilístico à especificação determinística" e linha divisória) e duas pistas horizontais empilhadas:
 
-- Pista superior rotulada `SEM SPEC: CODAR NO CHUTE`: três caixas brancas conectadas por setas: `pedido vago` → `código` → `"não era isso"`, com uma seta tracejada laranja de retorno (`retrabalho`) voltando do fim para o começo; ao lado, a nota "horas gastas, resultado incerto".
-- Pista inferior rotulada `COM SPEC: SPEC DRIVEN DEVELOPMENT`: quatro caixas conectadas por setas: `spec` → `plano` → `código` → `✓ critério de aceite`, sendo a última com borda de acento laranja.
+- Pista superior rotulada `FREESTYLE VIBE CODING: FLUXO DE INCERTEZA`: três caixas conectadas por setas: `prompt solto` → `código gerado` → `premissas implícitas`, com uma seta tracejada laranja de retorno (`loop de retrabalho ↻`) voltando do fim para o começo; ao lado, a nota "dívida técnica oculta, resultado imprevisível".
+- Pista inferior rotulada `SPEC-DRIVEN DEVELOPMENT: ENGENHARIA DETERMINÍSTICA`: quatro caixas conectadas por setas: `especificação (.md)` → `plan mode` → `código derivado` → `✓ critérios de aceite`, sendo a última destacada com acento laranja.
 - Rodapé com linha divisória, nota editorial e kicker "PATHBIT AI FOR DEVS · ARTIGO 0005".
 
 ## Estilo

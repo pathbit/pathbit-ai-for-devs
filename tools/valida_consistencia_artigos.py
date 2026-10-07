@@ -122,7 +122,7 @@ def valida_convencao_de_nomes():
     ]
     encontrados = 0
     for doc in sorted(RAIZ.rglob("*.md")):
-        if ".git" in doc.parts or "node_modules" in doc.parts:
+        if ".git" in doc.parts or "node_modules" in doc.parts or "tmp" in doc.relative_to(RAIZ).parts:
             continue
         for linha_num, linha in enumerate(doc.read_text(encoding="utf-8").split("\n"), 1):
             if any(p.search(linha) for p in comandos):
@@ -291,7 +291,7 @@ def valida_links_internos():
     print("\n== Links relativos entre documentos")
     quebrados = 0
     for doc in sorted(RAIZ.rglob("*.md")):
-        if ".git" in doc.parts or "node_modules" in doc.parts:
+        if ".git" in doc.parts or "node_modules" in doc.parts or "tmp" in doc.relative_to(RAIZ).parts:
             continue
         texto = doc.read_text(encoding="utf-8")
         for alvo in re.findall(r"\]\((\.\.?/[^)#]+)(?:#[^)]*)?\)", texto):

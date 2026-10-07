@@ -9,10 +9,10 @@
 
 Diagrama "Seis fases, um loop", com cabeçalho editorial (kicker mono "SDD · SPEC DRIVEN DEVELOPMENT · ARTIGO 0005", título em serifa "Seis fases, um loop" e linha divisória) e o ciclo iterativo:
 
-- Fluxo horizontal de seis nós conectados por setas: `princípios` → `especificar` → `planejar` → `tarefas` → `implementar` → `verificar`.
-- Seta tracejada laranja de retorno de `verificar` para `especificar`, rotulada `desviou? volta pra spec`.
+- Fluxo horizontal de seis nós conectados por setas: `0. Princípios (CLAUDE/AGENTS)` → `1. Especificar (specs/NN.md)` → `2. Planejar (plan mode)` → `3. Tarefas (checklist atômico)` → `4. Implementar (agente construtor)` → `5. Verificar (subagente auditor)`.
+- Seta tracejada laranja de retorno de `verificar` para `especificar`, rotulada `desalinhamento? loopback consciente para a spec`.
 - Etiquetas sob os quatro primeiros nós ("PENSAR") e sob os dois últimos ("FAZER"), em faixas sutis.
-- Nota em destaque: "o ciclo é iterativo: voltar é o processo funcionando".
+- Nota em destaque: "o ciclo é iterativo: retornar à spec faz parte da maturidade de engenharia".
 - Rodapé com linha divisória, nota editorial e kicker "PATHBIT AI FOR DEVS · ARTIGO 0005".
 
 ## Estilo

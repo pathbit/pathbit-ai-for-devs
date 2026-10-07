@@ -45,7 +45,7 @@ valida-consistencia:
 # Verificador do artigo 0004: sintaxe dos settings, sufixo [1m], credencial nos
 # templates e contaminacao do settings global. Com ONLINE=1 faz inferencia real.
 valida-deepclaude:
-	$(PYTHON) 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py $(if $(ONLINE),--online,)
+	$(PYTHON) 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py $(if $(ONLINE),--online,)
 
 # Prova, na requisicao HTTP, o que os artigos prometem: sobe uma sonda local que
 # finge ser a API da Anthropic, roda o Claude Code de verdade com o settings de
@@ -60,9 +60,14 @@ prova-no-fio:
 valida-paineis:
 	./tools/valida_paineis.sh
 
+# Renderiza os diagramas em HTML do Artigo 0005 para PNG em alta resolução
+render-sdd-diagrams:
+	$(PYTHON) tools/render_sdd_diagrams.py
+
 # Testes locais opcionais no ambiente virtual
 test-local:
 	@if [ -x "$(VENV)/bin/python3" ]; then \
+		set -e; \
 		echo "Executando testes locais com $(VENV)..."; \
 		$(VENV)/bin/python3 0002_claude_gravity_utilizando_9router/src/verify_setup.py; \
 		$(VENV)/bin/python3 0002_claude_gravity_utilizando_9router/src/test_gateway.py; \

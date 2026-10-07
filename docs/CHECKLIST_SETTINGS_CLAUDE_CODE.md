@@ -69,7 +69,7 @@ Este é o único caminho pelo qual a configuração do laboratório escapa para 
 | Efeito: toda nova sessão, em qualquer pasta e com a conta Anthropic, abre com o modelo de terceiros. | Sintoma relatado e reproduzido. |
 
 **Regra:** no `/model`, use `s` ou `Esc`. Nunca Enter.
-**Limpeza:** `python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global`.
+**Limpeza:** `python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --fix-global`.
 
 ---
 
@@ -106,10 +106,10 @@ make valida-consistencia
 
 # Configuração do 0004: sintaxe, ANTHROPIC_AUTH_TOKEN, sufixo [1m], URL com /v1,
 # credencial vazada em template e contaminação do settings global.
-python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py
+python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py
 
 # Com inferência real contra o provedor configurado:
-python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --online
+python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --online
 ```
 
 Em redes com proxy TLS corporativo, o Python falha a validação de certificado enquanto o `curl` passa (ele valida contra o próprio bundle de CAs, não contra o keychain do sistema). Use `export SSL_CERT_FILE=/caminho/ca.pem` ou a flag `--insecure`.

@@ -1,2 +1,5 @@
-# Este modulo utiliza exclusivamente a biblioteca padrao do Python 3.10+
-# (urllib, json, subprocess). Nenhuma dependencia externa e necessaria.
+# Python 3.14+ (compatível com Python 3.10+)
+# Este módulo opera exclusivamente com a biblioteca padrão do Python em ambiente virtual isolado (.venv).
+# Setup local:
+#   python3 -m venv .venv
+#   source .venv/bin/activate

@@ -10,6 +10,21 @@ Neste artigo, apresentamos o guia prático de engenharia para configurar o **Goo
 
 Mostramos como destravar completamente o motor compartilhado **Agent 2.0**, a interface visual **Antigravity IDE** e a ferramenta de linha de comando **Antigravity CLI (`agy`)**, permitindo que seus agentes operem com máxima velocidade e autonomia responsável.
 
+## Antes de liberar permissões: alcance e limites
+
+Este laboratório altera políticas amplas do **usuário**, não apenas deste
+clone. Faça backup, teste em uma conta ou ambiente descartável e confira o
+diff das configurações. Remover `deny` e confiar na raiz do filesystem pode
+permitir apagar arquivos, ler segredos e executar código de dependências.
+Autonomia não é sinônimo de segurança; preserve bloqueios necessários.
+
+Os 35 testes verificam escrita, mesclagem e caminhos simulados em três
+sistemas. Não provam que qualquer versão futura da IDE/CLI interpreta todas
+as chaves da mesma forma. Os nomes Agent 2.0 e as políticas descritas são os
+observados nesta integração; confirme a versão e um comando real no ambiente.
+`includeCoAuthoredBy=false` reduz trailers automáticos, mas não impede toda
+forma de autoria de bot: o hook e a revisão do commit continuam necessários.
+
 ---
 
 ## O Ecossistema do Google Antigravity
@@ -397,10 +412,10 @@ O artigo disponibiliza uma suíte completa de ferramentas em Python puro, com su
 
 Antes de executar as ferramentas de configuração e validação, assegure que seu ambiente local atenda aos seguintes requisitos e tenha as ferramentas instaladas:
 
-1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
-   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
+1. **Python 3.10 ou superior (testes desta revisão: ambiente local disponível):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/downloads/) (pacote instalador macOS).
    - Verifique com `python3 --version`. Se necessário, instale:
-     - **macOS:** Baixe o pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou instale via Homebrew com `brew install python`
+     - **macOS:** Baixe o pacote oficial [Python 3.14.7](https://www.python.org/downloads/) ou instale via Homebrew com `brew install python`
      - **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install -y python3 python3-venv python3-pip`
      - **Linux (Fedora/RHEL):** `sudo dnf install -y python3 python3-pip`
      - **Windows:** `winget install Python.Python.3.14`
@@ -501,9 +516,9 @@ OK
 
 Com o motor do Google Antigravity configurado para autonomia desimpedida, o ecossistema está pronto para avançar para as próximas etapas da engenharia agêntica:
 
-1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a autenticação eternamente ativa através do container sidecar de auto-renovação (`router-sync`).
-2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático e suporte do sidecar contínuo, eliminando paradas por limite de cota.
-3. **Usar o DeepSeek como Alternativa ao ClaudeGravity:** No [Artigo 0004 - DeepSeek como Alternativa ao ClaudeGravity](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md), o Claude Code conecta-se aos modelos DeepSeek pela plataforma oficial ou pelo OrcaRouter, sem depender do Antigravity, reaproveitando as mesmas permissões deste artigo.
+1. **Conectar o Antigravity ao Claude Code via Gateway 9Router:** No [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md), mostramos como utilizar essa mesma infraestrutura de permissões e modelos Gemini com a CLI da Anthropic sem pagar tokens de API, mantendo a renovação de credenciais enquanto a autorização continuar válida através do container sidecar de auto-renovação (`router-sync`).
+2. **Construir Malhas de Alta Disponibilidade com Múltiplos Provedores:** No [Artigo 0003 - Claude Code sem Limites com Arsenal de Modelos Gratuitos e Fallback no 9Router](../../0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md), mapeamos 9 fontes gratuitas de modelos e integramos 5 delas em combos com fallback automático e suporte do sidecar contínuo, reduzindo interrupções quando há outra rota com cota.
+3. **Usar o DeepSeek como Alternativa ao ClaudeGravity:** No [Artigo 0004 - DeepSeek como Alternativa ao ClaudeGravity](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md), o Claude Code conecta-se aos modelos DeepSeek pela plataforma oficial ou pelo OrcaRouter, sem depender do Antigravity, reaproveitando as mesmas permissões deste artigo.
 
 ---
 

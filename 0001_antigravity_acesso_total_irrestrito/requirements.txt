@@ -1,2 +1,5 @@
-# Este modulo utiliza prioritariamente a biblioteca padrao do Python 3.10+
-# Nenhuma biblioteca externa obrigatoria e necessaria para execucao dos scripts
+# Python 3.14+ (compatível com Python 3.10+)
+# Este módulo opera prioritariamente com a biblioteca padrão do Python em ambiente virtual isolado (.venv).
+# Setup local:
+#   python3 -m venv .venv
+#   source .venv/bin/activate

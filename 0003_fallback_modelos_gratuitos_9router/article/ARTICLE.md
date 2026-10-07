@@ -10,13 +10,30 @@ HTTP Error 429: Too Many Requests (Rate limit exceeded)
 
 Quando você opera o Claude Code em tarefas de engenharia complexas (executando testes, analisando dependências, iterando sobre arquivos e revisando código), o consumo de tokens e a frequência de requisições por minuto atingem picos elevados. Depender de um único provedor ou de uma única cota de API significa aceitar interrupções involuntárias no meio do seu raciocínio.
 
-Neste artigo, apresentamos uma solução arquitetural definitiva: como transformar o **9Router** em uma central de alta disponibilidade para o **Claude Code**, mapeando **9 fontes de modelos de inteligência artificial gratuitas** e integrando 5 delas em **Combos de Fallback Inteligentes** prontos para uso. Quando uma cota atinge o teto temporário, o gateway comuta automaticamente para o próximo provedor da fila, sem que sua sessão no terminal sofra quedas ou perca o contexto de trabalho.
+Neste artigo, apresentamos uma estratégia de resiliência: como transformar o **9Router** em uma central de alta disponibilidade para o **Claude Code**, mapeando **9 fontes de modelos de inteligência artificial gratuitas** e integrando 5 delas em **Combos de Fallback Inteligentes** prontos para uso. Quando uma cota atinge o teto temporário, o gateway comuta automaticamente para o próximo provedor da fila, com limites de retry e streaming que precisam ser testados.
 
 ![Malha de Resiliência Multi-Provedores com Fallback Automático](../assets/01_diagrama_malha_multiprovedor.png)
 
 > **Figura 1:** Malha de resiliência multi-provedores com o gateway 9Router orquestrando a comutação transparente entre os grupos de provedores que alimentam o Claude Code CLI.
 
-Este trabalho é a evolução direta da infraestrutura apresentada no [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md). Se lá consolidamos a ponte de alta fidelidade com o Google Antigravity, aqui expandimos essa base para um ecossistema multi-provedor resiliente que nunca para de programar.
+Este trabalho é a evolução direta da infraestrutura apresentada no [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md). Se lá consolidamos a ponte de alta fidelidade com o Google Antigravity, aqui expandimos essa base para um ecossistema multi-provedor com rotas alternativas verificadas.
+
+## Resiliência não significa ausência de limites
+
+O fallback tenta alternativas **configuradas e disponíveis**. Se todas
+estiverem sem cota, desautenticadas ou incompatíveis com ferramentas, a
+requisição ainda falha. Provedores em free tier podem mudar catálogo e regras;
+assinatura, créditos promocionais e inferência local não são a mesma coisa.
+
+Trocar o modelo após iniciar streaming pode interromper a resposta. Repetir
+uma chamada que já causou efeito colateral pode duplicar uma operação. Use
+chaves de idempotência e revise a política de retry; uma resposta “PONG” não
+comprova que o modelo consegue conduzir uma sessão de desenvolvimento.
+O nível Ollama é contingência local com pesos previamente baixados e recursos
+finitos, não continuidade perpétua nem garantia de tool calling.
+
+Os tempos publicados documentam execuções históricas, não um SLA. Consulte o
+catálogo atual e rode `src/test_arsenal.py` antes de escolher os combos.
 
 ---
 
@@ -991,10 +1008,10 @@ Verificamos no binário da versão 2.1.268 (17 de setembro de 2026): o `/logout`
 >
 > **A regra:** no menu `/model`, use `s` ou `Esc`. Nunca Enter.
 >
-> Para verificar e limpar, o [Artigo 0004](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md) traz um script pronto:
+> Para verificar e limpar, o [Artigo 0004](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md) traz um script pronto:
 >
 > ```bash
-> python3 0004_deep_claude_alternativa_claudegravity/src/verify_deepclaude.py --fix-global
+> python3 0004_deepclaude_alternativa_ao_claudegravity/src/verify_deepclaude.py --fix-global
 > ```
 >
 > Vale registrar o contraponto: medimos o hash SHA-256 de `~/.claude/settings.json` antes e depois de uma sessão completa aberta com `--settings`, incluindo inferência real, e o valor não mudou. A flag, sozinha, não escreve nada. O vazamento vem exclusivamente do seletor de modelos.
@@ -1011,9 +1028,9 @@ Duas decisões deixam este projeto imune a esse estado:
    A flag é [documentada](https://code.claude.com/docs/en/settings#change-a-setting-for-one-session) e aplica o arquivo **antes** de qualquer outro escopo de configuração. 
    
    Por que recomendamos subir **sempre** com `--settings .claude/settings.local.json` em todas as sessões:
-   * **Isolamento Absoluto:** Impede que o Claude Code herde variáveis, ferramentas antigas ou configurações residuais do arquivo global (`~/.claude/settings.json`).
+   * **Configuração explícita da sessão:** reduz dependência de valores globais, mas não remove a precedência dos demais escopos nem cria isolamento de processo.
    * **Exibição Estrita do `modelPicker` sem Modelos Anthropic:** No binário da CLI (v2.1.x), o bloco `modelPicker` é ignorado em checkouts locais quando chamado apenas como `claude`. Ao invocar com `claude --settings .claude/settings.local.json`, a CLI honra integralmente o `replaceBuiltInOptions: true`, exibindo exclusivamente os seus modelos e combos virtuais do 9Router e ocultando os modelos Anthropic.
-   * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, garantindo que o Claude Code nunca caia no assistente de login da nuvem da Anthropic.
+   * **Zero Fricção com Telas de Login:** Aplica o `ANTHROPIC_BASE_URL` (`http://localhost:20128`) e o `ANTHROPIC_AUTH_TOKEN` imediatamente, reduzindo dependência do login Anthropic na versão testada, sem garantia para atualizações.
 
 O que **não** dá para evitar por configuração de projeto: a escolha de tema e as notas de segurança na primeira execução, e a pergunta de confiança em cada pasta nova. São telas de um `Enter` cada, nunca pedem login, e é assim que a CLI protege quem abre um repositório desconhecido.
 
@@ -1236,9 +1253,9 @@ O artigo disponibiliza uma malha resiliente completa de infraestrutura e execuç
 
 Antes de rodar os scripts de provisionamento e iniciar a cascata com o Claude Code, configure os seguintes componentes na sua máquina:
 
-1. **Python 3.14.7 (Recomendado) ou Superior (mínimo 3.10):**
-   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) (pacote instalador macOS).
-   - Verifique com `python3 --version`. Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
+1. **Python 3.10 ou superior (testes desta revisão: ambiente local disponível):**
+   - Recomendamos a versão oficial: [Python 3.14.7](https://www.python.org/downloads/) (pacote instalador macOS).
+   - Verifique com `python3 --version`. Se necessário, instale via pacote oficial [Python 3.14.7](https://www.python.org/downloads/) ou `brew install python` (macOS), `sudo apt install python3 python3-venv python3-pip` (Linux) ou `winget install Python.Python.3.14` (Windows).
    - Crie o ambiente virtual e instale o ambiente (o módulo roda só com a biblioteca padrão do Python):
      ```bash
      python3 -m venv .venv
@@ -1368,7 +1385,7 @@ Para aprofundar na infraestrutura de permissões irrestritas do Google Antigravi
 
 Para aprofundar na configuração específica do Google Antigravity e na engenharia de tradução de chamadas do Claude Code, acesse o [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md).
 
-Para operar o mesmo harness sem Antigravity e sem gateway, apontando o Claude Code direto para a API da DeepSeek ou para o OrcaRouter, acesse o [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deep_claude_alternativa_claudegravity/article/ARTICLE.md). Os combos deste artigo continuam valendo lá: o 9Router também serve o DeepSeek como mais um provedor da cascata.
+Para operar o mesmo harness sem Antigravity e sem gateway, apontando o Claude Code direto para a API da DeepSeek ou para o OrcaRouter, acesse o [Artigo 0004 - DeepClaude, a Alternativa ao ClaudeGravity com DeepSeek e OrcaRouter no Claude Code](../../0004_deepclaude_alternativa_ao_claudegravity/article/ARTICLE.md). Os combos deste artigo continuam valendo lá: o 9Router também serve o DeepSeek como mais um provedor da cascata.
 
 **Onde a cascata deste artigo encontra o seu limite.** Tudo o que foi montado aqui responde à pergunta "de onde sai o próximo token quando esta conta acabar". Nenhuma linha responde a outra, que aparece assim que mais de uma pessoa usa a mesma montagem: *quem* consumiu o quê, e como impedir que uma pessoa sozinha esgote a cota do time antes do almoço. O 9Router escolhe a conta; ele não reparte a cota entre pessoas.
 
