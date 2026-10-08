@@ -14,6 +14,7 @@ setup:
 # Executa todos os testes unitarios e de consistencia locais sem dependencia externa
 test-unit: valida-docs valida-consistencia
 	$(PYTHON) 0001_antigravity_acesso_total_irrestrito/src/test_permissions.py
+	$(PYTHON) tools/test_architecture_and_sizing.py
 
 # Executa todos os testes de integracao via container Docker (zero dependencias no host alem do Docker)
 test: test-unit test-container
