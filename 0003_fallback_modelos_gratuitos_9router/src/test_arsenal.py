@@ -45,6 +45,7 @@ def load_dotenv():
     """Carrega variáveis de ambiente de arquivos .env locais se existirem."""
     search_paths = [
         os.path.join(os.path.dirname(__file__), "..", ".env"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "0002_claude_gravity_utilizando_9router", ".env"),
         os.path.join(os.getcwd(), ".env"),
     ]
     for path in search_paths:

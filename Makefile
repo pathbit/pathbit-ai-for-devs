@@ -11,8 +11,12 @@ setup:
 	@echo "core.hooksPath = $$(git config --get core.hooksPath)"
 	@echo "Hook de autoria ativo. Regras do repositorio: AGENTS.md"
 
+# Executa todos os testes unitarios e de consistencia locais sem dependencia externa
+test-unit: valida-docs valida-consistencia
+	$(PYTHON) 0001_antigravity_acesso_total_irrestrito/src/test_permissions.py
+
 # Executa todos os testes de integracao via container Docker (zero dependencias no host alem do Docker)
-test: test-container
+test: test-unit test-container
 
 test-container:
 	./tools/run_tests.sh
