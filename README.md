@@ -279,7 +279,7 @@ gateway de pé, credencial real nem rede externa.
 
 Os artigos mandam o leitor copiar um `docker-compose.yml` que sobe imagens dos
 projetos [9RTKSync](https://github.com/pathbit/9RTKSync),
-[OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e
+[OmniRTkSync](https://github.com/pathbit/OmniRTkSync) e
 [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync). Quando um desses
 projetos muda e o artigo não, o leitor segue instruções que não funcionam mais —
 e não tem como saber que o errado é o texto.

@@ -76,7 +76,7 @@ services:
   # servico e o que outra stack usa para alcancar este container pela rede, e
   # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
   # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
-  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  # 9RTKSync / OmniRTkSync / LiteLlmRTKSync.
   claudegravity-router:
     # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
@@ -181,7 +181,7 @@ volumes:
 
 Sete decisões de engenharia neste manifesto:
 
-* **Serviço, `container_name` e `hostname` com o mesmo nome.** Esta é nova, e vale explicar por que importa. O nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps` e no `docker exec`. Quando os dois divergem, você lê `9router` no manifesto, `claudegravity-router` no terminal e um terceiro nome no erro de DNS - e perde tempo até perceber que são a mesma coisa. Os projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync) já adotaram esse padrão, e este artigo passou a segui-lo. É por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`, e não mais para um alias de serviço diferente do container.
+* **Serviço, `container_name` e `hostname` com o mesmo nome.** Esta é nova, e vale explicar por que importa. O nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps` e no `docker exec`. Quando os dois divergem, você lê `9router` no manifesto, `claudegravity-router` no terminal e um terceiro nome no erro de DNS - e perde tempo até perceber que são a mesma coisa. Os projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OmniRTkSync](https://github.com/pathbit/OmniRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync) já adotaram esse padrão, e este artigo passou a segui-lo. É por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`, e não mais para um alias de serviço diferente do container.
 * **`extra_hosts: ["host.docker.internal:host-gateway"]`** garante compatibilidade entre plataformas (macOS, Linux e Windows WSL2), permitindo que o container resolva o endereço do host local de forma idêntica em qualquer distribuição.
 * **Senha e segredo JWT vêm do `.env`**, nunca literais no arquivo versionado. A sintaxe `${VAR:?mensagem}` interrompe a subida com um erro claro caso a variável não exista, em vez de silenciosamente aplicar um padrão fraco.
 * **`healthcheck` nos dois serviços:** sem ele, a diretiva `restart: unless-stopped` só reage quando o processo morre  -  um container travado, mas vivo, permaneceria roteando para o vazio. A sonda a cada 15 segundos marca o container como `unhealthy` e torna o problema visível. O sidecar tem a sua, contra `/healthz`, que é o único endpoint do painel que não exige autenticação.
@@ -1611,7 +1611,7 @@ O gateway já tem a peça pronta, e ela não depende de nada externo:
 
 A propriedade que interessa: o vínculo é **por conexão**, não global. Cadastrar um pool por conta e apontar cada conexão para o seu fixa a saída daquela conta — sem rotação, sem sorteio. Duas contas nunca dividem endereço se cada uma tiver o próprio `proxyPoolId`.
 
-> **Quem aplica o roteamento é o gateway, sempre.** O painel do [9RTKSync](https://github.com/pathbit/9RTKSync) exibe o vínculo de cada conta em modo **somente leitura**: *saída própria* quando ela tem o seu pool, *divide o endereço do gateway com N contas* quando não tem — e esse aviso só aparece a partir da segunda conta nessa situação, porque uma conta sozinha é a única dona daquele IP. É assim que você vê quais contas compartilham endereço antes que o provedor veja. A consulta que lista isso está em [Egress and Multi-Session](https://github.com/pathbit/9RTKSync/wiki/Egress-And-Multi-Session), com a versão equivalente para o OmniRoute no [OminiRTkSync](https://github.com/pathbit/OminiRTkSync/wiki/Egress-And-Multi-Session).
+> **Quem aplica o roteamento é o gateway, sempre.** O painel do [9RTKSync](https://github.com/pathbit/9RTKSync) exibe o vínculo de cada conta em modo **somente leitura**: *saída própria* quando ela tem o seu pool, *divide o endereço do gateway com N contas* quando não tem — e esse aviso só aparece a partir da segunda conta nessa situação, porque uma conta sozinha é a única dona daquele IP. É assim que você vê quais contas compartilham endereço antes que o provedor veja. A consulta que lista isso está em [Egress and Multi-Session](https://github.com/pathbit/9RTKSync/wiki/Egress-And-Multi-Session), com a versão equivalente para o OmniRoute no [OmniRTkSync](https://github.com/pathbit/OmniRTkSync/wiki/Egress-And-Multi-Session).
 
 #### O mínimo que vale fazer
 
@@ -1728,7 +1728,7 @@ Agora que você tem o ClaudeGravity funcionando na sua máquina:
 - [Gemini Code Assist Quotas  -  requisições por usuário por dia](https://docs.cloud.google.com/gemini/docs/quotas)
 - [9Router GitHub Repository & Architecture](https://github.com/decolua/9router)
 - [9RTKSync: 9Router Universal Token & Connection Synchronizer](https://github.com/pathbit/9RTKSync)
-- [OminiRTKSync: OminiRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OminiRTkSync)
+- [OmniRTKSync: OmniRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OmniRTkSync)
 - [OmniRoute Gateway Repository](https://github.com/diegosouzapw/OmniRoute)
 - [Google Antigravity Overview](https://antigravity.google)
 - [DeepClaude Architecture Reference](https://github.com/aattaran/deepclaude)

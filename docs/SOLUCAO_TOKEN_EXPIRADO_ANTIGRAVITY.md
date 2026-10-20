@@ -88,7 +88,7 @@ quando a renovação era necessária e não teve efeito, o que permite usá-lo e
 
 ### Solução Definitiva com Container router-sync
 
-Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem o container oficial `router-sync` (baseado no projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o projeto equivalente é o [OminiRTKSync](https://github.com/pathbit/OminiRTkSync) (*OminiRoute Universal Token & Connection Synchronizer*).
+Para não precisar rodar scripts manuais nem manter um terminal aberto, os arquivos `docker-compose.yml` dos módulos 0002 e 0003 incluem o container oficial `router-sync` (baseado no projeto [9RTKSync](https://github.com/pathbit/9RTKSync) · *9Router Universal Token & Connection Synchronizer*). Para o gateway [OmniRoute](https://github.com/diegosouzapw/OmniRoute), o projeto equivalente é o [OmniRTKSync](https://github.com/pathbit/OmniRTkSync) (*OmniRoute Universal Token & Connection Synchronizer*).
 
 O container utiliza a imagem oficial `ghcr.io/pathbit/9rtksync:latest` (baseada em [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg) Alpine) com ambiente virtual isolado (`/opt/venv`) e roda continuamente com baixíssimo consumo (~18 MB de RAM e 0% de CPU). Ele monitora o banco SQLite compartilhado (`/app/data/db/data.sqlite`) do [9Router](https://github.com/decolua/9router) e as credenciais locais, validando a integridade das conexões e efetuando a renovação preventiva 15 minutos antes da expiração, além de oferecer um dashboard web em tempo real em `http://localhost:9190`:
 

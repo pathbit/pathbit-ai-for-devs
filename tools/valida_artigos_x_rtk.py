@@ -21,7 +21,7 @@ from typing import Dict, List, Set
 
 RTK = {
     "ghcr.io/pathbit/9rtksync": ("9RTKSync", "nine_rtksync"),
-    "ghcr.io/pathbit/ominirtksync": ("OminiRTkSync", "omini_rtksync"),
+    "ghcr.io/pathbit/omnirtksync": ("OmniRTkSync", "omni_rtksync"),
     "ghcr.io/pathbit/litellmrtksync": ("LiteLlmRTKSync", "litellm_rtksync"),
 }
 
