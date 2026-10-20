@@ -168,7 +168,7 @@ painel() {  # painel <nome> <base> <usuario> <senha> <senha_nova>
 }
 
 # Enderecos configuraveis: o padrao e o das stacks dos artigos (9091 para o
-# 9RTKSync do artigo 0003, 9092 para o OminiRTkSync), mas qualquer instalacao
+# 9RTKSync do artigo 0003, 9092 para o OmniRTkSync), mas qualquer instalacao
 # serve passando NOVE_URL / OMNI_URL.
 NOVE_URL="${NOVE_URL:-http://127.0.0.1:9091}"
 OMNI_URL="${OMNI_URL:-http://127.0.0.1:9092}"
@@ -176,7 +176,7 @@ OMNI_URL="${OMNI_URL:-http://127.0.0.1:9092}"
 QUEBRA_VIDRO="${NOVE_QUEBRA_VIDRO:-0}"
 painel "9RTKSync (router-sync)" "$NOVE_URL" "$NOVE_USER" "$NOVE_PASS" "$NOVE_NOVA"
 QUEBRA_VIDRO="${OMNI_QUEBRA_VIDRO:-0}"
-painel "OminiRTkSync"           "$OMNI_URL" "$OMNI_USER" "$OMNI_PASS" "$OMNI_NOVA"
+painel "OmniRTkSync"           "$OMNI_URL" "$OMNI_USER" "$OMNI_PASS" "$OMNI_NOVA"
 
 echo
 echo "===================================================="

@@ -499,7 +499,7 @@ services:
   # servico e o que outra stack usa para alcancar este container pela rede, e
   # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
   # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
-  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  # 9RTKSync / OmniRTkSync / LiteLlmRTKSync.
   claudegravity-router:
     # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
@@ -623,7 +623,7 @@ volumes:
 
 
 Seis detalhes de arquitetura essenciais foram incorporados neste manifesto:
-1. **Serviço, `container_name` e `hostname` com o mesmo nome:** o nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps`. Quando divergem, você lê um nome no manifesto e outro no terminal, e perde tempo até perceber que são a mesma coisa. É o padrão dos projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OminiRTkSync](https://github.com/pathbit/OminiRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync), e é por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a mesma decisão.
+1. **Serviço, `container_name` e `hostname` com o mesmo nome:** o nome do **serviço** é o que o DNS interno do Compose resolve; o `container_name` é o que aparece no `docker ps`. Quando divergem, você lê um nome no manifesto e outro no terminal, e perde tempo até perceber que são a mesma coisa. É o padrão dos projetos [9RTKSync](https://github.com/pathbit/9RTKSync), [OmniRTkSync](https://github.com/pathbit/OmniRTkSync) e [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync), e é por isso que o `ROUTER_URL` do sidecar aponta para `http://claudegravity-router:20128`. O [Artigo 0002](../../0002_claude_gravity_utilizando_9router/article/ARTICLE.md) detalha a mesma decisão.
 2. **Compatibilidade Multiplataforma (`extra_hosts`):** A diretiva `host.docker.internal:host-gateway` garante que sistemas Linux mapeiem corretamente o gateway de rede para o host, assegurando paridade idêntica entre Linux, macOS e Windows WSL2.
 3. **Streaming Nativo SSE com Ollama Local:** O 9Router consome a API compatível da OpenAI exposta pelo Ollama em `http://host.docker.internal:11434/v1` via nós `openai-compatible-*`. Ao contrário da rota proprietária `/api/chat` (que emite `application/x-ndjson`), a rota `/v1/chat/completions` entrega Server-Sent Events (`text/event-stream`), garantindo streaming nativo na inferência local. A diferença entre chamada fria e quente é grande, e aparece na mesma execução do validador: o nível local respondeu em **8,77s** na primeira chamada  -  que carrega o modelo na memória  -  e em **0,05s** na chamada seguinte, alguns segundos depois `[FONTE: src/test_arsenal.py, executado em 2026-09-13; as duas linhas estão no bloco de saída mais adiante]`. Se você medir uma latência alta no nível 7, meça de novo antes de concluir que algo está errado.
 4. **Segredos fora do manifesto e ordem de subida:** `INITIAL_PASSWORD` e `JWT_SECRET` são lidos do `.env` (a sintaxe `${VAR:?mensagem}` aborta o `up` com um erro claro se a variável faltar), e os `healthcheck` combinados ao `depends_on: service_healthy` garantem que o 9Router só suba depois que o Ollama estiver respondendo  -  eliminando a corrida que obrigava a inserir esperas manuais nos scripts.
@@ -1397,7 +1397,7 @@ Quem precisa disso põe um segundo proxy na frente — o LiteLLM trata o 9Router
 
 - [9Router GitHub Repository](https://github.com/decolua/9router)
 - [9RTKSync: 9Router Universal Token & Connection Synchronizer](https://github.com/pathbit/9RTKSync)
-- [OminiRTKSync: OminiRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OminiRTkSync)
+- [OmniRTKSync: OmniRoute Universal Token & Connection Synchronizer](https://github.com/pathbit/OmniRTkSync)
 - [OmniRoute Gateway Repository](https://github.com/diegosouzapw/OmniRoute)
 - [Claude Code Settings & Permissions Official Guide](https://code.claude.com/docs/en/settings)
 - [Anthropic Messages API Reference](https://docs.anthropic.com/en/api/messages)

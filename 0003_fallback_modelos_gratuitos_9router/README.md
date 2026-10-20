@@ -337,7 +337,7 @@ Para estender a duração das cotas gratuitas e evitar limites de taxa durante s
 - [Artigo 0002 - ClaudeGravity e o Roteamento de Modelos Gemini no Claude Code via 9Router](../0002_claude_gravity_utilizando_9router/article/ARTICLE.md)
 - Repositório oficial do 9Router: [decolua/9router](https://github.com/decolua/9router)
 - Guardião oficial 9RTKSync: [pathbit/9RTKSync](https://github.com/pathbit/9RTKSync)
-- Guardião oficial OminiRTKSync: [pathbit/OminiRTkSync](https://github.com/pathbit/OminiRTkSync)
+- Guardião oficial OmniRTKSync: [pathbit/OmniRTkSync](https://github.com/pathbit/OmniRTkSync)
 - Repositório oficial do OmniRoute: [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute)
 - Repositório do Curso: [pathbit-ai-for-devs](https://github.com/pathbit/pathbit-ai-for-devs)
 

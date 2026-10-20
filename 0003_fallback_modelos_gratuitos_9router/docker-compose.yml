@@ -5,7 +5,7 @@ services:
   # servico e o que outra stack usa para alcancar este container pela rede, e
   # quando os tres divergem voce le `9router` no compose, `claudegravity-router`
   # no `docker ps` e um terceiro nome no erro de DNS. E o padrao dos projetos
-  # 9RTKSync / OminiRTkSync / LiteLlmRTKSync.
+  # 9RTKSync / OmniRTkSync / LiteLlmRTKSync.
   claudegravity-router:
     # 9Router: Gateway oficial de conexões e modelos (https://github.com/decolua/9router)
     image: decolua/9router:latest
