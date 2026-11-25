@@ -56,6 +56,16 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 
 ---
 
+### [0006 - Gate de Release com Critérios de Aceite Executáveis](./0006_gate_de_release_de_contratos/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Validação de entregas
+
+Continua o estudo de caso do Agregador de Notícias do artigo 0005. O laboratório inicia a aplicação real com SQLite descartável e verifica nove contratos HTTP sobre importação, idempotência, busca, paginação, resumo, favoritos e digest. O resultado determina o código de saída e pode ser arquivado em JSON.
+
+[📖 Ler Artigo](./0006_gate_de_release_de_contratos/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_gate_de_release_de_contratos/README.md) | [🧪 Exemplo Prático](./0006_gate_de_release_de_contratos/examples/README.md)
+
+---
+
 ## 📖 Documentação
 
 Índice geral em **[docs/_DOCS.md](./docs/_DOCS.md)**.
@@ -134,16 +144,22 @@ pathbit-ai-for-devs/
 │   │   └── diagrams/
 │   ├── examples/
 │   └── src/
-└── 0005_sdd_do_vibe_coding_a_engenharia_deterministica/      # Artigo 0005
+├── 0005_sdd_do_vibe_coding_a_engenharia_deterministica/      # Artigo 0005
+│   ├── README.md
+│   ├── article/
+│   ├── assets/
+│   │   └── diagrams/
+│   ├── src/
+│   ├── tests/
+│   └── examples/
+│       ├── specs/
+│       └── .claude/
+└── 0006_gate_de_release_de_contratos/        # Artigo 0006
     ├── README.md
     ├── article/
     ├── assets/
-    │   └── diagrams/
-    ├── src/
-    ├── tests/
-    └── examples/
-        ├── specs/
-        └── .claude/
+    ├── examples/
+    └── src/
 ```
 
 ---
@@ -209,23 +225,26 @@ zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ## 🧪 Execução de Testes
 
-Você pode validar e executar todos os diagnósticos e testes de integração sem instalar absolutamente nada na sua máquina host (exceto o Docker), ou opcionalmente através de ambiente virtual local.
-
-### Opção 1. Via Container Docker (Zero Instalação na Máquina)
-
-O único pré-requisito é ter o Docker instalado. Nada mais precisa ser instalado na máquina:
+A suíte local reúne consistência editorial, testes do Agregador e o gate de release. A integração dos artigos 0002 e 0003 usa uma stack com os provedores já provisionados.
 
 ```bash
-# Executar todos os testes de integração em containers
-./tools/run_tests.sh
-
-# Ou via Makefile
-make test-container
-
-# Ou testar serviços individuais
-make test-gateway
-make test-arsenal
+npm ci --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica
+make test-unit test-app test-gate
 ```
+
+### Opção 1. Diagnóstico e integração em contêiner
+
+O executor conecta os testes Python à rede do gateway. Suba e configure o artigo correspondente antes de usá-lo. Os testes de inferência usam a chave local do 9Router, lida de `ANTHROPIC_API_KEY` ou de um `.env` reconhecido pelo script do artigo.
+
+```bash
+./tools/run_tests.sh 0002 --somente-saude
+./tools/run_tests.sh 0003 --combo arsenal-offline
+
+# Testes completos contra uma stack com provedores e combos dos dois artigos
+make test-container
+```
+
+Para uma rede ou URL diferente, defina `ROUTER_NETWORK` e `ROUTER_URL`.
 
 ### Opção 2. Via Virtual Environment Local (Pré-requisitos Opcionais)
 

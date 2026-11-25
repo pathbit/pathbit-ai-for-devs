@@ -27,9 +27,11 @@ Este módulo apresenta o **Spec Driven Development (SDD)**, a disciplina de escr
 
 ## Como rodar o produto (Agregador de Notícias)
 
+Use Node.js 22 e execute os comandos dentro deste módulo.
+
 1. Instale as dependências:
    ```bash
-   npm install
+   npm ci
    ```
 2. Execute a suíte de testes automatizados:
    ```bash
@@ -43,6 +45,10 @@ Este módulo apresenta o **Spec Driven Development (SDD)**, a disciplina de escr
    - **URL:** [http://localhost:3005](http://localhost:3005)
    - **API de Artigos:** [http://localhost:3005/artigos](http://localhost:3005/artigos)
    - **Digest Diário:** [http://localhost:3005/digest/hoje](http://localhost:3005/digest/hoje)
+
+O processo escuta em `127.0.0.1` por padrão. Ajuste `HOST`, `PORT` e `DATABASE_PATH` no `.env` para um ambiente controlado. Se quiser usar um provedor de resumo, defina `ANTHROPIC_BASE_URL`, `AI_MODEL` e a credencial quando necessária. A API Anthropic direta usa `ANTHROPIC_API_KEY`. Um gateway que exige Bearer usa `ANTHROPIC_AUTH_TOKEN`. Com essas variáveis vazias, o resumo usa o fallback local.
+
+O [artigo 0006](../0006_gate_de_release_de_contratos/article/ARTICLE.md) executa os critérios de aceite contra o Agregador em um SQLite descartável.
 
 > Sobre as imagens: os diagramas em `assets/` seguem rigorosamente a paleta de cores e o padrão editorial sóbrio dos módulos anteriores. Cada imagem conta com um brief descritivo em arquivo `.md` contendo seu conteúdo semântico, dimensões e instruções de geração.
 

@@ -106,6 +106,8 @@ python3 src/verify_deepclaude.py --online     # inclui uma chamada real à API
 python3 src/verify_deepclaude.py --fix-global # limpa um modelo vazado para o settings global
 ```
 
+A opção `--online` exige uma configuração ativa, TLS verificado por padrão e uma resposta com texto. Para conferir os cabeçalhos, o modelo selecionado e a conclusão das sessões da CLI com uma sonda local, execute `make prova-no-fio ARTIGO=0004` na raiz.
+
 Ele valida a sintaxe dos JSON, exige `ANTHROPIC_AUTH_TOKEN` (e recusa `ANTHROPIC_API_KEY`), recusa o sufixo `[1m]` em qualquer identificador, detecta `ANTHROPIC_BASE_URL` terminada em `/v1`, garante que os templates versionados não carreguem credencial real e avisa se o seu `~/.claude/settings.json` global foi contaminado com um modelo de terceiros.
 
 Para conferir a consistência entre os artigos e o repositório (JSON transcrito, imagens citadas, links e convenção de nomes), rode a partir da raiz:

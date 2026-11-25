@@ -4,7 +4,7 @@ import { db } from '../db/index.js';
 export function classificarCategoria(titulo = '', conteudo = '') {
   const texto = `${titulo} ${conteudo}`.toLowerCase();
 
-  if (/ai|artificial intelligence|llm|claude|openai|deepseek|machine learning|intelig[eê]ncia artificial|agente|gpt|transformer/i.test(texto)) {
+  if (/\b(?:ai|ia)\b|artificial intelligence|llm|claude|openai|deepseek|machine learning|intelig[eê]ncia artificial|agente|gpt|transformer/i.test(texto)) {
     return 'IA & Agentes';
   }
   if (/security|vulnerability|cve|auth|seguran[çc]a|malware|breach|exploit|crypto/i.test(texto)) {
@@ -46,19 +46,25 @@ export async function resumirArtigo(artigoId) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const baseUrl = process.env.ANTHROPIC_BASE_URL;
+  const token = process.env.ANTHROPIC_AUTH_TOKEN;
 
-  // Se houver chave ou base URL configurada (ex: 9Router na porta 20128)
-  if (apiKey || (baseUrl && baseUrl.includes('20128'))) {
+  // Sem credencial nem endpoint explícito, o laboratório funciona localmente.
+  if (apiKey || token || baseUrl) {
     try {
-      const response = await fetch(`${baseUrl || 'https://api.anthropic.com/v1'}/messages`, {
+      const base = new URL(baseUrl || 'https://api.anthropic.com');
+      const prefixo = base.pathname.replace(/\/+$/, '');
+      base.pathname = `${prefixo.endsWith('/v1') ? prefixo : `${prefixo}/v1`}/messages`;
+      const auth = token ? { Authorization: `Bearer ${token}` } : apiKey ? { 'x-api-key': apiKey } : {};
+      const response = await fetch(base, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey || 'local-claudegravity-token',
-          'anthropic-version': '2023-06-01'
+          'anthropic-version': '2023-06-01',
+          ...auth
         },
+        signal: AbortSignal.timeout(10000),
         body: JSON.stringify({
-          model: process.env.AI_MODEL || 'claude-3-5-sonnet-20241022',
+          model: process.env.AI_MODEL || 'claude-sonnet-5',
           max_tokens: 300,
           messages: [
             {

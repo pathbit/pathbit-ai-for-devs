@@ -15,6 +15,7 @@ import platform
 import argparse
 import stat
 import subprocess
+import tempfile
 from datetime import datetime
 
 WILDCARDS = [
@@ -283,13 +284,16 @@ def merge_allow_list(existing):
     ]
 
 def create_backup(paths, dry_run=False):
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_dir = os.path.join(paths["gemini_dir"], f"backup-permissoes-{ts}")
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    prefixo = f"backup-permissoes-{ts}-"
     if dry_run:
+        backup_dir = os.path.join(paths["gemini_dir"], prefixo + "<id>")
         print(f"[*] [DRY-RUN] Criaria backup em: {backup_dir}")
         return backup_dir
 
-    os.makedirs(os.path.join(backup_dir, "projects"), exist_ok=True)
+    os.makedirs(paths["gemini_dir"], exist_ok=True)
+    backup_dir = tempfile.mkdtemp(prefix=prefixo, dir=paths["gemini_dir"])
+    os.mkdir(os.path.join(backup_dir, "projects"))
     for p in [paths["config_json"], paths["cli_settings"], paths["trusted_folders"]]:
         if os.path.exists(p):
             fname = os.path.basename(p)

@@ -28,14 +28,16 @@ Artefatos gerados ficam em tmp/prova_no_fio/, nunca no diretório de código.
 
 import http.server
 import json
+import os
 import pathlib
 import shutil
-import socket
 import subprocess
 import sys
+import tempfile
 import threading
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
+TOKEN_SONDA = "sonda-local-sem-credenciais"
 
 # Pedir um modelo da Anthropic de propósito é o coração do teste: é assim que se
 # verifica que modelOverrides intercepta em vez de deixar passar.
@@ -48,7 +50,7 @@ SESSOES = [
 
 def cenarios():
     encontrados = []
-    for exemplo in sorted(RAIZ.glob("0*/examples/.claude/*.example")):
+    for exemplo in sorted(RAIZ.glob("0*/examples/.claude/settings.local.json*.example")):
         modulo = exemplo.parent.parent.parent
         rotulo = modulo.name[:4]
         variante = exemplo.name.replace("settings.local.json", "").replace(".example", "").strip(".")
@@ -57,69 +59,93 @@ def cenarios():
 
 
 class Sonda(http.server.BaseHTTPRequestHandler):
-    registro = None
-
     def log_message(self, *args):
         pass
 
-    def do_POST(self):
-        tamanho = int(self.headers.get("content-length", 0))
-        try:
-            corpo = json.loads(self.rfile.read(tamanho))
-        except Exception:
-            corpo = {}
-        Sonda.registro.append({
-            "model": corpo.get("model"),
-            "bearer": (self.headers.get("authorization") or "").startswith("Bearer "),
-            "x_api_key": bool(self.headers.get("x-api-key")),
-            "tools": [t.get("type") or t.get("name") for t in corpo.get("tools", []) if isinstance(t, dict)],
-        })
-        resposta = json.dumps({
-            "id": "msg_sonda", "type": "message", "role": "assistant",
-            "model": corpo.get("model", "?"),
-            "content": [{"type": "text", "text": "OK"}],
-            "stop_reason": "end_turn",
-            "usage": {"input_tokens": 1, "output_tokens": 1},
-        }).encode()
+    def responder(self, resposta, tipo="application/json"):
         self.send_response(200)
-        self.send_header("content-type", "application/json")
+        self.send_header("content-type", tipo)
         self.send_header("content-length", str(len(resposta)))
         self.end_headers()
         self.wfile.write(resposta)
 
+    def do_POST(self):
+        rota = self.path.split("?", 1)[0]
+        if rota == "/v1/messages/count_tokens":
+            self.responder(b'{"input_tokens":1}')
+            return
+        if rota != "/v1/messages":
+            self.send_error(404)
+            return
+        try:
+            corpo = json.loads(self.rfile.read(int(self.headers.get("content-length", 0))))
+        except (ValueError, TypeError):
+            self.send_error(400)
+            return
+        self.server.registro.append({
+            "model": corpo.get("model"),
+            "bearer": self.headers.get("authorization") == f"Bearer {TOKEN_SONDA}",
+            "x_api_key": bool(self.headers.get("x-api-key")),
+            "tools": [t.get("type") or t.get("name") for t in corpo.get("tools", []) if isinstance(t, dict)],
+        })
+        mensagem = {
+            "id": "msg_sonda", "type": "message", "role": "assistant",
+            "model": corpo.get("model", "?"),
+            "content": [{"type": "text", "text": "OK"}],
+            "stop_reason": "end_turn", "stop_sequence": None,
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+        if not corpo.get("stream"):
+            self.responder(json.dumps(mensagem).encode())
+            return
+        eventos = [
+            {"type": "message_start", "message": {**mensagem, "content": [], "stop_reason": None}},
+            {"type": "content_block_start", "index": 0, "content_block": {"type": "text", "text": ""}},
+            {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "OK"}},
+            {"type": "content_block_stop", "index": 0},
+            {"type": "message_delta", "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+             "usage": {"output_tokens": 1}},
+            {"type": "message_stop"},
+        ]
+        sse = "".join(f"event: {e['type']}\ndata: {json.dumps(e)}\n\n" for e in eventos)
+        self.responder(sse.encode(), "text/event-stream")
+
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(b'{"data":[]}')
-
-
-def porta_livre():
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+        self.responder(b'{"data":[]}')
 
 
 def executa(rotulo, template, destino):
-    Sonda.registro = []
-    porta = porta_livre()
-    servidor = http.server.HTTPServer(("127.0.0.1", porta), Sonda)
-    threading.Thread(target=servidor.serve_forever, daemon=True).start()
-
-    cfg = json.loads(template.read_text(encoding="utf-8"))
-    cfg.setdefault("env", {})["ANTHROPIC_BASE_URL"] = f"http://127.0.0.1:{porta}"
-    cfg["env"]["ANTHROPIC_AUTH_TOKEN"] = "sk-token-de-teste-da-sonda"
-    arquivo = destino / f"sonda_{rotulo.replace('/', '_')}.json"
-    arquivo.write_text(json.dumps(cfg, indent=4, ensure_ascii=False), encoding="utf-8")
-
-    cwd = template.parent.parent
-    for _, extra in SESSOES:
-        subprocess.run(
-            ["claude", "--settings", str(arquivo), "-p", "oi", "--max-turns", "1"] + extra,
-            cwd=cwd, capture_output=True, timeout=180,
-        )
-    servidor.shutdown()
-    return list(Sonda.registro)
+    resultados = []
+    with http.server.HTTPServer(("127.0.0.1", 0), Sonda) as servidor:
+        servidor.registro = []
+        thread = threading.Thread(target=servidor.serve_forever, daemon=True)
+        thread.start()
+        try:
+            cfg = json.loads(template.read_text(encoding="utf-8"))
+            cfg.setdefault("env", {})["ANTHROPIC_BASE_URL"] = f"http://127.0.0.1:{servidor.server_port}"
+            cfg["env"]["ANTHROPIC_AUTH_TOKEN"] = TOKEN_SONDA
+            arquivo = destino / f"sonda_{rotulo.replace('/', '_')}.json"
+            arquivo.write_text(json.dumps(cfg, indent=4, ensure_ascii=False), encoding="utf-8")
+            with tempfile.TemporaryDirectory(dir=destino) as workspace:
+                env = {k: os.environ[k] for k in ("PATH", "LANG", "LC_ALL", "SYSTEMROOT") if k in os.environ}
+                env["CLAUDE_CONFIG_DIR"] = workspace
+                env["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] = "1"
+                for sessao, extra in SESSOES:
+                    inicio = len(servidor.registro)
+                    try:
+                        processo = subprocess.run(
+                            ["claude", "--setting-sources", "", "--strict-mcp-config", "--settings", str(arquivo),
+                             "-p", "Responda OK.", "--max-turns", "1", *extra],
+                            cwd=workspace, env=env, capture_output=True, text=True, timeout=45,
+                        )
+                        status = str(processo.returncode)
+                    except subprocess.TimeoutExpired:
+                        status = "tempo limite atingido"
+                    resultados.append((sessao, status, servidor.registro[inicio:]))
+        finally:
+            servidor.shutdown()
+            thread.join()
+    return resultados
 
 
 def main():
@@ -138,10 +164,18 @@ def main():
 
     problemas = 0
     total = 0
-    for rotulo, template in cenarios():
-        if filtro and not rotulo.startswith(filtro):
-            continue
-        registro = executa(rotulo, template, destino)
+    selecionados = [(rotulo, template) for rotulo, template in cenarios() if not filtro or rotulo.startswith(filtro)]
+    if not selecionados:
+        print("[!] Nenhum cenário correspondente ao filtro.")
+        return 1
+    for rotulo, template in selecionados:
+        sessoes = executa(rotulo, template, destino)
+        registro = [req for _, _, pedidos in sessoes for req in pedidos]
+        for sessao, status, pedidos in sessoes:
+            print(f"\n{rotulo} · {sessao}: {len(pedidos)} requisição(ões) / saída {status}")
+            if status != "0" or not pedidos or any(not pedido["model"] for pedido in pedidos):
+                print("   A sessão precisa concluir com sucesso e enviar ao menos uma mensagem com modelo.")
+                problemas += 1
         total += len(registro)
         modelos = sorted({r["model"] for r in registro if r["model"]})
         antropicos = [m for m in modelos if m.startswith("claude-")]

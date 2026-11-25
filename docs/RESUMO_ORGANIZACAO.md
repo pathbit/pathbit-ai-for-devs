@@ -12,6 +12,8 @@ pathbit-ai-for-devs/
 ├── 0002_claude_gravity_utilizando_9router/              # Artigo 0002: ClaudeGravity e roteamento 9Router
 ├── 0003_fallback_modelos_gratuitos_9router/  # Artigo 0003: Arsenal multi-provedor e fallback
 ├── 0004_deepclaude_alternativa_ao_claudegravity/ # Artigo 0004: DeepSeek e OrcaRouter como alternativa ao ClaudeGravity
+├── 0005_sdd_do_vibe_coding_a_engenharia_deterministica/ # Artigo 0005
+├── 0006_gate_de_release_de_contratos/         # Artigo 0006
 ├── docs/                                     # Documentação técnica e padrões de engenharia
 ├── README.md                                 # Índice executivo do repositório
 ├── .editorconfig                             # Padronização de indentação e charset

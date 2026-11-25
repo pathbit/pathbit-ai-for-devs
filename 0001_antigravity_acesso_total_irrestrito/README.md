@@ -134,7 +134,7 @@ python3 src/setup_permissions.py --dry-run
 
 #### 3. Aplicação Automática com Backup Prévio
 
-Execute o configurador. Um backup com timestamp de todos os seus arquivos originais será criado automaticamente em `~/.gemini/backup-permissoes-<timestamp>/`:
+Execute o configurador em um perfil de laboratório. Os arquivos originais existentes são copiados para um diretório exclusivo em `~/.gemini/backup-permissoes-<timestamp>-<id>/`. Uma segunda execução no mesmo instante preserva o primeiro backup.
 
 ```bash
 python3 src/setup_permissions.py

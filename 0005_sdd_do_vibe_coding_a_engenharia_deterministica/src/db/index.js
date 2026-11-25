@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import 'dotenv/config';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -6,7 +7,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../data/noticias.db');
+const dbPath = process.env.NODE_ENV === 'test'
+  ? ':memory:'
+  : process.env.DATABASE_PATH || path.resolve(__dirname, '../../data/noticias.db');
 
 // Garante que o diretório pai do banco exista
 const dbDir = path.dirname(dbPath);

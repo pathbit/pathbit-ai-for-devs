@@ -164,6 +164,11 @@ cp examples/.claude/settings.local.json.example examples/.claude/settings.local.
 > `examples/` e inicie com `claude --settings .claude/settings.local.json`: a flag aplica o arquivo antes do
 > assistente de primeiro uso, que de outro modo pede login na Anthropic. Nas sessões seguintes basta `claude`.
 
+Abra o painel do 9Router com a senha `INITIAL_PASSWORD` definida no `.env`.
+Confira o estado em `/api/auth/status` e a exigência de chave em **Endpoint & Key**.
+Em Docker, use a chave local do 9Router para chamadas ao endpoint de inferência.
+O catálogo de modelos por si só não comprova uma conexão ativa com o provedor.
+
 #### 3. Gerenciamento do Ciclo de Vida do Ambiente (Criar e Destruir)
 
 ##### Opção A (Via Utilitário Python de Ciclo de Vida)
@@ -194,9 +199,11 @@ python3 src/manage_env.py destroy
 # do Ollama sobrevivem ao ciclo.
 docker compose up -d
 
-# Verificar se os containers estao saudaveis e ativos (os TRES, nao dois:
-# o sidecar chama-se router-sync e o filtro por nome o esconderia)
+# Verificar o roteador e o sidecar router-sync
 docker compose ps --format 'table {{.Name}}\t{{.Status}}'
+
+# Verificar o endpoint HTTP do gateway sem precisar de chave de inferência
+python3 src/test_gateway.py --somente-saude
 
 # Inspecionar os logs do guardiao de tokens e conexoes
 docker logs -f router-sync
@@ -271,7 +278,7 @@ Por padrão, as portas estão presas em `127.0.0.1`. Para acessar o 9Router remo
     ```bash
     docker compose --profile tailnet up -d
     ```
-  - O gateway ficará acessível via MagicDNS em `http://claudegravity-9router:20128` ou pelo IP da Tailscale (`100.x.y.z:20128`).
+  - Com MagicDNS e HTTPS habilitados na tailnet, abra o endereço HTTPS exibido por `docker compose exec claudegravity-tailnet tailscale serve status`. O perfil usa Serve restrito à tailnet.
   - Você também pode clicar no botão **Tailscale** no painel do 9Router ou instalar direto no host (`curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`).
 
 #### 7. Otimização de Tokens com Headroom e Caveman
@@ -282,9 +289,10 @@ Durante loops extensos de desenvolvimento com Claude Code ou Cursor, agentes con
   - Middleware proxy que intercepta arquivos, git diffs e logs, compactando o payload sem perder semântica.
   - Suba o container integrado via perfil:
     ```bash
+    # Defina HEADROOM_PROXY_TOKEN no .env antes de iniciar este perfil
     docker compose --profile headroom up -d
     ```
-  - Aponte suas ferramentas para `http://127.0.0.1:8787/v1` em vez da porta do 9Router. O Headroom comprime o contexto e repassa automaticamente para o 9Router na porta `20128`.
+  - Use `http://127.0.0.1:8787` no Claude Code ou `http://127.0.0.1:8787/v1` em clientes OpenAI. Envie o token do Headroom no cabeçalho `X-Headroom-Proxy-Token` e mantenha a chave do 9Router como credencial de inferência. No Claude Code, o cabeçalho extra pode ser definido com `ANTHROPIC_CUSTOM_HEADERS`.
 * **Caveman (Economia de Saída / Output):**
   - Skill / instrução de prompt que força o Claude Code a falar de forma ultra-concisa ("modo homem das cavernas / direto ao ponto"), eliminando rodeios conversacionais e economizando de 30% a 60% de tokens de saída.
   - Configure nas instruções do agente ou no `.claude/settings.local.json`.
@@ -317,6 +325,8 @@ python3 src/claudegravity.py --list-models
 #### Opção B (Execução manual via Terminal)
 
 > A chave é gerada localmente na primeira execução de `src/sync_antigravity_token.py` e gravada no `.env` do módulo (não versionado). Substitua o placeholder abaixo pelo valor que o script imprimir.
+
+Ao renovar a conexão Antigravity, o script grava também o novo refresh token quando o provedor o rotaciona. O login e as outras preferências do gateway continuam sob o controle da configuração do 9Router.
 
 ```bash
 # macOS e Linux (bash / zsh)

@@ -7,6 +7,7 @@ inferência direta com Gemini 3.8 e teste de resiliência do combo de fallback.
 ==============================================================================
 """
 
+import argparse
 import json
 import os
 import sys
@@ -49,29 +50,30 @@ def load_dotenv():
 
 load_dotenv()
 
-ENDPOINT = os.environ.get("ANTHROPIC_BASE_URL", "http://localhost:20128")
-API_KEY = require_api_key()
+ENDPOINT = (os.environ.get("ANTHROPIC_BASE_URL") or "http://localhost:20128").rstrip("/").removesuffix("/v1")
 
 
 def test_endpoint():
     print(f"🔍 [1/4] Verificando disponibilidade do gateway 9Router em {ENDPOINT}...")
     try:
-        req = urllib.request.Request(f"{ENDPOINT}/dashboard")
+        req = urllib.request.Request(f"{ENDPOINT}/api/auth/status")
         with urllib.request.urlopen(req, timeout=5) as response:
-            if response.status in (200, 301, 302):
+            if response.status == 200 and isinstance(json.load(response).get("requireLogin"), bool):
                 print(f"✅ Gateway 9Router está online e respondendo (HTTP {response.status})!")
                 return True
+            print("❌ Endpoint de saúde não retornou o estado de autenticação esperado.")
+            return False
     except Exception as e:
         print(f"❌ Erro ao conectar ao 9Router em {ENDPOINT}: {e}")
         return False
 
 
-def test_models():
+def test_models(api_key):
     print(f"\n🔍 [2/4] Listando modelos Antigravity registrados...")
     try:
         req = urllib.request.Request(
             f"{ENDPOINT}/v1/models",
-            headers={"Authorization": f"Bearer {API_KEY}"}
+            headers={"Authorization": f"Bearer {api_key}"}
         )
         with urllib.request.urlopen(req, timeout=5) as response:
             data = json.loads(response.read().decode("utf-8"))
@@ -94,7 +96,29 @@ def test_models():
         return False
 
 
-def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3/4] Testando chamada direta ao Gemini 3.8"):
+def extrair_texto(resposta):
+    try:
+        dados = json.loads(resposta)
+    except json.JSONDecodeError:
+        dados = None
+    if isinstance(dados, dict):
+        return "".join(bloco.get("text", "") for bloco in dados.get("content", []) if bloco.get("type") == "text").strip()
+
+    partes = []
+    for linha in resposta.splitlines():
+        if not linha.startswith("data:") or linha[5:].strip() == "[DONE]":
+            continue
+        try:
+            evento = json.loads(linha[5:])
+        except json.JSONDecodeError:
+            continue
+        if evento.get("type") == "error":
+            return ""
+        partes.append(evento.get("delta", {}).get("text", ""))
+    return "".join(partes).strip()
+
+
+def test_inference(api_key, model: str, step_name: str):
     print(f"\n🔍 {step_name} ({model})...")
     payload = json.dumps({
         "model": model,
@@ -110,7 +134,8 @@ def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3
             data=payload,
             headers={
                 "Content-Type": "application/json",
-                "x-api-key": API_KEY
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01"
             }
         )
         t0 = time.time()
@@ -119,18 +144,7 @@ def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3
             raw_body = response.read().decode("utf-8")
             print(f"✅ Status HTTP {response.status} recebido em {elapsed:.2f}s!")
 
-            extracted = []
-            for line in raw_body.split("\n"):
-                if line.startswith("data: ") and not line.endswith("[DONE]"):
-                    try:
-                        chunk = json.loads(line[6:])
-                        delta = chunk.get("delta", {})
-                        if "text" in delta:
-                            extracted.append(delta["text"])
-                    except Exception:
-                        pass
-
-            content = "".join(extracted).strip()
+            content = extrair_texto(raw_body)
             if not content:
                 print("❌ Resposta sem bloco de texto: o modelo respondeu vazio.")
                 return False
@@ -158,14 +172,20 @@ def test_inference(model: str = "ag/gemini-3.8-flash-high", step_name: str = "[3
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--somente-saude", action="store_true", help="Consulta a saúde do gateway sem chave ou inferência.")
+    args = parser.parse_args()
     print("=" * 70)
     print("🧪 TESTE DE INTEGRACAO CLAUDEGRAVITY & GATEWAY 9ROUTER")
     print("=" * 70)
 
     t1 = test_endpoint()
-    t2 = test_models()
-    t3 = test_inference("ag/gemini-3.8-flash-high", "[3/4] Testando ClaudeGravity Principal (ag/gemini-3.8-flash-high direto via Antigravity Pro)")
-    t4 = test_inference("claudegravity-fallback", "[4/4] Testando ClaudeGravity Resiliente com Fallback Free (claudegravity-fallback)")
+    if not t1 or args.somente_saude:
+        sys.exit(0 if t1 else 1)
+    api_key = require_api_key()
+    t2 = test_models(api_key)
+    t3 = test_inference(api_key, "ag/gemini-3.8-flash-high", "[3/4] Testando ClaudeGravity Principal (ag/gemini-3.8-flash-high direto via Antigravity Pro)")
+    t4 = test_inference(api_key, "claudegravity-fallback", "[4/4] Testando ClaudeGravity Resiliente com Fallback Free (claudegravity-fallback)")
 
     print("\n" + "=" * 70)
     if all([t1, t2, t3, t4]):

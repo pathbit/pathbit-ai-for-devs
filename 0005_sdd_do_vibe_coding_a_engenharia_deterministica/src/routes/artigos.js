@@ -6,13 +6,18 @@ export const router = Router();
 
 // GET /artigos - Lista artigos com filtros (Spec 01, 04)
 router.get('/', (req, res) => {
-  const { categoria, fonte, busca, limit, offset } = req.query;
+  const { categoria, fonte, busca, favoritos, limit = '50', offset = '0' } = req.query;
+  if (typeof limit !== 'string' || !/^\d+$/.test(limit) || !Number.isSafeInteger(Number(limit)) || Number(limit) < 1
+      || typeof offset !== 'string' || !/^\d+$/.test(offset) || !Number.isSafeInteger(Number(offset))) {
+    return res.status(422).json({ erro: 'Use limit maior que zero e offset maior ou igual a zero.' });
+  }
   const artigos = listarArtigos({
     categoria,
     fonte,
     busca,
-    limit: limit ? Number(limit) : 50,
-    offset: offset ? Number(offset) : 0
+    apenasFavoritos: favoritos === 'true',
+    limit: Number(limit),
+    offset: Number(offset)
   });
   res.json(artigos);
 });

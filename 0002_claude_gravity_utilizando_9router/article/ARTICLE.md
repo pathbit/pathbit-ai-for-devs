@@ -99,8 +99,8 @@ services:
       # Credenciais lidas do arquivo .env local
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no arquivo .env}
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
-      - REQUIRE_API_KEY=false
-      - REQUIRE_LOGIN=false
+      - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
+      - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
     command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]

@@ -614,3 +614,7 @@ Quando o custo de produzir código colapsa, a habilidade mais valiosa de um dese
 Repositório oficial no GitHub no endereço https://github.com/pathbit/pathbit-ai-for-devs no módulo 0005_sdd_do_vibe_coding_a_engenharia_deterministica.
 
 #InteligenciaArtificial #SpecDrivenDevelopment #SDD #ClaudeCode #EngenhariaDeSoftware #VibeCoding #SoftwareArchitecture #Pathbit
+
+## Próximo artigo
+
+O [artigo 0006](../../0006_gate_de_release_de_contratos/article/ARTICLE.md) verifica os critérios de aceite deste Agregador com um gate de release executável.

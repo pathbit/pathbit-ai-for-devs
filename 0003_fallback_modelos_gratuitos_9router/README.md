@@ -149,7 +149,17 @@ Antes de iniciar a configuração da cascata e dos combos de fallback, garanta o
    docker exec claudegravity-ollama ollama cp qwen2.5-coder:0.5b qwen2.5-coder:latest
    ```
 
-   São 397 MB. O segundo comando não é opcional: a cascata referencia `qwen2.5-coder:latest`, e sem ele o provisionamento acusa modelo ausente. Repita após cada destruição do ambiente, porque o modelo vive no volume do container.
+   O script consulta os modelos pelo endereço do host em `OLLAMA_BASE_URL`.
+   O 9Router usa `OLLAMA_ROUTER_BASE_URL` e, por padrão, alcança o Ollama pelo DNS interno do Compose.
+
+   Após provisionar a stack e definir a chave local do 9Router em `ANTHROPIC_API_KEY`, valide a rota local com:
+
+   ```bash
+   python3 src/setup_combos.py
+   python3 src/test_arsenal.py --combo arsenal-offline
+   ```
+
+   O download do modelo leve tem cerca de 397 MB. O segundo comando não é opcional: a cascata referencia `qwen2.5-coder:latest`, e sem ele o provisionamento acusa modelo ausente. Repita após cada destruição do ambiente, porque o modelo vive no volume do container.
 
 ### 2. Preparar Arquivos de Configuração
 
@@ -313,7 +323,7 @@ Por padrão, o 9Router está vinculado ao loopback (`127.0.0.1:20128`) para prot
   ```bash
   docker compose --profile tailnet up -d
   ```
-  Acesse via MagicDNS em `http://claudegravity-9router:20128` ou pelo IP Tailscale (`100.x.y.z:20128`). Também disponível pelo botão **Tailscale** no painel do 9Router.
+  Com MagicDNS e HTTPS habilitados na tailnet, abra o endereço HTTPS exibido por `docker compose exec claudegravity-tailnet tailscale serve status`. O perfil usa Serve restrito à tailnet.
 
 ### 9. Otimização de Tokens com Headroom e Caveman
 
@@ -323,9 +333,10 @@ Para estender a duração das cotas gratuitas e evitar limites de taxa durante s
   - Proxy local que analisa os prompts e ferramentas do agente, comprimindo logs, git diffs e saídas de terminal antes de passá-los ao 9Router.
   - Suba o container integrado:
     ```bash
+    # Defina HEADROOM_PROXY_TOKEN no .env antes de iniciar este perfil
     docker compose --profile headroom up -d
     ```
-  - Aponte suas ferramentas para `http://127.0.0.1:8787/v1`. O Headroom comprime o contexto de entrada e repassa ao 9Router na porta `20128`.
+  - Use `http://127.0.0.1:8787` no Claude Code ou `http://127.0.0.1:8787/v1` em clientes OpenAI. Envie o token do Headroom no cabeçalho `X-Headroom-Proxy-Token` e mantenha a chave do 9Router como credencial de inferência. No Claude Code, o cabeçalho extra pode ser definido com `ANTHROPIC_CUSTOM_HEADERS`.
 * **Caveman (Modo Conciso de Saída / Output):**
   - Adaptação de comportamento / skill para Claude Code ou Cursor que instrui o agente a responder de forma ultra-direta e compacta ("modo homem das cavernas"), reduzindo em até 60% os tokens gerados em explicações prolixas.
 

@@ -232,3 +232,7 @@ Todos os códigos-fonte, exemplos práticos, modelos de `CLAUDE.md` e comandos c
 ---
 
 #InteligenciaArtificial #SpecDrivenDevelopment #SDD #ClaudeCode #EngenhariaDeSoftware #VibeCoding #SoftwareArchitecture #Pathbit
+
+## Próximo artigo
+
+O [artigo 0006](../../0006_gate_de_release_de_contratos/article/ARTICLE.md) verifica os critérios de aceite deste Agregador com um gate de release executável.

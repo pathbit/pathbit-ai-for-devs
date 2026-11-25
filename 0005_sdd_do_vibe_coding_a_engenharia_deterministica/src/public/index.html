@@ -215,6 +215,11 @@
       margin-bottom: 0.3rem;
     }
 
+    a.digest-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .digest-item-meta {
       font-size: 0.75rem;
       color: var(--color-muted);
@@ -661,6 +666,33 @@
     let categoriaAtual = 'Todos';
     let buscaAtual = '';
     let apenasFavoritos = false;
+    const entidadesHtml = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+    function escaparHtml(valor) {
+      return String(valor).replace(/[&<>"']/g, caractere => entidadesHtml[caractere]);
+    }
+
+    function tituloComLink(titulo, destino, classe) {
+      const texto = escaparHtml(titulo);
+      try {
+        const url = new URL(destino);
+        if (url.protocol === 'https:' || url.protocol === 'http:') {
+          return `<a class="${classe}" href="${escaparHtml(url.href)}" target="_blank" rel="noopener noreferrer">${texto}</a>`;
+        }
+      } catch {
+        // O título ainda é legível quando o feed não fornece um endereço válido.
+      }
+      return `<span class="${classe}">${texto}</span>`;
+    }
+
+    async function requisitarJson(url, opcoes) {
+      const resposta = await fetch(url, opcoes);
+      const dados = await resposta.json();
+      if (!resposta.ok) {
+        throw new Error(dados.erro || `HTTP ${resposta.status}`);
+      }
+      return dados;
+    }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -681,21 +713,19 @@
     // Carregar Artigos
     async function carregarArtigos() {
       const grid = document.getElementById('articlesGrid');
-      let url = '/artigos?limit=60';
+      const filtros = new URLSearchParams({ limit: '60' });
       if (categoriaAtual && categoriaAtual !== 'Todos') {
-        url += `&categoria=${encodeURIComponent(categoriaAtual)}`;
+        filtros.set('categoria', categoriaAtual);
       }
       if (buscaAtual) {
-        url += `&busca=${encodeURIComponent(buscaAtual)}`;
+        filtros.set('busca', buscaAtual);
+      }
+      if (apenasFavoritos) {
+        filtros.set('favoritos', 'true');
       }
 
       try {
-        const res = await fetch(url);
-        let artigos = await res.json();
-
-        if (apenasFavoritos) {
-          artigos = artigos.filter(a => a.favorito === 1);
-        }
+        const artigos = await requisitarJson(`/artigos?${filtros}`);
 
         if (artigos.length === 0) {
           grid.innerHTML = `
@@ -711,20 +741,20 @@
           <div class="article-card" id="card-${a.id}">
             <div>
               <div class="article-meta-top">
-                <span class="cat-tag">${a.categoria || 'Geral'}</span>
+                <span class="cat-tag">${escaparHtml(a.categoria || 'Geral')}</span>
                 <button class="btn-fav ${a.favorito ? 'active' : ''}" onclick="toggleFavorito(${a.id}, ${a.favorito ? 0 : 1})" title="${a.favorito ? 'Remover dos favoritos' : 'Favoritar'}">
                   ${a.favorito ? '★' : '☆'}
                 </button>
               </div>
-              <a href="${a.link}" target="_blank" rel="noopener noreferrer" class="article-title">${a.titulo}</a>
-              <p class="article-excerpt">${a.conteudo || 'Sem descrição detalhada disponível.'}</p>
+              ${tituloComLink(a.titulo, a.link, 'article-title')}
+              <p class="article-excerpt">${escaparHtml(a.conteudo || 'Sem descrição detalhada disponível.')}</p>
             </div>
 
             <div>
               ${a.resumo ? `
                 <div class="ai-summary-box">
-                  <div class="ai-summary-header">✨ Resumo por Inteligência Artificial</div>
-                  <div class="ai-summary-text">${a.resumo}</div>
+                  <div class="ai-summary-header">✨ Resumo do artigo</div>
+                  <div class="ai-summary-text">${escaparHtml(a.resumo)}</div>
                 </div>
               ` : `
                 <div style="margin-bottom: 0.8rem;">
@@ -733,23 +763,22 @@
               `}
 
               <div class="article-footer">
-                <span>${a.fonte || 'RSS Feed'}</span>
-                <span>${a.data_publicacao || 'Hoje'}</span>
+                <span>${escaparHtml(a.fonte || 'RSS Feed')}</span>
+                <span>${escaparHtml(a.data_publicacao || 'Hoje')}</span>
               </div>
             </div>
           </div>
         `).join('');
 
       } catch (err) {
-        grid.innerHTML = `<p style="color:red;">Erro ao carregar artigos: ${err.message}</p>`;
+        grid.innerHTML = `<p style="color:red;">Erro ao carregar artigos: ${escaparHtml(err.message)}</p>`;
       }
     }
 
     // Carregar Estatísticas e Digest
     async function carregarDigestEEstatisticas() {
       try {
-        const res = await fetch('/digest/hoje');
-        const data = await res.json();
+        const data = await requisitarJson('/digest/hoje');
 
         document.getElementById('statTotalArtigos').innerText = data.estatisticas.totalArtigosBanco || 0;
         document.getElementById('statTotalResumos').innerText = data.estatisticas.totalResumidos || 0;
@@ -763,8 +792,8 @@
         if (data.destaques && data.destaques.length > 0) {
           digestList.innerHTML = data.destaques.map(d => `
             <div class="digest-item">
-              <div class="digest-item-title"><a href="${d.link}" target="_blank" style="text-decoration:none; color:inherit;">${d.titulo}</a></div>
-              <div class="digest-item-meta">${d.fonte} · ${d.categoria}</div>
+              <div class="digest-item-title">${tituloComLink(d.titulo, d.link, 'digest-link')}</div>
+              <div class="digest-item-meta">${escaparHtml(d.fonte)} · ${escaparHtml(d.categoria)}</div>
             </div>
           `).join('');
         } else {
@@ -780,14 +809,7 @@
       btn.disabled = true;
       btn.innerText = 'Processando IA...';
       try {
-        const res = await fetch(`/artigos/${id}/resumir`, { method: 'POST' });
-        const data = await res.json();
-        if (data.erro) {
-          showToast(`Erro: ${data.erro}`);
-          btn.disabled = false;
-          btn.innerText = '✨ Resumir com IA';
-          return;
-        }
+        const data = await requisitarJson(`/artigos/${id}/resumir`, { method: 'POST' });
         showToast(data.cached ? 'Resumo recuperado do cache!' : 'Resumo gerado com sucesso!');
         await carregarArtigos();
         await carregarDigestEEstatisticas();
@@ -802,7 +824,7 @@
     async function toggleFavorito(id, novoStatus) {
       try {
         const metodo = novoStatus === 1 ? 'POST' : 'DELETE';
-        await fetch(`/artigos/${id}/favoritar`, { method: metodo });
+        await requisitarJson(`/artigos/${id}/favoritar`, { method: metodo });
         await carregarArtigos();
         await carregarDigestEEstatisticas();
         showToast(novoStatus === 1 ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
@@ -822,20 +844,15 @@
       btn.innerText = 'Importando...';
 
       try {
-        const res = await fetch('/feeds/importar', {
+        const data = await requisitarJson('/feeds/importar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
         });
-        const data = await res.json();
-        if (data.erro) {
-          showToast(`Erro: ${data.erro}`);
-        } else {
-          showToast(`Sucesso! ${data.importados} novos artigos importados.`);
-          fecharModal();
-          await carregarArtigos();
-          await carregarDigestEEstatisticas();
-        }
+        showToast(`Sucesso! ${data.importados} novos artigos importados.`);
+        fecharModal();
+        await carregarArtigos();
+        await carregarDigestEEstatisticas();
       } catch (e) {
         showToast(`Erro: ${e.message}`);
       } finally {
@@ -850,9 +867,9 @@
       btn.disabled = true;
       btn.innerText = 'Atualizando...';
       try {
-        const res = await fetch('/fontes/atualizar-todas', { method: 'POST' });
-        const data = await res.json();
-        showToast(`Fontes sincronizadas! ${data.totalImportados} novos artigos.`);
+        const data = await requisitarJson('/fontes/atualizar-todas', { method: 'POST' });
+        const falhas = data.detalhes.filter(fonte => fonte.erro).length;
+        showToast(`${data.totalImportados} novos artigos.${falhas ? ` ${falhas} fonte(s) com falha.` : ' Fontes sincronizadas.'}`);
         await carregarArtigos();
         await carregarDigestEEstatisticas();
       } catch (e) {
@@ -871,19 +888,18 @@
       list.innerHTML = '<p>Carregando fontes...</p>';
 
       try {
-        const res = await fetch('/fontes');
-        const fontes = await res.json();
+        const fontes = await requisitarJson('/fontes');
         list.innerHTML = fontes.map(f => `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.8rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
             <div>
-              <div style="font-weight:600; font-size:0.88rem;">${f.nome}</div>
-              <div style="font-size:0.75rem; color:var(--color-muted); font-family:var(--font-mono);">${f.url}</div>
+              <div style="font-weight:600; font-size:0.88rem;">${escaparHtml(f.nome)}</div>
+              <div style="font-size:0.75rem; color:var(--color-muted); font-family:var(--font-mono);">${escaparHtml(f.url)}</div>
             </div>
             <button class="btn" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="atualizarFonteEspecifica(${f.id}, this)">Sincronizar</button>
           </div>
         `).join('');
       } catch (e) {
-        list.innerHTML = `<p style="color:red;">Erro: ${e.message}</p>`;
+        list.innerHTML = `<p style="color:red;">Erro: ${escaparHtml(e.message)}</p>`;
       }
     });
 
@@ -891,8 +907,7 @@
       btn.disabled = true;
       btn.innerText = '...';
       try {
-        const res = await fetch(`/fontes/${id}/atualizar`, { method: 'POST' });
-        const data = await res.json();
+        const data = await requisitarJson(`/fontes/${id}/atualizar`, { method: 'POST' });
         showToast(`Fonte atualizada: ${data.importados} novos artigos.`);
         await carregarArtigos();
         await carregarDigestEEstatisticas();

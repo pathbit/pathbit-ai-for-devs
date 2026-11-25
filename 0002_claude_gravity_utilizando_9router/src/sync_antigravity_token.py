@@ -135,7 +135,7 @@ def refresh_access_token(refresh_token, container_name=DEFAULT_CONTAINER):
     req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data)
     with urllib.request.urlopen(req, timeout=10) as resp:
         res = json.loads(resp.read().decode("utf-8"))
-        return res["access_token"], res.get("expires_in", 3600)
+        return res["access_token"], res.get("expires_in", 3600), res.get("refresh_token") or refresh_token
 
 
 def wait_for_gateway(url="http://localhost:20128/api/auth/status", timeout=15):
@@ -164,7 +164,7 @@ def sync_to_container(container_name=DEFAULT_CONTAINER):
     print(f"[*] Credencial detectada em: {token_file}")
     refresh_failed = False
     try:
-        new_access_token, expires_in = refresh_access_token(refresh_token, container_name)
+        new_access_token, expires_in, refresh_token = refresh_access_token(refresh_token, container_name)
         print(f"[+] Access token renovado com sucesso (validade: {expires_in}s)")
     except Exception as e:
         # A renovação falhou: o token local provavelmente já expirou, e injetá-lo
@@ -201,12 +201,7 @@ def sync_to_container(container_name=DEFAULT_CONTAINER):
 const db = require('/app/node_modules/better-sqlite3')('/app/data/db/data.sqlite');
 const now = new Date().toISOString();
 
-// 1. Settings (disable login requirement)
-try {{
-  db.prepare("INSERT OR REPLACE INTO settings (id, data) VALUES (1, ?)").run(JSON.stringify({{ requireLogin: false }}));
-}} catch (e) {{}}
-
-// 2. Chave de API desta instalacao (recebida por argumento, nunca fixa no codigo)
+// 1. Chave de API desta instalacao (recebida por argumento, nunca fixa no codigo)
 const apiKey = process.argv[1];
 try {{
   const keyExists = db.prepare("SELECT id FROM apiKeys WHERE key = ?").get(apiKey);
@@ -216,7 +211,7 @@ try {{
   }}
 }} catch (e) {{}}
 
-// 3. Provider Connection for Antigravity
+// 2. Provider Connection for Antigravity
 // Credenciais recebidas por argumento: nunca interpoladas no corpo do script,
 // para que aspas ou barras no token nao quebrem nem injetem codigo.
 const connData = {{
@@ -240,7 +235,7 @@ if (existing) {{
     .run(id, JSON.stringify(connData), now, now);
 }}
 
-// 4. Default claudegravity-fallback e claudegravity-thinking combos
+// 3. Default claudegravity-fallback e claudegravity-thinking combos
 try {{
   const stmtCombo = db.prepare("INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)");
   const fallbackModels = JSON.stringify([

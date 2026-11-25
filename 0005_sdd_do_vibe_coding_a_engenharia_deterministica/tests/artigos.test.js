@@ -14,6 +14,10 @@ describe('Suíte de Testes SDD: Agregador de Notícias', () => {
   let testArtigoId;
 
   before(async () => {
+    // O teste de cache exercita o fallback sem credenciais ou rede externa.
+    for (const nome of ['ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_BASE_URL']) {
+      delete process.env[nome];
+    }
     // Insere artigo de teste
     const stmt = db.prepare(`
       INSERT OR REPLACE INTO artigo (id, titulo, link, data_publicacao, fonte, conteudo, categoria, favorito)

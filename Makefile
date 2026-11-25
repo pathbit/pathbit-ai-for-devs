@@ -1,4 +1,4 @@
-.PHONY: setup test test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
+.PHONY: setup test test-app test-gate test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
@@ -16,23 +16,23 @@ test-unit: valida-docs valida-consistencia
 	$(PYTHON) 0001_antigravity_acesso_total_irrestrito/src/test_permissions.py
 	$(PYTHON) tools/test_architecture_and_sizing.py
 
-# Executa todos os testes de integracao via container Docker (zero dependencias no host alem do Docker)
-test: test-unit test-container
+# Suíte completa com Node, Python e um gateway provisionado para a integração.
+test: test-unit test-app test-gate test-container
+
+test-app:
+	npm --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica test
+
+test-gate:
+	$(PYTHON) 0006_gate_de_release_de_contratos/src/verificar_release.py
 
 test-container:
 	./tools/run_tests.sh
 
 test-gateway:
-	docker run --rm --network claudegravity_default -v "$$(pwd)":/app -w /app \
-	  -e ROUTER_URL=http://claudegravity-router:20128 \
-	  -e ANTHROPIC_BASE_URL=http://claudegravity-router:20128 \
-	  python:3.14-alpine python3 0002_claude_gravity_utilizando_9router/src/test_gateway.py
+	./tools/run_tests.sh 0002
 
 test-arsenal:
-	docker run --rm --network claudegravity_default -v "$$(pwd)":/app -w /app \
-	  -e ROUTER_URL=http://claudegravity-router:20128 \
-	  -e ANTHROPIC_BASE_URL=http://claudegravity-router:20128 \
-	  python:3.14-alpine python3 0003_fallback_modelos_gratuitos_9router/src/test_arsenal.py
+	./tools/run_tests.sh 0003
 
 # Confere que os composes dos artigos batem com os projetos RTK: imagem, porta
 # interna publicada e variaveis de ambiente. Um artigo publicado que manda o

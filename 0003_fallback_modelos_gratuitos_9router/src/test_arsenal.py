@@ -5,6 +5,7 @@ combo cujo primeiro nível responde é aprovado mesmo com os níveis seguintes
 mortos, e a rede de segurança só é descoberta quebrada quando já é tarde.
 """
 
+import argparse
 import json
 import os
 import sys
@@ -65,11 +66,6 @@ def load_dotenv():
             pass
 
 
-load_dotenv()
-BASE_URL = os.environ.get("ANTHROPIC_BASE_URL", "http://localhost:20128")
-API_KEY = require_api_key()
-
-
 def extract_response(raw):
     """Extrai (texto, caracteres_de_raciocínio, erro) de resposta JSON ou SSE.
 
@@ -113,7 +109,7 @@ def extract_response(raw):
     return "".join(chunks), thinking, error
 
 
-def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=35):
+def probe(model, base_url, api_key, prompt="Responda estritamente PONG", max_tokens=400, timeout=35):
     """Dispara uma inferência e devolve (sucesso, latência, detalhe)."""
     payload = json.dumps({
         "model": model,
@@ -121,11 +117,11 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=35
         "max_tokens": max_tokens
     }).encode("utf-8")
     request = urllib.request.Request(
-        f"{BASE_URL}/v1/messages",
+        f"{base_url}/v1/messages",
         data=payload,
         headers={
             "Content-Type": "application/json",
-            "x-api-key": API_KEY,
+            "x-api-key": api_key,
             "anthropic-version": "2023-06-01"
         },
     )
@@ -152,12 +148,12 @@ def probe(model, prompt="Responda estritamente PONG", max_tokens=400, timeout=35
         return False, time.time() - started, f"{type(e).__name__}: {str(e)[:80]}"
 
 
-def test_cascade(combo_name, models):
+def test_cascade(combo_name, models, base_url, api_key):
     """Testa cada nível da cascata isoladamente. Devolve a lista de níveis quebrados."""
     print(f"[*] Cascata de '{combo_name}' - {len(models)} nível(is):", flush=True)
     broken = []
     for position, model in enumerate(models, start=1):
-        ok, elapsed, detail = probe(model)
+        ok, elapsed, detail = probe(model, base_url, api_key)
         status = "OK   " if ok else "FALHA"
         print(f"  [{status}] {position}º {model} - {elapsed:.2f}s · {detail}", flush=True)
         if not ok:
@@ -165,26 +161,33 @@ def test_cascade(combo_name, models):
     return broken
 
 
-def test_combo(combo_name):
+def test_combo(combo_name, base_url, api_key):
     """Testa o combo como um todo, do jeito que o Claude Code o consome."""
-    ok, elapsed, detail = probe(combo_name)
+    ok, elapsed, detail = probe(combo_name, base_url, api_key)
     status = "OK   " if ok else "FALHA"
     print(f"  [{status}] combo '{combo_name}' - {elapsed:.2f}s · {detail}", flush=True)
     return ok
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--combo", choices=COMBOS, help="Valida só o combo informado e seus níveis.")
+    args = parser.parse_args()
+    combos = {args.combo: COMBOS[args.combo]} if args.combo else COMBOS
+    load_dotenv()
+    base_url = os.environ.get("ANTHROPIC_BASE_URL", "http://localhost:20128").rstrip("/").removesuffix("/v1")
+    api_key = require_api_key()
     print("=== Validador do Arsenal de Fallback do 9Router ===")
-    print(f"    Gateway: {BASE_URL}\n")
+    print(f"    Gateway: {base_url}\n")
 
     broken_by_combo = {}
     failed_combos = []
 
-    for combo_name, models in COMBOS.items():
-        broken = test_cascade(combo_name, models)
+    for combo_name, models in combos.items():
+        broken = test_cascade(combo_name, models, base_url, api_key)
         if broken:
             broken_by_combo[combo_name] = broken
-        if not test_combo(combo_name):
+        if not test_combo(combo_name, base_url, api_key):
             failed_combos.append(combo_name)
         print()
 
@@ -192,10 +195,10 @@ def main():
     print("RESUMO")
     print("=" * 70)
 
-    total_levels = sum(len(m) for m in COMBOS.values())
+    total_levels = sum(len(m) for m in combos.values())
     total_broken = sum(len(b) for b in broken_by_combo.values())
     print(f"  Níveis testados: {total_levels} · quebrados: {total_broken}")
-    print(f"  Combos testados: {len(COMBOS)} · com falha: {len(failed_combos)}")
+    print(f"  Combos testados: {len(combos)} · com falha: {len(failed_combos)}")
 
     for combo_name, broken in broken_by_combo.items():
         for position, model, detail in broken:

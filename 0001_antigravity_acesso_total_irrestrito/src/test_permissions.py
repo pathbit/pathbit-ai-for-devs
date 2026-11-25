@@ -22,6 +22,7 @@ from unittest import mock
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import setup_permissions as sp
+from restore_permissions import restore_backup
 
 
 class TempHomeTestCase(unittest.TestCase):
@@ -192,6 +193,18 @@ class TestAplicacaoCompleta(TempHomeTestCase):
         self.aplicar()
         backup_dir = sp.create_backup(self.paths)
         self.assertTrue(os.path.exists(os.path.join(backup_dir, "config.json")))
+
+    def test_restauracao_preserva_backup_criado_no_mesmo_instante(self):
+        config = self.paths["config_json"]
+        with mock.patch.object(sp, "datetime") as relogio:
+            relogio.now.return_value.strftime.return_value = "20261125_100000_000000"
+            self.write(config, json.dumps({"tema": "anterior"}))
+            original = sp.create_backup(self.paths)
+            self.write(config, json.dumps({"tema": "atual"}))
+            self.assertTrue(restore_backup(original))
+        self.assertEqual(self.read(config), {"tema": "anterior"})
+        self.assertEqual(self.read(os.path.join(original, "config.json")), {"tema": "anterior"})
+        self.assertEqual(len(os.listdir(self.paths["gemini_dir"])), 3)
 
     def test_git_hook_instalado_com_permissao_execucao(self):
         sp.apply_git_hooks(self.paths)

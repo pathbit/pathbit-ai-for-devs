@@ -222,7 +222,14 @@ def testar_online(cfg, inseguro=False):
     try:
         with urllib.request.urlopen(req, timeout=120, context=contexto_tls(inseguro)) as resp:
             dados = json.loads(resp.read())
-        texto = "".join(b.get("text", "") for b in dados.get("content", []) if b.get("type") == "text")
+        if not isinstance(dados, dict) or not isinstance(dados.get("content"), list):
+            erro("a API não retornou blocos de conteúdo")
+            return
+        texto = "".join(b["text"] for b in dados["content"]
+                        if isinstance(b, dict) and b.get("type") == "text" and isinstance(b.get("text"), str))
+        if not texto.strip():
+            erro("a API respondeu sem texto de saída")
+            return
         ok(f"HTTP {resp.status} -- modelo respondeu {texto.strip()!r} (servido por {dados.get('model')})")
     except urllib.error.HTTPError as exc:
         detalhe = exc.read().decode("utf-8", "replace")[:300]
@@ -231,11 +238,12 @@ def testar_online(cfg, inseguro=False):
             print("          O sufixo [1m] não existe no catálogo do provedor (veja a seção sobre [1m]).")
     except urllib.error.URLError as exc:
         if isinstance(exc.reason, ssl.SSLCertVerificationError):
-            aviso("TLS não validado: esta rede usa proxy com certificado próprio, não é erro da configuração")
+            erro("TLS não validado. A inferência não foi confirmada.")
             print("          Aponte o Python para a CA da sua rede:  export SSL_CERT_FILE=/caminho/ca.pem")
-            print("          Ou repita com --insecure para pular a verificação nesta execução.")
             return
         erro(f"falha de rede: {exc.reason}")
+    except (TimeoutError, ValueError) as exc:
+        erro(f"não foi possível ler a resposta do provedor: {exc}")
 
 
 def main():
@@ -260,9 +268,12 @@ def main():
         print(f"\n-- {ATIVO.name}")
         aviso("cópia ativa não encontrada -- copie um template antes de abrir o Claude Code:")
         print(f"          cp {CLAUDE_DIR.name}/{TEMPLATES[1]} {CLAUDE_DIR.name}/{ATIVO.name}")
-    else:
-        validar(ATIVO, cfg_ativo, exige_token_real=True)
         if online:
+            erro("a inferência online exige um arquivo settings.local.json ativo")
+    else:
+        antes = len(falhas)
+        validar(ATIVO, cfg_ativo, exige_token_real=True)
+        if online and len(falhas) == antes:
             testar_online(cfg_ativo, inseguro=inseguro)
 
     checar_global(corrigir=corrigir)

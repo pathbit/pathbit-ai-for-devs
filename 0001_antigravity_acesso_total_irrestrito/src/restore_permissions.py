@@ -18,7 +18,7 @@ def get_gemini_dir():
 
 def list_backups(gemini_dir):
     pattern = os.path.join(gemini_dir, "backup-permissoes-*")
-    dirs = sorted(glob.glob(pattern))
+    dirs = sorted(pasta for pasta in glob.glob(pattern) if os.path.isdir(pasta))
     return dirs
 
 def copy_preserving(src, dest):
@@ -119,7 +119,7 @@ def main():
 
     if not backups:
         print("ℹ️ Nenhum diretório de backup encontrado em ~/.gemini/backup-permissoes-*")
-        return
+        return 1 if args.latest else 0
 
     print("Backups disponíveis:")
     for idx, b in enumerate(backups, 1):
@@ -136,4 +136,4 @@ def main():
         print("  python3 src/restore_permissions.py --latest")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

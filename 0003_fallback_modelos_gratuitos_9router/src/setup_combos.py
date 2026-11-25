@@ -168,7 +168,7 @@ def check_ollama_models():
     if available is None:
         print(f"  [!] Ollama local não respondeu em {ollama_tags_url()}.")
         print("      Os combos que dependem dele serão cadastrados, mas falharão na inferência.")
-        print("      Suba o serviço com: docker compose up -d ollama")
+        print("      Suba o serviço com: docker compose up -d claudegravity-ollama")
         return
 
     missing = [m for m in required if m not in available]
@@ -191,7 +191,7 @@ def check_container(container_name):
             text=True,
             check=True,
         )
-        return container_name in res.stdout.strip()
+        return container_name in res.stdout.splitlines()
     except Exception:
         return False
 
@@ -260,15 +260,16 @@ db.prepare('INSERT OR REPLACE INTO combos (id, name, kind, models, createdAt, up
 def provision_ollama_local_node(container_name):
     """Configura o nó OpenAI-compatível do Ollama Local no 9Router para streaming SSE nativo."""
     node_id = "openai-compatible-chat-ollama-local"
+    base_url = os.environ.get("OLLAMA_ROUTER_BASE_URL", "http://claudegravity-ollama:11434/v1")
     node_script = """
 const db = require('/app/node_modules/better-sqlite3')('/app/data/db/data.sqlite');
 const now = new Date().toISOString();
-const nodeId = process.argv[1];
+const [nodeId, baseUrl] = process.argv.slice(1);
 
 const nodeData = JSON.stringify({
   prefix: 'ollama-local',
   apiType: 'chat',
-  baseUrl: 'http://host.docker.internal:11434/v1'
+  baseUrl
 });
 db.prepare('INSERT OR REPLACE INTO providerNodes (id, type, name, data, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)')
   .run(nodeId, 'openai-compatible', 'Ollama Local', nodeData, now, now);
@@ -277,18 +278,19 @@ const connData = JSON.stringify({
   apiKey: 'ollama',
   testStatus: 'ok',
   providerSpecificData: {
-    baseUrl: 'http://host.docker.internal:11434/v1',
+    baseUrl,
     apiType: 'chat'
   }
 });
 db.prepare('INSERT OR REPLACE INTO providerConnections (id, provider, authType, name, priority, isActive, data, createdAt, updatedAt) VALUES (?, ?, ?, ?, 50, 1, ?, ?, ?)')
   .run('conn_ollama_local_fixed', nodeId, 'apikey', 'Ollama Local Host', connData, now, now);
 """
-    run_node_script(container_name, node_script, node_id)
+    run_node_script(container_name, node_script, node_id, base_url)
     print("  [+] Nó Ollama Local provisionado via endpoint OpenAI-compatible (100% SSE streaming)")
 
 
 def main():
+    load_dotenv()
     container = os.environ.get("ROUTER_CONTAINER", DEFAULT_CONTAINER)
     if not check_container(container):
         alt = "9router-arsenal-fallback"

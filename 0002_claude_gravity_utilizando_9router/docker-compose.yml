@@ -28,8 +28,8 @@ services:
       # Credenciais lidas do arquivo .env local
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:?defina INITIAL_PASSWORD no arquivo .env}
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
-      - REQUIRE_API_KEY=false
-      - REQUIRE_LOGIN=false
+      - REQUIRE_API_KEY=${REQUIRE_API_KEY:-false}
+      - REQUIRE_LOGIN=${REQUIRE_LOGIN:-false}
     command: ["/bin/sh", "-c", "cp /app/open-sse/providers/shared.js /app/data/shared.js 2>/dev/null || true; exec node server.js"]
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:20128/dashboard"]
@@ -105,16 +105,18 @@ services:
   claudegravity-tailnet:
     image: tailscale/tailscale:latest
     container_name: claudegravity-tailnet
-    hostname: claudegravity-9router
+    network_mode: service:claudegravity-router
     profiles: ["tailnet"]
     restart: unless-stopped
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY:-}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=true
+      - TS_HOSTNAME=claudegravity
       - TS_SERVE_CONFIG=/config/serve.json
     volumes:
       - claudegravity_tailnet:/var/lib/tailscale
+      - ./tailnet:/config:ro
     depends_on:
       - claudegravity-router
 
@@ -129,8 +131,11 @@ services:
     ports:
       - "127.0.0.1:8787:8787"
     environment:
-      - UPSTREAM_URL=http://claudegravity-router:20128
-      - PORT=8787
+      - HEADROOM_HOST=0.0.0.0
+      - HEADROOM_PORT=8787
+      - HEADROOM_PROXY_TOKEN=${HEADROOM_PROXY_TOKEN:-}
+      - ANTHROPIC_TARGET_API_URL=http://claudegravity-router:20128
+      - OPENAI_TARGET_API_URL=http://claudegravity-router:20128/v1
     depends_on:
       - claudegravity-router
 
