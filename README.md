@@ -190,13 +190,6 @@ make valida-consistencia
 
 ---
 
-## 🛠️ Como Contribuir
-
-1. Clone o repositório
-2. Crie uma nova pasta para seu artigo seguindo o padrão `XXXX_titulo_do_artigo`
-3. Siga a estrutura de pastas estabelecida
-4. Adicione seu artigo à lista acima
-
 ## 📋 Estrutura Padrão dos Artigos
 
 ```text
@@ -325,6 +318,17 @@ make valida-paineis
 
 ---
 
+## Contribuições e proteção de branches
+
+Envie mudanças para `master` por pull request. Execute as verificações aplicáveis ao conteúdo ou ao laboratório antes de pedir revisão. Para dúvidas, correções ou sugestões, abra uma [issue](https://github.com/pathbit/pathbit-ai-for-devs/issues).
+
+1. Clone o repositório
+2. Crie uma nova pasta para seu artigo seguindo o padrão `XXXX_titulo_do_artigo`
+3. Siga a estrutura de pastas estabelecida
+4. Adicione seu artigo à lista acima
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a **Licença MIT**. O texto completo está em [LICENSE](./LICENSE).
@@ -334,4 +338,4 @@ copyright e a licença acompanhem as cópias. O software é fornecido *como est�
 
 ---
 
-**Desenvolvido com ❤️ pela [Pathbit](https://pathbit.co)**
+Developed with ❤️ by [Pathbit](https://pathbit.co/)
