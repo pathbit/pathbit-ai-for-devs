@@ -1,4 +1,4 @@
-.PHONY: setup test test-app test-gate test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
+.PHONY: setup test test-unit test-app test-gate test-articles test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
@@ -12,7 +12,7 @@ setup:
 	@echo "Hook de autoria ativo. Regras do repositorio: AGENTS.md"
 
 # Executa todos os testes unitarios e de consistencia locais sem dependencia externa
-test-unit: valida-docs valida-consistencia
+test-unit: valida-docs valida-consistencia test-articles
 	$(PYTHON) 0001_antigravity_acesso_total_irrestrito/src/test_permissions.py
 	$(PYTHON) tools/test_architecture_and_sizing.py
 
@@ -24,6 +24,9 @@ test-app:
 
 test-gate:
 	$(PYTHON) 0006_gate_de_release_de_contratos/src/verificar_release.py
+
+test-articles:
+	$(PYTHON) tools/test_engineering_articles.py -v
 
 test-container:
 	./tools/run_tests.sh

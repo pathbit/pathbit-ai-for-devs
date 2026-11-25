@@ -1,0 +1,9 @@
+{
+  "seed": "checkout-demo-v1",
+  "created_at": "2026-01-15T12:00:00Z",
+  "customers": [
+    {"id": "bruno", "name": "Bruno Lima"},
+    {"id": "ana", "name": "Ana Araújo"},
+    {"id": "sofia", "name": "Sofía Díaz"}
+  ]
+}

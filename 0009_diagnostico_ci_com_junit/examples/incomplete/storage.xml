@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="storage" tests="1" failures="0" errors="0" skipped="1">
+  <testcase classname="Orders" name="preserves_total">
+    <skipped message="The integration service was not available" />
+  </testcase>
+</testsuite>

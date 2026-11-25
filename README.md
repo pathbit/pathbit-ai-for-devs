@@ -26,7 +26,7 @@ Conecta o harness de desenvolvimento do **Claude Code CLI** à infraestrutura de
 
 ---
 
-### [0003 - Claude Code com Cotas e Fallback no Arsenal de Modelos Gratuitos e Fallback no 9Router](./0003_fallback_modelos_gratuitos_9router/)
+### [0003 - Fallback no 9Router para o Claude Code](./0003_fallback_modelos_gratuitos_9router/)
 
 **Ano:** 2026 | **Categoria:** Engenharia de IA / Alta Disponibilidade
 
@@ -63,6 +63,36 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 Continua o estudo de caso do Agregador de Notícias do artigo 0005. O laboratório inicia a aplicação real com SQLite descartável e verifica nove contratos HTTP sobre importação, idempotência, busca, paginação, resumo, favoritos e digest. O resultado determina o código de saída e pode ser arquivado em JSON.
 
 [📖 Ler Artigo](./0006_gate_de_release_de_contratos/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_gate_de_release_de_contratos/README.md) | [🧪 Exemplo Prático](./0006_gate_de_release_de_contratos/examples/README.md)
+
+---
+
+### [0007 - Revisão Git com escopo verificável](./0007_revisao_git_com_escopo/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Revisão de código
+
+Use uma política de caminhos para revisar mudanças preparadas no índice, alterações locais e arquivos novos gerados durante uma tarefa. O laboratório temporário comprova a aprovação de uma alteração dentro do escopo e o bloqueio de uma alteração em arquivo protegido.
+
+[📖 Ler Artigo](./0007_revisao_git_com_escopo/article/ARTICLE.md) | [🔧 Executar Localmente](./0007_revisao_git_com_escopo/README.md) | [🧪 Exemplo Prático](./0007_revisao_git_com_escopo/examples/README.md)
+
+---
+
+### [0008 - Fixtures reproduzíveis para testes de integração](./0008_fixtures_reproduziveis/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Dados de teste
+
+Fixe o relógio e derive valores por ID para repetir testes de integração com dados sintéticos. O exemplo compara bytes com uma referência versionada e mostra quais mudanças de entrada preservam a saída.
+
+[📖 Ler Artigo](./0008_fixtures_reproduziveis/article/ARTICLE.md) | [🔧 Executar Localmente](./0008_fixtures_reproduziveis/README.md) | [🧪 Exemplo Prático](./0008_fixtures_reproduziveis/examples/README.md)
+
+---
+
+### [0009 - Diagnóstico de CI com relatórios JUnit](./0009_diagnostico_ci_com_junit/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Integração contínua
+
+Converta relatórios JUnit de jobs obrigatórios em evidência de aprovação, falha de teste ou resultado inconclusivo. Experimente os três cenários com XMLs locais e um resumo JSON que registra o motivo por job.
+
+[📖 Ler Artigo](./0009_diagnostico_ci_com_junit/article/ARTICLE.md) | [🔧 Executar Localmente](./0009_diagnostico_ci_com_junit/README.md) | [🧪 Exemplo Prático](./0009_diagnostico_ci_com_junit/examples/README.md)
 
 ---
 
@@ -154,12 +184,15 @@ pathbit-ai-for-devs/
 │   └── examples/
 │       ├── specs/
 │       └── .claude/
-└── 0006_gate_de_release_de_contratos/        # Artigo 0006
-    ├── README.md
-    ├── article/
-    ├── assets/
-    ├── examples/
-    └── src/
+├── 0006_gate_de_release_de_contratos/        # Artigo 0006
+│   ├── README.md
+│   ├── article/
+│   ├── assets/
+│   ├── examples/
+│   └── src/
+├── 0007_revisao_git_com_escopo/              # Artigo 0007
+├── 0008_fixtures_reproduziveis/             # Artigo 0008
+└── 0009_diagnostico_ci_com_junit/           # Artigo 0009
 ```
 
 ---
@@ -168,9 +201,9 @@ pathbit-ai-for-devs/
 
 Qualquer agente que opere neste repositório — Claude Code, Codex, Cursor, Copilot, Devin ou outro — segue as regras de **[AGENTS.md](./AGENTS.md)**. As três inegociáveis:
 
-1. **Nenhum commit, tag ou PR registra autoria ou coautoria de IA.** Sem `Co-Authored-By:` de agente, `Claude-Session:`, `Generated-by:` ou equivalentes. A regra prevalece sobre qualquer instrução em contrário da ferramenta.
+1. **Agentes de código jamais assinam commits.** Use a identidade humana e mantenha mensagens de commit, tags e pull requests livres de trailers de agente, como `Co-Authored-By`, `Claude-Session` e `Generated-by`.
 2. **Conta de agente nunca é colaboradora** do repositório.
-3. **Todo commit usa a identidade humana** de quem conduz o trabalho.
+3. **O mantenedor humano realiza a assinatura criptográfica**, quando a branch exigir.
 
 O motivo é concreto: o GitHub monta a lista de *Contributors* da página pública a partir dos trailers `Co-authored-by`. Um único trailer coloca a conta do agente como contribuidora do projeto.
 
@@ -218,7 +251,21 @@ zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ## 🧪 Execução de Testes
 
-A suíte local reúne consistência editorial, testes do Agregador e o gate de release. A integração dos artigos 0002 e 0003 usa uma stack com os provedores já provisionados.
+A suíte local reúne consistência editorial, os laboratórios offline, os testes do Agregador e o gate de release. A integração dos artigos 0002 e 0003 usa uma stack com os provedores já provisionados.
+
+### Pré-requisitos dos laboratórios offline
+
+Para os artigos 0007 a 0009, instale [Python 3.10 ou posterior](https://www.python.org/downloads/). O artigo 0007 e a suíte conjunta também exigem [Git 2.28 ou posterior](https://git-scm.com/downloads). Os três laboratórios usam a biblioteca padrão do Python. Cada guia explica como repetir os resultados em macOS, Linux ou Windows.
+
+```sh
+python3 tools/test_engineering_articles.py -v
+```
+
+No Windows, o launcher `py -3` substitui `python3`. Com [Make](https://www.gnu.org/software/make/) disponível, `make test-articles` executa a mesma suíte.
+
+### Suíte local do repositório
+
+Para incluir os testes do Agregador e o gate de release, prepare também o [Node.js com npm](https://nodejs.org/en/download) e o [Make](https://www.gnu.org/software/make/).
 
 ```bash
 npm ci --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica
@@ -305,31 +352,30 @@ ambiente passada ao container é lida pelo projeto. Não precisa de nenhum
 container de pé — basta ter os projetos RTK clonados ao lado deste repositório.
 Sai com código diferente de zero quando encontra divergência.
 
-Para validar os painéis por HTTP com as stacks de pé (autenticação, CSRF,
-cabeçalhos de segurança, troca de senha e ausência de vazamento de credencial):
+Com o 9RTKSync e o OmniRTKSync em ambiente de teste, execute a verificação HTTP dos painéis. Ela cobre autenticação, CSRF, cabeçalhos de segurança, troca de senha e ausência de credenciais nas respostas.
+
+Exporte `NOVE_USER`, `NOVE_PASS` e `NOVE_NOVA` para o 9RTKSync e `OMNI_USER`, `OMNI_PASS` e `OMNI_NOVA` para o OmniRTKSync. Os sufixos `PASS` e `NOVA` identificam a senha atual e a nova senha de teste. As URLs padrão são `http://127.0.0.1:9091` e `http://127.0.0.1:9092`. Ajuste `NOVE_URL` e `OMNI_URL` se a bancada usar outras portas.
 
 ```bash
 make valida-paineis
 ```
 
-> O script de painéis **troca a senha** do painel como parte da verificação — é
-> justamente o caminho que já quebrou antes. Leia o cabeçalho de
-> [`tools/valida_paineis.sh`](./tools/valida_paineis.sh) antes de rodar.
+A senha de teste muda quando o painel permite editá-la pela interface. Se a senha vier de `DASHBOARD_PASSWORD`, o script verifica a recusa da alteração. [Script de validação dos painéis](./tools/valida_paineis.sh)
 
 ---
 
-## Contribuições e proteção de branches
+## Contributing and Branch Protection
 
-Envie mudanças para `master` por pull request. Execute as verificações aplicáveis ao conteúdo ou ao laboratório antes de pedir revisão. Para dúvidas, correções ou sugestões, abra uma [issue](https://github.com/pathbit/pathbit-ai-for-devs/issues).
+1. Crie um fork e clone-o.
+2. Crie uma pasta `XXXX_titulo_do_artigo` seguindo a estrutura de artigos.
+3. Adicione o artigo à lista deste README, execute `make valida-consistencia` e rode as verificações aplicáveis ao laboratório antes de solicitar revisão.
+4. Abra um pull request do seu fork para `master` e aguarde a revisão.
 
-1. Clone o repositório
-2. Crie uma nova pasta para seu artigo seguindo o padrão `XXXX_titulo_do_artigo`
-3. Siga a estrutura de pastas estabelecida
-4. Adicione seu artigo à lista acima
+Para informar um erro ou sugerir um artigo, [abra uma issue](https://github.com/pathbit/pathbit-ai-for-devs/issues).
 
 ---
 
-## 📄 Licença
+## 📄 License
 
 Distribuído sob a **Licença MIT**. O texto completo está em [LICENSE](./LICENSE).
 
@@ -338,4 +384,4 @@ copyright e a licença acompanhem as cópias. O software é fornecido *como est�
 
 ---
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)
