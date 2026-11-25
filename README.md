@@ -71,7 +71,6 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 - **[Padrões de Engenharia de IA](./docs/PADROES_ENGENHARIA_IA.md)** - Diretrizes de scripts em Python puro, isolamento de segredos e regras editoriais
 - **[Resumo da Organização](./docs/RESUMO_ORGANIZACAO.md)** - Topologia de diretórios, anatomia dos módulos e checklist de publicação
 - **[Checklist dos settings do Claude Code](./docs/CHECKLIST_SETTINGS_CLAUDE_CODE.md)** - Regras verificadas para os `settings.local.json` dos exemplos, estado global da CLI e verificador de consistência
-- **[Relatório de Validação](./tmp/RELATORIO_VALIDACAO.md)** - Evidências de execução end-to-end dos artigos 0001 a 0004 a partir de um ambiente zerado
 
 ### 🔧 Soluções para Problemas Comuns
 
@@ -279,7 +278,7 @@ gateway de pé, credencial real nem rede externa.
 
 Os artigos mandam o leitor copiar um `docker-compose.yml` que sobe imagens dos
 projetos [9RTKSync](https://github.com/pathbit/9RTKSync),
-[OmniRTkSync](https://github.com/pathbit/OmniRTkSync) e
+[OmniRTKSync](https://github.com/pathbit/OmniRTKSync) e
 [LiteLlmRTKSync](https://github.com/pathbit/LiteLlmRTKSync). Quando um desses
 projetos muda e o artigo não, o leitor segue instruções que não funcionam mais —
 e não tem como saber que o errado é o texto.
