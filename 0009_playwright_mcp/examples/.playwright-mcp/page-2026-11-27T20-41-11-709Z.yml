@@ -1,0 +1,7 @@
+- main [ref=e2]:
+  - heading "Prévia de frete" [level=1] [ref=e3]
+  - generic [ref=e4]:
+    - text: CEP
+    - textbox "CEP" [ref=e5]: 01001-000
+    - button "Calcular frete" [active] [ref=e6]
+  - status [ref=e7]: "Frete simulado: R$ 12,00"

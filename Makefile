@@ -1,7 +1,9 @@
-.PHONY: setup test test-unit test-app test-gate test-articles test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
+.PHONY: setup test test-unit test-app test-articles test-container test-gateway test-arsenal test-local valida-docs valida-consistencia valida-deepclaude prova-no-fio valida-paineis up down logs clean
 
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
+
+ARTICLES_PYTHON = $(abspath $(shell command -v "$(PYTHON)"))
 
 # Prepara o clone: ativa o hook que impede assinatura de coautoria de IA nos
 # commits. O Git nao versiona .git/hooks, entao cada clone precisa fazer isso uma
@@ -17,16 +19,15 @@ test-unit: valida-docs valida-consistencia test-articles
 	$(PYTHON) tools/test_architecture_and_sizing.py
 
 # Suíte completa com Node, Python e um gateway provisionado para a integração.
-test: test-unit test-app test-gate test-container
+test: test-unit test-app test-container
 
 test-app:
 	npm --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica test
 
-test-gate:
-	$(PYTHON) 0006_gate_de_release_de_contratos/src/verificar_release.py
-
 test-articles:
-	$(PYTHON) tools/test_engineering_articles.py -v
+	cd 0006_github_copilot_instrucoes/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
+	cd 0007_claude_code_plan_mode/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
+	cd 0008_aider_ollama_local/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
 
 test-container:
 	./tools/run_tests.sh

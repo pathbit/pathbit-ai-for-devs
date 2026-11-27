@@ -617,4 +617,4 @@ Repositório oficial no GitHub no endereço https://github.com/pathbit/pathbit-a
 
 ## Próximo artigo
 
-O [artigo 0006](../../0006_gate_de_release_de_contratos/article/ARTICLE.md) verifica os critérios de aceite deste Agregador com um gate de release executável.
+O [artigo 0006](../../0006_github_copilot_instrucoes/article/ARTICLE.md) leva as convenções de projeto para o GitHub Copilot e mostra como conferir a sugestão com testes.

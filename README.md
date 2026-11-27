@@ -56,43 +56,43 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 
 ---
 
-### [0006 - Gate de Release com Critérios de Aceite Executáveis](./0006_gate_de_release_de_contratos/)
+### [0006 - Instruções de projeto no GitHub Copilot](./0006_github_copilot_instrucoes/)
 
-**Ano:** 2026 | **Categoria:** Engenharia de IA / Validação de entregas
+**Ano:** 2026 | **Categoria:** GitHub Copilot e instruções de contexto
 
-Continua o estudo de caso do Agregador de Notícias do artigo 0005. O laboratório inicia a aplicação real com SQLite descartável e verifica nove contratos HTTP sobre importação, idempotência, busca, paginação, resumo, favoritos e digest. O resultado determina o código de saída e pode ser arquivado em JSON.
+Configure instruções gerais e regras específicas para testes Python. Use um caso de frete grátis para conferir o que entrou no contexto e validar a sugestão.
 
-[📖 Ler Artigo](./0006_gate_de_release_de_contratos/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_gate_de_release_de_contratos/README.md) | [🧪 Exemplo Prático](./0006_gate_de_release_de_contratos/examples/README.md)
-
----
-
-### [0007 - Revisão Git com escopo verificável](./0007_revisao_git_com_escopo/)
-
-**Ano:** 2026 | **Categoria:** Engenharia de IA / Revisão de código
-
-Use uma política de caminhos para revisar mudanças preparadas no índice, alterações locais e arquivos novos gerados durante uma tarefa. O laboratório temporário comprova a aprovação de uma alteração dentro do escopo e o bloqueio de uma alteração em arquivo protegido.
-
-[📖 Ler Artigo](./0007_revisao_git_com_escopo/article/ARTICLE.md) | [🔧 Executar Localmente](./0007_revisao_git_com_escopo/README.md) | [🧪 Exemplo Prático](./0007_revisao_git_com_escopo/examples/README.md)
+[📖 Ler Artigo](./0006_github_copilot_instrucoes/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_github_copilot_instrucoes/README.md) | [🧪 Exemplos Práticos](./0006_github_copilot_instrucoes/examples/README.md)
 
 ---
 
-### [0008 - Fixtures reproduzíveis para testes de integração](./0008_fixtures_reproduziveis/)
+### [0007 - Plan Mode no Claude Code](./0007_claude_code_plan_mode/)
 
-**Ano:** 2026 | **Categoria:** Engenharia de IA / Dados de teste
+**Ano:** 2026 | **Categoria:** Claude Code e planejamento
 
-Fixe o relógio e derive valores por ID para repetir testes de integração com dados sintéticos. O exemplo compara bytes com uma referência versionada e mostra quais mudanças de entrada preservam a saída.
+Planeje uma mudança em nomes de arquivos de exportação. O exercício usa um caso de virada de ano para distinguir ano civil de ano da semana ISO.
 
-[📖 Ler Artigo](./0008_fixtures_reproduziveis/article/ARTICLE.md) | [🔧 Executar Localmente](./0008_fixtures_reproduziveis/README.md) | [🧪 Exemplo Prático](./0008_fixtures_reproduziveis/examples/README.md)
+[📖 Ler Artigo](./0007_claude_code_plan_mode/article/ARTICLE.md) | [🔧 Executar Localmente](./0007_claude_code_plan_mode/README.md) | [🧪 Exemplos Práticos](./0007_claude_code_plan_mode/examples/README.md)
 
 ---
 
-### [0009 - Diagnóstico de CI com relatórios JUnit](./0009_diagnostico_ci_com_junit/)
+### [0008 - Aider com um modelo local no Ollama](./0008_aider_ollama_local/)
 
-**Ano:** 2026 | **Categoria:** Engenharia de IA / Integração contínua
+**Ano:** 2026 | **Categoria:** Aider e modelos locais
 
-Converta relatórios JUnit de jobs obrigatórios em evidência de aprovação, falha de teste ou resultado inconclusivo. Experimente os três cenários com XMLs locais e um resumo JSON que registra o motivo por job.
+Use o Aider para propor uma pequena correção Python com o modelo de código rodando no seu computador. Revise os arquivos alterados e execute a suíte.
 
-[📖 Ler Artigo](./0009_diagnostico_ci_com_junit/article/ARTICLE.md) | [🔧 Executar Localmente](./0009_diagnostico_ci_com_junit/README.md) | [🧪 Exemplo Prático](./0009_diagnostico_ci_com_junit/examples/README.md)
+[📖 Ler Artigo](./0008_aider_ollama_local/article/ARTICLE.md) | [🔧 Executar Localmente](./0008_aider_ollama_local/README.md) | [🧪 Exemplos Práticos](./0008_aider_ollama_local/examples/README.md)
+
+---
+
+### [0009 - Playwright MCP para verificar uma página local](./0009_playwright_mcp/)
+
+**Ano:** 2026 | **Categoria:** Playwright e Model Context Protocol
+
+Conecte o Playwright ao VS Code e peça ao assistente para observar duas interações de um formulário de frete servido no seu computador.
+
+[📖 Ler Artigo](./0009_playwright_mcp/article/ARTICLE.md) | [🔧 Executar Localmente](./0009_playwright_mcp/README.md) | [🧪 Exemplos Práticos](./0009_playwright_mcp/examples/README.md)
 
 ---
 
@@ -184,15 +184,10 @@ pathbit-ai-for-devs/
 │   └── examples/
 │       ├── specs/
 │       └── .claude/
-├── 0006_gate_de_release_de_contratos/        # Artigo 0006
-│   ├── README.md
-│   ├── article/
-│   ├── assets/
-│   ├── examples/
-│   └── src/
-├── 0007_revisao_git_com_escopo/              # Artigo 0007
-├── 0008_fixtures_reproduziveis/             # Artigo 0008
-└── 0009_diagnostico_ci_com_junit/           # Artigo 0009
+├── 0006_github_copilot_instrucoes/  # Artigo 0006
+├── 0007_claude_code_plan_mode/  # Artigo 0007
+├── 0008_aider_ollama_local/  # Artigo 0008
+└── 0009_playwright_mcp/  # Artigo 0009
 ```
 
 ---
@@ -251,25 +246,23 @@ zero. As capturas de tela não têm fonte: são registros de execução real.
 
 ## 🧪 Execução de Testes
 
-A suíte local reúne consistência editorial, os laboratórios offline, os testes do Agregador e o gate de release. A integração dos artigos 0002 e 0003 usa uma stack com os provedores já provisionados.
+A suíte local reúne consistência editorial, os exemplos Python e os testes do Agregador. A integração dos artigos 0002 e 0003 usa uma stack com os provedores já provisionados.
 
-### Pré-requisitos dos laboratórios offline
+### Exemplos dos artigos sobre ferramentas
 
-Para os artigos 0007 a 0009, instale [Python 3.10 ou posterior](https://www.python.org/downloads/). O artigo 0007 e a suíte conjunta também exigem [Git 2.28 ou posterior](https://git-scm.com/downloads). Os três laboratórios usam a biblioteca padrão do Python. Cada guia explica como repetir os resultados em macOS, Linux ou Windows.
+Com [Python 3.10 ou posterior](https://www.python.org/downloads/) e Make, a suíte dos artigos 0006 a 0008 roda as bases dos exercícios. Os próprios guias mostram como usar cada assistente e verificar a proposta. O artigo 0009 tem um formulário local e orientações para verificar a interação no navegador.
 
-```sh
-python3 tools/test_engineering_articles.py -v
+```bash
+make test-articles
 ```
-
-No Windows, o launcher `py -3` substitui `python3`. Com [Make](https://www.gnu.org/software/make/) disponível, `make test-articles` executa a mesma suíte.
 
 ### Suíte local do repositório
 
-Para incluir os testes do Agregador e o gate de release, prepare também o [Node.js com npm](https://nodejs.org/en/download) e o [Make](https://www.gnu.org/software/make/).
+Para executar também os testes do Agregador, use o [Node.js com npm](https://nodejs.org/en/download). A suíte foi verificada com Node.js 22. Use a mesma versão do Node na instalação e nos testes do módulo nativo de SQLite.
 
 ```bash
 npm ci --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica
-make test-unit test-app test-gate
+make test-unit test-app
 ```
 
 ### Opção 1. Diagnóstico e integração em contêiner
