@@ -48,7 +48,7 @@ Use Node.js 22 e execute os comandos dentro deste módulo.
 
 O processo escuta em `127.0.0.1` por padrão. Ajuste `HOST`, `PORT` e `DATABASE_PATH` no `.env` para um ambiente controlado. Se quiser usar um provedor de resumo, defina `ANTHROPIC_BASE_URL`, `AI_MODEL` e a credencial quando necessária. A API Anthropic direta usa `ANTHROPIC_API_KEY`. Um gateway que exige Bearer usa `ANTHROPIC_AUTH_TOKEN`. Com essas variáveis vazias, o resumo usa o fallback local.
 
-O [artigo 0006](../0006_gate_de_release_de_contratos/article/ARTICLE.md) executa os critérios de aceite contra o Agregador em um SQLite descartável.
+O [artigo 0006](../0006_github_copilot_instrucoes/article/ARTICLE.md) mostra como registrar convenções de projeto no GitHub Copilot e conferir a sugestão com testes.
 
 > Sobre as imagens: os diagramas em `assets/` seguem rigorosamente a paleta de cores e o padrão editorial sóbrio dos módulos anteriores. Cada imagem conta com um brief descritivo em arquivo `.md` contendo seu conteúdo semântico, dimensões e instruções de geração.
 
