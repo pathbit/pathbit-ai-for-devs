@@ -26,3 +26,5 @@ O artigo completo, com 44 capturas de tela técnicas, diagramas de precedência 
 📖 Módulo: 0004_deepclaude_alternativa_ao_claudegravity
 
 #DeepClaude #DeepSeek #ClaudeCode #OrcaRouter #OpenSource #DevOps #EngenhariaDeSoftware #Pathbit
+
+![Diagrama de precedência das configurações do Claude Code](../assets/25a_diagrama_precedencia_settings.png)

@@ -1,75 +1,138 @@
-# Como usar Playwright MCP no Claude Code para verificar o dashboard do Agregador
+# A estrela mudou. Seu agente provou que o favorito ficou salvo?
 
-![Busca, favoritos e persistência](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/assets/00_capa.png)
+![Playwright MCP acompanha busca, favoritos e recarga no Agregador](../assets/00_capa.png)
 
+Peça a um agente que verifique uma funcionalidade de favoritos e ele pode devolver um relatório impecável: abriu a tela, clicou na estrela, tirou uma captura. A imagem mostra a estrela marcada. Explica o que aparece na tela naquele momento. Agora feche a página, abra de novo e encontre exatamente o artigo que deveria estar guardado. Essa é a parte da história que o clique, por si só, deixa em aberto.
 
-Você pede ao agente que confirme se Favoritos funciona. Ele lê a rota, encontra o botão e diz que tudo parece correto. Ao abrir o navegador, você descobre que o primeiro clique atualiza a estrela, mas o item some depois de recarregar. Código, estado da página e estado persistido respondem perguntas diferentes. Para conferir essa funcionalidade, vamos observar o Agregador rodando em Chromium, atravessar o caminho que o leitor usa e comparar a interface com a lista que o servidor devolve.
+No artigo anterior sobre **Spec-Driven Development**, construímos um Agregador de Notícias com Express, SQLite e um dashboard web. O contrato de favoritos parece pequeno até você começar a atravessá-lo. Ele passa pelo botão do cartão, por uma escrita HTTP, pela coluna `favorito` no banco e por uma nova consulta. Um teste que examina só uma dessas etapas dá um diagnóstico parcial. Neste artigo, vamos repetir o caminho da pessoa que usa a tela com **Claude Code e Playwright MCP**, comparando o que aparece no navegador com o que o servidor realmente devolve.
 
-Este artigo retoma o [dashboard do 0005](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0005_sdd_do_vibe_coding_a_engenharia_deterministica) e fecha a sequência iniciada no [0006](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/article/ARTICLE.md). Usaremos o **Playwright MCP** no **Claude Code** com um processo do Agregador local e um banco SQLite de demonstração. Os dados têm títulos conhecidos, então o roteiro pode ser repetido sem depender de feed externo.
+## A especificação precisa de um antes e de um depois
 
-## O que conecta o Claude Code ao navegador
+Vamos propor um cenário que dá chance para a implementação falhar de formas úteis. Começamos com três artigos de demonstração.
 
-```mermaid
-flowchart LR
-    C[Claude Code] -->|chamada MCP| P[Playwright MCP]
-    P -->|snapshot and interaction| B[Chrome isolado]
-    B -->|HTTP loopback| A[Express Agregador]
-    A --> D[(SQLite do laboratório)]
+| Registro | Estado inicial | Por que está no teste |
+| --- | --- | --- |
+| `MCP no Agregador` | Sem estrela | É o item que vamos buscar, marcar, reencontrar e remover |
+| `Roteamento no OpenCode` | Sem estrela | Permite detectar se a busca ou o filtro mostra itens a mais |
+| `=Arquitetura, "em prática"` | Favoritado | Tem de continuar marcado depois que removemos o alvo |
+
+A terceira linha vale mais que uma tela bonita. Se a nossa base tivesse um único favorito, um bug que apagasse todos os favoritos passaria no passo da remoção. A interface ficaria vazia e o teste concluiria que removeu o item certo. Com um controle persistido, a prova precisa verificar duas afirmações juntas. O alvo sai e o controle fica.
+
+Também precisamos da lista inicial. Se o artigo alvo já estiver favoritado por uma execução anterior, a demonstração começa depois da escrita que deveria comprovar. Abrir o filtro e encontrar dois artigos não diz se aquela sessão fez alguma alteração. O verificador começa lendo a API. Ele segue só quando a lista tem o controle e nenhum outro item.
+
+## Quem fez o clique e quem salvou o dado?
+
+O MCP conecta o cliente ao processo que oferece ferramentas. O cliente pede um snapshot ou um clique. O Playwright executa no navegador. O navegador fala com Express pela rede local. Express atualiza o SQLite quando recebe a operação. Cada parte tem uma resposta própria.
+
+```text
+Claude Code
+   │ ferramenta MCP
+Playwright MCP
+   │ operação no navegador
+Chrome isolado
+   │ POST /artigos/<id>/favoritar
+Express
+   │ persiste alteração
+SQLite
 ```
 
-O servidor MCP executa ações de navegador e devolve observações. A API Express serve o dashboard e consulta o SQLite. O Claude Code pode usar o snapshot para descobrir o campo de busca, o cartão e o botão pelo papel e pelo nome expostos. A sessão do modelo e o navegador têm ciclos separados. Uma ação em MCP não muda os critérios que você pediu ao agente para verificar.
+Há uma diferença importante entre a ferramenta devolver “cliquei” e a aplicação responder pela escrita. O clique pode executar mesmo quando a API devolve uma falha. A estrela pode mudar temporariamente, e a lista voltar vazia depois de carregar outra vez. Por isso, o roteiro passa pelo navegador para escrever e pela API para conferir. Se o teste marcasse primeiro pelo terminal, ele já teria alterado o estado antes da parte que quer provar.
 
-Em uma interação de favoritos, há pelo menos três evidências. A mensagem confirma que a tela recebeu a resposta da operação. A lista filtrada confirma que o cliente renderizou a atualização. Recarregar e refazer o filtro confirma que o estado veio de uma nova consulta. O laboratório também lê `GET /favoritos` para comparar a interface com o servidor. [Servidor oficial do Playwright MCP](https://github.com/microsoft/playwright-mcp) · [MCP no Claude Code](https://code.claude.com/docs/en/mcp).
+A melhor forma de localizar um problema é perguntar qual fronteira respondeu. Se `claude mcp get playwright` aponta para uma configuração pendente, investigue o cliente e o servidor de ferramentas. Se a integração está conectada e o navegador não entra no endereço, confira a origem e a porta HTTP. Se a página abre e a API lê favoritos, investigue a grade e o estado de filtro. Esse encadeamento economiza tempo porque elimina tentativas aleatórias no lugar errado. [MCP no Claude Code](https://code.claude.com/docs/en/mcp) · [Servidor oficial Playwright MCP](https://github.com/microsoft/playwright-mcp).
 
-## Prepare a aplicação original com dados que você controla
+## O bug pode estar no teste e não no seu produto
 
-Prepare uma cópia com [o início rápido](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/README.md). O script copia `src`, testes e manifests do projeto do artigo 0005. Use Node.js 22, a mesma linha usada para instalar o SQLite nativo. A aplicação e o banco deste exercício ficam em um diretório diferente do clone original. O servidor escuta em `127.0.0.1:19810`.
+O dashboard do Agregador tem dois lugares onde a mesma notícia aparece. Em cima fica o digest. Abaixo vem a grade de cartões que responde aos filtros. A busca atualiza a grade, então o digest pode continuar exibindo “Roteamento no OpenCode” quando o cartão dessa notícia já saiu.
 
-| Artigo de demonstração | Estado inicial | Função no roteiro |
-| --- | --- | --- |
-| `MCP no Agregador` | Fora de Favoritos | Artigo que vamos buscar, favoritar e remover |
-| `Roteamento no OpenCode` | Fora de Favoritos | Controle negativo da busca |
-| `=Arquitetura, "em prática"` | Favoritado | Controle que continua presente depois da remoção |
+Uma asserção que procura o título na página inteira mistura duas responsabilidades. Às vezes falha com o produto correto. Às vezes passa com o produto quebrado. Para provar que a busca funcionou, recorte a observação a `#articlesGrid` e compare os títulos que pertencem àquele componente.
 
-O script de carga insere essas linhas sem consultar fontes externas. A tabela de fontes originais pode aparecer no dashboard, mas a verificação fica na lista de artigos já gravados. Evite clicar em Atualizar fontes durante o exercício. Ao repetir, recrie a cópia para começar com a mesma base, ou confirme os estados na API antes de seguir.
+A escolha do botão tem uma armadilha parecida. Há uma estrela por cartão. “Clique na primeira estrela” depende da ordem que o HTML tiver hoje. No laboratório o verificador depende da identidade do cartão e só depois escolhe o botão dentro dele:
 
-## Registre a integração no escopo do projeto
+```text
+#articlesGrid .article-card:has(a[href="https://example.org/mcp"]) .btn-fav
+```
 
-Copie [`.mcp.json`](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/examples/.mcp.json) para a raiz da cópia do laboratório. Essa é a configuração que o Claude Code usa para o escopo de projeto. O arquivo inicia `@playwright/mcp@0.0.86` com `npx`, canal `chrome`, perfil `--isolated` e execução `--headless`. O primeiro uso pode exigir download pelo npm e o Google Chrome precisa estar instalado. A tela de confiança do projeto e o pedido de aprovação do servidor permitem rever o comando executado.
+O endereço faz parte dos dados descartáveis e serve para localizar o cartão. O teste permanece na página do Agregador. Em um projeto com um nome acessível de ação inequívoco, procure o botão pelo papel e pelo nome dentro do componente. Se a aplicação renderizar a grade de novo, peça um snapshot atualizado antes de reaproveitar referências de elemento. [Localizadores do Playwright](https://playwright.dev/docs/locators).
 
-O perfil separado evita misturar a sessão pessoal com a demonstração. O servidor ainda é capaz de navegar onde tiver acesso, então limite a instrução ao endereço local e acompanhe as ações. Use contas e dados descartáveis ao adaptar a técnica para um projeto com login. O [roteiro do módulo](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/examples/scenario.md) trabalha só com a URL de loopback.
+### O que muda ao recarregar a página
 
-## Leia o snapshot para localizar o controle de verdade
+No código desta versão, `apenasFavoritos` é uma variável JavaScript inicializada como `false`. A recarga apaga o filtro e o texto da busca da memória da página. O valor `favorito` que foi gravado permanece no SQLite. Para comprovar o requisito, carregamos de novo, observamos a grade normal, reativamos o filtro e comparamos os dois artigos com uma leitura nova do servidor.
 
-Peça primeiro que o agente abra a página, confira `Agregador de Notícias com Resumo por IA` e localize o campo com placeholder `Buscar por título, palavra-chave ou termo técnico...`. Digite `MCP no Agregador` e espere a lista refletir a busca. O campo usa atualização com atraso curto. Se o agente capturar a tela cedo, ainda pode ver o resultado da consulta anterior.
+![Mapa do painel com busca, digest e grade](../assets/01_dashboard_favorites.png)
 
-O botão de favoritos está no cartão de cada artigo e usa o título `Favoritar` ou `Remover dos favoritos`. O snapshot também expõe o texto visual de estrela. Use o cartão que contém o título do artigo para desambiguar botões iguais. Depois de clicar e receber a mensagem, procure `⭐ Apenas Favoritos`. O dashboard muda a legenda do filtro para `★ Exibindo Favoritos`. Essa mudança de texto é uma evidência de que o filtro foi ligado.
+> O diagrama aponta onde observar os cartões. Para conferir persistência no seu ambiente, recarregue e faça uma nova consulta à API.
 
-![Dashboard real com o filtro de favoritos ativo](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/assets/01_dashboard_favorites.png)
+Essa diferença muda a especificação. Se a equipe também quer que a **preferência do filtro** sobreviva à recarga, precisa dizer onde e por quanto tempo, e acrescentar outro cenário. O nosso caso prova a persistência do dado da notícia. A preferência da interface volta à configuração inicial.
 
-## Show-Me-The-Code
+## Prepare o laboratório com o código do artigo 0005
 
-1. Siga o [roteiro](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/examples/scenario.md) em uma sessão com a integração aprovada.
-2. Busque o artigo-alvo e confirme que o outro título de controle ficou fora dos cartões visíveis.
-3. Favorite o artigo. Observe a mensagem `Adicionado aos favoritos` e confira a lista da API.
-4. Ative o filtro, recarregue a página e ative-o novamente. O filtro é estado da interface e volta ao padrão no reload. A condição de favorito continua no banco.
-5. Remova o favorito dentro da visão filtrada. O cartão alvo deve sair e o artigo de controle já favoritado deve permanecer.
+A série fornece um script que copia o Agregador original, os testes e os manifests para uma pasta temporária. A cópia usa Node.js 22 e instala o módulo nativo SQLite para esse runtime. O script de semeadura cria as três notícias no banco do exercício. Ele não precisa consultar feeds externos. Você precisa de Python 3.10+, npm e Google Chrome para rodar este percurso. Para usar o chat, também precisa de uma sessão autenticada no Claude Code.
 
-| Passo | Evidência de navegador | Evidência HTTP |
-| --- | --- | --- |
-| Busca após digitar | Cartão do artigo alvo presente | A interface consultou `/artigos` com o filtro de busca |
-| Favoritar | Mensagem e botão de estado atualizado | `GET /favoritos` inclui o alvo |
-| Recarregar e filtrar | Cartão volta a aparecer em Favoritos | A leitura recupera o estado persistido |
-| Remover | Cartão alvo sai e o controle permanece | `GET /favoritos` conserva apenas o controle |
+A partir da raiz do repositório, inicie em um terminal:
 
-O [verificador da demonstração](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/examples/verify_dashboard.py) usa o pacote MCP oficial, o mesmo dashboard e a API local para repetir a sequência. Para a sessão com o Claude Code, peça que ele devolva a etapa, a observação e a evidência. Se uma operação falhar, vale examinar o último snapshot e a resposta HTTP antes de propor qualquer alteração.
+```bash
+repo="$(pwd -P)"
+lab="$(mktemp -d)"
+python3 tools/prepare_aggregator_lab.py "$lab/app"
+cd "$lab/app"
+npm ci
+cp "$repo/0010_playwright_mcp_agregador/examples/.mcp.json" .mcp.json
+export HOST=127.0.0.1 PORT=19810 DATABASE_PATH="$PWD/data/lab.sqlite"
+node "$repo/tools/seed_aggregator_lab.mjs"
+npm start
+```
 
-## O que repetir quando a interface muda
+O arquivo de integração usa o pacote `@playwright/mcp@0.0.86`, transporte `stdio` e Chrome com perfil isolado. Abra o Claude Code na pasta da cópia e confira a aprovação do servidor. Usar o perfil separado evita misturar as contas do seu browser pessoal com os dados do exercício. O endereço autorizado no roteiro é o do laboratório local. Ao adaptar para outro sistema, registre quais contas, operações e dados estão em escopo antes de dar o primeiro clique.
 
-Se a aplicação demora, espere um texto ou o desaparecimento de um cartão. Pausas fixas tornam a execução sensível ao tempo do computador. Se um botão mudou de nome, leia o snapshot novo em vez de reutilizar uma referência antiga. Se o navegador confirma o clique e a lista volta diferente após recarregar, compare `GET /favoritos` com o teste da API do [artigo 0005](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0005_sdd_do_vibe_coding_a_engenharia_deterministica/tests/artigos.test.js).
+## A prova em quatro pontos
 
-Use o MCP para explorar, entender e documentar o que foi observado. Quando o fluxo estiver estabilizado, o mesmo cenário pode virar um teste Playwright com asserções de presença, ausência e persistência. Se mudar o contrato de favoritos, registre a mudança primeiro onde a equipe o acompanha. A interface, a API e a especificação ficam rastreáveis quando a evidência aponta para o mesmo comportamento.
+**Busca.** Digite o título alvo e confira a grade depois da atualização. O Agregador usa um debounce de 300 ms. Espere o resultado aparecer em vez de decidir que um atraso fixo sempre basta. O digest e referências antigas de elementos ficam fora da asserção.
 
-[Repositório e arquivos do laboratório](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0010_playwright_mcp_agregador)
+**Escrita.** Marque a estrela no cartão certo. Observe “Adicionado aos favoritos” e consulte `GET /favoritos`. A lista precisa conter o alvo e o controle. Isso dá ao diagnóstico um ponto antes da recarga.
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+**Persistência.** Abra novamente o dashboard, ative “Apenas Favoritos” e procure os dois cartões. Comparar o que a grade mostra com uma leitura do servidor ajuda a separar falha de escrita de falha de filtro.
+
+**Remoção.** Na visão já filtrada, remova apenas o alvo. A grade volta a mostrar só o controle. A API também volta a devolver aquele conjunto. O teste terminou no mesmo estado em que começou, o que torna a repetição comparável.
+
+Peça ao Claude Code um relatório com passo, observação e evidência de cada transição. Se a primeira diferença ocorrer na busca, pare nessa etapa e preserve o snapshot. Tratar uma falha no começo como se fosse um sucesso até a remoção só dificulta descobrir onde a execução divergiu.
+
+![Favorito de controle mantido na grade depois da remoção do alvo](../assets/06_remocao_preserva_controle.png)
+
+> O quadro ilustra o estado esperado após remover o alvo. O filtro segue ativo e a grade tem só o controle. Faça também uma leitura independente de `GET /favoritos`.
+
+## O mesmo experimento sem depender da conversa com o modelo
+
+Na raiz da série, com a aplicação ainda rodando, execute:
+
+```bash
+python3 0010_playwright_mcp_agregador/examples/verify_dashboard.py
+```
+
+O script inicia o mesmo servidor MCP, envia as operações de navegador em ordem e verifica os dados lidos do Express. Ele emite uma linha depois de cada conjunto de asserções concluído:
+
+```text
+Search narrowed the article grid.
+Favoriting updated the UI and the server list.
+Favorite persisted after a new page load.
+Removal preserved the control favorite.
+```
+
+Você pode comparar o resultado do roteiro no chat com o verificador. Se o agente disser que o fluxo passou e o script divergir, leia quais condições cada um realmente observou. O verificador precisa da base inicial do laboratório. Se você parar depois de favoritar, prepare outra cópia para repetir o caso completo.
+
+## Leia os sinais quando o cenário falhar
+
+Se o MCP abrir a URL e a grade continuar vazia, confira o terminal da aplicação e consulte `/artigos`. O servidor pode estar atendendo com outro banco. O filtro também pode carregar uma lista vazia por uma requisição que falhou, embora o HTML do dashboard apareça. Comece pelo contrato que consegue testar diretamente.
+
+Se a estrela mudar e `GET /favoritos` continuar devolvendo apenas o controle, espere a conclusão da gravação e confira a resposta HTTP da ação. Uma animação local pode acontecer antes da confirmação do backend. Se a API mostrar ambos depois da recarga, mas o filtro da grade esconder um deles, confira a busca, a URL consultada e o escopo do snapshot. Já dá para restringir o diagnóstico à leitura ou renderização da tela.
+
+Quando o controle sumir junto com o alvo, a identidade usada para clicar e o conteúdo do novo conjunto são evidências melhores do que uma contagem. Duas listas com um item podem conter artigos diferentes. Essa é a razão de o verificador comparar quais são os títulos, além de olhar a estrela.
+
+### Onde isso entra num projeto de verdade
+
+Use o MCP para explorar comportamento novo, reproduzir relatos e descobrir quais elementos representam as transições. Depois que a equipe concordar com a prova, os pontos críticos podem ir para uma suíte com asserções, dados fixos e ambiente independente por execução. Se dois testes modificarem a mesma lista de favoritos em paralelo, nenhuma boa asserção vai compensar a inconsistência da base.
+
+Comece pequeno. Pegue uma ação que envolve estado persistido em seu produto e escreva o que deve aparecer antes, logo depois e depois de carregar de novo. Acrescente um item de controle que não pode mudar. Entre uma estrela e o estado que sobrevive ao dia seguinte está a diferença entre executar um clique e comprovar um contrato.
+
+[Abrir o artigo completo e o laboratório da Pathbit no GitHub](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0010_playwright_mcp_agregador)
+
+#Playwright #MCP #ClaudeCode #SpecDrivenDevelopment #EngenhariaDeSoftware #Pathbit

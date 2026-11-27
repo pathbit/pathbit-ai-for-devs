@@ -1,7 +1,5 @@
 # OpenCode com 9Router e Ollama
 
-[Português (Brasil)](README.md) · [English](README.en.md) · [Español](README.es.md)
-
 Aproveite o gateway dos primeiros artigos e adicione uma saída local ao cliente OpenCode. Comprove a rota e o identificador de cada sessão com uma sonda compatível com OpenAI.
 
 ## Início rápido
@@ -40,5 +38,6 @@ Os resultados contêm `PATHBIT_ROUTER_OK` e `PATHBIT_LOCAL_OK`. No log da sonda,
 - [Arquivos e roteiro do exercício](examples/README.md)
 - [Artigo para LinkedIn](article/ARTICLE_LINKEDIN.md)
 - [Post para LinkedIn](article/POST_LINKEDIN.md)
+- [Figuras e roteiro do exercício](assets/figuras.md)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

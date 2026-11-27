@@ -24,3 +24,5 @@ Especificar não é burocracia. É uma forma de explicitar decisões antes da ge
 O artigo completo e o repositório com todos os templates e códigos estão no link do primeiro comentário.
 
 #InteligenciaArtificial #ClaudeCode #SDD #SpecDrivenDevelopment #EngenhariaDeSoftware #VibeCoding #SoftwareArchitecture #Pathbit
+
+![Diagrama das etapas do ciclo de desenvolvimento orientado por especificações](../assets/05_diagrama_ciclo_sdd.png)

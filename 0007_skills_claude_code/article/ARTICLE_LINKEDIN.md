@@ -1,91 +1,58 @@
-# Como criar Skills de projeto no Claude Code para evoluir o Agregador
+# A Skill que eu queria no Claude Code começava com uma pergunta sobre contagem
 
-![Planejamento com arquivos de apoio](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/assets/00_capa.png)
+![Diagrama da Skill de planejamento e suas fontes de contexto](../assets/01_contexto_skill.png)
 
+Um pedido chegou no Agregador: “Coloque um contador perto do filtro de categorias”. No quadro de tarefas parece simples. Um número ao lado de um seletor. No código, o número pode vir da página atual, do total de artigos que atendem aos filtros ativos ou do total da categoria ignorando busca e fonte.
 
-Depois de implementar algumas changes, o time percebe que repete o mesmo começo de conversa: descubra a rota usada pelo dashboard, leia o serviço, verifique se o comportamento já existe e proponha cenários de aceite antes de editar. Uma pessoa se lembra de pedir essas etapas. Outra começa direto pela tela. O resultado depende do que o prompt trouxe para aquela sessão.
+Essas contagens podem coincidir quando ninguém filtra e cabem dez artigos na tela. Com paginação ativa, uma conta de exemplo deixa a diferença visível. Imagine seis itens na página, nove artigos com o conjunto de filtros e doze na categoria inteira. Se a interface disser “12 resultados” quando a pessoa espera nove, dá para ter uma implementação rápida, um teste que passa e um painel que comunica um dado incorreto.
 
-No [artigo 0005](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0005_sdd_do_vibe_coding_a_engenharia_deterministica/article/ARTICLE.md), o `CLAUDE.md` define contexto permanente e os comandos `/spec` e `/implementar-spec` orientam a atividade. O [artigo 0006](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/article/ARTICLE.md) mostrou como guardar a decisão em uma change. Aqui vamos empacotar um roteiro de planejamento com referências e um modelo de saída em uma Skill versionada.
+O próximo passo não era repetir “leia o repositório com cuidado” em todo prompt. Reparei que o mesmo inventário surgia quando uma mudança envolvia o painel: qual rota entrega os itens, quem compõe filtros, o que o payload promete e em que arquivo o comportamento atual vive? Isso pode ser uma **Skill de projeto**.
 
-## O que colocar no CLAUDE.md e o que colocar na Skill
+## O que vale registrar como rotina
 
-| Informação | Onde ela ajuda mais | Exemplos |
-| --- | --- | --- |
-| Regra que vale em toda sessão do projeto | `CLAUDE.md` | Aplicativo usa Node.js 22. Preserve as rotas públicas existentes |
-| Procedimento que alguém usa sob demanda | `.claude/skills/<nome>/SKILL.md` | Inspecione a rota, a tela e a suíte e escreva critérios |
-| Dados que só interessam ao procedimento | Arquivos de apoio da Skill | Mapa das rotas e formato da proposta |
-| Comportamento aceito para uma feature | Especificação da mudança | O contador do dashboard representa a página exibida |
+A Skill do laboratório abre com um nome, uma descrição curta e acionamento manual. Em `.claude/skills/planejar-mudanca/SKILL.md` ela pede que o Claude Code descreva o comportamento pedido, encontre o ponto de entrada no repositório e diga como verificar a aceitação. O arquivo de referência mapeia a aplicação. O template deixa o plano revisável. A proposta do contador ainda pertence à mudança do contador.
 
-O efeito prático dessa divisão aparece depois de alguns meses. O contexto permanente permanece curto e pode acompanhar o projeto inteiro. A Skill orienta um fluxo específico e aponta para leituras que o agente faz quando precisa. Quando o endpoint muda de arquivo, atualize o mapa da Skill no mesmo PR. Se a mudança for uma regra de produto, atualize a especificação que a descreve.
-
-## Monte a pasta de uma Skill que o time consegue revisar
-
-O [exemplo completo](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/examples/README.md) usa como raiz o Agregador copiado. Coloque nele os arquivos abaixo. O front matter do `SKILL.md` apresenta o nome, a descrição, a instrução de argumentos e a regra de invocação.
-
-```text
-.claude/skills/planejar-mudanca/
-├── SKILL.md
-├── references/
-│   └── aggregator-map.md
-└── templates/
-    └── proposal.md
-```
-
-```yaml
----
-name: planejar-mudanca
-description: Draft a bounded SDD change for the news aggregator using its existing routes, data, and acceptance checks.
-argument-hint: "[requested behavior]"
-disable-model-invocation: true
----
-```
-
-Quando você digita `/planejar-mudanca ...`, `$ARGUMENTS` leva o pedido ao procedimento. O arquivo aponta para o mapa e o modelo por links relativos. O mapa diz onde começar, por exemplo `src/routes/artigos.js` para o contrato da lista e `src/public/index.html` para os dados que a tela de fato pede. O modelo serve para escrever a proposta como saída da sessão. [Referência de Skills do Claude Code](https://code.claude.com/docs/en/skills).
-
-`disable-model-invocation: true` reserva a invocação à pessoa que está conduzindo o trabalho. Isso é adequado quando você quer terminar uma leitura e voltar ao chat antes de iniciar um procedimento maior. A regra de invocação define o momento de uso da Skill. Os modos de permissão da sessão controlam ações de ferramenta, e pedir «somente leitura» no texto é uma instrução de trabalho revisável. No exercício, abra em Plan Mode e mantenha os prompts de permissão conforme sua política. [Modos de permissão](https://code.claude.com/docs/en/permission-modes).
-
-## A mesma Skill, duas perguntas com resultados diferentes
-
-Abra o Claude Code na raiz da cópia do Agregador. Abra o [roteiro](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/examples/prompts.md) e rode o primeiro caso.
-
-```text
-/planejar-mudanca Mostrar no dashboard quantos artigos aparecem depois que
-a pessoa filtra por categoria. Diferencie a quantidade retornada do total
-armazenado.
-```
-
-Uma proposta consistente identifica `GET /artigos`, o filtro `categoria` e o código que monta o cartão. Ela verifica o formato da resposta antes de decidir se a tela pode mostrar o total armazenado. A contagem da página atual pode ser derivada do vetor recebido. Se produto quer informar o total global ou o total depois do filtro, o contrato da API pode precisar de metadados além do vetor. Essa diferença deve aparecer como pergunta, e não como alteração silenciosa em SQLite.
-
-Faça a proposta aceitar uma categoria que devolve artigos e outra que deixa a lista vazia. A resposta deve nomear o elemento visual que exibirá o número e mostrar a origem do dado. Se o pedido precisar de dados de paginação, escreva um cenário para a última página e outro para um filtro que reduz o total. A Skill orienta onde olhar. A equipe decide quais cenários entram nessa entrega.
-
-No segundo caso, peça mensagens depois de favoritar e remover um favorito. O dashboard já usa `showToast` ao fim dessas operações. Uma boa resposta cita o ramo que exibe `Adicionado aos favoritos` ou `Removido dos favoritos` e pergunta qual comportamento adicional a equipe quer. Esse cenário exercita algo que um procedimento de planejamento precisa resolver: às vezes o melhor resultado da investigação é reconhecer que o pedido descreve uma função existente.
-
-## Transforme a saída em uma revisão útil
-
-Leia as referências citadas na proposta. Se o agente apontar a rota `GET /favoritos` como origem do contador da lista geral, compare com o JavaScript do dashboard. A interpretação deve bater com a requisição que a tela monta. Confira também se o texto distingue fato observado de requisito novo.
-
-| Trecho da proposta | Evidência que sustenta o trecho |
+| Tipo de informação | Onde faz sentido ficar |
 | --- | --- |
-| «A rota recebe uma categoria» | Parâmetro lido pelo handler e repassado ao serviço |
-| «O total deve aparecer ao lado do filtro» | Decisão de produto registrada na proposta |
-| «A lista vazia mostra zero» | Cenário com filtro sem correspondência e texto esperado |
-| «O JSON atual permanece um vetor» | Contrato existente conferido e preservado no escopo |
+| Convenção de projeto que vale para qualquer trabalho | `CLAUDE.md` |
+| Roteiro para investigar uma classe recorrente de mudança | `SKILL.md` e referências |
+| Decisão sobre o contador e suas condições de aceitação | Proposta da mudança |
+| Contrato observado | Implementação e testes |
 
-Depois de aprovar a proposta, mova o que interessa para a change do OpenSpec ou para a especificação que a equipe usa. A Skill continua sendo um procedimento. O artefato da entrega tem os detalhes aprovados daquela funcionalidade. A separação ajuda a evitar que o procedimento acumule decisões de todas as features antigas.
+A proposta pode dizer “contar a página carregada”. A Skill deve ensinar a encontrar a decisão e a apresentar a diferença. Se ela ordenar `response.length` para todos os contadores, vai herdar silenciosamente essa decisão em outra mudança.
 
-## Show-Me-The-Code
+## Onde o código tirou a dúvida
 
-1. Prepare a cópia do Agregador e instale a Skill conforme o [início rápido](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/README.md).
-2. Abra `claude --permission-mode plan` na cópia. Comece com um pedido do [roteiro](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/examples/prompts.md).
-3. Compare a proposta com os arquivos reais. Em uma segunda sessão, execute o outro caso e verifique se o agente encontra as mensagens de favoritos já existentes.
-4. Confira `git status --short` antes e depois da sessão. Execute a implementação em uma etapa própria depois da revisão.
+Na captura que acompanha o artigo, o terminal mostra a instalação de Claude Code disponível, os arquivos da Skill, a rota que lê `categoria`, `fonte`, `busca`, `favoritos`, `limit` e `offset`, e o ponto onde o painel informa que um favorito foi adicionado ou removido. É um ponto de partida que outro desenvolvedor pode abrir. A resposta de `GET /artigos` é uma lista de resultados. O array não anuncia por si só o total global filtrado.
 
-## Quando o comando ou as referências não aparecem
+![Roteiro de inspeção dos arquivos da Skill e das rotas e mensagens existentes](../assets/02_arvore_e_codigo_terminal.png)
 
-Se `/planejar-mudanca` não estiver disponível, confirme a raiz aberta no aplicativo e a estrutura `.claude/skills/planejar-mudanca/SKILL.md`. Uma sessão iniciada com os slash commands desativados também não oferece a Skill. Se o nome aparece e o modelo não lê o apoio, mande citar o caminho encontrado e revise os links de `SKILL.md`. Evite colar todos os arquivos da aplicação dentro dele. A Skill cresce a cada referência desnecessária e o caso real fica mais difícil de achar.
+Quando a pessoa solicita o total filtrado, prefiro discutir o contrato antes de escrever a UI. Um valor local calculado do array resolve “quantos estão à vista”. Para contar todos os resultados, a implementação precisa representar a mesma combinação de filtros em uma consulta que possa informar o total. Fazer essa mudança na resposta JSON também exige considerar os consumidores que leem diretamente o array.
 
-Na [próxima etapa](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0008_claude_code_worktrees/article/ARTICLE.md), vamos executar duas mudanças do mesmo Agregador em sessões que trabalham em cópias de código independentes.
+O segundo pedido do laboratório foi “mostre um aviso ao favoritar”. A inspeção revelou as duas mensagens e a condição que as escolhe. Nesse ponto o agente ganha mais se localizar e confirmar o comportamento do que se adicionar um segundo componente. Uma variação legítima, como ajustar o texto ou tornar o aviso perceptível para mais pessoas, vira outro pedido com seu próprio teste.
 
-[Repositório e arquivos do laboratório](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0007_skills_claude_code)
+## O que duas consultas já esclarecem
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Em uma base descartável, registrei quatro artigos da categoria Engenharia e um de Interface. Três títulos de Engenharia contêm “Node”. Uma das três correspondências vem de outra fonte. Fiz a mesma busca com limite 2 e com um limite grande o suficiente para essa amostra. A resposta trouxe dois itens na página e três no conjunto filtrado. Retirei a busca e a categoria trouxe quatro. Ao limitar também pela Fonte A, o array voltou a ter dois registros.
+
+![Resultados esperados das consultas no Agregador](../assets/03_contagens_terminal.png)
+
+Nesse ponto a divergência virou observável. Se o contador diz “exibidos”, dois é correto para a página pequena. Se diz “encontrados em Engenharia com Node”, a base dá três. Se diz “artigos de Engenharia”, são quatro. O mesmo componente poderia mostrar qualquer um desses números com aparência convincente. O rótulo e os critérios da proposta são o que transformam um cálculo numa informação para a pessoa que está lendo.
+
+A diferença também orienta o tamanho da mudança. Um contador da página cabe no ciclo de renderização. Um contador global precisa reproduzir o filtro, preservar a semântica da seleção e talvez alterar o contrato da API. Antes de transformar uma lista em objeto com itens e total, procure consumidores que tratam a resposta diretamente como array. Um checkout de leitura mais um teste de contrato evitam resolver a ambiguidade com uma alteração de compatibilidade escondida.
+
+### O significado de iniciar manualmente
+
+A Skill declara `disable-model-invocation: true`. Quem opera escolhe o momento de carregá-la. No laboratório interativo o Claude Code abre em modo de planejamento. Ao final, vale comparar o status do checkout. O corpo da Skill explica como investigar e quais provas procurar. O modo de trabalho governa as ações que a sessão pode executar. As duas escolhas juntas tornam o exercício mais fácil de revisar por alguém que queira repetir a análise em outra máquina.
+
+## Deixe o ponto de verificação disponível para outra pessoa
+
+A [pasta do exercício](../examples/README.md) deixa copiar a Skill para uma cópia do Agregador e chamar `/planejar-mudanca`. Comece com um pedido com duas interpretações plausíveis. Confira se a proposta cita os arquivos certos, documenta qual opção exige uma decisão e descreve um caso em que os resultados divergem.
+
+Para este contador eu montaria a base com artigos de duas fontes dentro da mesma categoria e usaria uma página menor que o conjunto filtrado. Em seguida testaria busca, troca de categoria e resultado vazio. As três contagens diferem e fica barato comprovar o que o texto da interface promete. Se o agente só disser “adicionar um contador” e não indicar qual resultado será exibido, ainda falta definir aceitação.
+
+O mesmo roteiro vale quando a equipe aciona uma Skill para preparar documentação, revisar um teste ou mapear um endpoint. Mantenha a parte repetível curta, passe uma tarefa delimitada e traga a decisão para a proposta. O melhor indicador de uma Skill é a revisão que outra pessoa consegue fazer abrindo o código que ela citou.
+
+[Leitura completa, início rápido e exemplo no GitHub](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0007_skills_claude_code)
+
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

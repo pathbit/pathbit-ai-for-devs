@@ -1,75 +1,56 @@
-# Como usar OpenCode com o 9Router e um modelo local no Ollama
+# O OpenCode respondeu. Como você conferiria qual servidor recebeu o pedido?
 
-![Uma CLI com dois destinos](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0009_opencode_9router_ollama/assets/00_capa.png)
+![Fluxo entre a seleção de modelo no OpenCode e a confirmação no servidor](../assets/01_roteamento_modelos.png)
 
+Configurei duas saídas no mesmo cliente. Uma representava um combo do 9Router, a outra um Ollama local. Se eu perguntasse ao modelo “qual modelo é você?”, receberia uma frase. Eu precisava saber por qual endpoint passou a requisição antes de decidir se podia anexar um arquivo do projeto.
 
-O [artigo 0002](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0002_claude_gravity_utilizando_9router/article/ARTICLE.md) conecta o Claude Code ao 9Router. O [0003](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md) usa combos para montar uma cascata dentro do gateway. Ao trocar o cliente para OpenCode, vale manter as rotas onde você já administra os modelos e adicionar uma opção que fala com o Ollama no próprio computador.
+É a diferença entre observar o que o modelo gerou e observar o que o cliente fez. O OpenCode lê `--model provedor/id`, escolhe as configurações do provedor e faz a chamada. O gateway pode decidir outro upstream. O Ollama pode receber a tag de um modelo que ainda precisa ser carregado. Cada transição pede uma evidência.
 
-O objetivo é escolher a rota de cada sessão com clareza. Você pode pedir ao OpenCode que explique o contrato de favoritos do Agregador usando o combo do gateway e repetir o exercício com um modelo local. Antes de enviar um arquivo do projeto, verifique a URL que realmente recebe a requisição, o identificador de modelo enviado pelo cliente e as capacidades da rota.
+## Duas saídas, sem precisar ligar as duas plataformas
 
-## Arquitetura de duas saídas
+Usei uma sonda HTTP local. Ela reconhece dois prefixos compatíveis com a API usada pelo cliente. Se o modelo do corpo bate com o modelo esperado para aquele caminho, a sonda envia um recibo. Um prefixo errado devolve `404`. Um modelo incorreto naquele caminho devolve `400`. A mesma configuração se presta ao teste sem acionar serviços pagos nem baixar um modelo.
 
-```mermaid
-flowchart LR
-    A[OpenCode] -->|router/pathbit-code| B[9Router]
-    B --> C[Combo ou provedor aprovado]
-    A -->|local/qwen2.5-coder:7b| D[Ollama em loopback]
-    D --> E[Modelo local carregado]
-```
-
-| Dimensão | Rota `router` | Rota `local` |
+| Seleção no OpenCode | Rota observada na sonda | Recibo |
 | --- | --- | --- |
-| URL de base | `http://127.0.0.1:20128/v1` na stack dos primeiros artigos | `http://127.0.0.1:11434/v1` com Ollama local |
-| Modelo do OpenCode | `router/pathbit-code` | `local/qwen2.5-coder:7b` |
-| Campo `model` enviado | `pathbit-code` | `qwen2.5-coder:7b` |
-| Credencial | Chave do gateway, lida do ambiente | Valor `ollama` no exemplo local |
-| Onde o código do prompt pode trafegar | O gateway pode encaminhar ao provedor do combo | Instância Ollama configurada para executar o modelo local |
+| `router/pathbit-code` | `/router/v1/chat/completions` | `PATHBIT_ROUTER_OK` |
+| `local/qwen2.5-coder:7b` | `/local/v1/chat/completions` | `PATHBIT_LOCAL_OK` |
 
-A rota do gateway pode ser local e ainda assim encaminhar prompts para fora da máquina. Leia o combo e as regras de tratamento de dados antes de enviar código de trabalho. A rota local do artigo aponta para loopback e usa um modelo baixado. Se você apontar o serviço para outra máquina ou habilitar um modelo servido remotamente, muda o destino efetivo dos dados.
+O `opencode.json` do exercício usa o adaptador compatível para ambas as entradas. O `baseURL` e o modelo disponível mudam em cada uma. A configuração funciona em um diretório temporário. O pedido da execução foi a mesma frase para as duas rotas, sem arquivos do Agregador.
 
-## Configure o projeto sem alterar os outros workspaces
+![Recibos fixos esperados no exercício do OpenCode](../assets/02_respostas_cli.png)
 
-O laboratório mantém o [arquivo de configuração](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0009_opencode_9router_ollama/examples/opencode.json.example) dentro do exemplo. Copie-o como `opencode.json` para uma pasta descartável ou, depois de revisar, para a raiz do projeto. A versão usada no teste foi OpenCode **2.4.1**. Nesta linha, use `providers`, `package` e `settings`. Tutoriais que mostram `provider` e `npm` podem se referir a uma geração anterior do formato. [Provedores no OpenCode](https://opencode.ai/docs/providers/) · [Precedência da configuração](https://opencode.ai/docs/config/).
+O terminal do servidor também registrou os caminhos das duas chamadas. A combinação verificar caminho mais corpo é importante. Uma sonda que devolve `200` antes de olhar o modelo aceitaria a tag local na rota do gateway. Uma frase que parece correta também não demonstraria que o gateway selecionou determinado membro do combo.
 
-Os valores da URL e da chave do 9Router vêm de `{env:PATHBIT_ROUTER_BASE}` e `{env:PATHBIT_ROUTER_KEY}`. A URL local vem de `{env:PATHBIT_OLLAMA_BASE}`. O prefixo antes da barra escolhe o provedor no cliente. O identificador dentro de `models` precisa bater com o combo no gateway ou com a tag que o Ollama reconhece. O nome amigável serve para exibição no menu.
+## Controle de rota e controle de modelo
 
-Nos dois destinos, `baseURL` termina em `/v1`. O runtime compatível adiciona `/chat/completions`. Não coloque `/v1/chat/completions` inteiro no campo de URL de base. O 9Router dos exemplos anteriores expõe também um caminho para compatibilidade com Anthropic. Aqui estamos usando o caminho OpenAI-compatível para o OpenCode conversar com os dois servidores com o mesmo tipo de requisição. [Compatibilidade OpenAI no Ollama](https://docs.ollama.com/api/openai-compatibility).
+O próximo teste foi enviar deliberadamente três pedidos à mesma sonda. O primeiro usou `pathbit-code` na rota do gateway e recebeu `200`. O segundo manteve o caminho e enviou `qwen2.5-coder:7b`, que recebeu `400` com o nome esperado. O terceiro colocou o modelo certo em um caminho inválido e recebeu `404`. Os casos negativos deixam mais claro por que os dois recibos anteriores significam alguma coisa.
 
-## Comprove a seleção com uma sonda local
+![Teste da mesma sonda com três resultados HTTP distintos](../assets/04_controles_sonda.png)
 
-Antes de ligar provedores reais, rode `probe_server.py`. Ele simula dois endereços no seu computador. Cada um aceita um identificador e devolve um recibo fixo no protocolo que o OpenCode usa. O texto do pedido pode ser simples porque a evidência está no caminho e no campo `model` recebidos pelo servidor.
+Quem mantém o cliente pode usar os três resultados como uma tabela de diagnóstico. Se o caminho chegou ao servidor e o corpo diverge, procure o identificador selecionado e a entrada de configuração. Se o servidor recusa o caminho, revise a base que o cliente usou antes de trocar nomes de modelo. Se o serviço gerou texto mas a interface não exibiu, verifique a camada de streaming e a compatibilidade do adaptador. Cada hipótese pede observar uma parte diferente da chamada.
 
-```bash
-export PATHBIT_ROUTER_BASE=http://127.0.0.1:19809/router/v1
-export PATHBIT_ROUTER_KEY=lab-only
-export PATHBIT_OLLAMA_BASE=http://127.0.0.1:19809/local/v1
-opencode --standalone run --model router/pathbit-code 'Return only a route receipt.'
-opencode --standalone run --model local/qwen2.5-coder:7b 'Return only a route receipt.'
-```
+O mesmo raciocínio ajuda com vários projetos no notebook. Eu guardaria uma configuração de projeto com nomes de variáveis, nunca o valor da chave. A primeira chamada pode ser um pedido sem arquivos, suficiente para confirmar catálogo e transporte. Antes de anexar um trecho do projeto, o destino real precisa estar aprovado para aquele conteúdo. O serviço que escuta em loopback pode ser um proxy. A confirmação do caminho posterior fica com a instância que encaminha o pedido.
 
-A primeira chamada deve incluir `PATHBIT_ROUTER_OK`. A segunda deve incluir `PATHBIT_LOCAL_OK`. O terminal da sonda registra requisições em `/router/v1/chat/completions` e `/local/v1/chat/completions`. Se você trocar o nome do modelo em uma das rotas, a sonda devolve uma resposta de erro com o identificador esperado. Esse percurso comprova roteamento e compatibilidade com o formato de resposta do laboratório. Ele não mede qualidade de geração de um modelo real.
+## A etapa real começa no catálogo
 
-## Passe para o gateway e para o Ollama do seu ambiente
+Depois do laboratório, é hora de consultar o serviço real. No 9Router, use o catálogo da sua instância para achar o identificador do combo e configure a chave no ambiente. No Ollama, veja os modelos que a máquina tem e confirme a tag que você pretende chamar. Em cada caso, mantenha o identificador do comando e o que o servidor espera alinhados.
 
-No 9Router, crie ou selecione um combo já validado pelos passos do [artigo 0003](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0003_fallback_modelos_gratuitos_9router/article/ARTICLE.md). Use a chave do gateway para consultar `/v1/models` e confira o identificador que ele aceita. Ajuste o nome `pathbit-code` no exemplo se o seu combo tiver outro ID. Uma rota pode listar modelos e ainda falhar em inferência por cota ou permissão. Confirme uma resposta pequena antes de tentar abrir o projeto.
+Uma falha antes de aparecer tráfego costuma apontar para a seleção ou para onde o cliente leu a configuração. Um `404` no destino pode ser o caminho montado com uma base incompleta. Um `401` ou `403` do gateway dá outra pista, a credencial e seu escopo. Se a primeira resposta do Ollama demorar, vale verificar modelo carregado, memória e os recursos disponíveis antes de mudar o prompt.
 
-Para o caminho local, inicie o Ollama e baixe `qwen2.5-coder:7b` ou escolha um modelo instalado, atualizando a tag nos dois lugares. Confira `ollama list` e o uso de memória da máquina. Um modelo pequeno pode responder bem a perguntas sobre um arquivo e falhar em uso de ferramentas ou em mudanças longas. O catálogo do Ollama documenta os tamanhos e tags disponíveis. [Qwen 2.5 Coder](https://ollama.com/library/qwen2.5-coder).
+## A mesma pergunta com dois modelos
 
-Rode cada CLI com `--model`, primeiro com uma frase de teste. Depois abra a cópia do Agregador e use `--file src/routes/favoritos.js` se quiser anexar apenas esse trecho ao teste. Peça que a resposta cite o filtro de favoritos e o limite da lista, sem editar código. Compare com a fonte antes de decidir se a rota serve para planejamento, implementação ou revisão.
+No Agregador, o arquivo `src/routes/favoritos.js` tem escopo pequeno. Podemos pedir a duas sessões que indiquem quais métodos HTTP o módulo expõe, que formatos usa e quais linhas sustentam a resposta. Em seguida abrimos o arquivo e comparamos os resultados com critérios concretos. Uma resposta com detalhes que a pessoa revisora consegue localizar é mais fácil de avaliar que uma conclusão genérica.
 
-## Escolher outro provedor e usar fallback são operações diferentes
+O exercício de transporte foi executado com os endpoints da sonda. Para uma avaliação de inferência, use suas instâncias autorizadas e o mesmo conteúdo nas duas sessões. Olhe qualidade da resposta, latência, recurso local e dados enviados. Em um gateway que pode encaminhar a outro serviço, a URL de loopback indica a primeira conexão. É a política do gateway que esclarece o destino posterior.
 
-`opencode run --model router/pathbit-code` pede ao 9Router que execute o combo. A cascata fica dentro do gateway e segue as regras que você configurou lá. `opencode run --model local/...` escolhe a rota do Ollama no lado do cliente. Este exemplo não configura uma troca automática entre `router` e `local`. Quando uma chamada falhar, anote o destino, confira o estado do gateway ou do Ollama e decida se deve repetir com o outro modelo.
+Anotar qual camada respondeu tornou a configuração mais fácil de corrigir. A pergunta “qual servidor recebeu?” cabe num laboratório curto. “Qual modelo foi melhor para esta tarefa?” vira outra sessão, com os testes e os critérios que a escolha merece.
 
-Se a primeira chamada retorna `401`, revise qual chave entrou na rota selecionada. `404` pode indicar caminho ou ID de modelo. Uma resposta `429` do gateway pede examinar o provedor real do combo e suas cotas. Se houver timeout local, confirme se o modelo foi baixado e se a primeira carga demorou. Observe também se a tarefa depende de ferramentas. Uma conversa curta em texto pode passar com uma rota que rejeita `tool_calls`.
+## Como escolher uma saída sem adivinhar pela marca do modelo
 
-## Show-Me-The-Code
+Em um gateway, você pode centralizar a descoberta dos provedores e a política de fallback. A equipe precisa conseguir rastrear qual membro assumiu a chamada e qual política vale quando algum destino falha. No caminho que chama Ollama diretamente, a decisão passa a depender dos modelos instalados e disponíveis e do que a máquina suporta naquele momento. Nas duas opções, os contratos do cliente continuam sendo o ponto de partida.
 
-1. Copie a configuração e rode a sonda de acordo com o [guia](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0009_opencode_9router_ollama/README.md). Confira os dois recibos e os caminhos.
-2. Abra o [roteiro de diagnóstico](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0009_opencode_9router_ollama/examples/README.md) e confirme o catálogo da sua saída real antes de usá-la.
-3. Escolha o destino explicitamente. Adote o exemplo em uma cópia do projeto para examinar precedência, arquivos anexados e permissões da sessão.
-4. Quando a rota estiver comprovada, siga para a [validação visual do Agregador](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0010_playwright_mcp_agregador/article/ARTICLE.md).
+Uma comparação honesta usa a mesma tarefa, os mesmos arquivos e critérios conhecidos antes de rodar. Para a leitura de uma rota, eu conferiria se o texto localiza os métodos, se distingue JSON e outras representações e se cita código que ainda existe. Para edição, adicionaria teste, qualidade do diff e mudanças fora de escopo. Só depois mediria latência ou custo. O teste da sonda economiza o diagnóstico de configuração e deixa a avaliação de qualidade para o experimento que realmente envolve modelos.
 
-[Repositório e arquivos do laboratório](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0009_opencode_9router_ollama)
+[Início rápido, configuração e sonda no GitHub](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0009_opencode_9router_ollama)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

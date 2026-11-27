@@ -1,7 +1,5 @@
 # Playwright MCP no dashboard do Agregador
 
-[Português (Brasil)](README.md) · [English](README.en.md) · [Español](README.es.md)
-
 Conecte o servidor MCP ao Claude Code e reproduza busca, favoritos, persistência após recarregar e remoção na interface do artigo 0005.
 
 ## Início rápido
@@ -35,5 +33,6 @@ Em outro terminal, abra `claude` na pasta `$lab/app` indicada no primeiro termin
 - [Arquivos e roteiro do exercício](examples/README.md)
 - [Artigo para LinkedIn](article/ARTICLE_LINKEDIN.md)
 - [Post para LinkedIn](article/POST_LINKEDIN.md)
+- [Figuras e roteiro do exercício](assets/figuras.md)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

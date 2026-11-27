@@ -15,18 +15,23 @@ def read(base, path, method="GET"):
 
 
 def verify(base):
-    headers, text = read(base, "/favoritos/export.csv")
-    assert headers.get_content_type() == "text/csv", headers
-    assert headers.get_content_charset() == "utf-8", headers
-    assert "favoritos.csv" in headers["Content-Disposition"], headers
-    columns, *rows = csv.reader(StringIO(text))
-    assert columns == ["titulo", "link", "fonte"], columns
     _, json_text = read(base, "/favoritos")
     favorites = json.loads(json_text)
     assert len(favorites) == 1, favorites
     expected = favorites[0]
     assert expected["titulo"].startswith("="), expected
+
+    headers, text = read(base, "/favoritos/export.csv")
+    assert headers.get_content_type() == "text/csv", headers
+    assert headers.get_content_charset() == "utf-8", headers
+    assert headers.get_content_disposition() == "attachment", headers
+    assert headers.get_filename() == "favoritos.csv", headers
+    columns, *rows = csv.reader(StringIO(text))
+    assert columns == ["titulo", "link", "fonte"], columns
     assert rows == [["'" + expected["titulo"], expected["link"], expected["fonte"]]], rows
+    _, json_after_export = read(base, "/favoritos")
+    assert json.loads(json_after_export) == favorites, json_after_export
+
     path = f'/artigos/{expected["id"]}/favoritar'
     read(base, path, "DELETE")
     try:
@@ -34,6 +39,8 @@ def verify(base):
         assert list(csv.reader(StringIO(empty))) == [columns], empty
     finally:
         read(base, path, "POST")
+    _, json_after_restore = read(base, "/favoritos")
+    assert json.loads(json_after_restore) == favorites, json_after_restore
     print("CSV attachment, quoting, filtered rows, header-only export, and existing JSON verified.")
 
 

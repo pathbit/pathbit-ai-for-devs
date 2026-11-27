@@ -1,7 +1,5 @@
 # OpenSpec e Claude Code no Agregador
 
-[Português (Brasil)](README.md) · [English](README.en.md) · [Español](README.es.md)
-
 Acrescente a exportação CSV ao aplicativo do artigo 0005. Separe a especificação vigente da mudança, implemente em uma cópia e arquive o requisito depois de conferir a resposta HTTP.
 
 ## Início rápido
@@ -48,5 +46,6 @@ Se implementou com o agente, prossiga a partir de `export` e mantenha o seu patc
 - [Arquivos e roteiro do exercício](examples/README.md)
 - [Artigo para LinkedIn](article/ARTICLE_LINKEDIN.md)
 - [Post para LinkedIn](article/POST_LINKEDIN.md)
+- [Figuras e roteiro do exercício](assets/figuras.md)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

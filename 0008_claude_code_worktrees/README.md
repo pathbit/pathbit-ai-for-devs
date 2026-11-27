@@ -1,7 +1,5 @@
 # Claude Code e Git Worktrees
 
-[Português (Brasil)](README.md) · [English](README.en.md) · [Español](README.es.md)
-
 Isole duas alterações do Agregador em branches e pastas diferentes. Integre os resultados no mesmo checkout e exercite os contratos reais da aplicação.
 
 ## Início rápido
@@ -37,5 +35,6 @@ Depois de rever e registrar cada mudança, crie uma terceira worktree a partir d
 - [Arquivos e roteiro do exercício](examples/README.md)
 - [Artigo para LinkedIn](article/ARTICLE_LINKEDIN.md)
 - [Post para LinkedIn](article/POST_LINKEDIN.md)
+- [Figuras e roteiro do exercício](assets/figuras.md)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

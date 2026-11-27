@@ -1,104 +1,71 @@
-# Como evoluir o Agregador do artigo 0005 com OpenSpec e Claude Code
+# Pediram um CSV. Qual contrato você preservaria antes de abrir o Claude Code?
 
-![Do contrato atual ao download CSV](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/assets/00_capa.png)
+![O caminho da especificação ao arquivamento](../assets/01_fluxo_specs.png)
 
+A primeira versão do Agregador já lista favoritos. O painel pede JSON para montar seus cartões e usa as ações existentes para marcar e desmarcar artigos. Quando surgiu a ideia de baixar essa lista para uma planilha, o pedido tinha três palavras que qualquer desenvolvedor entenderia: “exportar favoritos em CSV”.
 
-Você publica a primeira versão do Agregador. O usuário já consegue salvar artigos e ver a lista de favoritos. Na semana seguinte, alguém pede «exportar meus favoritos». Essa frase pode virar um CSV, um JSON, um PDF ou um botão que envia links por e-mail. O código em produção tem consumidores da lista atual e uma coleção SQLite que não precisa mudar para atender ao pedido.
+O problema era o que não cabia nessas palavras. A lista de origem exigia os mesmos filtros? O download teria as mesmas colunas que a tabela do banco? Uma lista vazia geraria um arquivo, uma mensagem ou um erro? Se um título contivesse vírgula e aspas, a planilha conseguiria abrir o arquivo? Em qual lugar ficaria documentado que o painel ainda precisa de JSON?
 
-No [artigo 0005](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0005_sdd_do_vibe_coding_a_engenharia_deterministica/article/ARTICLE.md), construímos o sistema a partir de seis especificações. Agora vamos continuar a partir desse código. O [OpenSpec](https://github.com/Fission-AI/OpenSpec) organiza a descrição vigente do produto e a mudança em andamento em diretórios diferentes. O Claude Code lê esses arquivos para ajudar a propor e implementar a mudança. O contrato HTTP e a resposta observada decidem quando ela terminou.
+Usei esse caso para trabalhar com OpenSpec e Claude Code. Quem vem do [artigo sobre SDD](../../0005_sdd_do_vibe_coding_a_engenharia_deterministica/article/ARTICLE.md) já conhece a ideia de tornar decisões revisáveis. Aqui o laboratório mostra onde cada decisão fica quando o projeto tem uma implementação em uso e uma evolução pequena a entregar.
 
-## Comece pela funcionalidade que já funciona
+## A regra vigente e a proposta têm endereços diferentes
 
-Abra `src/routes/favoritos.js` no [Agregador original](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0005_sdd_do_vibe_coding_a_engenharia_deterministica). O `GET /favoritos` chama `listarArtigos({ apenasFavoritos: true, limit: 100 })` e devolve JSON. A alteração vai acrescentar outra representação da mesma lista em `GET /favoritos/export.csv`. O filtro, a ordem e a fronteira de 100 itens continuam iguais aos da lista existente.
+A regra atual de Favoritos fica em `openspec/specs/favorites/spec.md`. A proposta da mudança, o desenho técnico, as tarefas e o delta moram em `openspec/changes/export-favorites-csv/`. Os cenários do delta registram o que o produto ganha: um anexo CSV com colunas fixas, mesmas regras de seleção e uma definição explícita para a lista vazia. A listagem JSON continua existindo.
 
-| Pergunta de produto | Decisão deste artigo | Como conferir |
-| --- | --- | --- |
-| O que entra no arquivo? | `titulo`, `link` e `fonte`, nessa ordem | Leia o cabeçalho e compare as linhas com o JSON |
-| O que acontece com uma lista vazia? | O download contém apenas o cabeçalho | Remova o favorito no ambiente descartável e repita a chamada |
-| O que acontece com aspas, vírgulas e títulos parecidos com fórmulas? | Aspas internas dobradas, campos delimitados e apóstrofo nos campos arriscados | Abra o arquivo com um leitor CSV e confira o título de demonstração |
-| Quem já consome `/favoritos` precisa fazer algo? | O contrato JSON permanece disponível | Compare conteúdo e `Content-Type` da rota anterior |
-| A interface ganha botão? | O escopo cobre só o endpoint | O diff da solução de referência se limita à rota e ao serializador |
+Com isso, duas pessoas podem discutir a regra sem precisar abrir o código. No CSV vazio, preferimos entregar o cabeçalho. Quem faz download recebe o mesmo formato, seja o resultado vazio ou populado. A hipótese também vira um teste pequeno. Se o produto pedir uma mensagem diferente na interface, conseguimos discutir a apresentação sem mudar o formato que o servidor entrega.
 
-O título de um artigo vem de uma fonte de conteúdo. Ele é dado, inclusive quando começa com `=`. Cercar o campo com aspas resolve a sintaxe CSV. A planilha ainda pode interpretar o valor interno como fórmula. A representação deste laboratório prefixa um apóstrofo antes de citar os campos cujo primeiro caractere relevante é `=`, `+`, `-` ou `@`. O JSON mantém o texto original. Antes de usar a exportação com planilhas da sua empresa, confira as opções de importação que elas aplicam aos campos.
+Cada documento responde a uma dúvida distinta.
 
-## Onde cada artefato do OpenSpec mora
-
-Em uma cópia do aplicativo, inicialize o OpenSpec direcionado ao Claude Code. O [exemplo versionado](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/examples/README.md) já fornece uma especificação mínima da funcionalidade existente e uma change para o CSV.
-
-```text
-openspec/
-├── specs/
-│   └── favorites/
-│       └── spec.md
-└── changes/
-    └── export-favorites-csv/
-        ├── proposal.md
-        ├── design.md
-        ├── tasks.md
-        └── specs/favorites/spec.md
-```
-
-A especificação em `specs/favorites` é o ponto de partida aceito. Ela afirma o que o JSON devolve. A change tem um delta em `changes/.../specs/favorites` com `ADDED Requirements`, porque o download se soma à capacidade existente. Se a mudança alterasse o formato de `GET /favoritos`, seria uma modificação do requisito vigente e exigiria discutir compatibilidade com quem já o usa.
-
-| Arquivo na change | Pergunta que ele responde | Exemplo |
-| --- | --- | --- |
-| `proposal.md` | Por que mexer no sistema? | Levar uma lista de leitura a uma planilha |
-| `design.md` | Como fazer com o código que existe? | Reusar o serviço de favoritos e serializar na saída |
-| `specs/favorites/spec.md` | Que comportamento o leitor poderá observar? | O download vazio tem cabeçalho e zero registros |
-| `tasks.md` | Como dividir implementação e verificação? | Serializador, rota adicional e cenários HTTP |
-
-Esse formato resolve um problema comum de manutenção. Uma tarefa pode ser concluída mesmo que o arquivo Markdown ainda contenha uma hipótese velha. Durante a implementação, volte à change para atualizar a decisão com a revisão da equipe. Quando ela for aceita, o arquivo vigente passa a representar o comportamento novo. Quem investigar favoritos no futuro consegue separar a regra atual do contexto histórico daquela mudança.
-
-## Crie a proposta e confronte o que o agente supôs
-
-Há dois pontos de entrada. Você pode copiar a change pronta, revisar o delta e reproduzir os resultados. Em uma segunda cópia, instale a integração e abra o Claude Code para escrever a própria proposta com `/openspec-propose`. Use um pedido que amarre o modelo ao código existente.
-
-```text
-/openspec-propose export-favorites-csv
-
-Leia src/routes/favoritos.js e o serviço de artigos. Proponha um download UTF-8
-em GET /favoritos/export.csv com título, link e fonte. Preserve a lista JSON,
-o limite atual e a ordem. Inclua lista vazia e campos que contenham aspas
-ou pareçam fórmulas de planilha. Deixe o dashboard fora desta mudança.
-```
-
-Confronte a proposta com a situação inicial. Se ela adicionar autenticação, migração ou interface, peça que explique qual requisito exigiu a alteração. Se ela descrever «a API continua compatível» sem especificar qual rota preserva, faça o agente registrar o caso verificável. Se houver uma decisão ainda aberta, trate-a no design antes que o modelo produza um patch.
-
-Em OpenSpec 2.2.0, prepare os arquivos de projeto com `init --tools claude --scope project`. A CLI `validate --strict` verifica os artefatos no formato da ferramenta. A validação estrutural pode passar com o servidor parado ou com o CSV incorreto. Use-a antes de aplicar a change e volte à API depois. Os comandos de agente dependem da integração instalada. [Fluxo OPSX](https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md) · [Referência da CLI](https://github.com/Fission-AI/OpenSpec/blob/main/docs/cli.md).
-
-## Conecte o delta ao código do Agregador
-
-Faça a lista JSON e a exportação chamarem a mesma função de consulta. O exemplo mantém o limite de 100 e usa `res.attachment('favoritos.csv')` para sinalizar o download. O tipo de mídia sai como `text/csv` com UTF-8. O serializador recebe os objetos do serviço e devolve um texto com quebra CRLF e cabeçalho fixo. [Rota de referência](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/examples/reference/favoritos.js) · [Serializador de referência](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/examples/reference/favoritesCsv.js).
-
-Depois de revisar os artefatos, `/openspec-apply-change export-favorites-csv` orienta a implementação no Claude Code. Os dois arquivos de referência permitem reproduzir o contrato sem conta de modelo. Use um dos caminhos na cópia do laboratório. Em ambos, observe o diff antes de executar os cenários e marque as tarefas à medida que elas forem verificadas.
-
-## Show-Me-The-Code
-
-1. Prepare a cópia do Agregador com [o guia rápido](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/README.md) e execute `npm test` no estado inicial.
-2. Inicialize OpenSpec, instale os artefatos da change e confirme `validate export-favorites-csv --strict`.
-3. Implemente pela integração do Claude Code ou use os dois arquivos de referência. Carregue os artigos de demonstração na base SQLite local.
-4. Faça `curl -i http://127.0.0.1:19806/favoritos/export.csv`. Compare a resposta com a lista JSON e execute o [verificador HTTP](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0006_openspec_claude_code/examples/verify_export.py). O verificador percorre lista preenchida e lista vazia e restaura o favorito de demonstração ao terminar.
-5. Rode novamente `npm test`. Depois da revisão, use `openspec archive export-favorites-csv` pela CLI da versão do laboratório. Observe a especificação vigente e o diretório arquivado.
-
-Uma resposta válida da base de demonstração tem esta forma. O apóstrofo no título é parte da escolha de exportação para planilha.
-
-```csv
-titulo,link,fonte
-"'=Arquitetura, ""em prática""","https://example.org/architecture","Pathbit Lab"
-```
-
-## Diagnóstico quando os resultados divergem
-
-| Sintoma | O que observar primeiro |
+| Pergunta em revisão | Onde encontrei a resposta |
 | --- | --- |
-| `/openspec-propose` não aparece | Abra Claude Code na cópia inicializada e confira os arquivos que `openspec init --tools claude --scope project` gerou |
-| O delta falha na validação | Leia o requisito nomeado e confirme que o cenário tem `WHEN` e `THEN` |
-| O servidor responde `404` ao exportar | Confira qual processo está ouvindo a porta e se ele usa a rota nova |
-| O CSV vem vazio durante o exercício | Compare a variável `DATABASE_PATH` usada para semear com a do servidor |
-| O Node reclama da ABI de SQLite | Confira a versão de `node` e faça `npm ci` para essa versão na cópia |
+| Por que abrir essa mudança? | Na proposta de exportação |
+| Qual nova promessa o produto assume? | No delta com requisito e cenários |
+| Onde fica a transformação de dados? | No desenho e no patch da rota de favoritos |
+| Como repetir a aceitação? | Nas tarefas e no verificador HTTP |
+| Como a regra vigente será atualizada? | No arquivamento e na nova spec de Favoritos |
 
-Na próxima etapa, vamos transformar o roteiro de descoberta de rota e definição de aceite em uma [Skill do Claude Code](https://github.com/pathbit/pathbit-ai-for-devs/blob/master/0007_skills_claude_code/article/ARTICLE.md).
+É possível fazer uma alteração de uma linha sem esses arquivos todos. Vale usar a estrutura quando a pergunta reaparece em mais de uma revisão, muda um contrato público ou pode confundir o que já existe com o que está sendo acrescentado.
 
-[Repositório e arquivos do laboratório](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0006_openspec_claude_code)
+## O caso que valeu o laboratório
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Escolhemos um título de exemplo com vírgula, aspas e um caractere que pode iniciar fórmula em planilha. Um CSV produzido com `join(',')` parece correto com o título “Arquitetura”. Já um título como `=Arquitetura, "em prática"` obriga o código a escapar as aspas, cercar o campo completo e tratar o prefixo antes de entregar o arquivo. Essa decisão fica na transformação para CSV. Colocar o prefixo no título persistido mudaria o conteúdo que o painel mostra no JSON.
+
+O endpoint novo e o existente passam pela aplicação. No experimento, a verificação conferiu o tipo de conteúdo, o nome do anexo, a forma que o parser recupera dos campos, a seleção da lista e o arquivo só com cabeçalho. O JSON foi verificado em separado na mesma execução.
+
+![Exemplo da resposta do download de favoritos e saída do verificador](../assets/03_http_terminal.png)
+
+Dá para ver dois níveis de confirmação. `openspec validate export-favorites-csv --strict` conferiu a estrutura da alteração e o `status` encontrou os quatro artefatos. O verificador chamou a rota de verdade e confirmou o contrato em execução. Arquivos de planejamento completos ajudam a explicar um diff. Cabeçalho, aspas e filtros precisam passar pelo comportamento que a pessoa usuária recebe.
+
+## Onde entrou o Claude Code
+
+O projeto foi inicializado com OpenSpec 2.2.0 e as Skills foram criadas no checkout. O fluxo interativo começa com `/openspec-propose` e avança para `/openspec-apply-change` quando os critérios estão discutidos. Usei o patch de referência para obter uma reprodução independente de conta, escolha de modelo ou variação de uma resposta do agente.
+
+Faria a revisão em dois momentos. Antes de aplicar, abriria a spec e perguntaria se um campo a mais transforma o CSV em contrato público. Depois de aplicar, leria a rota e rodaria os cenários pelo HTTP. Se o `validate` já passa e o CSV vazio vem sem cabeçalho, o próximo passo está na serialização ou no caminho que trata listas vazias. Se o HTTP passa e `validate` rejeita o delta, a ambiguidade está nos artefatos. A separação evita gastar uma rodada pedindo que o agente reescreva tudo.
+
+Com a verificação concluída, o arquivamento atualizou a spec de Favoritos. O requisito de listagem permaneceu e o requisito de download foi incorporado. Quem pegar a próxima evolução do painel pode abrir aquele baseline e saber o que já precisa continuar funcionando.
+
+## Onde a solução realmente toca a aplicação
+
+A rota de exportação chama a mesma consulta usada pelo JSON. É ali que já estão a ordenação, o filtro de favoritos e o limite da lista. A transformação para planilha ocorre depois da consulta, no ponto em que a rota prepara a resposta. É uma escolha pequena de arquitetura e tem um efeito direto na manutenção. Uma mudança futura na ordenação da lista precisa ficar em um lugar só.
+
+O código de referência separa a escolha das colunas da função que escreve uma célula. Fixar `titulo,link,fonte` esclarece o contrato. Escapar as aspas dentro de uma célula cuida da sintaxe. O tratamento para um valor interpretável como fórmula vem antes, nesse mesmo caminho de saída. Se o agente aplicar a transformação à consulta, qualquer rota que consuma os objetos pode começar a exibir o texto destinado à planilha.
+
+Três observações encerram a revisão desse diff.
+
+1. O `Content-Type` informa CSV em UTF-8 e o cabeçalho de anexo sugere o nome esperado.
+2. O parser recupera as três colunas mesmo quando o título tem vírgula e aspas.
+3. A saída JSON contém o valor original e a própria rota continua acessível.
+
+O verificador executa essas comparações em sequência e reinstala a marcação que remove temporariamente para criar o caso vazio. Por isso ele é executado numa cópia semeada para o exercício. Para uma revisão de produção eu usaria registros destinados ao teste e observaria também o importador que a equipe pretende suportar. O parser confirma que a sintaxe do arquivo chegou inteira. O comportamento de uma planilha tem suas próprias regras de leitura.
+
+### O que a decisão inclui na próxima revisão
+
+Alguém pode sugerir que o download inclua todo o histórico. A chamada atual pega até 100 itens, exatamente como a representação JSON que o cenário reaproveita. Remover esse limite muda a promessa. Antes de aprovar, eu esperaria uma amostra que distingue 100, 101 e muito mais linhas e uma decisão sobre a ordem enquanto a lista é atualizada. Um botão no painel também é outra decisão. Ele adiciona estados da interface que merecem ser exercitados no navegador. A feature atual avança com o contrato curto que o código e as evidências conseguem sustentar.
+
+## Uma forma de levar o exercício a outro projeto
+
+Escolha uma operação cotidiana e delimite um formato, um caso vazio e um comportamento existente que precisa continuar. Uma boa primeira mudança permite testar esses três itens com dados descartáveis. No Agregador, essa pequena seleção transformou o pedido de planilha numa história que cabe numa revisão, com arquivos que outra pessoa pode abrir e comandos que ela pode executar.
+
+O artigo completo traz a arquitetura, a preparação do SQLite, os caminhos com Claude Code ou patches e o roteiro de diagnóstico. [OpenSpec e Claude Code no Agregador](ARTICLE.md) · [Módulo 0006 no GitHub](https://github.com/pathbit/pathbit-ai-for-devs/tree/master/0006_openspec_claude_code)
+
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)

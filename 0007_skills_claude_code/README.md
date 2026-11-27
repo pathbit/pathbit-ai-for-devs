@@ -1,7 +1,5 @@
 # Skills de projeto no Claude Code
 
-[Português (Brasil)](README.md) · [English](README.en.md) · [Español](README.es.md)
-
 Versione um fluxo de descoberta de rotas, proposta e critérios de aceite. Rode a mesma Skill para uma função nova e para outra que o dashboard já oferece.
 
 ## Início rápido
@@ -37,5 +35,6 @@ Use o [roteiro com dois pedidos](examples/prompts.md). Confira a rota, os arquiv
 - [Arquivos e roteiro do exercício](examples/README.md)
 - [Artigo para LinkedIn](article/ARTICLE_LINKEDIN.md)
 - [Post para LinkedIn](article/POST_LINKEDIN.md)
+- [Figuras e roteiro do exercício](assets/figuras.md)
 
-Developed with ❤️ by [Pathbit](https://pathbit.co/)
+Developed with ❤️ by [Pathbit](https://www.pathbit.com.br/)
