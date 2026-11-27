@@ -23,3 +23,5 @@ O artigo completo, scripts de apoio e exemplos de configuração estão disponí
 📖 Módulo: 0001_antigravity_acesso_total_irrestrito
 
 #GoogleAntigravity #AgentAI #PairProgramming #DesenvolvimentoDeSoftware #DevOps #Produtividade #Pathbit
+
+![Imagem de capa do artigo sobre permissões do Antigravity](../assets/cover_linkedin.png)

@@ -1,7 +1,0 @@
-- main [ref=e2]:
-  - heading "Prévia de frete" [level=1] [ref=e3]
-  - generic [ref=e4]:
-    - text: CEP
-    - textbox "CEP" [ref=e5]
-    - button "Calcular frete" [ref=e6]
-  - status

@@ -56,43 +56,53 @@ Depois de resolver a infraestrutura de modelos nos quatro primeiros módulos, es
 
 ---
 
-### [0006 - Instruções de projeto no GitHub Copilot](./0006_github_copilot_instrucoes/)
+### [0006 - OpenSpec e Claude Code no Agregador](./0006_openspec_claude_code/)
 
-**Ano:** 2026 | **Categoria:** GitHub Copilot e instruções de contexto
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Spec-Driven Development
 
-Configure instruções gerais e regras específicas para testes Python. Use um caso de frete grátis para conferir o que entrou no contexto e validar a sugestão.
+Parte da API do 0005 e acrescenta um download CSV de favoritos com o **OpenSpec** e o **Claude Code**. Mostra a especificação vigente, a change com delta, a implementação isolada, a verificação HTTP de cabeçalhos e conteúdo e o arquivamento que atualiza o requisito do produto.
 
-[📖 Ler Artigo](./0006_github_copilot_instrucoes/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_github_copilot_instrucoes/README.md) | [🧪 Exemplos Práticos](./0006_github_copilot_instrucoes/examples/README.md)
-
----
-
-### [0007 - Plan Mode no Claude Code](./0007_claude_code_plan_mode/)
-
-**Ano:** 2026 | **Categoria:** Claude Code e planejamento
-
-Planeje uma mudança em nomes de arquivos de exportação. O exercício usa um caso de virada de ano para distinguir ano civil de ano da semana ISO.
-
-[📖 Ler Artigo](./0007_claude_code_plan_mode/article/ARTICLE.md) | [🔧 Executar Localmente](./0007_claude_code_plan_mode/README.md) | [🧪 Exemplos Práticos](./0007_claude_code_plan_mode/examples/README.md)
+[📖 Ler Artigo](./0006_openspec_claude_code/article/ARTICLE.md) | [🔧 Executar Localmente](./0006_openspec_claude_code/README.md) | [🧪 Exemplos Práticos](./0006_openspec_claude_code/examples/README.md)
 
 ---
 
-### [0008 - Aider com um modelo local no Ollama](./0008_aider_ollama_local/)
+### [0007 - Skills de projeto no Claude Code](./0007_skills_claude_code/)
 
-**Ano:** 2026 | **Categoria:** Aider e modelos locais
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Skills e contexto de projeto
 
-Use o Aider para propor uma pequena correção Python com o modelo de código rodando no seu computador. Revise os arquivos alterados e execute a suíte.
+Transforma o roteiro de planejamento do Agregador em uma **Skill de projeto do Claude Code**, com mapa de rotas, procedimento e modelo de proposta. Dois pedidos mostram como distinguir uma funcionalidade nova de outra que a aplicação já oferece.
 
-[📖 Ler Artigo](./0008_aider_ollama_local/article/ARTICLE.md) | [🔧 Executar Localmente](./0008_aider_ollama_local/README.md) | [🧪 Exemplos Práticos](./0008_aider_ollama_local/examples/README.md)
+[📖 Ler Artigo](./0007_skills_claude_code/article/ARTICLE.md) | [🔧 Executar Localmente](./0007_skills_claude_code/README.md) | [🧪 Exemplos Práticos](./0007_skills_claude_code/examples/README.md)
 
 ---
 
-### [0009 - Playwright MCP para verificar uma página local](./0009_playwright_mcp/)
+### [0008 - Claude Code e Git Worktrees](./0008_claude_code_worktrees/)
 
-**Ano:** 2026 | **Categoria:** Playwright e Model Context Protocol
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Sessões de desenvolvimento em paralelo
 
-Conecte o Playwright ao VS Code e peça ao assistente para observar duas interações de um formulário de frete servido no seu computador.
+Desenvolve uma rota de saúde e uma mudança no dashboard em **Git Worktrees** distintas. Compara o atalho `claude --worktree` ao fluxo explícito do Git e integra as duas alterações em um checkout que verifica os contratos do Agregador.
 
-[📖 Ler Artigo](./0009_playwright_mcp/article/ARTICLE.md) | [🔧 Executar Localmente](./0009_playwright_mcp/README.md) | [🧪 Exemplos Práticos](./0009_playwright_mcp/examples/README.md)
+[📖 Ler Artigo](./0008_claude_code_worktrees/article/ARTICLE.md) | [🔧 Executar Localmente](./0008_claude_code_worktrees/README.md) | [🧪 Exemplos Práticos](./0008_claude_code_worktrees/examples/README.md)
+
+---
+
+### [0009 - OpenCode com 9Router e Ollama](./0009_opencode_9router_ollama/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Gateways e modelos locais
+
+Configura o **OpenCode** para escolher entre um combo do **9Router** e um modelo local do **Ollama**. Uma sonda reproduzível registra o destino e o identificador enviados em cada sessão antes de ligar provedores reais.
+
+[📖 Ler Artigo](./0009_opencode_9router_ollama/article/ARTICLE.md) | [🔧 Executar Localmente](./0009_opencode_9router_ollama/README.md) | [🧪 Exemplos Práticos](./0009_opencode_9router_ollama/examples/README.md)
+
+---
+
+### [0010 - Playwright MCP no dashboard do Agregador](./0010_playwright_mcp_agregador/)
+
+**Ano:** 2026 | **Categoria:** Engenharia de IA / Navegador e Model Context Protocol
+
+Conecta **Playwright MCP** ao **Claude Code** e percorre o dashboard do 0005 em um navegador isolado. Busca, favoritos, persistência após recarregar e remoção são comparados com os registros que o Agregador devolve pela API.
+
+[📖 Ler Artigo](./0010_playwright_mcp_agregador/article/ARTICLE.md) | [🔧 Executar Localmente](./0010_playwright_mcp_agregador/README.md) | [🧪 Exemplos Práticos](./0010_playwright_mcp_agregador/examples/README.md)
 
 ---
 
@@ -184,10 +194,11 @@ pathbit-ai-for-devs/
 │   └── examples/
 │       ├── specs/
 │       └── .claude/
-├── 0006_github_copilot_instrucoes/  # Artigo 0006
-├── 0007_claude_code_plan_mode/  # Artigo 0007
-├── 0008_aider_ollama_local/  # Artigo 0008
-└── 0009_playwright_mcp/  # Artigo 0009
+├── 0006_openspec_claude_code/  # Artigo 0006
+├── 0007_skills_claude_code/  # Artigo 0007
+├── 0008_claude_code_worktrees/  # Artigo 0008
+├── 0009_opencode_9router_ollama/  # Artigo 0009
+└── 0010_playwright_mcp_agregador/  # Artigo 0010
 ```
 
 ---
@@ -250,7 +261,7 @@ A suíte local reúne consistência editorial, os exemplos Python e os testes do
 
 ### Exemplos dos artigos sobre ferramentas
 
-Com [Python 3.10 ou posterior](https://www.python.org/downloads/) e Make, a suíte dos artigos 0006 a 0008 roda as bases dos exercícios. Os próprios guias mostram como usar cada assistente e verificar a proposta. O artigo 0009 tem um formulário local e orientações para verificar a interação no navegador.
+Com [Python 3.10 ou posterior](https://www.python.org/downloads/), Git e Make, a suíte verifica a preparação das cópias do Agregador, os patches do laboratório de worktrees e a configuração do OpenCode. Cada guia traz o comando para repetir sua verificação específica.
 
 ```bash
 make test-articles

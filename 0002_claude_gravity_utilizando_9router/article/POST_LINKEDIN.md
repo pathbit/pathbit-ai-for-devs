@@ -26,3 +26,5 @@ Toda a infraestrutura é documentada em detalhes, com manifesto Docker Compose, 
 📖 Módulo: 0002_claude_gravity_utilizando_9router
 
 #ClaudeCode #GoogleAntigravity #Gemini #Docker #DevOps #IA #EngenhariaDeSoftware #Pathbit
+
+![Diagrama da arquitetura de integração do Claude Code com o 9Router](../assets/01_diagrama_arquitetura_claudegravity.png)

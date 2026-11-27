@@ -29,3 +29,5 @@ O código da stack, exemplos de configuração e o guia completo já estão disp
 📖 Módulo: 0003_fallback_modelos_gratuitos_9router
 
 #ClaudeCode #OpenSource #Ollama #Groq #Gemini #Docker #DevOps #IA #Pathbit
+
+![Diagrama da cascata de fallback de modelos no 9Router](../assets/17_diagrama_cascata_fallback.png)
