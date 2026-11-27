@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "providers": {
+    "router": {
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "{env:PATHBIT_ROUTER_BASE}",
+        "apiKey": "{env:PATHBIT_ROUTER_KEY}"
+      },
+      "models": {
+        "pathbit-code": { "name": "Pathbit Code" }
+      }
+    },
+    "local": {
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "{env:PATHBIT_OLLAMA_BASE}",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "qwen2.5-coder:7b": { "name": "Qwen 2.5 Coder 7B" }
+      }
+    }
+  }
+}

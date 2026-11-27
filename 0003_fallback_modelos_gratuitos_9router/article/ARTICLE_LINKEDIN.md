@@ -602,23 +602,13 @@ volumes:
   ollama_data:
 ```
 
-> [!WARNING]
-> ### O Pacote `9rtksync` Está Privado no GHCR
-> Verificado em 17/09/2026 com uma requisição anônima: o endpoint de token do GHCR responde `401` e o manifest `403` para `ghcr.io/pathbit/9rtksync:latest`. As outras imagens da stack (`decolua/9router` e `ollama/ollama`) são públicas e baixam normalmente.
+> [!NOTE]
+> ### Imagem pública do 9RTKSync no GHCR
+> A imagem oficial `ghcr.io/pathbit/9rtksync` está disponível publicamente. Em 27/11/2026, a consulta anônima confirmou as tags `1.0.4` e `latest` para Linux `amd64` e `arm64`. O Compose pode baixar a imagem oficial sem `docker login`. [Pacote no GHCR](https://github.com/pathbit/9RTKSync/pkgs/container/9rtksync).
 >
-> Na prática, `docker compose up` falha assim:
+> Para conferir o download separadamente, execute `docker pull ghcr.io/pathbit/9rtksync:1.0.4`. Se receber `unauthorized`, confira a referência efetiva da imagem e o registro usado pela sua configuração. Veja o [diagnóstico de download](../../docs/SOLUCAO_PROBLEMAS_COMUNS.md#-problema-15---unauthorized-ao-baixar-a-imagem-ghcriopathbit9rtksync).
 >
-> ```text
-> Error response from daemon: error from registry: unauthorized
-> ```
->
-> Autentique-se antes de subir a stack, com um *Personal Access Token* que tenha o escopo `read:packages`:
->
-> ```bash
-> echo "$GITHUB_PAT" | docker login ghcr.io -u SEU_USUARIO --password-stdin
-> ```
->
-> O `router-sync` é o sidecar que renova o token do Antigravity. Sem ele a stack sobe e o gateway funciona, mas a credencial expira em cerca de uma hora — o cenário descrito em [SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md](../../docs/SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md). Para um teste curto, dá para comentar o serviço no compose e renovar manualmente com `python3 src/sync_antigravity_token.py`.
+> O `router-sync` é o sidecar responsável por manter a sessão do provedor. [Diagnóstico de sessão expirada](../../docs/SOLUCAO_TOKEN_EXPIRADO_ANTIGRAVITY.md).
 
 
 

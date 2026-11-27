@@ -1,0 +1,26 @@
+--- a/src/server.js
++++ b/src/server.js
+@@ -31,6 +31,8 @@
+ app.use('/digest', digestRouter);
+ app.use('/favoritos', favoritosRouter);
+
++app.get('/health', (_req, res) => res.json({ status: 'ok' }));
++
+ // Rota raiz e dashboard (Spec 06)
+ app.get(['/', '/dashboard'], (req, res) => {
+   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+--- a/tests/artigos.test.js
++++ b/tests/artigos.test.js
+@@ -39,6 +39,12 @@
+     if (server) server.close();
+     // Limpeza
+     db.prepare('DELETE FROM artigo WHERE id = 999').run();
++  });
++
++  test('GET /health returns process status', async () => {
++    const response = await fetch(`${baseUrl}/health`);
++    assert.equal(response.status, 200);
++    assert.deepEqual(await response.json(), { status: 'ok' });
+   });
+
+   test('Spec 01: GET /artigos retorna lista ordenada em JSON', async () => {

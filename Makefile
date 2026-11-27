@@ -3,8 +3,6 @@
 VENV ?= .venv
 PYTHON ?= $(shell which $(VENV)/bin/python3 2>/dev/null || which python3 2>/dev/null)
 
-ARTICLES_PYTHON = $(abspath $(shell command -v "$(PYTHON)"))
-
 # Prepara o clone: ativa o hook que impede assinatura de coautoria de IA nos
 # commits. O Git nao versiona .git/hooks, entao cada clone precisa fazer isso uma
 # vez -- foi a ausencia desse passo que deixou quatro commits assinados passarem.
@@ -25,9 +23,7 @@ test-app:
 	npm --prefix 0005_sdd_do_vibe_coding_a_engenharia_deterministica test
 
 test-articles:
-	cd 0006_github_copilot_instrucoes/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
-	cd 0007_claude_code_plan_mode/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
-	cd 0008_aider_ollama_local/examples && $(ARTICLES_PYTHON) -m unittest discover -s tests -v
+	$(PYTHON) tools/test_series_labs.py -v
 
 test-container:
 	./tools/run_tests.sh

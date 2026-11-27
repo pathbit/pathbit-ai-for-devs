@@ -1,0 +1,11 @@
+--- a/src/public/index.html
++++ b/src/public/index.html
+@@ -548,7 +548,7 @@
+     <div class="container header-content">
+       <div class="brand-block">
+         <span class="kicker">Pathbit AI for Devs · Artigo 0005</span>
+-        <h1 class="main-title">Agregador de Notícias com Resumo por IA</h1>
++        <h1 class="main-title">Meu Agregador de Notícias</h1>
+       </div>
+       <div class="header-actions">
+         <button id="btnVerFontes" class="btn">📡 Gerenciar Fontes</button>

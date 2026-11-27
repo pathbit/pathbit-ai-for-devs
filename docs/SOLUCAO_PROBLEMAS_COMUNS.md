@@ -421,27 +421,15 @@ Ao subir a stack dos artigos 0002 ou 0003:
 Error response from daemon: error from registry: unauthorized
 ```
 
-### Causa
+### Como diagnosticar
 
-O pacote `ghcr.io/pathbit/9rtksync` está publicado como **privado** no GitHub Container Registry. Verificado em 17/09/2026 com uma requisição anônima:
-
-```bash
-$ docker manifest inspect ghcr.io/pathbit/9rtksync:latest
-Get "https://ghcr.io/v2/pathbit/9rtksync/manifests/latest": unauthorized
-```
-
-O endpoint de token do GHCR responde `401` e o manifest `403` sem credencial. As outras imagens da stack (`decolua/9router` e `ollama/ollama`) são públicas e baixam normalmente.
-
-### Solução
-
-Autentique-se no GHCR com um *Personal Access Token* que tenha o escopo `read:packages`:
+A [imagem oficial de 9RTKSync](https://github.com/pathbit/9RTKSync/pkgs/container/9rtksync) é pública. Em 27/11/2026, a consulta sem login confirmou as tags `1.0.4` e `latest` para Linux `amd64` e `arm64`. Teste a versão explícita separadamente:
 
 ```bash
-echo "$GITHUB_PAT" | docker login ghcr.io -u SEU_USUARIO --password-stdin
-docker compose -f 0002_claude_gravity_utilizando_9router/docker-compose.yml up -d
+docker pull ghcr.io/pathbit/9rtksync:1.0.4
 ```
 
-Se você é mantenedor da organização e quer que o compose funcione sem login, torne o pacote público em **Packages → 9rtksync → Package settings → Change visibility**.
+Se o download explícito passar, compare o endereço com a saída de `docker compose config --images` na pasta do módulo. Uma tag diferente ou um espelho privado pode exigir outro diagnóstico. Se sua configuração aponta para um espelho com acesso restrito, siga o processo de autenticação desse registro.
 
 ### Alternativa
 
